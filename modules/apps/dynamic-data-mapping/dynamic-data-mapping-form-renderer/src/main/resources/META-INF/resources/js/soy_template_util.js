@@ -21,7 +21,7 @@ AUI.add(
 
 				var dependencies = modules.filter(
 					function(item) {
-						return /dynamic-data-.*\.es/.test(item);
+						return /dynamic-data-.*\.es/.test(item) || /journal-color-picker.*\.es/.test(item);
 					}
 				);
 

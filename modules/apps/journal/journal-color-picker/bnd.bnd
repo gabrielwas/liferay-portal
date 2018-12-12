@@ -1,0 +1,5 @@
+Bundle-Name: journal-color-picker
+Bundle-SymbolicName: journal.color.picker
+Bundle-Version: 1.0.0
+Liferay-JS-Config: /META-INF/resources/config.js
+Web-ContextPath: /dynamic-data-journal-color-picker-form-field
