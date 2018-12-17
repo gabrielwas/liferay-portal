@@ -1,0 +1,106 @@
+@component-name = "portal-wcm"
+definition {
+	property portal.release = "true";
+	property portal.upstream = "true";
+	property testray.main.component.name = "Site Pages Administration";
+
+	setUp {
+		TestCase.setUpPortalInstance();
+
+		User.firstLoginPG();
+
+		JSONGroup.addGroup(groupName = "Test Site Name");
+	}
+
+	tearDown {
+		var testPortalInstance = PropsUtil.get("test.portal.instance");
+
+		if ("${testPortalInstance}" == "true") {
+			PortalInstances.tearDownCP();
+		}
+		else {
+			JSONGroup.deleteGroupByName(groupName = "Test Site Name");
+		}
+	}
+
+	@description = "This is a test for LPS-76825. A user can search for a page from pages admin."
+	@priority = "5"
+	test SearchPages {
+		echo("# Add two pages to root and add one child page.");
+
+		JSONLayout.addPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Page One"
+		);
+
+		JSONLayout.addPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Page Two"
+		);
+
+		JSONLayout.addPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Page Three",
+			parentLayoutName = "Page One"
+		);
+
+		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+
+		echo("# Search for all three pages and assert they all appear.");
+
+		Search.searchCP(searchTerm = "page");
+
+		AssertVisible(
+			locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME",
+			key_rowEntry = "Page One"
+		);
+
+		AssertVisible(
+			locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME",
+			key_rowEntry = "Page Two"
+		);
+
+		AssertVisible(
+			locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME",
+			key_rowEntry = "Page Three"
+		);
+
+		echo("# Search for one page and assert only that page appears.");
+
+		Search.searchCP(searchTerm = "one");
+
+		AssertVisible(
+			locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME",
+			key_rowEntry = "Page One"
+		);
+
+		AssertElementNotPresent(
+			locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME",
+			key_rowEntry = "Page Two"
+		);
+
+		AssertElementNotPresent(
+			locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME",
+			key_rowEntry = "Page Three"
+		);
+
+		echo("# Search for child page and assert that page appears.");
+
+		Search.searchCP(searchTerm = "three");
+
+		AssertElementNotPresent(
+			locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME",
+			key_rowEntry = "Page One"
+		);
+
+		AssertElementNotPresent(
+			locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME",
+			key_rowEntry = "Page Two"
+		);
+
+		AssertVisible(
+			locator1 = "ContentRow#ENTRY_CONTENT_ENTRY_NAME",
+			key_rowEntry = "Page Three"
+		);
+	}
+}

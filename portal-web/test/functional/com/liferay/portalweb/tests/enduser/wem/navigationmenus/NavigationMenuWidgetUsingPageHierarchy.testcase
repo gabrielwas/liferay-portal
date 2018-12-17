@@ -1,0 +1,166 @@
+@component-name = "portal-wcm"
+definition {
+	property portal.release = "true";
+	property portal.upstream = "true";
+	property testray.main.component.name = "Navigation";
+
+	setUp {
+		TestCase.setUpPortalInstance();
+
+		User.firstLoginPG();
+
+		JSONGroup.addGroup(groupName = "Test Site Name");
+	}
+
+	tearDown {
+		var testPortalInstance = PropsUtil.get("test.portal.instance");
+
+		if ("${testPortalInstance}" == "true") {
+			PortalInstances.tearDownCP();
+		}
+		else {
+			JSONGroup.deleteGroupByName(groupName = "Test Site Name");
+		}
+	}
+
+	@description = "This is a test for LPS-87134. Assert we can navigate to a child page in the navigation menu widget using pages hierarchy menu."
+	@priority = "5"
+	test AddChildPage {
+		// Add page and child page
+
+		JSONLayout.addPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Site Page"
+		);
+
+		JSONLayout.addPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Site Child Page",
+			parentLayoutName = "Site Page"
+		);
+
+		// Navigate to child page via Navigation Menu Widget
+
+		Navigator.gotoSitePage(pageName = "Site Page", siteName = "Test Site Name");
+
+		Page.gotoChildPagePG(childPageName = "Site Child Page", pageName = "Site Page");
+	}
+
+	@description = "This is a test for LPS-87134. Assert we can navigate to different pages in the navigation menu widget using pages hierarchy menu."
+	@priority = "5"
+	test AddMultiplePages {
+		// Add multiple pages
+
+		for (var index : list "1,2,3") {
+			JSONLayout.addPublicLayout(
+				groupName = "Test Site Name",
+				layoutName = "Site Page ${index}"
+			);
+		}
+
+		// Navigate to required pages
+
+		for (var index : list "1,2,3") {
+			Navigator.gotoSitePage(
+				pageName = "Site Page ${index}",
+				siteName = "Test Site Name"
+			);
+		}
+	}
+
+	@description = "This is a test for LPS-87134. Assert Pages Hierarchy is the default navigation in the Navigation Menu widget. If this fails we need to either report this as a bug or adjust the rest of the tests in this testcase to set pages hierarchy as the default in the navigation menu widget."
+	@priority = "3"
+	test AssertPagesHierarchyNavigationIsDefault {
+		// Add default page and navigate to site
+
+		JSONLayout.addPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Site Page"
+		);
+
+		Navigator.openSiteURL(siteName = "Test Site Name");
+
+		// Assert pages hierarchy is set as the default
+
+		NavigationMenusWidget.gotoNavigationMenuWidgetConfig();
+
+		AssertSelectedLabel(
+			locator1 = "NavigationMenusWidget#SELECT_NAVIGATION",
+			value1 = "Public Pages Hierarchy"
+		);
+	}
+
+	@description = "Assert we can edit the site page name and that it updates on the navigation menu widget"
+	@priority = "4"
+	test EditSitePage {
+		// Add page
+
+		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+
+		SitePages.addPublicPage(pageName = "Site Page");
+
+		// Edit name
+
+		SitePages.gotoPageMenuItem(menuItem = "Configure", pageName = "Site Page");
+
+		Page.editName(pageNameEdit = "Site Page Edit");
+
+		// Assert name changed
+
+		Navigator.gotoSitePage(pageName = "Site Page Edit", siteName = "Test Site Name");
+
+		Page.view(pageName = "Site Page Edit", privacy = "Public Pages");
+	}
+
+	@description = "This is a test for LPS-87134. Assert we can hide pages in the navigation menu widget using pages hierarchy menu."
+	@priority = "4"
+	test HidePages {
+		// Add two pages
+
+		JSONLayout.addPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Site Page Visible"
+		);
+
+		JSONLayout.addPublicLayout(
+			groupName = "Test Site Name",
+			layoutName = "Site Page Hidden"
+		);
+
+		// Configure the the two pages to make them visible/hidden
+
+		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+
+		SitePages.gotoPageMenuItem(
+			menuItem = "Configure",
+			pageName = "Site Page Visible"
+		);
+
+		Page.toggleShowInPagesHierarchyMenu(toggleValue = "enable");
+
+		Button.clickSave();
+
+		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+
+		SitePages.gotoPageMenuItem(
+			menuItem = "Configure",
+			pageName = "Site Page Hidden"
+		);
+
+		Page.toggleShowInPagesHierarchyMenu(toggleValue = "disable");
+
+		Button.clickSave();
+
+		// Assert the visible page can be navigated to and the invisible page is not shown
+
+		Navigator.gotoSitePage(
+			pageName = "Site Page Visible",
+			siteName = "Test Site Name"
+		);
+
+		AssertElementNotPresent(
+			locator1 = "Home#PAGE",
+			key_pageName = "Site Page Hidden"
+		);
+	}
+}

@@ -1,0 +1,60 @@
+@component-name = "portal-wcm"
+definition {
+	property portal.release = "true";
+	property portal.upstream = "true";
+	property testray.main.component.name = "Fragments";
+
+	setUp {
+		TestCase.setUpPortalInstance();
+
+		User.firstLoginPG();
+
+		JSONGroup.addGroup(groupName = "Test Site Name");
+
+		JSONFragment.addFragmentCollection(
+			groupName = "Test Site Name",
+			name = "Collection Name"
+		);
+
+		FragmentsAdmin.openFragmentsAdmin(siteURLKey = "test-site-name");
+	}
+
+	tearDown {
+		var testPortalInstance = PropsUtil.get("test.portal.instance");
+
+		if ("${testPortalInstance}" == "true") {
+			PortalInstances.tearDownCP();
+		}
+		else {
+			JSONGroup.deleteGroupByName(groupName = "Test Site Name");
+		}
+	}
+
+	@description = "This is a test for LPS-80503. Assert that when lfr is typed within a tag, a list of choices to autocomplete the fragment are presented."
+	@priority = "4"
+	test AutocompleteFragment {
+		// Go to fragments editor
+
+		Navigator.gotoNavNested(navNested = "Collection Name");
+
+		FragmentsAdmin.addSection(fragmentName = "Fragment Name");
+
+		// Autocomplete editable fragment
+
+		var fragmentHTML = '''<lfr-editable id="" type="image">''';
+
+		FragmentsAdmin.autocompleteFragmentHTML(
+			autocompleteField = "lfr-editable:image",
+			fragmentHTML = "${fragmentHTML}"
+		);
+
+		// Autocomplete widget fragment
+
+		var fragmentHTML = '''<lfr-widget-asset-list>''';
+
+		FragmentsAdmin.autocompleteFragmentHTML(
+			autocompleteField = "lfr-widget-asset-list",
+			fragmentHTML = "${fragmentHTML}"
+		);
+	}
+}

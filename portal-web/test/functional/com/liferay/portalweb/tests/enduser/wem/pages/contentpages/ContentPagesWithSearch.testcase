@@ -1,0 +1,144 @@
+@component-name = "portal-wcm"
+definition {
+	property portal.release = "true";
+	property portal.upstream = "true";
+	property testray.main.component.name = "Content Pages";
+
+	setUp {
+		TestCase.setUpPortalInstance();
+
+		User.firstLoginPG();
+
+		JSONGroup.addGroup(groupName = "Test Site Name");
+
+		JSONLayout.addPublicLayout(groupName = "Test Site Name", layoutName = "Search");
+
+		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/search");
+
+		Portlet.addPG(portletName = "Search Results");
+
+		Navigator.openWithAppendToBaseURL(urlAppend = "web/test-site-name/search");
+
+		Portlet.addPG(portletName = "Type Facet");
+
+		FragmentsAdmin.openFragmentsAdmin(siteURLKey = "test-site-name");
+
+		FragmentsAdmin.importCollectionFromDependenciesFolder(
+			collectionZipFile = "fragment-collection.zip"
+		);
+
+		SitePages.openPagesAdmin(siteURLKey = "test-site-name");
+
+		ContentPages.addPage(pageName = "Test Content Page Name");
+
+		PageEditor.expandContentPageFragmentSidebar();
+	}
+
+	tearDown {
+		var testPortalInstance = PropsUtil.get("test.portal.instance");
+
+		if ("${testPortalInstance}" == "true") {
+			PortalInstances.tearDownCP();
+		}
+		else {
+			JSONGroup.deleteGroupByName(groupName = "Test Site Name");
+		}
+	}
+
+	@description = "This is a test for LPS-78928. Content pages will appear when users filter search results by page facet."
+	@priority = "5"
+	test FilterByPageFacet {
+		property portal.acceptance = "true";
+
+		PageEditor.addFragment(
+			collectionName = "Collection Name",
+			fragmentName = "Static Text"
+		);
+
+		JSONWebcontent.addWebContent(
+			content = "This is static text",
+			groupName = "Test Site Name",
+			title = "Web Content Title"
+		);
+
+		Navigator.openWithAppendToBaseURL(
+			urlAppend = "web/test-site-name/test-content-page-name"
+		);
+
+		Search.searchCP(searchTerm = "static");
+
+		Search.viewResultAssetTitle(searchAssetTitle = "Test Content Page Name");
+
+		Search.viewResultAssetTitle(searchAssetTitle = "Web Content Title");
+
+		Check(
+			locator1 = "SearchResults#FACET_PORTLET_CHECKBOX_SPECIFIC",
+			key_checkboxName = "Page",
+			key_facetClass = "Type"
+		);
+
+		Search.viewResultAssetTitle(searchAssetTitle = "Test Content Page Name");
+
+		Search.viewNoResultAssetTitle(searchAssetTitle = "Web Content Title");
+	}
+
+	@description = "This is a test for LPS-78928. Editable text in content pages is searchable."
+	@priority = "5"
+	test SearchEditableText {
+		property portal.acceptance = "true";
+
+		PageEditor.addFragment(
+			collectionName = "Collection Name",
+			fragmentName = "Rich Text"
+		);
+
+		Navigator.openWithAppendToBaseURL(
+			urlAppend = "web/test-site-name/test-content-page-name"
+		);
+
+		Search.searchCP(searchTerm = "duis");
+
+		Search.viewResultAssetTitle(searchAssetTitle = "Test Content Page Name");
+
+		Navigator.openWithAppendToBaseURL(
+			urlAppend = "web/test-site-name/test-content-page-name?p_l_mode=edit"
+		);
+
+		PageEditor.editFragmentText(
+			fragmentName = "Rich Text",
+			id = "rich-text",
+			text = "New editable fragment text"
+		);
+
+		Navigator.openWithAppendToBaseURL(
+			urlAppend = "web/test-site-name/test-content-page-name"
+		);
+
+		Search.searchCP(searchTerm = "editable");
+
+		Search.viewResultAssetTitle(searchAssetTitle = "Test Content Page Name");
+
+		Search.searchCP(searchTerm = "duis");
+
+		Search.viewNoResultAssetTitle(searchAssetTitle = "Test Content Page Name");
+	}
+
+	@description = "This is a test for LPS-78928. Static text in content pages is searchable."
+	@priority = "5"
+	test SearchStaticText {
+		property portal.acceptance = "true";
+
+		PageEditor.addFragment(
+			collectionName = "Collection Name",
+			fragmentName = "Static Text"
+		);
+
+		Navigator.openWithAppendToBaseURL(
+			urlAppend = "web/test-site-name/test-content-page-name"
+		);
+
+		Search.searchCP(searchTerm = "static");
+
+		Search.viewResultAssetTitle(searchAssetTitle = "Test Content Page Name");
+	}
+}

@@ -1,0 +1,96 @@
+{namespace com.liferay.layout.admin.web.FragmentsEditorSidebarContent}
+
+/**
+ * FragmentsEditorSidebarContent
+ */
+{template .render}
+	{@param elements: ?}
+	{@param fragmentEntryLinks: ?}
+	{@param layoutData: ?}
+	{@param panels: list<[
+		icon:string,
+		label:string,
+		panelId:string
+	]>}
+	{@param sections: ?}
+	{@param spritemap: string}
+	{@param? highlightMapping: bool}
+	{@param? selectedMappingTypes: ?}
+	{@param? store: ?}
+	{@param? _handlePanelButtonClick: any}
+	{@param? _panelId: string}
+
+	<div class="fragments-editor-sidebar-content">
+		<div class="fragments-editor-sidebar-section">
+			{if $_panelId == 'sections'}
+				{call com.liferay.layout.admin.web.SidebarSectionsPanel.render}
+					{param fragmentEntryLinks: $fragmentEntryLinks /}
+					{param layoutData: $layoutData /}
+					{param sections: $sections /}
+					{param spritemap: $spritemap /}
+					{param highlightMapping: $highlightMapping /}
+					{param selectedMappingTypes: $selectedMappingTypes /}
+					{param store: $store /}
+				{/call}
+			{elseif $_panelId == 'elements'}
+				{call com.liferay.layout.admin.web.SidebarElementsPanel.render}
+					{param fragmentEntryLinks: $fragmentEntryLinks /}
+					{param layoutData: $layoutData /}
+					{param elements: $elements /}
+					{param spritemap: $spritemap /}
+					{param highlightMapping: $highlightMapping /}
+					{param selectedMappingTypes: $selectedMappingTypes /}
+					{param store: $store /}
+				{/call}
+			{elseif $_panelId == 'layouts'}
+				{call com.liferay.layout.admin.web.SidebarLayoutsPanel.render}
+					{param store: $store /}
+				{/call}
+			{elseif $_panelId == 'mapping'}
+				{call com.liferay.layout.admin.web.SidebarMappingPanel.render}
+					{param highlightMapping: $highlightMapping ?: false /}
+					{param selectedMappingTypes: $selectedMappingTypes /}
+					{param spritemap: $spritemap /}
+					{param store: $store /}
+				{/call}
+			{elseif $_panelId == 'structure'}
+				{call com.liferay.layout.admin.web.SidebarStructurePanel.render}
+					{param fragmentEntryLinks: $fragmentEntryLinks /}
+					{param layoutData: $layoutData /}
+					{param spritemap: $spritemap /}
+					{param store: $store /}
+				{/call}
+			{/if}
+		</div>
+
+		<div class="btn-group fragments-editor-sidebar-sections-buttons" role="group">
+			{if $panels}
+				{foreach $panel in $panels}
+					{let $sectionButtonClasses kind="text"}
+						btn
+						{sp}btn-outline-borderless
+
+						{if $panel.panelId == $_panelId}
+							{sp}btn-outline-primary
+						{else}
+							{sp}btn-outline-secondary
+						{/if}
+					{/let}
+
+					<button
+						class="{$sectionButtonClasses}"
+						data-onclick="{$_handlePanelButtonClick}"
+						data-panel-id="{$panel.panelId}"
+						data-sidebar-title="{$panel.label}"
+						title="{$panel.label}"
+						type="button"
+					>
+						<svg class="lexicon-icon">
+							<use xlink:href="{$spritemap}#{$panel.icon}"></use>
+						</svg>
+					</button>
+				{/foreach}
+			{/if}
+		</div>
+	</div>
+{/template}

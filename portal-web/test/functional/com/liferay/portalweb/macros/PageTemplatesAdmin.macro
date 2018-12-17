@@ -1,0 +1,50 @@
+definition {
+	macro _gotoAddCollection {
+		if (IsElementPresent(locator1 = "NavNested#NAV_NESTED_PLUS")) {
+			Click(locator1 = "NavNested#NAV_NESTED_PLUS");
+		}
+		else {
+			Button.click(button = "New");
+		}
+	}
+
+	macro add {
+		if (isSet(pageTemplateType)) {
+			var menuItem = "${pageTemplateType}";
+		}
+		else {
+			var menuItem = "Content Page Template";
+		}
+
+		LexiconEntry.gotoAddMenuItem(menuItem = "${menuItem}");
+
+		PortletEntry.inputName(name = "${pageTemplateName}");
+
+		Button.clickSave();
+	}
+
+	macro addCollection {
+		PageTemplatesAdmin._gotoAddCollection();
+
+		Collection.editCollection(
+			collectionDescription = "${collectionDescription}",
+			collectionName = "${collectionName}"
+		);
+
+		Button.clickSave();
+	}
+
+	macro openPageTemplatesAdmin {
+		Navigator.openWithAppendToBaseURL(
+			urlAppend = "group/${siteURLKey}/~/control_panel/manage?p_p_id=com_liferay_layout_admin_web_portlet_GroupPagesPortlet&amp;_com_liferay_layout_admin_web_portlet_GroupPagesPortlet_tabs1=page-templates"
+		);
+	}
+
+	macro rename {
+		LexiconEntry.gotoEntryMenuItem(menuItem = "Rename", rowEntry = "${rowEntry}");
+
+		PortletEntry.inputName(name = "${pageTemplateName}");
+
+		Modal.save();
+	}
+}

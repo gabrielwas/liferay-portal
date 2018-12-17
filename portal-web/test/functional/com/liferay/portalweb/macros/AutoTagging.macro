@@ -1,0 +1,25 @@
+definition {
+	macro assertAutoTagPresent {
+		AssertElementPresent(locator1 = "DocumentsAndMedia#TAG");
+	}
+
+	macro assertNoAutoTag {
+		AssertElementNotPresent(locator1 = "DocumentsAndMedia#TAG");
+	}
+
+	macro disableAutoTagging {
+		Check(locator1 = "Checkbox#ENABLE_AUTO_TAGGING");
+
+		PortletEntry.update();
+
+		Alert.viewSuccessMessage();
+	}
+
+	macro enableAutoTagging {
+		Check(locator1 = "Checkbox#ENABLE_AUTO_TAGGING");
+
+		PortletEntry.save();
+
+		Alert.viewSuccessMessage();
+	}
+}

@@ -1,0 +1,117 @@
+{namespace com.liferay.layout.admin.web.FragmentsEditorSidebar}
+
+/**
+ * FragmentsEditorSidebar
+ */
+{template .render}
+	{@param elements: list<[
+		fragmentEntries: list<[
+			fragmentEntryId: string,
+			imagePreviewURL: string,
+			name: string
+		]>,
+		fragmentCollectionId: string,
+		name: string
+	]>}
+	{@param fragmentEntryLinks: ?}
+	{@param layoutData: ?}
+	{@param panels: list<[
+		icon:string,
+		label:string,
+		panelId:string
+	]>}
+	{@param sections: list<[
+		fragmentEntries: list<[
+			fragmentEntryId: string,
+			imagePreviewURL: string,
+			name: string
+		]>,
+		fragmentCollectionId: string,
+		name: string
+	]>}
+	{@param? _sidebarTitle: string}
+	{@param spritemap: string}
+	{@param? highlightMapping: bool}
+	{@param? _handleHide: any}
+	{@param? _handleHideSidebarButtonClick: any}
+	{@param? _handleSidebarTitleChanged: any}
+	{@param? selectedMappingTypes: [
+		subtype: [
+			id: string,
+			label: string
+		],
+		type: [
+			id: string,
+			label: string
+		]
+	]}
+	{@param? store: ?}
+	{@param? visible: bool}
+
+	{call liferay.frontend.ContextualSidebar.render}
+		{param body kind="html"}
+			{call com.liferay.layout.admin.web.FragmentsEditorSidebarContent.render}
+				{param elements: $elements /}
+				{param events: [
+					'sidebarTitleChanged': $_handleSidebarTitleChanged
+				] /}
+				{param fragmentEntryLinks: $fragmentEntryLinks /}
+				{param highlightMapping: $highlightMapping ?: false /}
+				{param layoutData: $layoutData /}
+				{param panels: $panels /}
+				{param sections: $sections /}
+				{param selectedMappingTypes: $selectedMappingTypes /}
+				{param spritemap: $spritemap /}
+				{param store: $store /}
+			{/call}
+		{/param}
+
+		{param elementClasses: 'fragments-editor-sidebar' /}
+
+		{param events: [
+			'hide': $_handleHide
+		] /}
+
+		{param header kind="html"}
+			{call .sidebarHeader}
+				{param handleHideSidebarButtonClick: $_handleHideSidebarButtonClick /}
+				{param sidebarTitle: $_sidebarTitle ?: '' /}
+				{param spritemap: $spritemap /}
+			{/call}
+		{/param}
+
+		{param ref: 'contextualSidebar' /}
+		{param visible: $visible ?: true /}
+	{/call}
+{/template}
+
+/**
+ * Sidebar header
+ */
+{template .sidebarHeader}
+	{@param sidebarTitle: string}
+	{@param spritemap: string}
+	{@param? handleHideSidebarButtonClick: any}
+
+	<div class="autofit-row sidebar-section">
+		<div class="autofit-col autofit-col-expand">
+			<h4 class="component-title">
+				<span class="text-truncate-inline">
+					{$sidebarTitle}
+				</span>
+			</h4>
+		</div>
+
+		<div class="autofit-col">
+			<button
+				class="component-action"
+				data-onclick="{$handleHideSidebarButtonClick}"
+				type="button"
+			>
+				<svg class="icon-monospaced lexicon-icon">
+					<use xlink:href="{$spritemap}#times"></use>
+				</svg>
+			</button>
+		</div>
+	</div>
+{/template}

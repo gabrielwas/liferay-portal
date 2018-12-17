@@ -1,0 +1,28 @@
+definition {
+	macro discardChanges {
+		AssertClick(locator1 = "Button#ANY", key_text = "Discard Changes");
+	}
+
+	macro editTitleInGoogleDoc {
+		Type(locator1 = "GoogleDoc#TITLE", value1 = "${dmDocumentTitle}");
+	}
+
+	macro gotoEdit {
+		var key_dmDocumentTitle = "${dmDocumentTitle}";
+
+		Click(
+			locator1 = "DocumentsAndMedia#DESCRIPTIVE_LIST_DOCUMENT_VERTICAL_ELLIPSIS"
+		);
+
+		MenuItem.click(menuItem = "Edit in ${dmGoogleApp}");
+	}
+
+	macro saveAndExit {
+		AssertElementPresent(
+			locator1 = "Button#ANY",
+			key_text = "Save and Return to Liferay"
+		);
+
+		Navigator.openURL();
+	}
+}
