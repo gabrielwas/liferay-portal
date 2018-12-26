@@ -12,32 +12,20 @@
  * details.
  */
 
-package com.liferay.data.engine.service;
-
-import aQute.bnd.annotation.ProviderType;
+package com.liferay.data.engine.executor;
 
 import com.liferay.data.engine.exception.DEDataDefinitionException;
+import com.liferay.data.engine.service.DEDataDefinitionListRequest;
+import com.liferay.data.engine.service.DEDataDefinitionListResponse;
 
 /**
- * @author Leonardo Barros
+ * @author Gabriel Albuquerque
+ * @author Marcela Bandeira
  */
-@ProviderType
-public interface DEDataDefinitionService {
-
-	public DEDataDefinitionDeleteResponse execute(
-			DEDataDefinitionDeleteRequest deDataDefinitionDeleteRequest)
-		throws DEDataDefinitionException;
-
-	public DEDataDefinitionGetResponse execute(
-			DEDataDefinitionGetRequest deDataDefinitionGetRequest)
-		throws DEDataDefinitionException;
+public interface DEDataDefinitionListRequestExecutor {
 	
 	public DEDataDefinitionListResponse execute(
 			DEDataDefinitionListRequest deDataDefinitionListRequest)
-		throws DEDataDefinitionException;
-
-	public DEDataDefinitionSaveResponse execute(
-			DEDataDefinitionSaveRequest deDataDefinitionSaveRequest)
 		throws DEDataDefinitionException;
 
 }
