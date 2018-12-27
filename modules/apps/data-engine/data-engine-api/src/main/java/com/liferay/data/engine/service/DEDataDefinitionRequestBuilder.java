@@ -28,6 +28,10 @@ public class DEDataDefinitionRequestBuilder {
 	public static DEDataDefinitionGetRequest.Builder getBuilder() {
 		return new DEDataDefinitionGetRequest.Builder();
 	}
+	
+	public static DEDataDefinitionListRequest.Builder listBuilder() {
+		return new DEDataDefinitionListRequest.Builder();
+	}
 
 	public static DEDataDefinitionSaveRequest.Builder saveBuilder(
 		DEDataDefinition deDataDefinition) {
