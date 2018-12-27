@@ -20,7 +20,6 @@ import com.liferay.data.engine.service.DEDataDefinitionListResponse;
 
 /**
  * @author Gabriel Albuquerque
- * @author Marcela Bandeira
  */
 public interface DEDataDefinitionListRequestExecutor {
 	

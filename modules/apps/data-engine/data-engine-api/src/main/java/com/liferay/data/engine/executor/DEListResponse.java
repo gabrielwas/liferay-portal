@@ -16,7 +16,6 @@ package com.liferay.data.engine.executor;
 
 /**
  * @author Gabriel Albuquerque
- * @author Marcela Bandeira
  */
 public interface DEListResponse {
 

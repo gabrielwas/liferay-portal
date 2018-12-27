@@ -12,24 +12,43 @@
  * details.
  */
 
-package com.liferay.data.engine.executor;
+
+package com.liferay.data.engine.internal.executor;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 import com.liferay.data.engine.exception.DEDataDefinitionException;
+import com.liferay.data.engine.executor.DEDataDefinitionListRequestExecutor;
+import com.liferay.data.engine.executor.DEListRequest;
+import com.liferay.data.engine.executor.DEListRequestExecutor;
+import com.liferay.data.engine.executor.DEListResponse;
 import com.liferay.data.engine.service.DEDataDefinitionListRequest;
 import com.liferay.data.engine.service.DEDataDefinitionListResponse;
-import com.liferay.portal.kernel.exception.PortalException;
 
 /**
  * @author Gabriel Albuquerque
  */
-public interface DEListRequestExecutor {
+@Component(immediate = true, service = DEListRequestExecutor.class)
+public class DEListRequestExecutorImpl implements DEListRequestExecutor{
+
+	@Override
+	public <T extends DEListResponse> T execute(DEListRequest deListRequest)
+		throws DEDataDefinitionException {
+
+		return deListRequest.accept(this);
+	}
 	
-	public <T extends DEListResponse> T execute(
-			DEListRequest deListRequest)
-		throws PortalException;
-	
+	@Override
 	public DEDataDefinitionListResponse executeListRequest(
 			DEDataDefinitionListRequest deDataDefinitionListRequest)
-		throws DEDataDefinitionException;
+		throws DEDataDefinitionException {
 
+		return deDataDefinitionListRequestExecutor.execute(
+			deDataDefinitionListRequest);
+	}
+	
+	@Reference
+	protected DEDataDefinitionListRequestExecutor
+		deDataDefinitionListRequestExecutor;
 }

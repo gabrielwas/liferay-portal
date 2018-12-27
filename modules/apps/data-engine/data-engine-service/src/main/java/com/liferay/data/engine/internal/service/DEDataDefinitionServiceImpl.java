@@ -19,6 +19,7 @@ import com.liferay.data.engine.exception.DEDataDefinitionException;
 import com.liferay.data.engine.executor.DECountRequestExecutor;
 import com.liferay.data.engine.executor.DEDeleteRequestExecutor;
 import com.liferay.data.engine.executor.DEGetRequestExecutor;
+import com.liferay.data.engine.executor.DEListRequestExecutor;
 import com.liferay.data.engine.executor.DESaveRequestExecutor;
 import com.liferay.data.engine.internal.security.permission.DEDataEnginePermissionSupport;
 import com.liferay.data.engine.model.DEDataDefinition;
@@ -28,6 +29,8 @@ import com.liferay.data.engine.service.DEDataDefinitionDeleteRequest;
 import com.liferay.data.engine.service.DEDataDefinitionDeleteResponse;
 import com.liferay.data.engine.service.DEDataDefinitionGetRequest;
 import com.liferay.data.engine.service.DEDataDefinitionGetResponse;
+import com.liferay.data.engine.service.DEDataDefinitionListRequest;
+import com.liferay.data.engine.service.DEDataDefinitionListResponse;
 import com.liferay.data.engine.service.DEDataDefinitionSaveRequest;
 import com.liferay.data.engine.service.DEDataDefinitionSaveResponse;
 import com.liferay.data.engine.service.DEDataDefinitionService;
@@ -142,6 +145,32 @@ public class DEDataDefinitionServiceImpl implements DEDataDefinitionService {
 			throw new DEDataDefinitionException(e);
 		}
 	}
+	
+	@Override
+	public DEDataDefinitionListResponse execute(
+			DEDataDefinitionListRequest deDataDefinitionListRequest)
+		throws DEDataDefinitionException {
+
+		try {
+			long deDataDefinitionGroupId =
+				deDataDefinitionListRequest.getDEDataGroupId();
+
+			_modelResourcePermission.check(
+				getPermissionChecker(), deDataDefinitionGroupId, ActionKeys.VIEW);
+
+			return deListRequestExecutor.execute(deDataDefinitionListRequest);
+		}
+		catch (DEDataDefinitionException dedde) {
+			_log.error(dedde, dedde);
+
+			throw dedde;
+		}
+		catch (Exception e) {
+			_log.error(e, e);
+
+			throw new DEDataDefinitionException(e);
+		}
+	}
 
 	@Override
 	public DEDataDefinitionSaveResponse execute(
@@ -243,6 +272,9 @@ public class DEDataDefinitionServiceImpl implements DEDataDefinitionService {
 
 	@Reference
 	protected DEGetRequestExecutor deGetRequestExecutor;
+	
+	@Reference
+	protected DEListRequestExecutor deListRequestExecutor;
 
 	@Reference
 	protected DESaveRequestExecutor deSaveRequestExecutor;

@@ -14,26 +14,25 @@
 
 package com.liferay.data.engine.service;
 
+import com.liferay.data.engine.exception.DEDataDefinitionException;
 import com.liferay.data.engine.executor.DEListRequest;
 import com.liferay.data.engine.executor.DEListRequestExecutor;
-import com.liferay.portal.kernel.exception.PortalException;
 
 /**
  * @author Gabriel Albuquerque
- * @author Marcela Bandeira
  */
 public final class DEDataDefinitionListRequest implements DEListRequest {
 
 	@Override
 	public DEDataDefinitionListResponse accept(
 			DEListRequestExecutor deListRequestExecutor)
-		throws PortalException {
+		throws DEDataDefinitionException {
 
 		return deListRequestExecutor.executeListRequest(this);
 	}
 	
-	public long getDEDataDefinitionId() {
-		return _deDataDefinitionId;
+	public long getDEDataGroupId() {
+		return _deDataDefinitionGroupId;
 	}
 	
 	public static final class Builder {
@@ -42,9 +41,9 @@ public final class DEDataDefinitionListRequest implements DEListRequest {
 			return _deDataDefinitionListRequest;
 		}
 
-		public Builder byId(long deDataDefinitionId) {
-			_deDataDefinitionListRequest._deDataDefinitionId =
-				deDataDefinitionId;
+		public Builder byId(long deDataDefinitionGroupId) {
+			_deDataDefinitionListRequest._deDataDefinitionGroupId =
+				deDataDefinitionGroupId;
 
 			return this;
 		}
@@ -58,5 +57,5 @@ public final class DEDataDefinitionListRequest implements DEListRequest {
 	private DEDataDefinitionListRequest() {
 	}
 	
-	private long _deDataDefinitionId;
+	private long _deDataDefinitionGroupId;
 }

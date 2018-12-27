@@ -14,17 +14,15 @@
 
 package com.liferay.data.engine.executor;
 
-import com.liferay.data.engine.service.DEDataDefinitionListResponse;
-import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.data.engine.exception.DEDataDefinitionException;
 
 /**
  * @author Gabriel Albuquerque
- * @author Marcela Bandeira
  */
 public interface DEListRequest {
 	
-	public <T> DEDataDefinitionListResponse accept(
+	public <T> T accept(
 			DEListRequestExecutor deListRequestExecutor)
-		throws PortalException;
+		throws DEDataDefinitionException;
 
 }

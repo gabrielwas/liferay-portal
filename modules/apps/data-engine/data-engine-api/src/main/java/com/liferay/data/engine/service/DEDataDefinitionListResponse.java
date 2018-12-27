@@ -14,39 +14,40 @@
 
 package com.liferay.data.engine.service;
 
+import java.util.List;
+
 import com.liferay.data.engine.executor.DEListResponse;
+import com.liferay.data.engine.model.DEDataDefinition;
 
 /**
  * @author Gabriel Albuquerque
- * @author Marcela Bandeira
  */
 public final class DEDataDefinitionListResponse implements DEListResponse {
 
-	public long getDEDataDefinitionId() {
-		return _deDataDefinitionId;
+	public List<DEDataDefinition> getDEDataDefinitions() {
+		return _deDataDefinitions;
 	}
-	
+
 	public static final class Builder {
 
-		public static Builder newBuilder(long deDataDefinitionId) {
-			return new Builder(deDataDefinitionId);
+		public static Builder newBuilder(List<DEDataDefinition> deDataDefinitions) {
+			return new Builder(deDataDefinitions);
 		}
 
 		public static DEDataDefinitionListResponse of(
-			long deDataDefinitionId) {
+				List<DEDataDefinition> deDataDefinitions) {
 
 			return newBuilder(
-				deDataDefinitionId
+					deDataDefinitions
 			).build();
 		}
 
 		public DEDataDefinitionListResponse build() {
 			return _deDataDefinitionListResponse;
 		}
-
-		private Builder(long deDataDefinitionId) {
-			_deDataDefinitionListResponse._deDataDefinitionId =
-				deDataDefinitionId;
+		
+		private Builder(List<DEDataDefinition> deDataDefinitions) {
+			_deDataDefinitionListResponse._deDataDefinitions = deDataDefinitions;
 		}
 
 		private final DEDataDefinitionListResponse
@@ -58,5 +59,5 @@ public final class DEDataDefinitionListResponse implements DEListResponse {
 	private DEDataDefinitionListResponse() {
 	}
 	
-	private long _deDataDefinitionId;
+	private List<DEDataDefinition> _deDataDefinitions;
 }
