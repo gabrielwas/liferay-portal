@@ -19,8 +19,8 @@ import com.liferay.data.engine.executor.DEDataDefinitionGetRequestExecutor;
 import com.liferay.data.engine.executor.DEGetRequest;
 import com.liferay.data.engine.executor.DEGetRequestExecutor;
 import com.liferay.data.engine.executor.DEGetResponse;
-import com.liferay.data.engine.service.DEDataDefinitionGetRequest;
-import com.liferay.data.engine.service.DEDataDefinitionGetResponse;
+import com.liferay.data.engine.service.DataDefinitionDEGetRequest;
+import com.liferay.data.engine.service.DataDefinitionDEGetResponse;
 import com.liferay.portal.kernel.exception.PortalException;
 
 import org.osgi.service.component.annotations.Component;
@@ -40,12 +40,12 @@ public class DEGetRequestExecutorImpl implements DEGetRequestExecutor {
 	}
 
 	@Override
-	public DEDataDefinitionGetResponse executeGetRequest(
-			DEDataDefinitionGetRequest deDataDefinitionGetRequest)
+	public DataDefinitionDEGetResponse executeGetRequest(
+			DataDefinitionDEGetRequest dataDefinitionDEGetRequest)
 		throws DEDataDefinitionException {
 
 		return deDataDefinitionGetRequestExecutor.execute(
-			deDataDefinitionGetRequest);
+			dataDefinitionDEGetRequest);
 	}
 
 	@Reference

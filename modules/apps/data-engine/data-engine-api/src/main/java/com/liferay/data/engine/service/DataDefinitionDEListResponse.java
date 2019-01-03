@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @author Gabriel Albuquerque
  */
-public final class DEDataDefinitionListResponse implements DEListResponse {
+public final class DataDefinitionDEListResponse implements DEListResponse {
 
 	public List<DEDataDefinition> getDEDataDefinitions() {
 		return _deDataDefinitions;
@@ -36,7 +36,7 @@ public final class DEDataDefinitionListResponse implements DEListResponse {
 			return new Builder(deDataDefinitions);
 		}
 
-		public static DEDataDefinitionListResponse of(
+		public static DataDefinitionDEListResponse of(
 			List<DEDataDefinition> deDataDefinitions) {
 
 			return newBuilder(
@@ -44,21 +44,21 @@ public final class DEDataDefinitionListResponse implements DEListResponse {
 			).build();
 		}
 
-		public DEDataDefinitionListResponse build() {
-			return _deDataDefinitionListResponse;
+		public DataDefinitionDEListResponse build() {
+			return _dataDefinitionDEListResponse;
 		}
 
 		private Builder(List<DEDataDefinition> deDataDefinitions) {
-			_deDataDefinitionListResponse._deDataDefinitions =
+			_dataDefinitionDEListResponse._deDataDefinitions =
 				deDataDefinitions;
 		}
 
-		private final DEDataDefinitionListResponse
-			_deDataDefinitionListResponse = new DEDataDefinitionListResponse();
+		private final DataDefinitionDEListResponse
+			_dataDefinitionDEListResponse = new DataDefinitionDEListResponse();
 
 	}
 
-	private DEDataDefinitionListResponse() {
+	private DataDefinitionDEListResponse() {
 	}
 
 	private List<DEDataDefinition> _deDataDefinitions;

@@ -15,16 +15,16 @@
 package com.liferay.data.engine.executor;
 
 import com.liferay.data.engine.exception.DEDataDefinitionException;
-import com.liferay.data.engine.service.DEDataDefinitionGetRequest;
-import com.liferay.data.engine.service.DEDataDefinitionGetResponse;
+import com.liferay.data.engine.service.DataDefinitionDEGetRequest;
+import com.liferay.data.engine.service.DataDefinitionDEGetResponse;
 
 /**
  * @author Jeyvison Nascimento
  */
 public interface DEDataDefinitionGetRequestExecutor {
 
-	public DEDataDefinitionGetResponse execute(
-			DEDataDefinitionGetRequest deDataDefinitionGetRequest)
+	public DataDefinitionDEGetResponse execute(
+			DataDefinitionDEGetRequest dataDefinitionDEGetRequest)
 		throws DEDataDefinitionException;
 
 }

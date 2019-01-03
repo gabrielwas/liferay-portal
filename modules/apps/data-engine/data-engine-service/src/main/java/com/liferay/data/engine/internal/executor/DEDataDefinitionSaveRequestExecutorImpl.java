@@ -22,8 +22,8 @@ import com.liferay.data.engine.io.DEDataDefinitionFieldsSerializer;
 import com.liferay.data.engine.io.DEDataDefinitionFieldsSerializerApplyRequest;
 import com.liferay.data.engine.io.DEDataDefinitionFieldsSerializerApplyResponse;
 import com.liferay.data.engine.model.DEDataDefinition;
-import com.liferay.data.engine.service.DEDataDefinitionSaveRequest;
-import com.liferay.data.engine.service.DEDataDefinitionSaveResponse;
+import com.liferay.data.engine.service.DataDefinitionDESaveRequest;
+import com.liferay.data.engine.service.DataDefinitionDESaveResponse;
 import com.liferay.dynamic.data.lists.model.DDLRecordSetConstants;
 import com.liferay.dynamic.data.lists.service.DDLRecordSetLocalService;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
@@ -53,13 +53,13 @@ public class DEDataDefinitionSaveRequestExecutorImpl
 	implements DEDataDefinitionSaveRequestExecutor {
 
 	@Override
-	public DEDataDefinitionSaveResponse execute(
-			DEDataDefinitionSaveRequest deDataDefinitionSaveRequest)
+	public DataDefinitionDESaveResponse execute(
+			DataDefinitionDESaveRequest dataDefinitionDESaveRequest)
 		throws DEDataDefinitionException {
 
 		try {
 			DEDataDefinition deDataDefinition =
-				deDataDefinitionSaveRequest.getDEDataDefinition();
+				dataDefinitionDESaveRequest.getDEDataDefinition();
 
 			long deDataDefinitionId = deDataDefinition.getDEDataDefinitionId();
 
@@ -68,8 +68,8 @@ public class DEDataDefinitionSaveRequestExecutorImpl
 
 			if (deDataDefinitionId == 0) {
 				DDMStructure ddmStructure = createDDMStructure(
-					deDataDefinitionSaveRequest.getUserId(),
-					deDataDefinitionSaveRequest.getGroupId(),
+					dataDefinitionDESaveRequest.getUserId(),
+					dataDefinitionDESaveRequest.getGroupId(),
 					portal.getClassNameId(DEDataDefinition.class),
 					deDataDefinition, serviceContext);
 
@@ -77,25 +77,25 @@ public class DEDataDefinitionSaveRequestExecutorImpl
 
 				resourceLocalService.addModelResources(
 					ddmStructure.getCompanyId(),
-					deDataDefinitionSaveRequest.getGroupId(),
-					deDataDefinitionSaveRequest.getUserId(),
+					dataDefinitionDESaveRequest.getGroupId(),
+					dataDefinitionDESaveRequest.getUserId(),
 					DEDataDefinition.class.getName(), deDataDefinitionId,
 					serviceContext.getModelPermissions());
 
 				ddlRecordSetLocalService.addRecordSet(
-					deDataDefinitionSaveRequest.getUserId(),
-					deDataDefinitionSaveRequest.getGroupId(),
+					dataDefinitionDESaveRequest.getUserId(),
+					dataDefinitionDESaveRequest.getGroupId(),
 					deDataDefinitionId, String.valueOf(deDataDefinitionId),
 					ddmStructure.getNameMap(), ddmStructure.getDescriptionMap(),
 					0, DDLRecordSetConstants.SCOPE_DATA_ENGINE, serviceContext);
 			}
 			else {
 				updateDDMStructure(
-					deDataDefinitionSaveRequest.getUserId(), deDataDefinition,
+					dataDefinitionDESaveRequest.getUserId(), deDataDefinition,
 					serviceContext);
 			}
 
-			return DEDataDefinitionSaveResponse.Builder.of(deDataDefinitionId);
+			return DataDefinitionDESaveResponse.Builder.of(deDataDefinitionId);
 		}
 		catch (Exception e) {
 			throw new DEDataDefinitionException(e);

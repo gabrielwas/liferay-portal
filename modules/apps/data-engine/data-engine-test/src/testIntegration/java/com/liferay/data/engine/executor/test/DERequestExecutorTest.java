@@ -23,16 +23,16 @@ import com.liferay.data.engine.executor.DEListRequestExecutor;
 import com.liferay.data.engine.executor.DESaveRequestExecutor;
 import com.liferay.data.engine.model.DEDataDefinition;
 import com.liferay.data.engine.model.DEDataDefinitionField;
-import com.liferay.data.engine.service.DEDataDefinitionCountRequest;
-import com.liferay.data.engine.service.DEDataDefinitionCountResponse;
-import com.liferay.data.engine.service.DEDataDefinitionDeleteRequest;
-import com.liferay.data.engine.service.DEDataDefinitionGetRequest;
-import com.liferay.data.engine.service.DEDataDefinitionGetResponse;
-import com.liferay.data.engine.service.DEDataDefinitionListRequest;
-import com.liferay.data.engine.service.DEDataDefinitionListResponse;
 import com.liferay.data.engine.service.DEDataDefinitionRequestBuilder;
-import com.liferay.data.engine.service.DEDataDefinitionSaveRequest;
-import com.liferay.data.engine.service.DEDataDefinitionSaveResponse;
+import com.liferay.data.engine.service.DataDefinitionDECountRequest;
+import com.liferay.data.engine.service.DataDefinitionDECountResponse;
+import com.liferay.data.engine.service.DataDefinitionDEDeleteRequest;
+import com.liferay.data.engine.service.DataDefinitionDEGetRequest;
+import com.liferay.data.engine.service.DataDefinitionDEGetResponse;
+import com.liferay.data.engine.service.DataDefinitionDEListRequest;
+import com.liferay.data.engine.service.DataDefinitionDEListResponse;
+import com.liferay.data.engine.service.DataDefinitionDESaveRequest;
+import com.liferay.data.engine.service.DataDefinitionDESaveResponse;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.ResourcePermission;
@@ -103,7 +103,7 @@ public class DERequestExecutorTest {
 		deDataDefinition1.addName(LocaleUtil.US, "Definition Test 1");
 		deDataDefinition1.setStorageType("json");
 
-		DEDataDefinitionSaveRequest deDataDefinitionSaveRequest1 =
+		DataDefinitionDESaveRequest dataDefinitionDESaveRequest1 =
 			DEDataDefinitionRequestBuilder.saveBuilder(
 				deDataDefinition1
 			).onBehalfOf(
@@ -129,7 +129,7 @@ public class DERequestExecutorTest {
 		deDataDefinition2.addName(LocaleUtil.US, "Definition Test 2");
 		deDataDefinition2.setStorageType("json");
 
-		DEDataDefinitionSaveRequest deDataDefinitionSaveRequest2 =
+		DataDefinitionDESaveRequest dataDefinitionDESaveRequest2 =
 			DEDataDefinitionRequestBuilder.saveBuilder(
 				deDataDefinition2
 			).onBehalfOf(
@@ -144,20 +144,20 @@ public class DERequestExecutorTest {
 
 			ServiceContextThreadLocal.pushServiceContext(serviceContext);
 
-			_deSaveRequestExecutor.execute(deDataDefinitionSaveRequest1);
+			_deSaveRequestExecutor.execute(dataDefinitionDESaveRequest1);
 
-			_deSaveRequestExecutor.execute(deDataDefinitionSaveRequest2);
+			_deSaveRequestExecutor.execute(dataDefinitionDESaveRequest2);
 
-			DEDataDefinitionCountRequest deDataDefinitionCountRequest =
+			DataDefinitionDECountRequest dataDefinitionDECountRequest =
 				DEDataDefinitionRequestBuilder.countBuilder(
 				).byGroupId(
 					_group.getGroupId()
 				).build();
 
-			DEDataDefinitionCountResponse deDataDefinitionCountResponse =
-				_deCountRequestExecutor.execute(deDataDefinitionCountRequest);
+			DataDefinitionDECountResponse dataDefinitionDECountResponse =
+				_deCountRequestExecutor.execute(dataDefinitionDECountRequest);
 
-			Assert.assertEquals(2, deDataDefinitionCountResponse.getTotal());
+			Assert.assertEquals(2, dataDefinitionDECountResponse.getTotal());
 		}
 		finally {
 			ServiceContextThreadLocal.popServiceContext();
@@ -183,7 +183,7 @@ public class DERequestExecutorTest {
 		deDataDefinition1.addName(LocaleUtil.US, "Definition Test 1");
 		deDataDefinition1.setStorageType("json");
 
-		DEDataDefinitionSaveRequest deDataDefinitionSaveRequest1 =
+		DataDefinitionDESaveRequest dataDefinitionDESaveRequest1 =
 			DEDataDefinitionRequestBuilder.saveBuilder(
 				deDataDefinition1
 			).onBehalfOf(
@@ -198,45 +198,45 @@ public class DERequestExecutorTest {
 
 			ServiceContextThreadLocal.pushServiceContext(serviceContext);
 
-			DEDataDefinitionSaveResponse deDataDefinitionSaveResponse =
-				_deSaveRequestExecutor.execute(deDataDefinitionSaveRequest1);
+			DataDefinitionDESaveResponse dataDefinitionDESaveResponse =
+				_deSaveRequestExecutor.execute(dataDefinitionDESaveRequest1);
 
 			long deDataDefinitionId =
-				deDataDefinitionSaveResponse.getDEDataDefinitionId();
+				dataDefinitionDESaveResponse.getDEDataDefinitionId();
 
-			DEDataDefinitionCountRequest deDataDefinitionCountRequest =
+			DataDefinitionDECountRequest dataDefinitionDECountRequest =
 				DEDataDefinitionRequestBuilder.countBuilder(
 				).byGroupId(
 					_group.getGroupId()
 				).build();
 
-			DEDataDefinitionCountResponse deDataDefinitionCountResponse =
-				_deCountRequestExecutor.execute(deDataDefinitionCountRequest);
+			DataDefinitionDECountResponse dataDefinitionDECountResponse =
+				_deCountRequestExecutor.execute(dataDefinitionDECountRequest);
 
-			Assert.assertEquals(1, deDataDefinitionCountResponse.getTotal());
+			Assert.assertEquals(1, dataDefinitionDECountResponse.getTotal());
 
-			DEDataDefinitionDeleteRequest deDataDefinitionDeleteRequest =
+			DataDefinitionDEDeleteRequest dataDefinitionDEDeleteRequest =
 				DEDataDefinitionRequestBuilder.deleteBuilder(
 				).byId(
 					deDataDefinitionId
 				).build();
 
-			_deDeleteRequestExecutor.execute(deDataDefinitionDeleteRequest);
+			_deDeleteRequestExecutor.execute(dataDefinitionDEDeleteRequest);
 
-			DEDataDefinitionCountRequest
-				deDataDefinitionCountRequestAfterDelete =
+			DataDefinitionDECountRequest
+				dataDefinitionCountDERequestAfterDelete =
 					DEDataDefinitionRequestBuilder.countBuilder(
 					).byGroupId(
 						_group.getGroupId()
 					).build();
 
-			DEDataDefinitionCountResponse
-				deDataDefinitionCountResponseAfterDelete =
+			DataDefinitionDECountResponse
+				dataDefinitionDECountResponseAfterDelete =
 					_deCountRequestExecutor.execute(
-						deDataDefinitionCountRequestAfterDelete);
+						dataDefinitionCountDERequestAfterDelete);
 
 			Assert.assertEquals(
-				0, deDataDefinitionCountResponseAfterDelete.getTotal());
+				0, dataDefinitionDECountResponseAfterDelete.getTotal());
 		}
 		finally {
 			ServiceContextThreadLocal.popServiceContext();
@@ -251,16 +251,16 @@ public class DERequestExecutorTest {
 
 			ServiceContextThreadLocal.pushServiceContext(serviceContext);
 
-			DEDataDefinitionCountRequest deDataDefinitionCountRequest =
+			DataDefinitionDECountRequest dataDefinitionDECountRequest =
 				DEDataDefinitionRequestBuilder.countBuilder(
 				).byGroupId(
 					_group.getGroupId()
 				).build();
 
-			DEDataDefinitionCountResponse deDataDefinitionCountResponse =
-				_deCountRequestExecutor.execute(deDataDefinitionCountRequest);
+			DataDefinitionDECountResponse dataDefinitionDECountResponse =
+				_deCountRequestExecutor.execute(dataDefinitionDECountRequest);
 
-			Assert.assertEquals(0, deDataDefinitionCountResponse.getTotal());
+			Assert.assertEquals(0, dataDefinitionDECountResponse.getTotal());
 		}
 		finally {
 			ServiceContextThreadLocal.popServiceContext();
@@ -287,7 +287,7 @@ public class DERequestExecutorTest {
 		deDataDefinition.addName(LocaleUtil.US, "Definition 1");
 		deDataDefinition.setStorageType("json");
 
-		DEDataDefinitionSaveRequest deDataDefinitionSaveRequest =
+		DataDefinitionDESaveRequest dataDefinitionDESaveRequest =
 			DEDataDefinitionRequestBuilder.saveBuilder(
 				deDataDefinition
 			).onBehalfOf(
@@ -302,27 +302,27 @@ public class DERequestExecutorTest {
 
 			ServiceContextThreadLocal.pushServiceContext(serviceContext);
 
-			DEDataDefinitionSaveResponse deDataDefinitionSaveResponse =
-				_deSaveRequestExecutor.execute(deDataDefinitionSaveRequest);
+			DataDefinitionDESaveResponse dataDefinitionDESaveResponse =
+				_deSaveRequestExecutor.execute(dataDefinitionDESaveRequest);
 
 			long deDataDefinitionId =
-				deDataDefinitionSaveResponse.getDEDataDefinitionId();
+				dataDefinitionDESaveResponse.getDEDataDefinitionId();
 
-			DEDataDefinitionDeleteRequest deDataDefinitionDeleteRequest =
+			DataDefinitionDEDeleteRequest dataDefinitionDEDeleteRequest =
 				DEDataDefinitionRequestBuilder.deleteBuilder(
 				).byId(
 					deDataDefinitionId
 				).build();
 
-			_deDeleteRequestExecutor.execute(deDataDefinitionDeleteRequest);
+			_deDeleteRequestExecutor.execute(dataDefinitionDEDeleteRequest);
 
-			DEDataDefinitionGetRequest deDataDefinitionGetRequest =
+			DataDefinitionDEGetRequest dataDefinitionDEGetRequest =
 				DEDataDefinitionRequestBuilder.getBuilder(
 				).byId(
 					deDataDefinitionId
 				).build();
 
-			_deGetRequestExecutor.execute(deDataDefinitionGetRequest);
+			_deGetRequestExecutor.execute(dataDefinitionDEGetRequest);
 		}
 		finally {
 			ServiceContextThreadLocal.popServiceContext();
@@ -372,7 +372,7 @@ public class DERequestExecutorTest {
 		expectedDEDataDefinition.addName(LocaleUtil.US, "Definition 2");
 		expectedDEDataDefinition.setStorageType("json");
 
-		DEDataDefinitionSaveRequest deDataDefinitionSaveRequest =
+		DataDefinitionDESaveRequest dataDefinitionDESaveRequest =
 			DEDataDefinitionRequestBuilder.saveBuilder(
 				expectedDEDataDefinition
 			).onBehalfOf(
@@ -387,34 +387,34 @@ public class DERequestExecutorTest {
 
 			ServiceContextThreadLocal.pushServiceContext(serviceContext);
 
-			DEDataDefinitionSaveResponse deDataDefinitionSaveResponse =
-				_deSaveRequestExecutor.execute(deDataDefinitionSaveRequest);
+			DataDefinitionDESaveResponse dataDefinitionDESaveResponse =
+				_deSaveRequestExecutor.execute(dataDefinitionDESaveRequest);
 
 			long deDataDefinitionId =
-				deDataDefinitionSaveResponse.getDEDataDefinitionId();
+				dataDefinitionDESaveResponse.getDEDataDefinitionId();
 
 			expectedDEDataDefinition.setPrimaryKeyObj(deDataDefinitionId);
 
-			DEDataDefinitionGetRequest deDataDefinitionGetRequest =
+			DataDefinitionDEGetRequest dataDefinitionDEGetRequest =
 				DEDataDefinitionRequestBuilder.getBuilder(
 				).byId(
 					deDataDefinitionId
 				).build();
 
-			DEDataDefinitionGetResponse deDataDefinitionGetResponse =
-				_deGetRequestExecutor.execute(deDataDefinitionGetRequest);
+			DataDefinitionDEGetResponse dataDefinitionDEGetResponse =
+				_deGetRequestExecutor.execute(dataDefinitionDEGetRequest);
 
 			Assert.assertEquals(
 				expectedDEDataDefinition,
-				deDataDefinitionGetResponse.getDeDataDefinition());
+				dataDefinitionDEGetResponse.getDeDataDefinition());
 
-			DEDataDefinitionDeleteRequest deDataDefinitionDeleteRequest =
+			DataDefinitionDEDeleteRequest dataDefinitionDEDeleteRequest =
 				DEDataDefinitionRequestBuilder.deleteBuilder(
 				).byId(
 					deDataDefinitionId
 				).build();
 
-			_deDeleteRequestExecutor.execute(deDataDefinitionDeleteRequest);
+			_deDeleteRequestExecutor.execute(dataDefinitionDEDeleteRequest);
 		}
 		finally {
 			ServiceContextThreadLocal.popServiceContext();
@@ -440,7 +440,7 @@ public class DERequestExecutorTest {
 		expectedDEDataDefinition.addName(LocaleUtil.US, "Definition 2");
 		expectedDEDataDefinition.setStorageType("json");
 
-		DEDataDefinitionSaveRequest deDataDefinitionSaveRequest =
+		DataDefinitionDESaveRequest dataDefinitionDESaveRequest =
 			DEDataDefinitionRequestBuilder.saveBuilder(
 				expectedDEDataDefinition
 			).onBehalfOf(
@@ -455,36 +455,36 @@ public class DERequestExecutorTest {
 
 			ServiceContextThreadLocal.pushServiceContext(serviceContext);
 
-			DEDataDefinitionSaveResponse deDataDefinitionSaveResponse =
-				_deSaveRequestExecutor.execute(deDataDefinitionSaveRequest);
+			DataDefinitionDESaveResponse dataDefinitionDESaveResponse =
+				_deSaveRequestExecutor.execute(dataDefinitionDESaveRequest);
 
 			long deDataDefinitionId =
-				deDataDefinitionSaveResponse.getDEDataDefinitionId();
+				dataDefinitionDESaveResponse.getDEDataDefinitionId();
 
-			DEDataDefinitionGetRequest deDataDefinitionGetRequest =
+			DataDefinitionDEGetRequest dataDefinitionDEGetRequest =
 				DEDataDefinitionRequestBuilder.getBuilder(
 				).byId(
 					deDataDefinitionId
 				).build();
 
-			DEDataDefinitionGetResponse deDataDefinitionGetResponse =
-				_deGetRequestExecutor.execute(deDataDefinitionGetRequest);
+			DataDefinitionDEGetResponse dataDefinitionDEGetResponse =
+				_deGetRequestExecutor.execute(dataDefinitionDEGetRequest);
 
 			DEDataDefinition deDataDefinitionResponse =
-				deDataDefinitionGetResponse.getDeDataDefinition();
+				dataDefinitionDEGetResponse.getDeDataDefinition();
 
 			Assert.assertNotNull(deDataDefinitionResponse.getCreateDate());
 			Assert.assertNotNull(deDataDefinitionResponse.getModifiedDate());
 			Assert.assertEquals(
 				_user.getUserId(), deDataDefinitionResponse.getUserId());
 
-			DEDataDefinitionDeleteRequest deDataDefinitionDeleteRequest =
+			DataDefinitionDEDeleteRequest dataDefinitionDEDeleteRequest =
 				DEDataDefinitionRequestBuilder.deleteBuilder(
 				).byId(
 					deDataDefinitionId
 				).build();
 
-			_deDeleteRequestExecutor.execute(deDataDefinitionDeleteRequest);
+			_deDeleteRequestExecutor.execute(dataDefinitionDEDeleteRequest);
 		}
 		finally {
 			ServiceContextThreadLocal.popServiceContext();
@@ -530,7 +530,7 @@ public class DERequestExecutorTest {
 		expectedDEDataDefinition.addName(LocaleUtil.BRAZIL, "Contato");
 		expectedDEDataDefinition.setStorageType("json");
 
-		DEDataDefinitionSaveRequest deDataDefinitionSaveRequest =
+		DataDefinitionDESaveRequest dataDefinitionDESaveRequest =
 			DEDataDefinitionRequestBuilder.saveBuilder(
 				expectedDEDataDefinition
 			).onBehalfOf(
@@ -545,25 +545,25 @@ public class DERequestExecutorTest {
 
 			ServiceContextThreadLocal.pushServiceContext(serviceContext);
 
-			DEDataDefinitionSaveResponse deDataDefinitionSaveResponse =
-				_deSaveRequestExecutor.execute(deDataDefinitionSaveRequest);
+			DataDefinitionDESaveResponse dataDefinitionDESaveResponse =
+				_deSaveRequestExecutor.execute(dataDefinitionDESaveRequest);
 
 			long deDataDefinitionId =
-				deDataDefinitionSaveResponse.getDEDataDefinitionId();
+				dataDefinitionDESaveResponse.getDEDataDefinitionId();
 
 			expectedDEDataDefinition.setPrimaryKeyObj(deDataDefinitionId);
 
-			DEDataDefinitionGetRequest deDataDefinitionGetRequest =
+			DataDefinitionDEGetRequest dataDefinitionDEGetRequest =
 				DEDataDefinitionRequestBuilder.getBuilder(
 				).byId(
 					deDataDefinitionId
 				).build();
 
-			DEDataDefinitionGetResponse deDataDefinitionGetResponse =
-				_deGetRequestExecutor.execute(deDataDefinitionGetRequest);
+			DataDefinitionDEGetResponse dataDefinitionDEGetResponse =
+				_deGetRequestExecutor.execute(dataDefinitionDEGetRequest);
 
 			DEDataDefinition deDataDefinition =
-				deDataDefinitionGetResponse.getDeDataDefinition();
+				dataDefinitionDEGetResponse.getDeDataDefinition();
 
 			Assert.assertEquals(expectedDEDataDefinition, deDataDefinition);
 
@@ -578,13 +578,13 @@ public class DERequestExecutorTest {
 
 			Assert.assertTrue(resourcePermission.hasActionId(ActionKeys.VIEW));
 
-			DEDataDefinitionDeleteRequest deDataDefinitionDeleteRequest =
+			DataDefinitionDEDeleteRequest dataDefinitionDEDeleteRequest =
 				DEDataDefinitionRequestBuilder.deleteBuilder(
 				).byId(
 					deDataDefinitionId
 				).build();
 
-			_deDeleteRequestExecutor.execute(deDataDefinitionDeleteRequest);
+			_deDeleteRequestExecutor.execute(dataDefinitionDEDeleteRequest);
 		}
 		finally {
 			ServiceContextThreadLocal.popServiceContext();
@@ -599,17 +599,17 @@ public class DERequestExecutorTest {
 
 			ServiceContextThreadLocal.pushServiceContext(serviceContext);
 
-			DEDataDefinitionListRequest deDataDefinitionListRequest =
+			DataDefinitionDEListRequest dataDefinitionDEListRequest =
 				DEDataDefinitionRequestBuilder.listBuilder(
 				).byGroupId(
 					_group.getGroupId()
 				).build();
 
-			DEDataDefinitionListResponse deDataDefinitionListResponse =
-				_deListRequestExecutor.execute(deDataDefinitionListRequest);
+			DataDefinitionDEListResponse dataDefinitionDEListResponse =
+				_deListRequestExecutor.execute(dataDefinitionDEListRequest);
 
 			List<DEDataDefinition> dataDefinitions =
-				deDataDefinitionListResponse.getDEDataDefinitions();
+				dataDefinitionDEListResponse.getDEDataDefinitions();
 
 			Assert.assertTrue(dataDefinitions.isEmpty());
 		}
@@ -627,7 +627,7 @@ public class DERequestExecutorTest {
 
 		List<DEDataDefinition> deDataDefinitionsExpected = new ArrayList<>();
 
-		DEDataDefinitionSaveRequest deDataDefinitionSaveRequestContact =
+		DataDefinitionDESaveRequest dataDefinitionDESaveRequestContact =
 			DEDataDefinitionRequestBuilder.saveBuilder(
 				deDataDefinitionContact
 			).onBehalfOf(
@@ -636,7 +636,7 @@ public class DERequestExecutorTest {
 				_group.getGroupId()
 			).build();
 
-		DEDataDefinitionSaveRequest deDataDefinitionSaveRequestPet =
+		DataDefinitionDESaveRequest dataDefinitionDESaveRequestPet =
 			DEDataDefinitionRequestBuilder.saveBuilder(
 				deDataDefinitionPet
 			).onBehalfOf(
@@ -645,7 +645,7 @@ public class DERequestExecutorTest {
 				_group.getGroupId()
 			).build();
 
-		DEDataDefinitionSaveRequest deDataDefinitionSaveRequestOrder =
+		DataDefinitionDESaveRequest dataDefinitionDESaveRequestOrder =
 			DEDataDefinitionRequestBuilder.saveBuilder(
 				deDataDefinitionOrder
 			).onBehalfOf(
@@ -660,68 +660,68 @@ public class DERequestExecutorTest {
 
 			ServiceContextThreadLocal.pushServiceContext(serviceContext);
 
-			DEDataDefinitionSaveResponse deDataDefinitionSaveResponseContact =
+			DataDefinitionDESaveResponse dataDefinitionDESaveResponseContact =
 				_deSaveRequestExecutor.execute(
-					deDataDefinitionSaveRequestContact);
+					dataDefinitionDESaveRequestContact);
 
 			deDataDefinitionContact.setPrimaryKeyObj(
-				deDataDefinitionSaveResponseContact.getDEDataDefinitionId());
+				dataDefinitionDESaveResponseContact.getDEDataDefinitionId());
 
-			DEDataDefinitionSaveResponse deDataDefinitionSaveResponsePet =
-				_deSaveRequestExecutor.execute(deDataDefinitionSaveRequestPet);
+			DataDefinitionDESaveResponse dataDefinitionDESaveResponsePet =
+				_deSaveRequestExecutor.execute(dataDefinitionDESaveRequestPet);
 
 			deDataDefinitionPet.setPrimaryKeyObj(
-				deDataDefinitionSaveResponsePet.getDEDataDefinitionId());
+				dataDefinitionDESaveResponsePet.getDEDataDefinitionId());
 
-			DEDataDefinitionSaveResponse deDataDefinitionSaveResponseOrder =
+			DataDefinitionDESaveResponse dataDefinitionDESaveResponseOrder =
 				_deSaveRequestExecutor.execute(
-					deDataDefinitionSaveRequestOrder);
+					dataDefinitionDESaveRequestOrder);
 
 			deDataDefinitionOrder.setPrimaryKeyObj(
-				deDataDefinitionSaveResponseOrder.getDEDataDefinitionId());
+				dataDefinitionDESaveResponseOrder.getDEDataDefinitionId());
 
 			deDataDefinitionsExpected.add(deDataDefinitionContact);
 			deDataDefinitionsExpected.add(deDataDefinitionPet);
 			deDataDefinitionsExpected.add(deDataDefinitionOrder);
 
-			DEDataDefinitionListRequest deDataDefinitionListRequest =
+			DataDefinitionDEListRequest dataDefinitionDEListRequest =
 				DEDataDefinitionRequestBuilder.listBuilder(
 				).byGroupId(
 					_group.getGroupId()
 				).build();
 
-			DEDataDefinitionListResponse deDataDefinitionListResponse =
-				_deListRequestExecutor.execute(deDataDefinitionListRequest);
+			DataDefinitionDEListResponse dataDefinitionDEListResponse =
+				_deListRequestExecutor.execute(dataDefinitionDEListRequest);
 
 			Assert.assertEquals(
 				deDataDefinitionsExpected,
-				deDataDefinitionListResponse.getDEDataDefinitions());
+				dataDefinitionDEListResponse.getDEDataDefinitions());
 
-			DEDataDefinitionDeleteRequest deDataDefinitionDeleteRequestContact =
+			DataDefinitionDEDeleteRequest dataDefinitionDEDeleteRequestContact =
 				DEDataDefinitionRequestBuilder.deleteBuilder(
 				).byId(
-					deDataDefinitionSaveResponseContact.getDEDataDefinitionId()
+					dataDefinitionDESaveResponseContact.getDEDataDefinitionId()
 				).build();
 
 			_deDeleteRequestExecutor.execute(
-				deDataDefinitionDeleteRequestContact);
+				dataDefinitionDEDeleteRequestContact);
 
-			DEDataDefinitionDeleteRequest deDataDefinitionDeleteRequestPet =
+			DataDefinitionDEDeleteRequest dataDefinitionDEDeleteRequestPet =
 				DEDataDefinitionRequestBuilder.deleteBuilder(
 				).byId(
-					deDataDefinitionSaveResponsePet.getDEDataDefinitionId()
+					dataDefinitionDESaveResponsePet.getDEDataDefinitionId()
 				).build();
 
-			_deDeleteRequestExecutor.execute(deDataDefinitionDeleteRequestPet);
+			_deDeleteRequestExecutor.execute(dataDefinitionDEDeleteRequestPet);
 
-			DEDataDefinitionDeleteRequest deDataDefinitionDeleteRequestOrder =
+			DataDefinitionDEDeleteRequest dataDefinitionDEDeleteRequestOrder =
 				DEDataDefinitionRequestBuilder.deleteBuilder(
 				).byId(
-					deDataDefinitionSaveResponseOrder.getDEDataDefinitionId()
+					dataDefinitionDESaveResponseOrder.getDEDataDefinitionId()
 				).build();
 
 			_deDeleteRequestExecutor.execute(
-				deDataDefinitionDeleteRequestOrder);
+				dataDefinitionDEDeleteRequestOrder);
 		}
 		finally {
 			ServiceContextThreadLocal.popServiceContext();
@@ -750,7 +750,7 @@ public class DERequestExecutorTest {
 		expectedDEDataDefinition.addName(LocaleUtil.BRAZIL, "Estória");
 		expectedDEDataDefinition.setStorageType("json");
 
-		DEDataDefinitionSaveRequest deDataDefinitionSaveRequest =
+		DataDefinitionDESaveRequest dataDefinitionDESaveRequest =
 			DEDataDefinitionRequestBuilder.saveBuilder(
 				expectedDEDataDefinition
 			).onBehalfOf(
@@ -765,11 +765,11 @@ public class DERequestExecutorTest {
 
 			ServiceContextThreadLocal.pushServiceContext(serviceContext);
 
-			DEDataDefinitionSaveResponse deDataDefinitionSaveResponse =
-				_deSaveRequestExecutor.execute(deDataDefinitionSaveRequest);
+			DataDefinitionDESaveResponse dataDefinitionDESaveResponse =
+				_deSaveRequestExecutor.execute(dataDefinitionDESaveRequest);
 
 			long deDataDefinitionId =
-				deDataDefinitionSaveResponse.getDEDataDefinitionId();
+				dataDefinitionDESaveResponse.getDEDataDefinitionId();
 
 			expectedDEDataDefinition.setPrimaryKeyObj(deDataDefinitionId);
 
@@ -794,7 +794,7 @@ public class DERequestExecutorTest {
 			expectedDEDataDefinition.addName(LocaleUtil.BRAZIL, "Estória");
 			expectedDEDataDefinition.setStorageType("json");
 
-			deDataDefinitionSaveRequest =
+			dataDefinitionDESaveRequest =
 				DEDataDefinitionRequestBuilder.saveBuilder(
 					expectedDEDataDefinition
 				).onBehalfOf(
@@ -803,29 +803,29 @@ public class DERequestExecutorTest {
 					_group.getGroupId()
 				).build();
 
-			_deSaveRequestExecutor.execute(deDataDefinitionSaveRequest);
+			_deSaveRequestExecutor.execute(dataDefinitionDESaveRequest);
 
-			DEDataDefinitionGetRequest deDataDefinitionGetRequest =
+			DataDefinitionDEGetRequest dataDefinitionDEGetRequest =
 				DEDataDefinitionRequestBuilder.getBuilder(
 				).byId(
 					deDataDefinitionId
 				).build();
 
-			DEDataDefinitionGetResponse deDataDefinitionGetResponse =
-				_deGetRequestExecutor.execute(deDataDefinitionGetRequest);
+			DataDefinitionDEGetResponse dataDefinitionDEGetResponse =
+				_deGetRequestExecutor.execute(dataDefinitionDEGetRequest);
 
 			DEDataDefinition deDataDefinition =
-				deDataDefinitionGetResponse.getDeDataDefinition();
+				dataDefinitionDEGetResponse.getDeDataDefinition();
 
 			Assert.assertEquals(expectedDEDataDefinition, deDataDefinition);
 
-			DEDataDefinitionDeleteRequest deDataDefinitionDeleteRequest =
+			DataDefinitionDEDeleteRequest dataDefinitionDEDeleteRequest =
 				DEDataDefinitionRequestBuilder.deleteBuilder(
 				).byId(
 					deDataDefinitionId
 				).build();
 
-			_deDeleteRequestExecutor.execute(deDataDefinitionDeleteRequest);
+			_deDeleteRequestExecutor.execute(dataDefinitionDEDeleteRequest);
 		}
 		finally {
 			ServiceContextThreadLocal.popServiceContext();

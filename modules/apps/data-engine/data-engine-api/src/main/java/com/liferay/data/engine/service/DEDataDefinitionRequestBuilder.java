@@ -21,26 +21,26 @@ import com.liferay.data.engine.model.DEDataDefinition;
  */
 public class DEDataDefinitionRequestBuilder {
 
-	public static DEDataDefinitionCountRequest.Builder countBuilder() {
-		return new DEDataDefinitionCountRequest.Builder();
+	public static DataDefinitionDECountRequest.Builder countBuilder() {
+		return new DataDefinitionDECountRequest.Builder();
 	}
 
-	public static DEDataDefinitionDeleteRequest.Builder deleteBuilder() {
-		return new DEDataDefinitionDeleteRequest.Builder();
+	public static DataDefinitionDEDeleteRequest.Builder deleteBuilder() {
+		return new DataDefinitionDEDeleteRequest.Builder();
 	}
 
-	public static DEDataDefinitionGetRequest.Builder getBuilder() {
-		return new DEDataDefinitionGetRequest.Builder();
+	public static DataDefinitionDEGetRequest.Builder getBuilder() {
+		return new DataDefinitionDEGetRequest.Builder();
 	}
 
-	public static DEDataDefinitionListRequest.Builder listBuilder() {
-		return new DEDataDefinitionListRequest.Builder();
+	public static DataDefinitionDEListRequest.Builder listBuilder() {
+		return new DataDefinitionDEListRequest.Builder();
 	}
 
-	public static DEDataDefinitionSaveRequest.Builder saveBuilder(
+	public static DataDefinitionDESaveRequest.Builder saveBuilder(
 		DEDataDefinition deDataDefinition) {
 
-		return new DEDataDefinitionSaveRequest.Builder(deDataDefinition);
+		return new DataDefinitionDESaveRequest.Builder(deDataDefinition);
 	}
 
 }

@@ -19,8 +19,8 @@ import com.liferay.data.engine.executor.DEDataDefinitionListRequestExecutor;
 import com.liferay.data.engine.executor.DEListRequest;
 import com.liferay.data.engine.executor.DEListRequestExecutor;
 import com.liferay.data.engine.executor.DEListResponse;
-import com.liferay.data.engine.service.DEDataDefinitionListRequest;
-import com.liferay.data.engine.service.DEDataDefinitionListResponse;
+import com.liferay.data.engine.service.DataDefinitionDEListRequest;
+import com.liferay.data.engine.service.DataDefinitionDEListResponse;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -39,12 +39,12 @@ public class DEListRequestExecutorImpl implements DEListRequestExecutor {
 	}
 
 	@Override
-	public DEDataDefinitionListResponse executeListRequest(
-			DEDataDefinitionListRequest deDataDefinitionListRequest)
+	public DataDefinitionDEListResponse executeListRequest(
+			DataDefinitionDEListRequest dataDefinitionDEListRequest)
 		throws DEDataDefinitionException {
 
 		return deDataDefinitionListRequestExecutor.execute(
-			deDataDefinitionListRequest);
+			dataDefinitionDEListRequest);
 	}
 
 	@Reference

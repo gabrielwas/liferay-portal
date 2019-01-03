@@ -19,7 +19,7 @@ import com.liferay.data.engine.executor.DESaveResponse;
 /**
  * @author Leonardo Barros
  */
-public final class DEDataDefinitionSaveResponse implements DESaveResponse {
+public final class DataDefinitionDESaveResponse implements DESaveResponse {
 
 	public long getDEDataDefinitionId() {
 		return _deDataDefinitionId;
@@ -31,27 +31,27 @@ public final class DEDataDefinitionSaveResponse implements DESaveResponse {
 			return new Builder(deDataDefinitionId);
 		}
 
-		public static DEDataDefinitionSaveResponse of(long deDataDefinitionId) {
+		public static DataDefinitionDESaveResponse of(long deDataDefinitionId) {
 			return newBuilder(
 				deDataDefinitionId
 			).build();
 		}
 
-		public DEDataDefinitionSaveResponse build() {
-			return _deDataDefinitionSaveResponse;
+		public DataDefinitionDESaveResponse build() {
+			return _dataDefinitionDESaveResponse;
 		}
 
 		private Builder(long deDataDefinitionId) {
-			_deDataDefinitionSaveResponse._deDataDefinitionId =
+			_dataDefinitionDESaveResponse._deDataDefinitionId =
 				deDataDefinitionId;
 		}
 
-		private final DEDataDefinitionSaveResponse
-			_deDataDefinitionSaveResponse = new DEDataDefinitionSaveResponse();
+		private final DataDefinitionDESaveResponse
+			_dataDefinitionDESaveResponse = new DataDefinitionDESaveResponse();
 
 	}
 
-	private DEDataDefinitionSaveResponse() {
+	private DataDefinitionDESaveResponse() {
 	}
 
 	private long _deDataDefinitionId;

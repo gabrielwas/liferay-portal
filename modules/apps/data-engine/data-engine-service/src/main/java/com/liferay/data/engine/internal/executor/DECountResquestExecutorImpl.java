@@ -19,8 +19,8 @@ import com.liferay.data.engine.executor.DECountRequest;
 import com.liferay.data.engine.executor.DECountRequestExecutor;
 import com.liferay.data.engine.executor.DECountResponse;
 import com.liferay.data.engine.executor.DEDataDefinitionCountRequestExecutor;
-import com.liferay.data.engine.service.DEDataDefinitionCountRequest;
-import com.liferay.data.engine.service.DEDataDefinitionCountResponse;
+import com.liferay.data.engine.service.DataDefinitionDECountRequest;
+import com.liferay.data.engine.service.DataDefinitionDECountResponse;
 import com.liferay.portal.kernel.exception.PortalException;
 
 import org.osgi.service.component.annotations.Component;
@@ -40,12 +40,12 @@ public class DECountResquestExecutorImpl implements DECountRequestExecutor {
 	}
 
 	@Override
-	public DEDataDefinitionCountResponse executeCountRequest(
-			DEDataDefinitionCountRequest deDataDefinitionCountRequest)
+	public DataDefinitionDECountResponse executeCountRequest(
+			DataDefinitionDECountRequest dataDefinitionDECountRequest)
 		throws DEDataDefinitionException {
 
 		return deDataDefinitionCountRequestExecutor.execute(
-			deDataDefinitionCountRequest);
+			dataDefinitionDECountRequest);
 	}
 
 	@Reference

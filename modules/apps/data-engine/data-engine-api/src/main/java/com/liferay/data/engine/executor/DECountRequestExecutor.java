@@ -15,8 +15,8 @@
 package com.liferay.data.engine.executor;
 
 import com.liferay.data.engine.exception.DEDataDefinitionException;
-import com.liferay.data.engine.service.DEDataDefinitionCountRequest;
-import com.liferay.data.engine.service.DEDataDefinitionCountResponse;
+import com.liferay.data.engine.service.DataDefinitionDECountRequest;
+import com.liferay.data.engine.service.DataDefinitionDECountResponse;
 import com.liferay.portal.kernel.exception.PortalException;
 
 /**
@@ -27,8 +27,8 @@ public interface DECountRequestExecutor {
 	public <T extends DECountResponse> T execute(DECountRequest deCountRequest)
 		throws PortalException;
 
-	public DEDataDefinitionCountResponse executeCountRequest(
-			DEDataDefinitionCountRequest deDataDefinitionCountRequest)
+	public DataDefinitionDECountResponse executeCountRequest(
+			DataDefinitionDECountRequest dataDefinitionDECountRequest)
 		throws DEDataDefinitionException;
 
 }

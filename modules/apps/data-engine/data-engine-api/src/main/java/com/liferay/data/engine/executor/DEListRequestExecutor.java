@@ -15,8 +15,8 @@
 package com.liferay.data.engine.executor;
 
 import com.liferay.data.engine.exception.DEDataDefinitionException;
-import com.liferay.data.engine.service.DEDataDefinitionListRequest;
-import com.liferay.data.engine.service.DEDataDefinitionListResponse;
+import com.liferay.data.engine.service.DataDefinitionDEListRequest;
+import com.liferay.data.engine.service.DataDefinitionDEListResponse;
 import com.liferay.portal.kernel.exception.PortalException;
 
 /**
@@ -27,8 +27,8 @@ public interface DEListRequestExecutor {
 	public <T extends DEListResponse> T execute(DEListRequest deListRequest)
 		throws PortalException;
 
-	public DEDataDefinitionListResponse executeListRequest(
-			DEDataDefinitionListRequest deDataDefinitionListRequest)
+	public DataDefinitionDEListResponse executeListRequest(
+			DataDefinitionDEListRequest dataDefinitionDEListRequest)
 		throws DEDataDefinitionException;
 
 }

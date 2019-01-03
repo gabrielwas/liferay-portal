@@ -16,8 +16,8 @@ package com.liferay.data.engine.internal.executor;
 
 import com.liferay.data.engine.exception.DEDataDefinitionException;
 import com.liferay.data.engine.executor.DEDataDefinitionCountRequestExecutor;
-import com.liferay.data.engine.service.DEDataDefinitionCountRequest;
-import com.liferay.data.engine.service.DEDataDefinitionCountResponse;
+import com.liferay.data.engine.service.DataDefinitionDECountRequest;
+import com.liferay.data.engine.service.DataDefinitionDECountResponse;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 
 import org.osgi.service.component.annotations.Component;
@@ -33,19 +33,19 @@ public class DEDataDefinitionCountRequestExecutorImpl
 	implements DEDataDefinitionCountRequestExecutor {
 
 	@Override
-	public DEDataDefinitionCountResponse execute(
-			DEDataDefinitionCountRequest deDataDefinitionCountRequest)
+	public DataDefinitionDECountResponse execute(
+			DataDefinitionDECountRequest dataDefinitionDECountRequest)
 		throws DEDataDefinitionException {
 
 		try {
 			long deDataDefinitionGroupId =
-				deDataDefinitionCountRequest.getGroupId();
+				dataDefinitionDECountRequest.getGroupId();
 
 			int deDataDefinitionTotal =
 				ddmStructureLocalService.getStructuresCount(
 					deDataDefinitionGroupId);
 
-			return DEDataDefinitionCountResponse.Builder.of(
+			return DataDefinitionDECountResponse.Builder.of(
 				deDataDefinitionTotal);
 		}
 		catch (Exception e) {

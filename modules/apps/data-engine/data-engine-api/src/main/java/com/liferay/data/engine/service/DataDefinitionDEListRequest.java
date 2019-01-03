@@ -15,47 +15,46 @@
 package com.liferay.data.engine.service;
 
 import com.liferay.data.engine.exception.DEDataDefinitionException;
-import com.liferay.data.engine.executor.DEGetRequest;
-import com.liferay.data.engine.executor.DEGetRequestExecutor;
+import com.liferay.data.engine.executor.DEListRequest;
+import com.liferay.data.engine.executor.DEListRequestExecutor;
 
 /**
- * @author Leonardo Barros
+ * @author Gabriel Albuquerque
  */
-public final class DEDataDefinitionGetRequest implements DEGetRequest {
+public final class DataDefinitionDEListRequest implements DEListRequest {
 
 	@Override
-	public DEDataDefinitionGetResponse accept(
-			DEGetRequestExecutor deGetRequestExecutor)
+	public DataDefinitionDEListResponse accept(
+			DEListRequestExecutor deListRequestExecutor)
 		throws DEDataDefinitionException {
 
-		return deGetRequestExecutor.executeGetRequest(this);
+		return deListRequestExecutor.executeListRequest(this);
 	}
 
-	public long getDEDataDefinitionId() {
-		return _deDataDefinitionId;
+	public long getGroupId() {
+		return _groupId;
 	}
 
 	public static final class Builder {
 
-		public DEDataDefinitionGetRequest build() {
-			return _deDataDefinitionGetRequest;
+		public DataDefinitionDEListRequest build() {
+			return _dataDefinitionDEListRequest;
 		}
 
-		public Builder byId(long deDataDefinitionId) {
-			_deDataDefinitionGetRequest._deDataDefinitionId =
-				deDataDefinitionId;
+		public Builder byGroupId(long groupId) {
+			_dataDefinitionDEListRequest._groupId = groupId;
 
 			return this;
 		}
 
-		private final DEDataDefinitionGetRequest _deDataDefinitionGetRequest =
-			new DEDataDefinitionGetRequest();
+		private final DataDefinitionDEListRequest _dataDefinitionDEListRequest =
+			new DataDefinitionDEListRequest();
 
 	}
 
-	private DEDataDefinitionGetRequest() {
+	private DataDefinitionDEListRequest() {
 	}
 
-	private long _deDataDefinitionId;
+	private long _groupId;
 
 }

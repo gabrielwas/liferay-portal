@@ -19,7 +19,7 @@ import com.liferay.data.engine.executor.DEDeleteResponse;
 /**
  * @author Leonardo Barros
  */
-public final class DEDataDefinitionDeleteResponse implements DEDeleteResponse {
+public final class DataDefinitionDEDeleteResponse implements DEDeleteResponse {
 
 	public long getDEDataDefinitionId() {
 		return _deDataDefinitionId;
@@ -31,7 +31,7 @@ public final class DEDataDefinitionDeleteResponse implements DEDeleteResponse {
 			return new Builder(deDataDefinitionId);
 		}
 
-		public static DEDataDefinitionDeleteResponse of(
+		public static DataDefinitionDEDeleteResponse of(
 			long deDataDefinitionId) {
 
 			return newBuilder(
@@ -39,22 +39,22 @@ public final class DEDataDefinitionDeleteResponse implements DEDeleteResponse {
 			).build();
 		}
 
-		public DEDataDefinitionDeleteResponse build() {
-			return _deDataDefinitionDeleteResponse;
+		public DataDefinitionDEDeleteResponse build() {
+			return _dataDefinitionDEDeleteResponse;
 		}
 
 		private Builder(long deDataDefinitionId) {
-			_deDataDefinitionDeleteResponse._deDataDefinitionId =
+			_dataDefinitionDEDeleteResponse._deDataDefinitionId =
 				deDataDefinitionId;
 		}
 
-		private final DEDataDefinitionDeleteResponse
-			_deDataDefinitionDeleteResponse =
-				new DEDataDefinitionDeleteResponse();
+		private final DataDefinitionDEDeleteResponse
+			_dataDefinitionDEDeleteResponse =
+				new DataDefinitionDEDeleteResponse();
 
 	}
 
-	private DEDataDefinitionDeleteResponse() {
+	private DataDefinitionDEDeleteResponse() {
 	}
 
 	private long _deDataDefinitionId;

@@ -15,8 +15,8 @@
 package com.liferay.data.engine.executor;
 
 import com.liferay.data.engine.exception.DEDataDefinitionException;
-import com.liferay.data.engine.service.DEDataDefinitionGetRequest;
-import com.liferay.data.engine.service.DEDataDefinitionGetResponse;
+import com.liferay.data.engine.service.DataDefinitionDEGetRequest;
+import com.liferay.data.engine.service.DataDefinitionDEGetResponse;
 import com.liferay.portal.kernel.exception.PortalException;
 
 /**
@@ -27,8 +27,8 @@ public interface DEGetRequestExecutor {
 	public <T extends DEGetResponse> T execute(DEGetRequest deGetRequest)
 		throws PortalException;
 
-	public DEDataDefinitionGetResponse executeGetRequest(
-			DEDataDefinitionGetRequest deDataDefinitionGetRequest)
+	public DataDefinitionDEGetResponse executeGetRequest(
+			DataDefinitionDEGetRequest dataDefinitionDEGetRequest)
 		throws DEDataDefinitionException;
 
 }

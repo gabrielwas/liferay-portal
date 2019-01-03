@@ -19,8 +19,8 @@ import com.liferay.data.engine.executor.DEDataDefinitionDeleteRequestExecutor;
 import com.liferay.data.engine.executor.DEDeleteRequest;
 import com.liferay.data.engine.executor.DEDeleteRequestExecutor;
 import com.liferay.data.engine.executor.DEDeleteResponse;
-import com.liferay.data.engine.service.DEDataDefinitionDeleteRequest;
-import com.liferay.data.engine.service.DEDataDefinitionDeleteResponse;
+import com.liferay.data.engine.service.DataDefinitionDEDeleteRequest;
+import com.liferay.data.engine.service.DataDefinitionDEDeleteResponse;
 import com.liferay.portal.kernel.exception.PortalException;
 
 import org.osgi.service.component.annotations.Component;
@@ -41,12 +41,12 @@ public class DEDeleteRequestExecutorImpl implements DEDeleteRequestExecutor {
 	}
 
 	@Override
-	public DEDataDefinitionDeleteResponse executeDeleteRequest(
-			DEDataDefinitionDeleteRequest deDataDefinitionDeleteRequest)
+	public DataDefinitionDEDeleteResponse executeDeleteRequest(
+			DataDefinitionDEDeleteRequest dataDefinitionDEDeleteRequest)
 		throws DEDataDefinitionException {
 
 		return deDataDefinitionDeleteRequestExecutor.execute(
-			deDataDefinitionDeleteRequest);
+			dataDefinitionDEDeleteRequest);
 	}
 
 	@Reference

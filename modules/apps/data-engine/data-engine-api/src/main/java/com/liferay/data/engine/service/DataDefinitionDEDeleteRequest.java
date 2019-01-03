@@ -21,10 +21,10 @@ import com.liferay.data.engine.executor.DEDeleteRequestExecutor;
 /**
  * @author Leonardo Barros
  */
-public final class DEDataDefinitionDeleteRequest implements DEDeleteRequest {
+public final class DataDefinitionDEDeleteRequest implements DEDeleteRequest {
 
 	@Override
-	public DEDataDefinitionDeleteResponse accept(
+	public DataDefinitionDEDeleteResponse accept(
 			DEDeleteRequestExecutor deDeleteRequestExecutor)
 		throws DEDataDefinitionException {
 
@@ -37,24 +37,24 @@ public final class DEDataDefinitionDeleteRequest implements DEDeleteRequest {
 
 	public static final class Builder {
 
-		public DEDataDefinitionDeleteRequest build() {
-			return _deDataDefinitionDeleteRequest;
+		public DataDefinitionDEDeleteRequest build() {
+			return _dataDefinitionDEDeleteRequest;
 		}
 
 		public Builder byId(long deDataDefinitionId) {
-			_deDataDefinitionDeleteRequest._deDataDefinitionId =
+			_dataDefinitionDEDeleteRequest._deDataDefinitionId =
 				deDataDefinitionId;
 
 			return this;
 		}
 
-		private final DEDataDefinitionDeleteRequest
-			_deDataDefinitionDeleteRequest =
-				new DEDataDefinitionDeleteRequest();
+		private final DataDefinitionDEDeleteRequest
+			_dataDefinitionDEDeleteRequest =
+				new DataDefinitionDEDeleteRequest();
 
 	}
 
-	private DEDataDefinitionDeleteRequest() {
+	private DataDefinitionDEDeleteRequest() {
 	}
 
 	private long _deDataDefinitionId;

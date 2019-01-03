@@ -15,14 +15,14 @@
 package com.liferay.data.engine.executor;
 
 import com.liferay.data.engine.exception.DEDataDefinitionException;
-import com.liferay.data.engine.service.DEDataDefinitionDeleteResponse;
+import com.liferay.data.engine.service.DataDefinitionDEDeleteResponse;
 
 /**
  * @author Jeyvison Nascimento
  */
 public interface DEDeleteRequest {
 
-	public <T> DEDataDefinitionDeleteResponse accept(
+	public <T> DataDefinitionDEDeleteResponse accept(
 			DEDeleteRequestExecutor deDeleteRequestExecutor)
 		throws DEDataDefinitionException;
 

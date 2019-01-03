@@ -15,16 +15,16 @@
 package com.liferay.data.engine.executor;
 
 import com.liferay.data.engine.exception.DEDataDefinitionException;
-import com.liferay.data.engine.service.DEDataDefinitionCountRequest;
-import com.liferay.data.engine.service.DEDataDefinitionCountResponse;
+import com.liferay.data.engine.service.DataDefinitionDECountRequest;
+import com.liferay.data.engine.service.DataDefinitionDECountResponse;
 
 /**
  * @author Marcela Cunha
  */
 public interface DEDataDefinitionCountRequestExecutor {
 
-	public DEDataDefinitionCountResponse execute(
-			DEDataDefinitionCountRequest deDataDefinitionCountRequest)
+	public DataDefinitionDECountResponse execute(
+			DataDefinitionDECountRequest dataDefinitionDECountRequest)
 		throws DEDataDefinitionException;
 
 }

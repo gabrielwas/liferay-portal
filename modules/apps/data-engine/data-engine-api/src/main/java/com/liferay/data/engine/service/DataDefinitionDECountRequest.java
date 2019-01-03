@@ -21,10 +21,10 @@ import com.liferay.data.engine.executor.DECountRequestExecutor;
 /**
  * @author Marcela Cunha
  */
-public class DEDataDefinitionCountRequest implements DECountRequest {
+public class DataDefinitionDECountRequest implements DECountRequest {
 
 	@Override
-	public DEDataDefinitionCountResponse accept(
+	public DataDefinitionDECountResponse accept(
 			DECountRequestExecutor deCountRequestExecutor)
 		throws DEDataDefinitionException {
 
@@ -37,22 +37,22 @@ public class DEDataDefinitionCountRequest implements DECountRequest {
 
 	public static final class Builder {
 
-		public DEDataDefinitionCountRequest build() {
-			return _deDataDefinitionCountRequest;
+		public DataDefinitionDECountRequest build() {
+			return _dataDefinitionDECountRequest;
 		}
 
 		public Builder byGroupId(long groupId) {
-			_deDataDefinitionCountRequest._groupId = groupId;
+			_dataDefinitionDECountRequest._groupId = groupId;
 
 			return this;
 		}
 
-		private final DEDataDefinitionCountRequest
-			_deDataDefinitionCountRequest = new DEDataDefinitionCountRequest();
+		private final DataDefinitionDECountRequest
+			_dataDefinitionDECountRequest = new DataDefinitionDECountRequest();
 
 	}
 
-	private DEDataDefinitionCountRequest() {
+	private DataDefinitionDECountRequest() {
 	}
 
 	private long _groupId;

@@ -23,8 +23,8 @@ import com.liferay.data.engine.io.DEDataDefinitionFieldsDeserializerApplyRequest
 import com.liferay.data.engine.io.DEDataDefinitionFieldsDeserializerApplyResponse;
 import com.liferay.data.engine.model.DEDataDefinition;
 import com.liferay.data.engine.model.DEDataDefinitionField;
-import com.liferay.data.engine.service.DEDataDefinitionListRequest;
-import com.liferay.data.engine.service.DEDataDefinitionListResponse;
+import com.liferay.data.engine.service.DataDefinitionDEListRequest;
+import com.liferay.data.engine.service.DataDefinitionDEListResponse;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 
@@ -44,13 +44,13 @@ public class DEDataDefinitionListRequestExecutorImpl
 	implements DEDataDefinitionListRequestExecutor {
 
 	@Override
-	public DEDataDefinitionListResponse execute(
-			DEDataDefinitionListRequest deDataDefinitionListRequest)
+	public DataDefinitionDEListResponse execute(
+			DataDefinitionDEListRequest dataDefinitionDEListRequest)
 		throws DEDataDefinitionException {
 
 		try {
 			long deDataDefinitionGroupId =
-				deDataDefinitionListRequest.getGroupId();
+				dataDefinitionDEListRequest.getGroupId();
 
 			List<DDMStructure> ddmStructures =
 				ddmStructureLocalService.getStructures(deDataDefinitionGroupId);
@@ -61,7 +61,7 @@ public class DEDataDefinitionListRequestExecutorImpl
 				deDataDefinitions.add(map(ddmStructure));
 			}
 
-			return DEDataDefinitionListResponse.Builder.of(deDataDefinitions);
+			return DataDefinitionDEListResponse.Builder.of(deDataDefinitions);
 		}
 		catch (Exception e) {
 			throw new DEDataDefinitionException(e);

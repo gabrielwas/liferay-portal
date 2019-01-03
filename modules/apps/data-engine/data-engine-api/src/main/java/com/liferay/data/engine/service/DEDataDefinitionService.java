@@ -24,24 +24,24 @@ import com.liferay.data.engine.exception.DEDataDefinitionException;
 @ProviderType
 public interface DEDataDefinitionService {
 
-	public DEDataDefinitionCountResponse execute(
-			DEDataDefinitionCountRequest deDataDefinitionCountRequest)
+	public DataDefinitionDECountResponse execute(
+			DataDefinitionDECountRequest dataDefinitionDECountRequest)
 		throws DEDataDefinitionException;
 
-	public DEDataDefinitionDeleteResponse execute(
-			DEDataDefinitionDeleteRequest deDataDefinitionDeleteRequest)
+	public DataDefinitionDEDeleteResponse execute(
+			DataDefinitionDEDeleteRequest dataDefinitionDEDeleteRequest)
 		throws DEDataDefinitionException;
 
-	public DEDataDefinitionGetResponse execute(
-			DEDataDefinitionGetRequest deDataDefinitionGetRequest)
+	public DataDefinitionDEGetResponse execute(
+			DataDefinitionDEGetRequest dataDefinitionDEGetRequest)
 		throws DEDataDefinitionException;
 
-	public DEDataDefinitionListResponse execute(
-			DEDataDefinitionListRequest deDataDefinitionListRequest)
+	public DataDefinitionDEListResponse execute(
+			DataDefinitionDEListRequest dataDefinitionDEListRequest)
 		throws DEDataDefinitionException;
 
-	public DEDataDefinitionSaveResponse execute(
-			DEDataDefinitionSaveRequest deDataDefinitionSaveRequest)
+	public DataDefinitionDESaveResponse execute(
+			DataDefinitionDESaveRequest dataDefinitionDESaveRequest)
 		throws DEDataDefinitionException;
 
 }

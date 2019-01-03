@@ -19,8 +19,8 @@ import com.liferay.data.engine.executor.DEDataDefinitionSaveRequestExecutor;
 import com.liferay.data.engine.executor.DESaveRequest;
 import com.liferay.data.engine.executor.DESaveRequestExecutor;
 import com.liferay.data.engine.executor.DESaveResponse;
-import com.liferay.data.engine.service.DEDataDefinitionSaveRequest;
-import com.liferay.data.engine.service.DEDataDefinitionSaveResponse;
+import com.liferay.data.engine.service.DataDefinitionDESaveRequest;
+import com.liferay.data.engine.service.DataDefinitionDESaveResponse;
 import com.liferay.portal.kernel.exception.PortalException;
 
 import org.osgi.service.component.annotations.Component;
@@ -40,12 +40,12 @@ public class DESaveRequestExecutorImpl implements DESaveRequestExecutor {
 	}
 
 	@Override
-	public DEDataDefinitionSaveResponse executeSaveRequest(
-			DEDataDefinitionSaveRequest deDataDefinitionSaveRequest)
+	public DataDefinitionDESaveResponse executeSaveRequest(
+			DataDefinitionDESaveRequest dataDefinitionDESaveRequest)
 		throws DEDataDefinitionException {
 
 		return deDataDefinitionSaveRequestExecutor.execute(
-			deDataDefinitionSaveRequest);
+			dataDefinitionDESaveRequest);
 	}
 
 	@Reference

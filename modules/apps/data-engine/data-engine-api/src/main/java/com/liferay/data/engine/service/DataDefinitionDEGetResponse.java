@@ -20,7 +20,7 @@ import com.liferay.data.engine.model.DEDataDefinition;
 /**
  * @author Leonardo Barros
  */
-public final class DEDataDefinitionGetResponse implements DEGetResponse {
+public final class DataDefinitionDEGetResponse implements DEGetResponse {
 
 	public DEDataDefinition getDeDataDefinition() {
 		return _deDataDefinition;
@@ -32,7 +32,7 @@ public final class DEDataDefinitionGetResponse implements DEGetResponse {
 			return new Builder(deDataDefinition);
 		}
 
-		public static DEDataDefinitionGetResponse of(
+		public static DataDefinitionDEGetResponse of(
 			DEDataDefinition deDataDefinition) {
 
 			return newBuilder(
@@ -40,20 +40,20 @@ public final class DEDataDefinitionGetResponse implements DEGetResponse {
 			).build();
 		}
 
-		public DEDataDefinitionGetResponse build() {
-			return _deDataDefinitionGetResponse;
+		public DataDefinitionDEGetResponse build() {
+			return _dataDefinitionDEGetResponse;
 		}
 
 		private Builder(DEDataDefinition deDataDefinition) {
-			_deDataDefinitionGetResponse._deDataDefinition = deDataDefinition;
+			_dataDefinitionDEGetResponse._deDataDefinition = deDataDefinition;
 		}
 
-		private final DEDataDefinitionGetResponse _deDataDefinitionGetResponse =
-			new DEDataDefinitionGetResponse();
+		private final DataDefinitionDEGetResponse _dataDefinitionDEGetResponse =
+			new DataDefinitionDEGetResponse();
 
 	}
 
-	private DEDataDefinitionGetResponse() {
+	private DataDefinitionDEGetResponse() {
 	}
 
 	private DEDataDefinition _deDataDefinition;

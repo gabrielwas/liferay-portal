@@ -23,8 +23,8 @@ import com.liferay.data.engine.io.DEDataDefinitionFieldsDeserializerApplyRequest
 import com.liferay.data.engine.io.DEDataDefinitionFieldsDeserializerApplyResponse;
 import com.liferay.data.engine.model.DEDataDefinition;
 import com.liferay.data.engine.model.DEDataDefinitionField;
-import com.liferay.data.engine.service.DEDataDefinitionGetRequest;
-import com.liferay.data.engine.service.DEDataDefinitionGetResponse;
+import com.liferay.data.engine.service.DataDefinitionDEGetRequest;
+import com.liferay.data.engine.service.DataDefinitionDEGetResponse;
 import com.liferay.dynamic.data.mapping.exception.NoSuchStructureException;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
@@ -42,22 +42,22 @@ public class DEDataDefinitionGetRequestExecutorImpl
 	implements DEDataDefinitionGetRequestExecutor {
 
 	@Override
-	public DEDataDefinitionGetResponse execute(
-			DEDataDefinitionGetRequest deDataDefinitionGetRequest)
+	public DataDefinitionDEGetResponse execute(
+			DataDefinitionDEGetRequest dataDefinitionDEGetRequest)
 		throws DEDataDefinitionException {
 
 		try {
 			long deDataDefinitionId =
-				deDataDefinitionGetRequest.getDEDataDefinitionId();
+				dataDefinitionDEGetRequest.getDEDataDefinitionId();
 
 			DDMStructure ddmStructure = ddmStructureLocalService.getStructure(
 				deDataDefinitionId);
 
-			return DEDataDefinitionGetResponse.Builder.of(map(ddmStructure));
+			return DataDefinitionDEGetResponse.Builder.of(map(ddmStructure));
 		}
 		catch (NoSuchStructureException nsse) {
 			throw new DEDataDefinitionException.NoSuchDataDefinition(
-				deDataDefinitionGetRequest.getDEDataDefinitionId(), nsse);
+				dataDefinitionDEGetRequest.getDEDataDefinitionId(), nsse);
 		}
 		catch (Exception e) {
 			throw new DEDataDefinitionException(e);

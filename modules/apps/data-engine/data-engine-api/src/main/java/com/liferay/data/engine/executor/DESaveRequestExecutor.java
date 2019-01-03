@@ -15,8 +15,8 @@
 package com.liferay.data.engine.executor;
 
 import com.liferay.data.engine.exception.DEDataDefinitionException;
-import com.liferay.data.engine.service.DEDataDefinitionSaveRequest;
-import com.liferay.data.engine.service.DEDataDefinitionSaveResponse;
+import com.liferay.data.engine.service.DataDefinitionDESaveRequest;
+import com.liferay.data.engine.service.DataDefinitionDESaveResponse;
 import com.liferay.portal.kernel.exception.PortalException;
 
 /**
@@ -27,8 +27,8 @@ public interface DESaveRequestExecutor {
 	public <T extends DESaveResponse> T execute(DESaveRequest deSaveRequest)
 		throws PortalException;
 
-	public DEDataDefinitionSaveResponse executeSaveRequest(
-			DEDataDefinitionSaveRequest deDataDefinitionSaveRequest)
+	public DataDefinitionDESaveResponse executeSaveRequest(
+			DataDefinitionDESaveRequest dataDefinitionDESaveRequest)
 		throws DEDataDefinitionException;
 
 }

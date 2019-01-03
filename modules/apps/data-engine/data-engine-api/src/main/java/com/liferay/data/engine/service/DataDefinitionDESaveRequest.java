@@ -22,10 +22,10 @@ import com.liferay.data.engine.model.DEDataDefinition;
 /**
  * @author Leonardo Barros
  */
-public final class DEDataDefinitionSaveRequest implements DESaveRequest {
+public final class DataDefinitionDESaveRequest implements DESaveRequest {
 
 	@Override
-	public DEDataDefinitionSaveResponse accept(
+	public DataDefinitionDESaveResponse accept(
 			DESaveRequestExecutor deSaveRequestExecutor)
 		throws DEDataDefinitionException {
 
@@ -47,31 +47,31 @@ public final class DEDataDefinitionSaveRequest implements DESaveRequest {
 	public static final class Builder {
 
 		public Builder(DEDataDefinition deDataDefinition) {
-			_deDataDefinitionSaveRequest._deDataDefinition = deDataDefinition;
+			_dataDefinitionDESaveRequest._deDataDefinition = deDataDefinition;
 		}
 
-		public DEDataDefinitionSaveRequest build() {
-			return _deDataDefinitionSaveRequest;
+		public DataDefinitionDESaveRequest build() {
+			return _dataDefinitionDESaveRequest;
 		}
 
 		public Builder inGroup(long groupId) {
-			_deDataDefinitionSaveRequest._groupId = groupId;
+			_dataDefinitionDESaveRequest._groupId = groupId;
 
 			return this;
 		}
 
 		public Builder onBehalfOf(long userId) {
-			_deDataDefinitionSaveRequest._userId = userId;
+			_dataDefinitionDESaveRequest._userId = userId;
 
 			return this;
 		}
 
-		private final DEDataDefinitionSaveRequest _deDataDefinitionSaveRequest =
-			new DEDataDefinitionSaveRequest();
+		private final DataDefinitionDESaveRequest _dataDefinitionDESaveRequest =
+			new DataDefinitionDESaveRequest();
 
 	}
 
-	private DEDataDefinitionSaveRequest() {
+	private DataDefinitionDESaveRequest() {
 	}
 
 	private DEDataDefinition _deDataDefinition;
