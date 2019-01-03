@@ -16,9 +16,9 @@ package com.liferay.data.engine.web.internal.servlet.data.fetcher;
 
 import com.liferay.data.engine.exception.DEDataDefinitionException;
 import com.liferay.data.engine.model.DEDataDefinition;
-import com.liferay.data.engine.service.DEDataDefinitionGetResponse;
 import com.liferay.data.engine.service.DEDataDefinitionRequestBuilder;
 import com.liferay.data.engine.service.DEDataDefinitionService;
+import com.liferay.data.engine.service.DataDefinitionDEGetResponse;
 import com.liferay.data.engine.web.internal.graphql.model.DataDefinition;
 import com.liferay.data.engine.web.internal.graphql.model.GetDataDefinitionType;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -50,7 +50,7 @@ public class DEGetDataDefinitionDataFetcher
 			long dataDefinitionId = GetterUtil.getLong(
 				environment.getArgument("dataDefinitionId"));
 
-			DEDataDefinitionGetResponse deDataDefinitionGetResponse =
+			DataDefinitionDEGetResponse dataDefinitionDEGetResponse =
 				deDataDefinitionService.execute(
 					DEDataDefinitionRequestBuilder.getBuilder(
 					).byId(
@@ -58,7 +58,7 @@ public class DEGetDataDefinitionDataFetcher
 					).build());
 
 			DEDataDefinition deDataDefinition =
-				deDataDefinitionGetResponse.getDeDataDefinition();
+				dataDefinitionDEGetResponse.getDeDataDefinition();
 
 			DataDefinition dataDefinition = createDataDefinition(
 				dataDefinitionId, deDataDefinition);

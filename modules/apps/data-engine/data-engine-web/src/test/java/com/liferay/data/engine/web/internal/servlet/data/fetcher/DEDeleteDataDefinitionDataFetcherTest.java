@@ -14,9 +14,9 @@
 
 package com.liferay.data.engine.web.internal.servlet.data.fetcher;
 
-import com.liferay.data.engine.service.DEDataDefinitionDeleteRequest;
-import com.liferay.data.engine.service.DEDataDefinitionDeleteResponse;
 import com.liferay.data.engine.service.DEDataDefinitionService;
+import com.liferay.data.engine.service.DataDefinitionDEDeleteRequest;
+import com.liferay.data.engine.service.DataDefinitionDEDeleteResponse;
 import com.liferay.data.engine.web.internal.graphql.model.DataDefinition;
 import com.liferay.data.engine.web.internal.graphql.model.DeleteDataDefinitionType;
 
@@ -47,16 +47,16 @@ public class DEDeleteDataDefinitionDataFetcherTest {
 		DEDataDefinitionService deDataDefinitionService = Mockito.mock(
 			DEDataDefinitionService.class);
 
-		DEDataDefinitionDeleteResponse deDataDefinitionDeleteResponse =
-			DEDataDefinitionDeleteResponse.Builder.newBuilder(
+		DataDefinitionDEDeleteResponse dataDefinitionDEDeleteResponse =
+			DataDefinitionDEDeleteResponse.Builder.newBuilder(
 				1
 			).build();
 
 		Mockito.when(
 			deDataDefinitionService.execute(
-				Matchers.any(DEDataDefinitionDeleteRequest.class))
+				Matchers.any(DataDefinitionDEDeleteRequest.class))
 		).thenReturn(
-			deDataDefinitionDeleteResponse
+			dataDefinitionDEDeleteResponse
 		);
 
 		DEDeleteDataDefinitionDataFetcher deDeleteDataDefinitionDataFetcher =

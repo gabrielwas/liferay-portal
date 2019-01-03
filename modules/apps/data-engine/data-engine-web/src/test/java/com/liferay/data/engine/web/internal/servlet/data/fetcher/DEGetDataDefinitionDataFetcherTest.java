@@ -16,9 +16,9 @@ package com.liferay.data.engine.web.internal.servlet.data.fetcher;
 
 import com.liferay.data.engine.model.DEDataDefinition;
 import com.liferay.data.engine.model.DEDataDefinitionField;
-import com.liferay.data.engine.service.DEDataDefinitionGetRequest;
-import com.liferay.data.engine.service.DEDataDefinitionGetResponse;
 import com.liferay.data.engine.service.DEDataDefinitionService;
+import com.liferay.data.engine.service.DataDefinitionDEGetRequest;
+import com.liferay.data.engine.service.DataDefinitionDEGetResponse;
 import com.liferay.data.engine.web.internal.graphql.model.DataDefinition;
 import com.liferay.data.engine.web.internal.graphql.model.DataDefinitionFieldType;
 import com.liferay.data.engine.web.internal.graphql.model.GetDataDefinitionType;
@@ -99,16 +99,16 @@ public class DEGetDataDefinitionDataFetcherTest {
 				}
 			});
 
-		DEDataDefinitionGetResponse deDataDefinitionGetResponse =
-			DEDataDefinitionGetResponse.Builder.newBuilder(
+		DataDefinitionDEGetResponse dataDefinitionDEGetResponse =
+			DataDefinitionDEGetResponse.Builder.newBuilder(
 				deDataDefinition
 			).build();
 
 		Mockito.when(
 			deDataDefinitionService.execute(
-				Matchers.any(DEDataDefinitionGetRequest.class))
+				Matchers.any(DataDefinitionDEGetRequest.class))
 		).thenReturn(
-			deDataDefinitionGetResponse
+			dataDefinitionDEGetResponse
 		);
 
 		DEGetDataDefinitionDataFetcher deGetDataDefinitionDataFetcher =

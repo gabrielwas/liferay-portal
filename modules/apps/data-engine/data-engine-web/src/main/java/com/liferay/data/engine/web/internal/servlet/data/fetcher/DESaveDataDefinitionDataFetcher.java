@@ -18,8 +18,8 @@ import com.liferay.data.engine.exception.DEDataDefinitionException;
 import com.liferay.data.engine.model.DEDataDefinition;
 import com.liferay.data.engine.model.DEDataDefinitionField;
 import com.liferay.data.engine.service.DEDataDefinitionRequestBuilder;
-import com.liferay.data.engine.service.DEDataDefinitionSaveResponse;
 import com.liferay.data.engine.service.DEDataDefinitionService;
+import com.liferay.data.engine.service.DataDefinitionDESaveResponse;
 import com.liferay.data.engine.web.internal.graphql.model.DataDefinition;
 import com.liferay.data.engine.web.internal.graphql.model.SaveDataDefinitionType;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -77,7 +77,7 @@ public class DESaveDataDefinitionDataFetcher
 				GetterUtil.getString(
 					dataDefinitionAttributes.get("storageType"), "json"));
 
-			DEDataDefinitionSaveResponse deDataDefinitionSaveResponse =
+			DataDefinitionDESaveResponse dataDefinitionDESaveResponse =
 				deDataDefinitionService.execute(
 					DEDataDefinitionRequestBuilder.saveBuilder(
 						deDataDefinition
@@ -88,7 +88,7 @@ public class DESaveDataDefinitionDataFetcher
 					).build());
 
 			DataDefinition dataDefinition = createDataDefinition(
-				deDataDefinitionSaveResponse.getDEDataDefinitionId(),
+				dataDefinitionDESaveResponse.getDEDataDefinitionId(),
 				deDataDefinition);
 
 			saveDataDefinitionType.setDataDefinition(dataDefinition);
