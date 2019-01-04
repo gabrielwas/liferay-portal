@@ -24,6 +24,10 @@ import com.liferay.data.engine.exception.DEDataDefinitionException;
 @ProviderType
 public interface DEDataDefinitionService {
 
+	public DEDataDefinitionCountResponse execute(
+			DEDataDefinitionCountRequest deDataDefinitionCountRequest)
+		throws DEDataDefinitionException;
+
 	public DEDataDefinitionDeleteResponse execute(
 			DEDataDefinitionDeleteRequest deDataDefinitionDeleteRequest)
 		throws DEDataDefinitionException;
