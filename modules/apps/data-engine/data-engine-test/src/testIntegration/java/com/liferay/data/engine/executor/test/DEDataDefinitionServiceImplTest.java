@@ -161,6 +161,8 @@ public class DEDataDefinitionServiceImplTest {
 
 			DEDataDefinitionCountRequest deDataDefinitionCountRequest =
 				DEDataDefinitionRequestBuilder.countBuilder(
+				).inCompany(
+					_group.getCompanyId()
 				).inGroup(
 					_group.getGroupId()
 				).build();
@@ -217,6 +219,8 @@ public class DEDataDefinitionServiceImplTest {
 
 			DEDataDefinitionCountRequest deDataDefinitionCountRequest =
 				DEDataDefinitionRequestBuilder.countBuilder(
+				).inCompany(
+					_group.getCompanyId()
 				).inGroup(
 					_group.getGroupId()
 				).build();
@@ -237,6 +241,8 @@ public class DEDataDefinitionServiceImplTest {
 			DEDataDefinitionCountRequest
 				deDataDefinitionCountRequestAfterDelete =
 					DEDataDefinitionRequestBuilder.countBuilder(
+					).inCompany(
+						_group.getCompanyId()
 					).inGroup(
 						_group.getGroupId()
 					).build();
@@ -264,6 +270,8 @@ public class DEDataDefinitionServiceImplTest {
 
 			DEDataDefinitionCountRequest deDataDefinitionCountRequest =
 				DEDataDefinitionRequestBuilder.countBuilder(
+				).inCompany(
+					_group.getCompanyId()
 				).inGroup(
 					_group.getGroupId()
 				).build();

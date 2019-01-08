@@ -75,7 +75,7 @@ type MutationType {
 }
 
 type QueryType {
-	countDataDefinition(groupId: ID!, languageId: String!): CountDataDefinitionType
+	countDataDefinition(companyId: ID!, groupId: ID!, languageId: String!): CountDataDefinitionType
 	getDataDefinition(dataDefinitionId: ID!, languageId: String!): GetDataDefinitionType
 	listDataDefinition(companyId: ID!, groupId: ID!, languageId: String!, start: Int!, end: Int!): ListDataDefinitionType
 

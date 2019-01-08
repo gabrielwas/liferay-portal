@@ -44,10 +44,14 @@ public class DECountDataDefinitionDataFetcher
 
 		String errorMessage = null;
 
+		long companyId = GetterUtil.getLong(
+			environment.getArgument("companyId"));
 		long groupId = GetterUtil.getLong(environment.getArgument("groupId"));
 
 		DEDataDefinitionCountRequest deDataDefinitionCountRequest =
 			DEDataDefinitionRequestBuilder.countBuilder(
+			).inCompany(
+				companyId
 			).inGroup(
 				groupId
 			).build();
