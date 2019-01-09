@@ -550,6 +550,8 @@ public class DEDataDefinitionServiceImplTest {
 
 			DEDataDefinitionListRequest deDataDefinitionListRequest =
 				DEDataDefinitionRequestBuilder.listBuilder(
+				).inCompany(
+					_group.getCompanyId()
 				).inGroup(
 					_group.getGroupId()
 				).build();
@@ -634,6 +636,8 @@ public class DEDataDefinitionServiceImplTest {
 
 			DEDataDefinitionListRequest deDataDefinitionListRequest =
 				DEDataDefinitionRequestBuilder.listBuilder(
+				).inCompany(
+					_group.getCompanyId()
 				).inGroup(
 					_group.getGroupId()
 				).build();
