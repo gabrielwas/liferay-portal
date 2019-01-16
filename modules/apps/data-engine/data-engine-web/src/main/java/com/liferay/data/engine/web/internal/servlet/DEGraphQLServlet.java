@@ -30,9 +30,9 @@ import com.liferay.data.engine.web.internal.servlet.data.fetcher.DESaveDataRecor
 import com.liferay.data.engine.web.internal.servlet.data.fetcher.DESaveModelPermissionsDataDefinitionDataFetcher;
 import com.liferay.data.engine.web.internal.servlet.data.fetcher.DESaveModelPermissionsDataRecordCollectionDataFetcher;
 import com.liferay.data.engine.web.internal.servlet.data.fetcher.DESavePermissionsDataDefinitionDataFetcher;
+import com.liferay.data.engine.web.internal.servlet.data.fetcher.DESavePermissionsDataRecordCollectionDataFetcher;
 import com.liferay.data.engine.web.internal.servlet.data.fetcher.DESearchCountDataDefinitionFetcher;
 import com.liferay.data.engine.web.internal.servlet.data.fetcher.DESearchDataDefinitionFetcher;
-import com.liferay.data.engine.web.internal.servlet.data.fetcher.DESavePermissionsDataRecordCollectionDataFetcher;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.servlet.ServletResponseUtil;
@@ -418,14 +418,15 @@ public class DEGraphQLServlet extends HttpServlet {
 	private DESavePermissionsDataDefinitionDataFetcher
 		_deSavePermissionsDataDefinitionDataFetcher;
 
+	private DESavePermissionsDataRecordCollectionDataFetcher
+		_deSavePermissionsDataRecordCollectionDataFetcher;
+
 	@Reference
 	private DESearchCountDataDefinitionFetcher
 		_deSearchCountDataDefinitionFetcher;
 
 	@Reference
 	private DESearchDataDefinitionFetcher _deSearchDataDefinitionFetcher;
-	private DESavePermissionsDataRecordCollectionDataFetcher
-		_deSavePermissionsDataRecordCollectionDataFetcher;
 
 	private transient GraphQL _graphQL;
 	private final ObjectMapper _objectMapper = new ObjectMapper() {
