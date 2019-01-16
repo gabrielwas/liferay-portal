@@ -323,6 +323,38 @@ public class DEDataDefinitionServiceImpl
 		return _deDataDefinitionCountRequestExecutor;
 	}
 
+	public DEDataDefinitionSearchCountExecutor
+		getDEDataDefinitionSearchCountExecutor() {
+
+		if (_deDataDefinitionSearchCountExecutor == null) {
+			_deDataDefinitionSearchCountExecutor =
+				new DEDataDefinitionSearchCountExecutor(
+					ddmStructureService, _deDataEngineRequestExecutor, portal);
+		}
+
+		return _deDataDefinitionSearchCountExecutor;
+	}
+
+	public DEDataDefinitionSearchExecutor getDEDataDefinitionSearchExecutor() {
+		if (_deDataDefinitionSearchExecutor == null) {
+			_deDataDefinitionSearchExecutor =
+				new DEDataDefinitionSearchExecutor(
+					ddmStructureService, getDEDataEngineRequestExecutor(),
+					portal);
+		}
+
+		return _deDataDefinitionSearchExecutor;
+	}
+
+	public DEDataEngineRequestExecutor getDEDataEngineRequestExecutor() {
+		if (_deDataEngineRequestExecutor == null) {
+			_deDataEngineRequestExecutor = new DEDataEngineRequestExecutor(
+				deDataDefinitionFieldsDeserializerTracker);
+		}
+
+		return _deDataEngineRequestExecutor;
+	}
+
 	protected DEDataDefinitionDeleteRequestExecutor
 		getDEDataDefinitionDeleteRequestExecutor() {
 
@@ -397,38 +429,6 @@ public class DEDataDefinitionServiceImpl
 		}
 
 		return _deDataDefinitionSaveRequestExecutor;
-	}
-
-	public DEDataDefinitionSearchCountExecutor
-		getDEDataDefinitionSearchCountExecutor() {
-
-		if (_deDataDefinitionSearchCountExecutor == null) {
-			_deDataDefinitionSearchCountExecutor =
-				new DEDataDefinitionSearchCountExecutor(
-					ddmStructureService, _deDataEngineRequestExecutor, portal);
-		}
-
-		return _deDataDefinitionSearchCountExecutor;
-	}
-
-	public DEDataDefinitionSearchExecutor getDEDataDefinitionSearchExecutor() {
-		if (_deDataDefinitionSearchExecutor == null) {
-			_deDataDefinitionSearchExecutor =
-				new DEDataDefinitionSearchExecutor(
-					ddmStructureService, getDEDataEngineRequestExecutor(),
-					portal);
-		}
-
-		return _deDataDefinitionSearchExecutor;
-	}
-
-	public DEDataEngineRequestExecutor getDEDataEngineRequestExecutor() {
-		if (_deDataEngineRequestExecutor == null) {
-			_deDataEngineRequestExecutor = new DEDataEngineRequestExecutor(
-				deDataDefinitionFieldsDeserializerTracker);
-		}
-
-		return _deDataEngineRequestExecutor;
 	}
 
 	@Override
