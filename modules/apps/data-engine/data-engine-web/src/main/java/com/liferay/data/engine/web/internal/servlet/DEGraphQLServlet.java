@@ -27,6 +27,7 @@ import com.liferay.data.engine.web.internal.servlet.data.fetcher.DESaveDataDefin
 import com.liferay.data.engine.web.internal.servlet.data.fetcher.DESaveDataRecordCollectionDataFetcher;
 import com.liferay.data.engine.web.internal.servlet.data.fetcher.DESaveModelPermissionsDataDefinitionDataFetcher;
 import com.liferay.data.engine.web.internal.servlet.data.fetcher.DESavePermissionsDataDefinitionDataFetcher;
+import com.liferay.data.engine.web.internal.servlet.data.fetcher.DESavePermissionsDataRecordCollectionDataFetcher;
 import com.liferay.data.engine.web.internal.servlet.data.fetcher.DESearchCountDataDefinitionFetcher;
 import com.liferay.data.engine.web.internal.servlet.data.fetcher.DESearchDataDefinitionFetcher;
 import com.liferay.petra.string.CharPool;
@@ -376,6 +377,9 @@ public class DEGraphQLServlet extends HttpServlet {
 	@Reference
 	private DESavePermissionsDataDefinitionDataFetcher
 		_deSavePermissionsDataDefinitionDataFetcher;
+
+	private DESavePermissionsDataRecordCollectionDataFetcher
+		_deSavePermissionsDataRecordCollectionDataFetcher;
 
 	@Reference
 	private DESearchCountDataDefinitionFetcher
