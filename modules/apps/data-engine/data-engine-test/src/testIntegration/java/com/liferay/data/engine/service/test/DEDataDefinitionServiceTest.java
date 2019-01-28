@@ -17,6 +17,7 @@ package com.liferay.data.engine.service.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.data.engine.exception.DEDataDefinitionException;
 import com.liferay.data.engine.model.DEDataDefinition;
+import com.liferay.data.engine.model.DEDataDefinitionField;
 import com.liferay.data.engine.service.DEDataDefinitionCountRequest;
 import com.liferay.data.engine.service.DEDataDefinitionCountResponse;
 import com.liferay.data.engine.service.DEDataDefinitionDeleteRequest;
@@ -59,7 +60,10 @@ import com.liferay.portal.search.test.util.IdempotentRetryAssert;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.After;
@@ -119,7 +123,7 @@ public class DEDataDefinitionServiceTest {
 			deDataDefinitionSavePermissionsRequest =
 				DEDataDefinitionRequestBuilder.savePermissionsBuilder(
 					TestPropsValues.getCompanyId(), _group.getGroupId(),
-					role.getName()
+					new String[] {role.getName()}
 				).allowAddDataDefinition(
 				).build();
 
@@ -148,7 +152,7 @@ public class DEDataDefinitionServiceTest {
 			deDataDefinitionSavePermissionsRequest =
 				DEDataDefinitionRequestBuilder.savePermissionsBuilder(
 					TestPropsValues.getCompanyId(), user.getGroupId(),
-					RoleConstants.ORGANIZATION_USER
+					new String[] {RoleConstants.ORGANIZATION_USER}
 				).allowAddDataDefinition(
 				).build();
 
@@ -165,7 +169,7 @@ public class DEDataDefinitionServiceTest {
 			deDataDefinitionSavePermissionsRequest =
 				DEDataDefinitionRequestBuilder.savePermissionsBuilder(
 					TestPropsValues.getCompanyId(), _adminUser.getGroupId(),
-					RoleConstants.GUEST
+					new String[] {RoleConstants.GUEST}
 				).allowAddDataDefinition(
 				).build();
 
@@ -223,8 +227,65 @@ public class DEDataDefinitionServiceTest {
 		Assert.assertEquals(0, total);
 	}
 
+	@Test(expected = DEDataDefinitionException.MustHavePermission.class)
+	public void testDefinePermissionsByGuestUser() throws Exception {
+		Group group = GroupTestUtil.addGroup();
+
+		User user = UserTestUtil.addGroupUser(group, RoleConstants.GUEST);
+
+		PermissionThreadLocal.setPermissionChecker(
+			PermissionCheckerFactoryUtil.create(user));
+
+		DEDataDefinitionSavePermissionsRequest
+			deDataDefinitionSavePermissionsRequest =
+				DEDataDefinitionRequestBuilder.savePermissionsBuilder(
+					TestPropsValues.getCompanyId(), user.getGroupId(),
+					new String[] {RoleConstants.ORGANIZATION_USER}
+				).allowDefinePermissions(
+				).build();
+
+		_deDataDefinitionService.execute(
+			deDataDefinitionSavePermissionsRequest);
+	}
+
+	@Test(expected = DEDataDefinitionException.MustHavePermission.class)
+	public void testDefinePermissionsBySiteMember() throws Exception {
+		PermissionThreadLocal.setPermissionChecker(
+			PermissionCheckerFactoryUtil.create(_siteMember));
+
+		DEDataDefinitionSavePermissionsRequest
+			deDataDefinitionSavePermissionsRequest =
+				DEDataDefinitionRequestBuilder.savePermissionsBuilder(
+					TestPropsValues.getCompanyId(), _siteMember.getGroupId(),
+					new String[] {RoleConstants.ORGANIZATION_USER}
+				).allowDefinePermissions(
+				).build();
+
+		_deDataDefinitionService.execute(
+			deDataDefinitionSavePermissionsRequest);
+	}
+
+	@Test(expected = DEDataDefinitionException.PrincipalException.class)
+	public void testDefinePermissionsToGuestUser() throws Exception {
+		PermissionThreadLocal.setPermissionChecker(
+			PermissionCheckerFactoryUtil.create(_adminUser));
+
+		DEDataDefinitionSavePermissionsRequest
+			deDataDefinitionSavePermissionsRequest =
+				DEDataDefinitionRequestBuilder.savePermissionsBuilder(
+					TestPropsValues.getCompanyId(), _adminUser.getGroupId(),
+					new String[] {RoleConstants.GUEST}
+				).allowDefinePermissions(
+				).build();
+
+		_deDataDefinitionService.execute(
+			deDataDefinitionSavePermissionsRequest);
+	}
+
 	@Test
-	public void testDefinePermissions() throws Exception {
+	public void testDefinePermissionToAllowAddDataDefinition()
+		throws Exception {
+
 		PermissionThreadLocal.setPermissionChecker(
 			PermissionCheckerFactoryUtil.create(_adminUser));
 
@@ -239,7 +300,7 @@ public class DEDataDefinitionServiceTest {
 			deDataDefinitionSavePermissionsRequest =
 				DEDataDefinitionRequestBuilder.savePermissionsBuilder(
 					TestPropsValues.getCompanyId(), _group.getGroupId(),
-					role1.getName()
+					new String[] {role1.getName()}
 				).allowDefinePermissions(
 				).build();
 
@@ -260,7 +321,7 @@ public class DEDataDefinitionServiceTest {
 			deDataDefinitionSavePermissionsRequest2 =
 				DEDataDefinitionRequestBuilder.savePermissionsBuilder(
 					TestPropsValues.getCompanyId(), group1.getGroupId(),
-					role2.getName()
+					new String[] {role2.getName()}
 				).allowAddDataDefinition(
 				).build();
 
@@ -274,59 +335,117 @@ public class DEDataDefinitionServiceTest {
 		Assert.assertTrue(deDataDefinition.getDEDataDefinitionId() > 0);
 	}
 
-	@Test(expected = DEDataDefinitionException.MustHavePermission.class)
-	public void testDefinePermissionsByGuestUser() throws Exception {
-		Group group = GroupTestUtil.addGroup();
-
-		User user = UserTestUtil.addGroupUser(group, RoleConstants.GUEST);
+	@Test
+	public void testDefinePermissionToAllowDeleteDataDefinition()
+		throws Exception {
 
 		PermissionThreadLocal.setPermissionChecker(
-			PermissionCheckerFactoryUtil.create(user));
+			PermissionCheckerFactoryUtil.create(_adminUser));
+
+		Role role1 = RoleTestUtil.addRole(
+			"Test Role 1", RoleConstants.TYPE_REGULAR);
+
+		Group group1 = GroupTestUtil.addGroup();
+
+		User user1 = UserTestUtil.addGroupUser(group1, "Test Role 1");
 
 		DEDataDefinitionSavePermissionsRequest
 			deDataDefinitionSavePermissionsRequest =
 				DEDataDefinitionRequestBuilder.savePermissionsBuilder(
-					TestPropsValues.getCompanyId(), user.getGroupId(),
-					RoleConstants.ORGANIZATION_USER
+					TestPropsValues.getCompanyId(), _group.getGroupId(),
+					new String[] {role1.getName()}
 				).allowDefinePermissions(
 				).build();
 
 		_deDataDefinitionService.execute(
 			deDataDefinitionSavePermissionsRequest);
-	}
 
-	@Test(expected = DEDataDefinitionException.MustHavePermission.class)
-	public void testDefinePermissionsBySiteMember() throws Exception {
+		Group group2 = GroupTestUtil.addGroup();
+
+		User user2 = UserTestUtil.addGroupUser(
+			group2, RoleConstants.ORGANIZATION_USER);
+
+		DEDataDefinition deDataDefinition =
+			DEDataEngineTestUtil.insertDEDataDefinition(
+				_adminUser, _group, _deDataDefinitionService);
+
 		PermissionThreadLocal.setPermissionChecker(
-			PermissionCheckerFactoryUtil.create(_siteMember));
+			PermissionCheckerFactoryUtil.create(user1));
 
-		DEDataDefinitionSavePermissionsRequest
-			deDataDefinitionSavePermissionsRequest =
-				DEDataDefinitionRequestBuilder.savePermissionsBuilder(
-					TestPropsValues.getCompanyId(), _siteMember.getGroupId(),
-					RoleConstants.ORGANIZATION_USER
-				).allowDefinePermissions(
+		DEDataDefinitionSaveModelPermissionsRequest
+			deDataDefinitionSaveModelPermissionsRequest =
+				DEDataDefinitionRequestBuilder.saveModelPermissionsBuilder(
+					TestPropsValues.getCompanyId(), group2.getGroupId(),
+					user1.getUserId(), group1.getGroupId(),
+					deDataDefinition.getDEDataDefinitionId(),
+					new String[] {RoleConstants.ORGANIZATION_USER}
+				).allowView(
 				).build();
 
 		_deDataDefinitionService.execute(
-			deDataDefinitionSavePermissionsRequest);
+			deDataDefinitionSaveModelPermissionsRequest);
+
+		deleteDEDataDefinition(
+			_siteMember, deDataDefinition.getDEDataDefinitionId());
 	}
 
-	@Test(expected = DEDataDefinitionException.PrincipalException.class)
-	public void testDefinePermissionsToGuestUser() throws Exception {
+	@Test
+	public void testDefinePermissionToAllowUpdateDataDefinition()
+		throws Exception {
+
+		Role role1 = RoleTestUtil.addRole(
+			"Test Role 1", RoleConstants.TYPE_REGULAR);
+
+		Group group1 = GroupTestUtil.addGroup();
+
+		User user1 = UserTestUtil.addGroupUser(group1, "Test Role 1");
+
 		PermissionThreadLocal.setPermissionChecker(
 			PermissionCheckerFactoryUtil.create(_adminUser));
 
 		DEDataDefinitionSavePermissionsRequest
 			deDataDefinitionSavePermissionsRequest =
 				DEDataDefinitionRequestBuilder.savePermissionsBuilder(
-					TestPropsValues.getCompanyId(), _adminUser.getGroupId(),
-					RoleConstants.GUEST
+					TestPropsValues.getCompanyId(), _group.getGroupId(),
+					new String[] {role1.getName()}
 				).allowDefinePermissions(
 				).build();
 
 		_deDataDefinitionService.execute(
 			deDataDefinitionSavePermissionsRequest);
+
+		DEDataDefinition deDataDefinition =
+			DEDataEngineTestUtil.insertDEDataDefinition(
+				_adminUser, _group, _deDataDefinitionService);
+
+		PermissionThreadLocal.setPermissionChecker(
+			PermissionCheckerFactoryUtil.create(user1));
+
+		Group group2 = GroupTestUtil.addGroup();
+
+		User user2 = UserTestUtil.addGroupUser(
+			group2, RoleConstants.ORGANIZATION_USER);
+
+		DEDataDefinitionSaveModelPermissionsRequest
+			deDataDefinitionSaveModelPermissionsRequest =
+				DEDataDefinitionRequestBuilder.saveModelPermissionsBuilder(
+					TestPropsValues.getCompanyId(), group2.getGroupId(),
+					user1.getUserId(), group1.getGroupId(),
+					deDataDefinition.getDEDataDefinitionId(),
+					new String[] {RoleConstants.ORGANIZATION_USER}
+				).allowUpdate(
+				).build();
+
+		_deDataDefinitionService.execute(
+			deDataDefinitionSaveModelPermissionsRequest);
+
+		DEDataDefinition deDataDefinitionAfterUpdate =
+			DEDataEngineTestUtil.updateDEDataDefinition(
+				user2, group2, deDataDefinition, _deDataDefinitionService);
+
+		Assert.assertEquals(
+			deDataDefinition.getDEDataDefinitionId(),
+			deDataDefinitionAfterUpdate.getDEDataDefinitionId());
 	}
 
 	@Test
@@ -334,21 +453,6 @@ public class DEDataDefinitionServiceTest {
 		DEDataDefinition deDataDefinition =
 			DEDataEngineTestUtil.insertDEDataDefinition(
 				_adminUser, _group, _deDataDefinitionService);
-
-		DEDataDefinitionSaveModelPermissionsRequest
-			deDataDefinitionSaveModelPermissionsRequest =
-				DEDataDefinitionRequestBuilder.saveModelPermissionsBuilder(
-					TestPropsValues.getCompanyId(), _group.getGroupId(),
-					deDataDefinition.getDEDataDefinitionId()
-				).grantTo(
-					_siteMember.getUserId()
-				).inGroup(
-					_group.getGroupId()
-				).allowDelete(
-				).build();
-
-		_deDataDefinitionService.execute(
-			deDataDefinitionSaveModelPermissionsRequest);
 
 		deleteDEDataDefinition(
 			_siteMember, deDataDefinition.getDEDataDefinitionId());
@@ -460,12 +564,10 @@ public class DEDataDefinitionServiceTest {
 		DEDataDefinitionSaveModelPermissionsRequest
 			deDataDefinitionSaveModelPermissionsRequest =
 				DEDataDefinitionRequestBuilder.saveModelPermissionsBuilder(
-					TestPropsValues.getCompanyId(), _group.getGroupId(),
-					expectedDEDataDefinition.getDEDataDefinitionId()
-				).grantTo(
-					user.getUserId()
-				).inGroup(
-					user.getGroupId()
+					TestPropsValues.getCompanyId(), user.getGroupId(),
+					_adminUser.getUserId(), _group.getGroupId(),
+					expectedDEDataDefinition.getDEDataDefinitionId(),
+					new String[] {RoleConstants.GUEST}
 				).allowView(
 				).build();
 
@@ -488,11 +590,9 @@ public class DEDataDefinitionServiceTest {
 			deDataDefinitionSaveModelPermissionsRequest =
 				DEDataDefinitionRequestBuilder.saveModelPermissionsBuilder(
 					TestPropsValues.getCompanyId(), _group.getGroupId(),
-					expectedDEDataDefinition.getDEDataDefinitionId()
-				).grantTo(
-					_siteMember.getUserId()
-				).inGroup(
-					_group.getGroupId()
+					_adminUser.getUserId(), _group.getGroupId(),
+					expectedDEDataDefinition.getDEDataDefinitionId(),
+					new String[] {RoleConstants.SITE_MEMBER}
 				).allowView(
 				).build();
 
@@ -531,6 +631,59 @@ public class DEDataDefinitionServiceTest {
 		getDEDataDefinition(user, deDataDefinition.getDEDataDefinitionId());
 	}
 
+	@Test(expected = DEDataDefinitionException.PrincipalException.class)
+	public void testGrantDeletePermissionToGuestUser() throws Exception {
+		Group group = GroupTestUtil.addGroup();
+
+		User user = UserTestUtil.addGroupUser(group, RoleConstants.GUEST);
+
+		DEDataDefinition deDataDefinition =
+			DEDataEngineTestUtil.insertDEDataDefinition(
+				_adminUser, _group, _deDataDefinitionService);
+
+		PermissionThreadLocal.setPermissionChecker(
+			PermissionCheckerFactoryUtil.create(_adminUser));
+
+		DEDataDefinitionSaveModelPermissionsRequest
+			deDataDefinitionSaveRequest =
+				DEDataDefinitionRequestBuilder.saveModelPermissionsBuilder(
+					TestPropsValues.getCompanyId(), group.getGroupId(),
+					_adminUser.getUserId(), _adminUser.getGroupId(),
+					deDataDefinition.getDEDataDefinitionId(),
+					new String[] {RoleConstants.GUEST}
+				).allowDelete(
+				).build();
+
+		_deDataDefinitionService.execute(deDataDefinitionSaveRequest);
+	}
+
+	@Test(expected = DEDataDefinitionException.PrincipalException.class)
+	public void testGrantUpdatePermissionToGuestUser() throws Exception {
+		Group group = GroupTestUtil.addGroup();
+
+		User user = UserTestUtil.addGroupUser(group, RoleConstants.GUEST);
+
+		DEDataDefinition deDataDefinition =
+			DEDataEngineTestUtil.insertDEDataDefinition(
+				_adminUser, _group, _deDataDefinitionService);
+
+		PermissionThreadLocal.setPermissionChecker(
+			PermissionCheckerFactoryUtil.create(_adminUser));
+
+		DEDataDefinitionSaveModelPermissionsRequest
+			deDataDefinitionSaveModelPermissionsRequest =
+				DEDataDefinitionRequestBuilder.saveModelPermissionsBuilder(
+					TestPropsValues.getCompanyId(), group.getGroupId(),
+					_adminUser.getUserId(), _adminUser.getGroupId(),
+					deDataDefinition.getDEDataDefinitionId(),
+					new String[] {RoleConstants.GUEST}
+				).allowUpdate(
+				).build();
+
+		_deDataDefinitionService.execute(
+			deDataDefinitionSaveModelPermissionsRequest);
+	}
+
 	@Test
 	public void testInsert() throws Exception {
 		DEDataDefinition deDataDefinition =
@@ -538,6 +691,82 @@ public class DEDataDefinitionServiceTest {
 				_siteMember, _group, _deDataDefinitionService);
 
 		Assert.assertTrue(deDataDefinition.getDEDataDefinitionId() > 0);
+	}
+
+	@Test(expected = DEDataDefinitionException.class)
+	public void testInsertWithBadRequest() throws Exception {
+		Map<String, String> emailLabels = new HashMap() {
+			{
+				put("pt_BR", "Endereço de Email");
+				put("en_US", "Email Address");
+			}
+		};
+
+		DEDataDefinitionField deDataDefinitionField = new DEDataDefinitionField(
+			"email", "string");
+
+		deDataDefinitionField.addLabels(emailLabels);
+
+		DEDataDefinition deDataDefinition = new DEDataDefinition();
+
+		deDataDefinition.addDescription(LocaleUtil.US, "Contact description");
+		deDataDefinition.addDescription(
+			LocaleUtil.BRAZIL, "Descrição do contato");
+		deDataDefinition.addName(LocaleUtil.US, "Contact");
+		deDataDefinition.addName(LocaleUtil.BRAZIL, "Contato");
+		deDataDefinition.setDEDataDefinitionFields(
+			Arrays.asList(deDataDefinitionField));
+		deDataDefinition.setStorageType("json");
+
+		PermissionThreadLocal.setPermissionChecker(
+			PermissionCheckerFactoryUtil.create(_siteMember));
+
+		DEDataDefinitionSaveRequest deDataDefinitionSaveRequest =
+			DEDataDefinitionRequestBuilder.saveBuilder(
+				deDataDefinition
+			).onBehalfOf(
+				_siteMember.getUserId()
+			).build();
+
+		_deDataDefinitionService.execute(deDataDefinitionSaveRequest);
+	}
+
+	@Test(expected = DEDataDefinitionException.class)
+	public void testInsertWithBadRequest2() throws Exception {
+		Map<String, String> emailLabels = new HashMap() {
+			{
+				put("pt_BR", "Endereço de Email");
+				put("en_US", "Email Address");
+			}
+		};
+
+		DEDataDefinitionField deDataDefinitionField = new DEDataDefinitionField(
+			"email", "string");
+
+		deDataDefinitionField.addLabels(emailLabels);
+
+		DEDataDefinition deDataDefinition = new DEDataDefinition();
+
+		deDataDefinition.addDescription(LocaleUtil.US, "Contact description");
+		deDataDefinition.addDescription(
+			LocaleUtil.BRAZIL, "Descrição do contato");
+		deDataDefinition.addName(LocaleUtil.US, "Contact");
+		deDataDefinition.addName(LocaleUtil.BRAZIL, "Contato");
+		deDataDefinition.setDEDataDefinitionFields(
+			Arrays.asList(deDataDefinitionField));
+		deDataDefinition.setStorageType("json");
+
+		PermissionThreadLocal.setPermissionChecker(
+			PermissionCheckerFactoryUtil.create(_siteMember));
+
+		DEDataDefinitionSaveRequest deDataDefinitionSaveRequest =
+			DEDataDefinitionRequestBuilder.saveBuilder(
+				deDataDefinition
+			).inGroup(
+				_group.getGroupId()
+			).build();
+
+		_deDataDefinitionService.execute(deDataDefinitionSaveRequest);
 	}
 
 	@Test(expected = DEDataDefinitionException.MustHavePermission.class)
@@ -970,11 +1199,9 @@ public class DEDataDefinitionServiceTest {
 			deDataDefinitionSaveModelPermissionsRequest =
 				DEDataDefinitionRequestBuilder.saveModelPermissionsBuilder(
 					TestPropsValues.getCompanyId(), _group.getGroupId(),
-					deDataDefinition.getDEDataDefinitionId()
-				).grantTo(
-					_siteMember.getUserId()
-				).inGroup(
-					_group.getGroupId()
+					_adminUser.getUserId(), _group.getGroupId(),
+					deDataDefinition.getDEDataDefinitionId(),
+					new String[] {RoleConstants.SITE_MEMBER}
 				).allowUpdate(
 				).build();
 
