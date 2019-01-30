@@ -22,7 +22,6 @@ import com.liferay.data.engine.service.DEDataDefinitionCountRequest;
 import com.liferay.data.engine.service.DEDataDefinitionCountResponse;
 import com.liferay.data.engine.service.DEDataDefinitionDeleteRequest;
 import com.liferay.data.engine.service.DEDataDefinitionGetRequest;
-import com.liferay.data.engine.service.DEDataDefinitionGetResponse;
 import com.liferay.data.engine.service.DEDataDefinitionListRequest;
 import com.liferay.data.engine.service.DEDataDefinitionListResponse;
 import com.liferay.data.engine.service.DEDataDefinitionRequestBuilder;
@@ -593,8 +592,10 @@ public class DEDataDefinitionServiceTest {
 		_deDataDefinitionService.execute(
 			deDataDefinitionSaveModelPermissionsRequest);
 
-		DEDataDefinition deDataDefinition = getDEDataDefinition(
-			user, expectedDEDataDefinition.getDEDataDefinitionId());
+		DEDataDefinition deDataDefinition =
+			DEDataEngineTestUtil.getDEDataDefinition(
+				user, expectedDEDataDefinition.getDEDataDefinitionId(),
+				_deDataDefinitionService);
 
 		Assert.assertEquals(expectedDEDataDefinition, deDataDefinition);
 	}
@@ -618,8 +619,10 @@ public class DEDataDefinitionServiceTest {
 		_deDataDefinitionService.execute(
 			deDataDefinitionSaveModelPermissionsRequest);
 
-		DEDataDefinition deDataDefinition = getDEDataDefinition(
-			_siteMember, expectedDEDataDefinition.getDEDataDefinitionId());
+		DEDataDefinition deDataDefinition =
+			DEDataEngineTestUtil.getDEDataDefinition(
+				_siteMember, expectedDEDataDefinition.getDEDataDefinitionId(),
+				_deDataDefinitionService);
 
 		Assert.assertEquals(expectedDEDataDefinition, deDataDefinition);
 	}
@@ -647,7 +650,9 @@ public class DEDataDefinitionServiceTest {
 		User user = _userLocalService.getDefaultUser(
 			TestPropsValues.getCompanyId());
 
-		getDEDataDefinition(user, deDataDefinition.getDEDataDefinitionId());
+		DEDataEngineTestUtil.getDEDataDefinition(
+			user, deDataDefinition.getDEDataDefinitionId(),
+			_deDataDefinitionService);
 	}
 
 	@Test(expected = DEDataDefinitionException.PrincipalException.class)
@@ -1017,13 +1022,9 @@ public class DEDataDefinitionServiceTest {
 
 	@Test
 	public void testSearchCountWithoutPermission() throws Exception {
-		DEDataDefinition deDataDefinition =
-			DEDataEngineTestUtil.insertDEDataDefinition(
-				_adminUser, _group, "description1", "name 1",
-				_deDataDefinitionService);
-
-		deleteDEDataDefinition(
-			_adminUser, deDataDefinition.getDEDataDefinitionId());
+		DEDataEngineTestUtil.insertDEDataDefinition(
+			_adminUser, _group, "description1", "name 1",
+			_deDataDefinitionService);
 
 		int total = searchCountDEDataDefinitions(
 			GroupTestUtil.addGroup(), "name");
@@ -1210,7 +1211,7 @@ public class DEDataDefinitionServiceTest {
 
 	@Test
 	public void testUpdate() throws Exception {
-		DEDataDefinition deDataDefinition =
+		DEDataDefinition expectedDEDataDefinition =
 			DEDataEngineTestUtil.insertDEDataDefinition(
 				_adminUser, _group, _deDataDefinitionService);
 
@@ -1219,7 +1220,7 @@ public class DEDataDefinitionServiceTest {
 				DEDataDefinitionRequestBuilder.saveModelPermissionsBuilder(
 					TestPropsValues.getCompanyId(), _group.getGroupId(),
 					_adminUser.getUserId(), _group.getGroupId(),
-					deDataDefinition.getDEDataDefinitionId(),
+					expectedDEDataDefinition.getDEDataDefinitionId(),
 					new String[] {RoleConstants.SITE_MEMBER}
 				).allowUpdate(
 				).build();
@@ -1237,11 +1238,12 @@ public class DEDataDefinitionServiceTest {
 			PermissionThreadLocal.setPermissionChecker(
 				PermissionCheckerFactoryUtil.create(_siteMember));
 
-			deDataDefinition.addName(LocaleUtil.BRAZIL, "Definition BR");
+			expectedDEDataDefinition.addName(
+				LocaleUtil.BRAZIL, "Definition BR");
 
 			DEDataDefinitionSaveRequest deDataDefinitionSaveRequest =
 				DEDataDefinitionRequestBuilder.saveBuilder(
-					deDataDefinition
+					expectedDEDataDefinition
 				).onBehalfOf(
 					_siteMember.getUserId()
 				).inGroup(
@@ -1251,8 +1253,9 @@ public class DEDataDefinitionServiceTest {
 			DEDataDefinitionSaveResponse deDataDefinitionSaveResponse =
 				_deDataDefinitionService.execute(deDataDefinitionSaveRequest);
 
-			Assert.assertTrue(
-				deDataDefinitionSaveResponse.getDEDataDefinitionId() > 0);
+			Assert.assertEquals(
+				expectedDEDataDefinition,
+				deDataDefinitionSaveResponse.getDEDataDefinition());
 		}
 		finally {
 			ServiceContextThreadLocal.popServiceContext();
@@ -1289,25 +1292,6 @@ public class DEDataDefinitionServiceTest {
 		_deDataDefinitionService.execute(deDataDefinitionDeleteRequest);
 	}
 
-	protected DEDataDefinition getDEDataDefinition(
-			User user, long deDataDefinitionId)
-		throws Exception {
-
-		PermissionThreadLocal.setPermissionChecker(
-			PermissionCheckerFactoryUtil.create(user));
-
-		DEDataDefinitionGetRequest deDataDefinitionGetRequest =
-			DEDataDefinitionRequestBuilder.getBuilder(
-			).byId(
-				deDataDefinitionId
-			).build();
-
-		DEDataDefinitionGetResponse deDataDefinitionGetResponse =
-			_deDataDefinitionService.execute(deDataDefinitionGetRequest);
-
-		return deDataDefinitionGetResponse.getDeDataDefinition();
-	}
-
 	protected List<DEDataDefinition> listDEDataDefinitions(
 			Group group, Integer start, Integer end)
 		throws Exception {
@@ -1338,7 +1322,7 @@ public class DEDataDefinitionServiceTest {
 			).inCompany(
 				group.getCompanyId()
 			).inGroup(
-				_group.getGroupId()
+				group.getGroupId()
 			).build();
 
 		DEDataDefinitionSearchCountResponse
