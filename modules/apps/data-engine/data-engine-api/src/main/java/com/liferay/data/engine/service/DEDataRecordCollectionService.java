@@ -17,6 +17,8 @@ package com.liferay.data.engine.service;
 import com.liferay.data.engine.exception.DEDataRecordCollectionException;
 
 /**
+ * Provides the remote service interface for DEDataRecordCollection.
+ * @review
  * @author Leonardo Barros
  */
 public interface DEDataRecordCollectionService {
@@ -46,6 +48,20 @@ public interface DEDataRecordCollectionService {
 	public DEDataRecordCollectionDeletePermissionsResponse execute(
 			DEDataRecordCollectionDeletePermissionsRequest
 				deDataRecordCollectionDeletePermissionsRequest)
+		throws DEDataRecordCollectionException;
+
+	/**
+	 * Removes a {@link DEDataRecordCollection} from the database corresponding to the
+	 * ID passed as a parameter on the request.
+	 * @param deDataRecordCollectionDeleteRequest request to delete
+	 * a {@link DEDataRecordCollection }
+	 * @return {@link DEDataRecordCollectionDeleteResponse } Response
+	 * of the delete request
+	 * @review
+	 */
+	public DEDataRecordCollectionDeleteResponse execute(
+			DEDataRecordCollectionDeleteRequest
+				deDataRecordCollectionDeleteRequest)
 		throws DEDataRecordCollectionException;
 
 	/**
