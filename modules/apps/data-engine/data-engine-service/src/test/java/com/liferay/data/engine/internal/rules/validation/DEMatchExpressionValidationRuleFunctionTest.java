@@ -19,6 +19,9 @@ import com.liferay.data.engine.model.DEDataDefinitionField;
 import com.liferay.data.engine.rules.DEDataDefinitionValidationRuleFunctionApplyRequest;
 import com.liferay.data.engine.rules.DEDataDefinitionValidationRuleFunctionApplyResponse;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,9 +47,15 @@ public class DEMatchExpressionValidationRuleFunctionTest {
 	public void testInvalidRegex() {
 		_deDataDefinitionValidationRuleFunctionApplyRequest.setValue(
 			"test@liferay");
-		_deDataDefinitionValidationRuleFunctionApplyRequest.addParameter(
+
+		Map<String, Object> parameters = new HashMap<>();
+
+		parameters.put(
 			DEDataDefinitionValidationRuleConstants.EXPRESSION_PARAMETER,
 			"\\\\S+[@\\S+\\.\\S+");
+
+		_deDataDefinitionValidationRuleFunctionApplyRequest.setParameters(
+			parameters);
 
 		DEDataDefinitionValidationRuleFunctionApplyResponse
 			deDataDefinitionValidationRuleFunctionApplyResponse =
@@ -69,9 +78,15 @@ public class DEMatchExpressionValidationRuleFunctionTest {
 	public void testNotMatch() {
 		_deDataDefinitionValidationRuleFunctionApplyRequest.setValue(
 			"test@liferay");
-		_deDataDefinitionValidationRuleFunctionApplyRequest.addParameter(
+
+		Map<String, Object> parameters = new HashMap<>();
+
+		parameters.put(
 			DEDataDefinitionValidationRuleConstants.EXPRESSION_PARAMETER,
 			"\\S+@\\S+\\.\\S+");
+
+		_deDataDefinitionValidationRuleFunctionApplyRequest.setParameters(
+			parameters);
 
 		DEDataDefinitionValidationRuleFunctionApplyResponse
 			deDataDefinitionValidationRuleFunctionApplyResponse =
@@ -94,9 +109,15 @@ public class DEMatchExpressionValidationRuleFunctionTest {
 	public void testValidMatch() {
 		_deDataDefinitionValidationRuleFunctionApplyRequest.setValue(
 			"test@liferay.com");
-		_deDataDefinitionValidationRuleFunctionApplyRequest.addParameter(
+
+		Map<String, Object> parameters = new HashMap<>();
+
+		parameters.put(
 			DEDataDefinitionValidationRuleConstants.EXPRESSION_PARAMETER,
 			"\\S+@\\S+\\.\\S+");
+
+		_deDataDefinitionValidationRuleFunctionApplyRequest.setParameters(
+			parameters);
 
 		DEDataDefinitionValidationRuleFunctionApplyResponse
 			deDataDefinitionValidationRuleFunctionApplyResponse =
