@@ -484,7 +484,7 @@ public class DEDataRecordCollectionServiceImpl
 
 	@Override
 	public DEDataRecordCollectionSearchResponse execute(
-		DEDataRecordCollectionSearchRequest deDataRecordCollectionSearchRequest)
+			DEDataRecordCollectionSearchRequest deDataRecordCollectionSearchRequest)
 		throws DEDataRecordCollectionException {
 
 		DEDataRecordCollectionSearchExecutor
