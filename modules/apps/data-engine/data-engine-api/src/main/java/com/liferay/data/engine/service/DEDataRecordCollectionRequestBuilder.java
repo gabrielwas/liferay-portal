@@ -98,4 +98,8 @@ public class DEDataRecordCollectionRequestBuilder {
 			deDataRecord);
 	}
 
+	public static DEDataRecordCollectionSearchRequest.Builder searchBuilder() {
+		return new DEDataRecordCollectionSearchRequest.Builder();
+	}
+
 }
