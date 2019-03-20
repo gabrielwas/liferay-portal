@@ -15,6 +15,7 @@
 package com.liferay.dynamic.data.mapping.internal.search.util;
 
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
 import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -79,6 +80,36 @@ public class DDMSearchHelper {
 		return searchContext;
 	}
 
+	public SearchContext buildStructureLayoutSearchContext(
+		long[] groupIds, long userId, long classNameId, Long classPK,
+		String name, String description, String storageType, Integer type,
+		int status, int start, int end,
+		OrderByComparator<DDMStructureLayout> orderByComparator) {
+
+		SearchContext searchContext = new SearchContext();
+
+		searchContext.setAttribute(Field.CLASS_NAME_ID, classNameId);
+		searchContext.setAttribute(Field.CLASS_PK, classPK);
+		searchContext.setAttribute(Field.DESCRIPTION, description);
+		searchContext.setAttribute(Field.NAME, name);
+		searchContext.setAttribute(Field.STATUS, status);
+		searchContext.setAttribute("storageType", storageType);
+		searchContext.setAttribute("type", type);
+		searchContext.setEnd(end);
+		searchContext.setGroupIds(groupIds);
+		searchContext.setStart(start);
+
+		if (userId > 0) {
+			searchContext.setUserId(userId);
+		}
+
+		if (orderByComparator != null) {
+			searchContext.setSorts(getSortsFromComparator(orderByComparator));
+		}
+
+		return searchContext;
+	}
+
 	public SearchContext buildStructureSearchContext(
 		long companyId, long[] groupIds, long classNameId, Long classPK,
 		String name, String description, String storageType, Integer type,
@@ -87,6 +118,17 @@ public class DDMSearchHelper {
 
 		return buildStructureSearchContext(
 			companyId, groupIds, 0, classNameId, classPK, name, description,
+			storageType, type, status, start, end, orderByComparator);
+	}
+
+	public SearchContext buildStructureSearchContext(
+		long[] groupIds, long classNameId, Long classPK,
+		String name, String description, String storageType, Integer type,
+		int status, int start, int end,
+		OrderByComparator<DDMStructureLayout> orderByComparator) {
+
+		return buildStructureLayoutSearchContext(
+			groupIds, 0, classNameId, classPK, name, description,
 			storageType, type, status, start, end, orderByComparator);
 	}
 
