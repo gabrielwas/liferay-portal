@@ -81,15 +81,13 @@ public class DDMSearchHelper {
 	}
 
 	public SearchContext buildStructureLayoutSearchContext(
-		long[] groupIds, long userId, long classNameId, Long classPK,
-		String name, String description, String storageType, Integer type,
-		int status, int start, int end,
+		long[] groupIds, long classNameId, String name, String description,
+		String storageType, Integer type, int status, int start, int end,
 		OrderByComparator<DDMStructureLayout> orderByComparator) {
 
 		SearchContext searchContext = new SearchContext();
 
 		searchContext.setAttribute(Field.CLASS_NAME_ID, classNameId);
-		searchContext.setAttribute(Field.CLASS_PK, classPK);
 		searchContext.setAttribute(Field.DESCRIPTION, description);
 		searchContext.setAttribute(Field.NAME, name);
 		searchContext.setAttribute(Field.STATUS, status);
@@ -98,10 +96,6 @@ public class DDMSearchHelper {
 		searchContext.setEnd(end);
 		searchContext.setGroupIds(groupIds);
 		searchContext.setStart(start);
-
-		if (userId > 0) {
-			searchContext.setUserId(userId);
-		}
 
 		if (orderByComparator != null) {
 			searchContext.setSorts(getSortsFromComparator(orderByComparator));
@@ -118,17 +112,6 @@ public class DDMSearchHelper {
 
 		return buildStructureSearchContext(
 			companyId, groupIds, 0, classNameId, classPK, name, description,
-			storageType, type, status, start, end, orderByComparator);
-	}
-
-	public SearchContext buildStructureSearchContext(
-		long[] groupIds, long classNameId, Long classPK,
-		String name, String description, String storageType, Integer type,
-		int status, int start, int end,
-		OrderByComparator<DDMStructureLayout> orderByComparator) {
-
-		return buildStructureLayoutSearchContext(
-			groupIds, 0, classNameId, classPK, name, description,
 			storageType, type, status, start, end, orderByComparator);
 	}
 

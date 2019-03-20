@@ -62,6 +62,21 @@ public class DDMStructureLayoutServiceWrapper
 	}
 
 	@Override
+	public java.util.List
+		<com.liferay.dynamic.data.mapping.model.DDMStructureLayout>
+				getStructureLayoutsSearch(
+					long[] groupIds, long classNameId, String keywords,
+					int start, int end,
+					com.liferay.portal.kernel.util.OrderByComparator
+						<com.liferay.dynamic.data.mapping.model.
+							DDMStructureLayout> orderByComparator)
+			throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _ddmStructureLayoutService.getStructureLayoutsSearch(
+			groupIds, classNameId, keywords, start, end, orderByComparator);
+	}
+
+	@Override
 	public DDMStructureLayoutService getWrappedService() {
 		return _ddmStructureLayoutService;
 	}
