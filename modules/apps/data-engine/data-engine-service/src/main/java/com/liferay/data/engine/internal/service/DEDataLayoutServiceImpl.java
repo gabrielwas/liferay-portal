@@ -25,6 +25,7 @@ import com.liferay.data.engine.internal.executor.DEDataLayoutListRequestExecutor
 import com.liferay.data.engine.internal.executor.DEDataLayoutSaveModelPermissionsRequestExecutor;
 import com.liferay.data.engine.internal.executor.DEDataLayoutSavePermissionsRequestExecutor;
 import com.liferay.data.engine.internal.executor.DEDataLayoutSaveRequestExecutor;
+import com.liferay.data.engine.internal.executor.DEDataLayoutSearchRequestExecutor;
 import com.liferay.data.engine.internal.io.DEDataLayoutDeserializerTracker;
 import com.liferay.data.engine.internal.io.DEDataLayoutSerializerTracker;
 import com.liferay.data.engine.internal.security.permission.DEDataEnginePermissionSupport;
@@ -47,10 +48,13 @@ import com.liferay.data.engine.service.DEDataLayoutSavePermissionsRequest;
 import com.liferay.data.engine.service.DEDataLayoutSavePermissionsResponse;
 import com.liferay.data.engine.service.DEDataLayoutSaveRequest;
 import com.liferay.data.engine.service.DEDataLayoutSaveResponse;
+import com.liferay.data.engine.service.DEDataLayoutSearchRequest;
+import com.liferay.data.engine.service.DEDataLayoutSearchResponse;
 import com.liferay.data.engine.service.DEDataLayoutService;
 import com.liferay.dynamic.data.mapping.exception.NoSuchStructureException;
 import com.liferay.dynamic.data.mapping.exception.NoSuchStructureLayoutException;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureVersionLocalService;
 import com.liferay.portal.kernel.security.auth.PrincipalException;
@@ -296,6 +300,18 @@ public class DEDataLayoutServiceImpl
 		}
 	}
 
+	public DEDataLayoutSearchResponse execute(
+			DEDataLayoutSearchRequest deDataLayoutSearchRequest)
+		throws DEDataLayoutException {
+
+		DEDataLayoutSearchRequestExecutor deDataLayoutSearchRequestExecutor =
+			getDEDataLayoutSearchRequestExecutor();
+
+			return deDataLayoutSearchRequestExecutor.execute(
+				deDataLayoutSearchRequest);
+
+	}
+
 	@Override
 	protected DEDataEnginePermissionSupport getDEDataEnginePermissionSupport() {
 		return new DEDataEnginePermissionSupport(groupLocalService);
@@ -351,6 +367,20 @@ public class DEDataLayoutServiceImpl
 			resourceLocalService);
 	}
 
+	public DEDataLayoutSearchRequestExecutor
+		getDEDataLayoutSearchRequestExecutor() {
+
+		if (_deDataLayoutSearchRequestExecutor == null) {
+			_deDataLayoutSearchRequestExecutor =
+				new DEDataLayoutSearchRequestExecutor(
+					_ddmStructureLayoutService,
+					_ddmStructureVersionLocalService,
+					_deDataLayoutDeserializerTracker);
+		}
+
+		return _deDataLayoutSearchRequestExecutor;
+	}
+
 	@Reference
 	protected GroupLocalService groupLocalService;
 
@@ -365,6 +395,9 @@ public class DEDataLayoutServiceImpl
 
 	@Reference
 	private DDMStructureLayoutLocalService _ddmStructureLayoutLocalService;
+
+	@Reference
+	private DDMStructureLayoutService _ddmStructureLayoutService;
 
 	@Reference
 	private DDMStructureLocalService _ddmStructureLocalService;
@@ -390,6 +423,7 @@ public class DEDataLayoutServiceImpl
 	private DEDataLayoutSavePermissionsRequestExecutor
 		_deDataLayoutSavePermissionsRequestExecutor;
 	private DEDataLayoutSaveRequestExecutor _deDataLayoutSaveRequestExecutor;
+	private DEDataLayoutSearchRequestExecutor _deDataLayoutSearchRequestExecutor;
 
 	@Reference
 	private DEDataLayoutSerializerTracker _deDataLayoutSerializerTracker;

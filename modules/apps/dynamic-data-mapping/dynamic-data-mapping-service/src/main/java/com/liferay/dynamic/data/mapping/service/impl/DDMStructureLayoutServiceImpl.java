@@ -17,7 +17,9 @@ package com.liferay.dynamic.data.mapping.service.impl;
 import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
 import com.liferay.dynamic.data.mapping.service.base.DDMStructureLayoutServiceBaseImpl;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.util.OrderByComparator;
 
+import javax.sound.sampled.Port;
 import java.util.List;
 
 /**
@@ -38,6 +40,17 @@ public class DDMStructureLayoutServiceImpl
 	@Override
 	public int getStructureLayoutsCount(long groupId) {
 		return ddmStructureLayoutLocalService.getStructureLayoutsCount(groupId);
+	}
+
+	@Override
+	public List<DDMStructureLayout> getStructureLayoutsSearch(
+			long[] groupIds, long classNameId,
+			String keywords, int start, int end,
+			OrderByComparator<DDMStructureLayout> orderByComparator)
+		throws PortalException {
+
+		return ddmStructureLayoutLocalService.getStructureLayoutsSearch(
+			groupIds, classNameId, keywords, start, end, orderByComparator);
 	}
 
 }

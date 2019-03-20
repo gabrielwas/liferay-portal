@@ -173,14 +173,14 @@ public class DDMStructureLayoutLocalServiceImpl
 	}
 
 	public List<DDMStructureLayout> getStructureLayoutsSearch(
-		long[] groupIds, long userId, long classNameId, long classPK,
-		String keywords, int start, int end,
-		OrderByComparator<DDMStructureLayout> orderByComparator)
+			long[] groupIds, long classNameId,
+			String keywords, int start, int end,
+			OrderByComparator<DDMStructureLayout> orderByComparator)
 		throws PortalException {
 
 		SearchContext searchContext =
 			ddmSearchHelper.buildStructureLayoutSearchContext(
-				groupIds, userId, classNameId, classPK, keywords, keywords,
+				groupIds, classNameId, keywords, keywords,
 				StringPool.BLANK, null, WorkflowConstants.STATUS_ANY, start,
 				end, orderByComparator);
 
