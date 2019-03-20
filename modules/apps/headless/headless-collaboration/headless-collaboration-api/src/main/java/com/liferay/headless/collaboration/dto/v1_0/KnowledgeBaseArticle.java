@@ -45,7 +45,7 @@ public class KnowledgeBaseArticle {
 
 	public static enum ViewableBy {
 
-		ANYONE("anyone"), MEMBERS("members"), OWNER("owner");
+		ANYONE("Anyone"), MEMBERS("Members"), OWNER("Owner");
 
 		@JsonCreator
 		public static ViewableBy create(String value) {
