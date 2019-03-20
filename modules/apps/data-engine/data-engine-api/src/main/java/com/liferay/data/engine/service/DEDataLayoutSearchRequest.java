@@ -1,0 +1,83 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
+package com.liferay.data.engine.service;
+
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
+
+/**
+ * @author Marcelo Mello
+ */
+public class DEDataLayoutSearchRequest {
+
+	public int getEnd() {
+		return _end;
+	}
+
+	public long getGroupId() {
+		return _groupId;
+	}
+
+	public String getKeywords() {
+		return _keywords;
+	}
+
+	public int getStart() {
+		return _start;
+	}
+
+	public static final class Builder {
+
+		public DEDataLayoutSearchRequest build() {
+			return _deDataLayoutSearchRequest;
+		}
+
+		public Builder endingAt(int end) {
+			_deDataLayoutSearchRequest._end = end;
+
+			return this;
+		}
+
+		public Builder havingKeywords(String keywords) {
+			_deDataLayoutSearchRequest._keywords = keywords;
+
+			return this;
+		}
+
+		public Builder inGroup(long groupId) {
+			_deDataLayoutSearchRequest._groupId = groupId;
+
+			return this;
+		}
+
+		public Builder startingAt(int start) {
+			_deDataLayoutSearchRequest._start = start;
+
+			return this;
+		}
+
+		private final DEDataLayoutSearchRequest _deDataLayoutSearchRequest =
+			new DEDataLayoutSearchRequest();
+
+	}
+
+	private DEDataLayoutSearchRequest() {
+	}
+
+	private int _end = QueryUtil.ALL_POS;
+	private long _groupId;
+	private String _keywords;
+	private int _start = QueryUtil.ALL_POS;
+
+}

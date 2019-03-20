@@ -82,4 +82,8 @@ public class DEDataLayoutRequestBuilder {
 			companyId, scopedGroupId, roleNames);
 	}
 
+	public static DEDataLayoutSearchRequest.Builder searchBuilder() {
+		return new DEDataLayoutSearchRequest.Builder();
+	}
+
 }
