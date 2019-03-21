@@ -65,6 +65,7 @@ import com.liferay.portal.kernel.service.ResourceLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 
+import com.liferay.portal.kernel.util.Portal;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -375,7 +376,8 @@ public class DEDataLayoutServiceImpl
 				new DEDataLayoutSearchRequestExecutor(
 					_ddmStructureLayoutService,
 					_ddmStructureVersionLocalService,
-					_deDataLayoutDeserializerTracker);
+					_deDataLayoutDeserializerTracker,
+					_portal);
 		}
 
 		return _deDataLayoutSearchRequestExecutor;
@@ -429,5 +431,8 @@ public class DEDataLayoutServiceImpl
 	private DEDataLayoutSerializerTracker _deDataLayoutSerializerTracker;
 
 	private ModelResourcePermission<DEDataLayout> _modelResourcePermission;
+	
+	@Reference
+	private Portal _portal;
 
 }

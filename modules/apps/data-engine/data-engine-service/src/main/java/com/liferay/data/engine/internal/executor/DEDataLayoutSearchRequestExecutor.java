@@ -42,11 +42,13 @@ public class DEDataLayoutSearchRequestExecutor {
 	public DEDataLayoutSearchRequestExecutor(
 		DDMStructureLayoutService ddmStructureLayoutService,
 		DDMStructureVersionLocalService ddmStructureVersionLocalService,
-		DEDataLayoutDeserializerTracker deDataLayoutDeserializerTracker) {
+		DEDataLayoutDeserializerTracker deDataLayoutDeserializerTracker,
+		Portal portal) {
 
 		_ddmStructureLayoutService = ddmStructureLayoutService;
 		_ddmStructureVersionLocalService = ddmStructureVersionLocalService;
 		_deDataLayoutDeserializerTracker = deDataLayoutDeserializerTracker;
+		_portal = portal;
 	}
 
 	public DEDataLayoutSearchResponse execute(
@@ -58,8 +60,9 @@ public class DEDataLayoutSearchRequestExecutor {
 		try {
 			ddmStructureLayouts =
 				_ddmStructureLayoutService.getStructureLayoutsSearch(
+					deDataLayoutSearchRequest.getCompanyId(),
 					new long[] {deDataLayoutSearchRequest.getGroupId()},
-					portal.getClassNameId(DEDataLayout.class),
+					_portal.getClassNameId(DEDataLayout.class),
 					deDataLayoutSearchRequest.getKeywords(),
 					deDataLayoutSearchRequest.getStart(),
 					deDataLayoutSearchRequest.getEnd(), null);
@@ -130,6 +133,7 @@ public class DEDataLayoutSearchRequestExecutor {
 		_ddmStructureVersionLocalService;
 	private final DEDataLayoutDeserializerTracker
 		_deDataLayoutDeserializerTracker;
-	protected Portal portal;
+
+	private final Portal _portal;
 
 }

@@ -21,6 +21,10 @@ import com.liferay.portal.kernel.dao.orm.QueryUtil;
  */
 public class DEDataLayoutSearchRequest {
 
+	public long getCompanyId() {
+		return _companyId;
+	}
+
 	public int getEnd() {
 		return _end;
 	}
@@ -55,6 +59,12 @@ public class DEDataLayoutSearchRequest {
 			return this;
 		}
 
+		public Builder inCompany(long companyId) {
+			_deDataLayoutSearchRequest._companyId = companyId;
+
+			return this;
+		}
+
 		public Builder inGroup(long groupId) {
 			_deDataLayoutSearchRequest._groupId = groupId;
 
@@ -75,6 +85,7 @@ public class DEDataLayoutSearchRequest {
 	private DEDataLayoutSearchRequest() {
 	}
 
+	private long _companyId;
 	private int _end = QueryUtil.ALL_POS;
 	private long _groupId;
 	private String _keywords;
