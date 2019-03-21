@@ -44,13 +44,14 @@ public class DDMStructureLayoutServiceImpl
 
 	@Override
 	public List<DDMStructureLayout> getStructureLayoutsSearch(
-			long[] groupIds, long classNameId,
+			long companyId, long[] groupIds, long classNameId,
 			String keywords, int start, int end,
 			OrderByComparator<DDMStructureLayout> orderByComparator)
 		throws PortalException {
 
 		return ddmStructureLayoutLocalService.getStructureLayoutsSearch(
-			groupIds, classNameId, keywords, start, end, orderByComparator);
+			companyId, groupIds, classNameId, keywords, start, end,
+			orderByComparator);
 	}
 
 }

@@ -81,7 +81,7 @@ public class DDMSearchHelper {
 	}
 
 	public SearchContext buildStructureLayoutSearchContext(
-		long[] groupIds, long classNameId, String name, String description,
+		long companyId, long[] groupIds, long classNameId, String name, String description,
 		String storageType, Integer type, int status, int start, int end,
 		OrderByComparator<DDMStructureLayout> orderByComparator) {
 
@@ -93,6 +93,7 @@ public class DDMSearchHelper {
 		searchContext.setAttribute(Field.STATUS, status);
 		searchContext.setAttribute("storageType", storageType);
 		searchContext.setAttribute("type", type);
+		searchContext.setCompanyId(companyId);
 		searchContext.setEnd(end);
 		searchContext.setGroupIds(groupIds);
 		searchContext.setStart(start);
