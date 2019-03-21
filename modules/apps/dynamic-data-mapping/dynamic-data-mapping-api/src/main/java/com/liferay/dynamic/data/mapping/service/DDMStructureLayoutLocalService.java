@@ -331,8 +331,9 @@ public interface DDMStructureLayoutLocalService
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public List<DDMStructureLayout> getStructureLayoutsSearch(
-			long[] groupIds, long classNameId, String keywords, int start,
-			int end, OrderByComparator<DDMStructureLayout> orderByComparator)
+			long companyId, long[] groupIds, long classNameId, String keywords,
+			int start, int end,
+			OrderByComparator<DDMStructureLayout> orderByComparator)
 		throws PortalException;
 
 	/**

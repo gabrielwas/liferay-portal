@@ -129,8 +129,9 @@ public class DDMStructureLayoutServiceHttp {
 	public static java.util.List
 		<com.liferay.dynamic.data.mapping.model.DDMStructureLayout>
 				getStructureLayoutsSearch(
-					HttpPrincipal httpPrincipal, long[] groupIds,
-					long classNameId, String keywords, int start, int end,
+					HttpPrincipal httpPrincipal, long companyId,
+					long[] groupIds, long classNameId, String keywords,
+					int start, int end,
 					com.liferay.portal.kernel.util.OrderByComparator
 						<com.liferay.dynamic.data.mapping.model.
 							DDMStructureLayout> orderByComparator)
@@ -143,8 +144,8 @@ public class DDMStructureLayoutServiceHttp {
 				_getStructureLayoutsSearchParameterTypes2);
 
 			MethodHandler methodHandler = new MethodHandler(
-				methodKey, groupIds, classNameId, keywords, start, end,
-				orderByComparator);
+				methodKey, companyId, groupIds, classNameId, keywords, start,
+				end, orderByComparator);
 
 			Object returnObj = null;
 
@@ -183,8 +184,8 @@ public class DDMStructureLayoutServiceHttp {
 		new Class[] {long.class};
 	private static final Class<?>[] _getStructureLayoutsSearchParameterTypes2 =
 		new Class[] {
-			long[].class, long.class, String.class, int.class, int.class,
-			com.liferay.portal.kernel.util.OrderByComparator.class
+			long.class, long[].class, long.class, String.class, int.class,
+			int.class, com.liferay.portal.kernel.util.OrderByComparator.class
 		};
 
 }

@@ -105,8 +105,8 @@ public class DDMStructureLayoutServiceSoap {
 	public static
 		com.liferay.dynamic.data.mapping.model.DDMStructureLayoutSoap[]
 				getStructureLayoutsSearch(
-					long[] groupIds, long classNameId, String keywords,
-					int start, int end,
+					long companyId, long[] groupIds, long classNameId,
+					String keywords, int start, int end,
 					com.liferay.portal.kernel.util.OrderByComparator
 						<com.liferay.dynamic.data.mapping.model.
 							DDMStructureLayout> orderByComparator)
@@ -117,8 +117,8 @@ public class DDMStructureLayoutServiceSoap {
 				<com.liferay.dynamic.data.mapping.model.DDMStructureLayout>
 					returnValue =
 						DDMStructureLayoutServiceUtil.getStructureLayoutsSearch(
-							groupIds, classNameId, keywords, start, end,
-							orderByComparator);
+							companyId, groupIds, classNameId, keywords, start,
+							end, orderByComparator);
 
 			return com.liferay.dynamic.data.mapping.model.
 				DDMStructureLayoutSoap.toSoapModels(returnValue);
