@@ -37,6 +37,8 @@ import com.liferay.data.engine.service.DEDataLayoutSaveModelPermissionsRequest;
 import com.liferay.data.engine.service.DEDataLayoutSavePermissionsRequest;
 import com.liferay.data.engine.service.DEDataLayoutSaveRequest;
 import com.liferay.data.engine.service.DEDataLayoutSaveResponse;
+import com.liferay.data.engine.service.DEDataLayoutSearchRequest;
+import com.liferay.data.engine.service.DEDataLayoutSearchResponse;
 import com.liferay.data.engine.service.DEDataLayoutService;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Group;
@@ -58,6 +60,7 @@ import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.search.test.util.IdempotentRetryAssert;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
@@ -68,6 +71,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -1899,6 +1903,129 @@ public class DEDataLayoutServiceTest {
 	}
 
 	@Test
+	public void testSearchBlank() throws Exception {
+		int total = 5;
+
+		for (int i = 0; i < total; i++) {
+			saveDataLayout(_group, _adminUser, "layout" + i, "this is a layout" + i);
+		}
+
+		List<DEDataLayout> deDataLayouts =
+			searchDEDataLayout(_group, "");
+
+		IdempotentRetryAssert.retryAssert(
+			5, TimeUnit.SECONDS,
+			() -> {
+				Assert.assertEquals(
+					deDataLayouts.toString(), 5,
+					deDataLayouts.size());
+
+				return null;
+			});
+	}
+
+	@Test
+	public void testSearchCaseSensitive() throws Exception {
+		int total = 5;
+
+		for (int i = 0; i < total; i++) {
+			saveDataLayout(_group, _adminUser, "Layout" + i, "This is a layout" + i);
+		}
+
+		List<DEDataLayout> deDataLayouts =
+			searchDEDataLayout(_group, "layout");
+
+		IdempotentRetryAssert.retryAssert(
+			5, TimeUnit.SECONDS,
+			() -> {
+				Assert.assertEquals(
+					deDataLayouts.toString(), 5,
+					deDataLayouts.size());
+
+				return null;
+			});
+	}
+
+	@Test
+	public void testSearchPartial() throws Exception {
+		int total = 5;
+
+		for (int i = 0; i < total; i++) {
+			saveDataLayout(_group, _adminUser, "layout" + i, "this is a layout" + i);
+		}
+
+		List<DEDataLayout> deDataLayouts =
+			searchDEDataLayout(_group, "layou");
+
+		IdempotentRetryAssert.retryAssert(
+			5, TimeUnit.SECONDS,
+			() -> {
+				Assert.assertEquals(
+					deDataLayouts.toString(), 5,
+					deDataLayouts.size());
+
+				return null;
+			});
+
+		List<DEDataLayout> deDataLayouts2 =
+			searchDEDataLayout(_group, "layou");
+
+		IdempotentRetryAssert.retryAssert(
+			5, TimeUnit.SECONDS,
+			() -> {
+				Assert.assertEquals(
+					deDataLayouts2.toString(), 5,
+					deDataLayouts2.size());
+
+				return null;
+			});
+	}
+
+	@Test
+	public void testSearchNonascii() throws Exception {
+		int total = 5;
+
+		for (int i = 0; i < total; i++) {
+			saveDataLayout(_group, _adminUser, "layout" + i, "this is a layout" + i);
+		}
+
+		List<DEDataLayout> deDataLayouts =
+			searchDEDataLayout(_group, "nonascii£祝你好运");
+
+		IdempotentRetryAssert.retryAssert(
+			5, TimeUnit.SECONDS,
+			() -> {
+				Assert.assertEquals(
+					deDataLayouts.toString(), 0,
+					deDataLayouts.size());
+
+				return null;
+			});
+	}
+
+	@Test
+	public void testSearchWithSpace() throws Exception {
+		int total = 5;
+
+		for (int i = 0; i < total; i++) {
+			saveDataLayout(_group, _adminUser, "layout" + i, "this is a layout" + i);
+		}
+
+		List<DEDataLayout> deDataLayouts =
+			searchDEDataLayout(_group, "this is");
+
+		IdempotentRetryAssert.retryAssert(
+			5, TimeUnit.SECONDS,
+			() -> {
+				Assert.assertEquals(
+					deDataLayouts.toString(), 5,
+					deDataLayouts.size());
+
+				return null;
+			});
+	}
+
+	@Test
 	public void testUpdateDEDataLayout() throws Exception {
 		DEDataLayout deDataLayout = saveDataLayout(
 			_group, _adminUser, "layout", "this is a layout");
@@ -2274,6 +2401,26 @@ public class DEDataLayoutServiceTest {
 		deDataLayoutRow.setDEDataLayoutColumns(deDataLayoutColumns);
 
 		return deDataLayoutRow;
+	}
+
+	protected List<DEDataLayout> searchDEDataLayout(
+			Group group, String keywords)
+		throws Exception {
+
+		DEDataLayoutSearchRequest deDataLayoutSearchRequest =
+			DEDataLayoutRequestBuilder.searchBuilder(
+			).havingKeywords(
+				keywords
+			).inCompany(
+				group.getCompanyId()
+			).inGroup(
+				group.getGroupId()
+			).build();
+
+		DEDataLayoutSearchResponse deDataLayoutSearchResponse =
+			_deDataLayoutService.execute(deDataLayoutSearchRequest);
+
+		return deDataLayoutSearchResponse.getDeDataLayouts();
 	}
 
 	@DeleteAfterTestRun
