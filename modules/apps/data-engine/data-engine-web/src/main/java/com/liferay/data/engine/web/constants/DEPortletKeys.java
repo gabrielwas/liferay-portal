@@ -24,5 +24,8 @@ public class DEPortletKeys {
 
 	public static final String DATA_RECORD_COLLECTION =
 		"com_liferay_data_engine_web_portlet_DEDataRecordCollectionPortlet";
+	
+	public static final String DATA_LAYOUT =
+	"com_liferay_data_engine_web_portlet_DEDataLayoutPortlet";
 
 }

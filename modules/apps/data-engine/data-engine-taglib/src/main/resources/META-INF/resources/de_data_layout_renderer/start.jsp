@@ -16,8 +16,14 @@
 
 <%@ include file="init.jsp" %>
 
+<%
+if (deDataLayout != null) {
+	deDataLayoutId = deDataLayout.getDEDataLayoutId();
+}
+%>
+
 <div class="container-fluid-1280 ddm-form-builder-app">
-	Hello World!
+	<%= dataLayoutHTML %>
 
-
+	<aui:input name="empty" type="hidden" value="" />
 </div>

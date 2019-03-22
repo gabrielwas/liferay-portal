@@ -14,10 +14,132 @@
 
 package com.liferay.data.engine.taglib.servlet.taglib;
 
+import com.liferay.data.engine.exception.DEDataLayoutException;
+import com.liferay.data.engine.model.DEDataLayout;
 import com.liferay.data.engine.taglib.servlet.taglib.base.BaseDEDataLayoutRendererTag;
+import com.liferay.data.engine.taglib.servlet.taglib.util.DEDataLayoutTaglibUtil;
+import com.liferay.dynamic.data.mapping.model.DDMForm;
+import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.util.AggregateResourceBundle;
+import com.liferay.portal.kernel.util.JavaConstants;
+import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.ResourceBundleLoader;
+import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
+import com.liferay.portal.kernel.util.ResourceBundleUtil;
+
+import java.util.Locale;
+import java.util.ResourceBundle;
+
+import javax.portlet.RenderResponse;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author Jeyvison Nascimento
  */
 public class DEDataLayoutRendererTag extends BaseDEDataLayoutRendererTag {
+
+	protected DEDataLayout getDEDataLayout() {
+		Long deDataLayoutId = getDeDataLayoutId();
+
+		DEDataLayout deDataLayout = null;
+
+		try {
+			deDataLayout = DEDataLayoutTaglibUtil.getDEDataLayout(
+				deDataLayoutId);
+		}
+		catch (DEDataLayoutException dedle) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(dedle, dedle);
+			}
+		}
+
+		return deDataLayout;
+	}
+
+	protected String getDEDataLayoutHTML() {
+		String deDataLayoutHTML = StringPool.BLANK;
+
+		DEDataLayout deDataLayout = getDEDataLayout();
+
+		HttpServletResponse response = getResponse();
+
+		//??????????
+		boolean readOnly = false;
+
+		try {
+			deDataLayoutHTML = DEDataLayoutTaglibUtil.renderDataLayout(
+				deDataLayout, request, response, readOnly);
+		}
+		catch (PortalException pe) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(pe, pe);
+			}
+		}
+
+		return deDataLayoutHTML;
+	}
+
+	protected RenderResponse getRenderResponse() {
+		return (RenderResponse)request.getAttribute(
+			JavaConstants.JAVAX_PORTLET_RESPONSE);
+	}
+
+	protected HttpServletResponse getResponse() {
+		RenderResponse renderResponse = getRenderResponse();
+
+		HttpServletResponse response = PortalUtil.getHttpServletResponse(
+			renderResponse);
+
+		return response;
+	}
+	
+	protected ResourceBundle getResourceBundle(Locale locale) {
+		ResourceBundleLoader portalResourceBundleLoader =
+			ResourceBundleLoaderUtil.getPortalResourceBundleLoader();
+
+		ResourceBundle portalResourceBundle =
+			portalResourceBundleLoader.loadResourceBundle(locale);
+
+		ResourceBundle moduleResourceBundle = ResourceBundleUtil.getBundle(
+			"content.Language", locale, getClass());
+
+		return new AggregateResourceBundle(
+			moduleResourceBundle, portalResourceBundle);
+	}
+	
+	protected Locale getLocale(HttpServletRequest request) {
+		String languageId = LanguageUtil.getLanguageId(request);
+
+		Locale locale = LocaleUtil.fromLanguageId(languageId);
+		
+		return locale;
+	}
+
+	@Override
+	protected void setAttributes(HttpServletRequest request) {
+		super.setAttributes(request);
+
+		setNamespacedAttribute(
+			request, "dataLayout", getDEDataLayout());
+		setNamespacedAttribute(
+			request, "dataLayoutHTML", getDEDataLayoutHTML());
+		setNamespacedAttribute(
+			request, "languageId",
+			LocaleUtil.toLanguageId(getLocale(request)));
+		setNamespacedAttribute(
+			request, "resourceBundle",
+			getResourceBundle(getLocale(request)));
+		
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		DEDataLayoutRendererTag.class);
+
 }
