@@ -34,7 +34,7 @@ import com.liferay.portal.kernel.exception.PortalException;
  */
 @Component(immediate = true, service = {})
 public class DEDataLayoutTaglibUtil {
-
+	
 	public static DEDataLayout getDEDataLayout(long deDataLayoutId)
 		throws DEDataLayoutException {
 
@@ -62,7 +62,6 @@ public class DEDataLayoutTaglibUtil {
 	@Reference(unbind = "-")
 	protected void setDEDataLayoutService(
 		DEDataLayoutService deDataLayoutService) {
-
 		_deDataLayoutService = deDataLayoutService;
 	}
 	

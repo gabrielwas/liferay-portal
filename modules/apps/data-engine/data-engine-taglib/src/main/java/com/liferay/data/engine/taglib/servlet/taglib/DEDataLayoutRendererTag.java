@@ -18,7 +18,6 @@ import com.liferay.data.engine.exception.DEDataLayoutException;
 import com.liferay.data.engine.model.DEDataLayout;
 import com.liferay.data.engine.taglib.servlet.taglib.base.BaseDEDataLayoutRendererTag;
 import com.liferay.data.engine.taglib.servlet.taglib.util.DEDataLayoutTaglibUtil;
-import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
