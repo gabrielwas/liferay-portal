@@ -14,28 +14,18 @@
 
 package com.liferay.dynamic.data.mapping.internal.search.spi.model.index.contributor;
 
-import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
-import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
-import com.liferay.dynamic.data.mapping.model.DDMStructureVersion;
-import com.liferay.dynamic.data.mapping.service.DDMStructureVersionLocalService;
-import com.liferay.dynamic.data.mapping.util.DDMIndexer;
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.language.LanguageUtil;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.spi.model.index.contributor.ModelDocumentContributor;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import java.util.Locale;
-import java.util.Map;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Marcelo Mello
@@ -50,29 +40,50 @@ public class DDMStructureLayoutModelDocumentContributor
 
 	@Override
 	public void contribute(Document document, DDMStructureLayout ddmStructureLayout) {
-
-		DDMFormLayout ddmFormLayout = ddmStructureLayout.getDDMFormLayout();
-
 		document.addKeyword(Field.CLASS_NAME_ID,
 			classNameLocalService.getClassNameId(DDMStructureLayout.class));
 
-		document.addKeyword(Field.COMPANY_ID,
-			ddmStructureLayout.getCompanyId());
+		Locale defaultLocale = LocaleUtil.getSiteDefault();
 
-		document.addKeyword(Field.CLASS_PK,
-			ddmStructureLayout.getStructureLayoutId());
+		String defaultLanguageId = LocaleUtil.toLanguageId(defaultLocale);
 
-		document.addKeyword("description", ddmStructureLayout.getDescription());
-		document.addKeyword(Field.GROUP_ID, ddmStructureLayout.getGroupId());
-		document.addKeyword("name", ddmStructureLayout.getName());
+		String[] descriptionLanguageIds = getLanguageIds(
+			defaultLanguageId, ddmStructureLayout.getDescription());
+
+		for (String descriptionLanguageId : descriptionLanguageIds) {
+			document.addText(
+				LocalizationUtil.getLocalizedName(
+					Field.DESCRIPTION, descriptionLanguageId),
+				ddmStructureLayout.getDescription(descriptionLanguageId));
+		}
+
+		String[] nameLanguageIds = getLanguageIds(
+			defaultLanguageId, ddmStructureLayout.getName());
+
+		for (String nameLanguageId : nameLanguageIds) {
+			document.addText(
+				LocalizationUtil.getLocalizedName(Field.NAME, nameLanguageId),
+				ddmStructureLayout.getName(nameLanguageId));
+		}
 
 		document.addKeyword("structureLayoutId",
 			ddmStructureLayout.getStructureLayoutId());
 
 		document.addKeyword("structureVersionId",
 			ddmStructureLayout.getStructureVersionId());
+	}
 
-		document.addKeyword(Field.USER_ID, ddmStructureLayout.getUserId());
+	protected String[] getLanguageIds(
+		String defaultLanguageId, String content) {
+
+		String[] languageIds = LocalizationUtil.getAvailableLanguageIds(
+			content);
+
+		if (languageIds.length == 0) {
+			languageIds = new String[] {defaultLanguageId};
+		}
+
+		return languageIds;
 	}
 
 	@Reference

@@ -38,7 +38,7 @@ public class DDMStructureLayoutSearchRegistrar {
 			modelSearchDefinition -> {
 				modelSearchDefinition.setDefaultSelectedFieldNames(
 					Field.COMPANY_ID, Field.ENTRY_CLASS_NAME,
-					Field.ENTRY_CLASS_PK, Field.UID);
+					Field.ENTRY_CLASS_PK, Field.CLASS_NAME_ID);
 				modelSearchDefinition.setDefaultSelectedLocalizedFieldNames(
 					Field.DESCRIPTION, Field.NAME);
 				modelSearchDefinition.setModelIndexWriteContributor(
