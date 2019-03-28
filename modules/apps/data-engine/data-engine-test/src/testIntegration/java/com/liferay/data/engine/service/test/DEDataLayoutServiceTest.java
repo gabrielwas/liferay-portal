@@ -1929,7 +1929,7 @@ public class DEDataLayoutServiceTest {
 		int total = 5;
 
 		for (int i = 0; i < total; i++) {
-			saveDataLayout(_group, _adminUser, "Layout" + i, "This is a layout" + i);
+			saveDataLayout(_group, _adminUser, "Layout" + i, "This is a " + i);
 		}
 
 		List<DEDataLayout> deDataLayouts =
@@ -1966,19 +1966,6 @@ public class DEDataLayoutServiceTest {
 
 				return null;
 			});
-
-		List<DEDataLayout> deDataLayouts2 =
-			searchDEDataLayout(_group, "layou");
-
-		IdempotentRetryAssert.retryAssert(
-			5, TimeUnit.SECONDS,
-			() -> {
-				Assert.assertEquals(
-					deDataLayouts2.toString(), 5,
-					deDataLayouts2.size());
-
-				return null;
-			});
 	}
 
 	@Test
@@ -2008,11 +1995,33 @@ public class DEDataLayoutServiceTest {
 		int total = 5;
 
 		for (int i = 0; i < total; i++) {
-			saveDataLayout(_group, _adminUser, "layout" + i, "this is a layout" + i);
+			saveDataLayout(_group, _adminUser, "layout " + i, "this is a layout" + i);
 		}
 
 		List<DEDataLayout> deDataLayouts =
-			searchDEDataLayout(_group, "this is");
+			searchDEDataLayout(_group, "layout 1");
+
+		IdempotentRetryAssert.retryAssert(
+			5, TimeUnit.SECONDS,
+			() -> {
+				Assert.assertEquals(
+					deDataLayouts.toString(), 5,
+					deDataLayouts.size());
+
+				return null;
+			});
+	}
+	
+	@Test
+	public void testSearchDescription() throws Exception {
+		int total = 5;
+
+		for (int i = 0; i < total; i++) {
+			saveDataLayout(_group, _adminUser, "layout " + i, "this is a layout" + i);
+		}
+
+		List<DEDataLayout> deDataLayouts =
+			searchDEDataLayout(_group, "this");
 
 		IdempotentRetryAssert.retryAssert(
 			5, TimeUnit.SECONDS,

@@ -19,7 +19,6 @@ import com.liferay.dynamic.data.mapping.service.base.DDMStructureLayoutServiceBa
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.util.OrderByComparator;
 
-import javax.sound.sampled.Port;
 import java.util.List;
 
 /**
@@ -44,8 +43,8 @@ public class DDMStructureLayoutServiceImpl
 
 	@Override
 	public List<DDMStructureLayout> getStructureLayoutsSearch(
-			long companyId, long[] groupIds, long classNameId,
-			String keywords, int start, int end,
+			long companyId, long[] groupIds, long classNameId, String keywords,
+			int start, int end,
 			OrderByComparator<DDMStructureLayout> orderByComparator)
 		throws PortalException {
 

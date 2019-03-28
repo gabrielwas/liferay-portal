@@ -15,14 +15,17 @@
 package com.liferay.dynamic.data.mapping.internal.search.spi.model.index.contributor;
 
 import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
+import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LocalizationUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.spi.model.index.contributor.ModelDocumentContributor;
 
 import java.util.Locale;
+import java.util.Map;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -39,8 +42,11 @@ public class DDMStructureLayoutModelDocumentContributor
 	implements ModelDocumentContributor<DDMStructureLayout> {
 
 	@Override
-	public void contribute(Document document, DDMStructureLayout ddmStructureLayout) {
-		document.addKeyword(Field.CLASS_NAME_ID,
+	public void contribute(
+		Document document, DDMStructureLayout ddmStructureLayout) {
+
+		document.addKeyword(
+			Field.CLASS_NAME_ID,
 			classNameLocalService.getClassNameId(DDMStructureLayout.class));
 
 		Locale defaultLocale = LocaleUtil.getSiteDefault();
@@ -66,11 +72,10 @@ public class DDMStructureLayoutModelDocumentContributor
 				ddmStructureLayout.getName(nameLanguageId));
 		}
 
-		document.addKeyword("structureLayoutId",
-			ddmStructureLayout.getStructureLayoutId());
-
-		document.addKeyword("structureVersionId",
-			ddmStructureLayout.getStructureVersionId());
+		document.addLocalizedKeyword(
+			"localized_name",
+			_populateMap(ddmStructureLayout, ddmStructureLayout.getNameMap()),
+			true, true);
 	}
 
 	protected String[] getLanguageIds(
@@ -88,5 +93,26 @@ public class DDMStructureLayoutModelDocumentContributor
 
 	@Reference
 	protected ClassNameLocalService classNameLocalService;
+
+	private Map<Locale, String> _populateMap(
+		DDMStructureLayout ddmStructureLayout, Map<Locale, String> map) {
+
+		String defaultValue = map.get(
+			LocaleUtil.fromLanguageId(
+				ddmStructureLayout.getDefaultLanguageId()));
+
+		for (Locale availableLocale :
+				LanguageUtil.getAvailableLocales(
+					ddmStructureLayout.getGroupId())) {
+
+			if (!map.containsKey(availableLocale) ||
+				Validator.isNull(map.get(availableLocale))) {
+
+				map.put(availableLocale, defaultValue);
+			}
+		}
+
+		return map;
+	}
 
 }

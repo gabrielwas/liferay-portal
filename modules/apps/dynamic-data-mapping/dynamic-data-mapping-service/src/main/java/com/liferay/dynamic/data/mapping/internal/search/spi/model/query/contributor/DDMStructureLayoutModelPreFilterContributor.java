@@ -24,10 +24,11 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.spi.model.query.contributor.ModelPreFilterContributor;
 import com.liferay.portal.search.spi.model.registrar.ModelSearchSettings;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import java.io.Serializable;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Marcelo Mello
@@ -44,16 +45,6 @@ public class DDMStructureLayoutModelPreFilterContributor
 	public void contribute(
 		BooleanFilter booleanFilter, ModelSearchSettings modelSearchSettings,
 		SearchContext searchContext) {
-
-		addRequiredTerms(
-			booleanFilter, searchContext, Field.CLASS_NAME_ID, "classNameIds");
-		addRequiredTerms(
-			booleanFilter, searchContext, Field.CLASS_PK, "classPKs");
-
-		addRequiredTerm(booleanFilter, searchContext, Field.DESCRIPTION);
-		addRequiredTerm(booleanFilter, searchContext, Field.NAME);
-		addRequiredTerm(booleanFilter, searchContext, "storageType");
-		addRequiredTerm(booleanFilter, searchContext, "type");
 
 		addWorkflowStatusFilter(
 			booleanFilter, modelSearchSettings, searchContext);

@@ -15,11 +15,12 @@
 package com.liferay.dynamic.data.mapping.internal.search.spi.model.index.contributor;
 
 import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
-import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
 import com.liferay.portal.search.batch.BatchIndexingActionable;
 import com.liferay.portal.search.batch.DynamicQueryBatchIndexingActionableFactory;
 import com.liferay.portal.search.spi.model.index.contributor.ModelIndexerWriterContributor;
 import com.liferay.portal.search.spi.model.index.contributor.helper.ModelIndexerWriterDocumentHelper;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -42,7 +43,8 @@ public class DDMStructureLayoutModelIndexerWriterContributor
 		batchIndexingActionable.setPerformActionMethod(
 			(DDMStructureLayout ddmStructureLayout) -> {
 				batchIndexingActionable.addDocuments(
-					modelIndexerWriterDocumentHelper.getDocument(ddmStructureLayout));
+					modelIndexerWriterDocumentHelper.getDocument(
+						ddmStructureLayout));
 			});
 	}
 
@@ -50,7 +52,8 @@ public class DDMStructureLayoutModelIndexerWriterContributor
 	public BatchIndexingActionable getBatchIndexingActionable() {
 		return dynamicQueryBatchIndexingActionableFactory.
 			getBatchIndexingActionable(
-				ddmStructureLocalService.getIndexableActionableDynamicQuery());
+				ddmStructureLayoutLocalService.
+					getIndexableActionableDynamicQuery());
 	}
 
 	@Override
@@ -59,7 +62,7 @@ public class DDMStructureLayoutModelIndexerWriterContributor
 	}
 
 	@Reference
-	protected DDMStructureLocalService ddmStructureLocalService;
+	protected DDMStructureLayoutLocalService ddmStructureLayoutLocalService;
 
 	@Reference
 	protected DynamicQueryBatchIndexingActionableFactory

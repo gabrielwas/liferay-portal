@@ -173,8 +173,8 @@ public class DDMStructureLayoutLocalServiceImpl
 	}
 
 	public List<DDMStructureLayout> getStructureLayoutsSearch(
-			long companyId, long[] groupIds, long classNameId,
-			String keywords, int start, int end,
+			long companyId, long[] groupIds, long classNameId, String keywords,
+			int start, int end,
 			OrderByComparator<DDMStructureLayout> orderByComparator)
 		throws PortalException {
 
