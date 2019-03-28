@@ -15,6 +15,7 @@
 package com.liferay.dynamic.data.mapping.internal.search.util;
 
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
 import com.liferay.dynamic.data.mapping.model.DDMTemplate;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -71,6 +72,31 @@ public class DDMSearchHelper {
 		if (userId > 0) {
 			searchContext.setUserId(userId);
 		}
+
+		if (orderByComparator != null) {
+			searchContext.setSorts(getSortsFromComparator(orderByComparator));
+		}
+
+		return searchContext;
+	}
+
+	public SearchContext buildStructureLayoutSearchContext(
+		long companyId, long[] groupIds, long classNameId, String name, String description,
+		String storageType, Integer type, int status, int start, int end,
+		OrderByComparator<DDMStructureLayout> orderByComparator) {
+
+		SearchContext searchContext = new SearchContext();
+
+		searchContext.setAttribute(Field.CLASS_NAME_ID, classNameId);
+		searchContext.setAttribute(Field.DESCRIPTION, description);
+		searchContext.setAttribute(Field.NAME, name);
+		searchContext.setAttribute(Field.STATUS, status);
+		searchContext.setAttribute("storageType", storageType);
+		searchContext.setAttribute("type", type);
+		searchContext.setCompanyId(companyId);
+		searchContext.setEnd(end);
+		searchContext.setGroupIds(groupIds);
+		searchContext.setStart(start);
 
 		if (orderByComparator != null) {
 			searchContext.setSorts(getSortsFromComparator(orderByComparator));

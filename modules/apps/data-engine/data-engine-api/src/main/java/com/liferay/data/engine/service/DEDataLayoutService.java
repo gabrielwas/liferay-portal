@@ -127,4 +127,8 @@ public interface DEDataLayoutService {
 			DEDataLayoutSaveRequest deDataLayoutSaveRequest)
 		throws DEDataLayoutException;
 
+	public DEDataLayoutSearchResponse execute(
+			DEDataLayoutSearchRequest deDataLayoutSearchRequest)
+		throws DEDataLayoutException;
+
 }
