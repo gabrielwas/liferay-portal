@@ -40,20 +40,24 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "DataDefinitionField")
 public class DataDefinitionField {
 
-	public String getDefaultValue() {
-		return defaultValue;
+	public CustomProperty[] getCustomProperties() {
+		return customProperties;
 	}
 
-	public void setDefaultValue(String defaultValue) {
-		this.defaultValue = defaultValue;
+	public void setCustomProperties(CustomProperty[] customProperties) {
+		this.customProperties = customProperties;
 	}
 
 	@JsonIgnore
-	public void setDefaultValue(
-		UnsafeSupplier<String, Exception> defaultValueUnsafeSupplier) {
+	public void setCustomProperties(
+		UnsafeSupplier<CustomProperty[], Exception>
+			customPropertiesUnsafeSupplier) {
 
 		try {
-			defaultValue = defaultValueUnsafeSupplier.get();
+			customProperties = customPropertiesUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -62,7 +66,34 @@ public class DataDefinitionField {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected String defaultValue;
+	protected CustomProperty[] customProperties;
+
+	public Object getDefaultValue() {
+		return defaultValue;
+	}
+
+	public void setDefaultValue(Object defaultValue) {
+		this.defaultValue = defaultValue;
+	}
+
+	@JsonIgnore
+	public void setDefaultValue(
+		UnsafeSupplier<Object, Exception> defaultValueUnsafeSupplier) {
+
+		try {
+			defaultValue = defaultValueUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected Object defaultValue;
 
 	public String getFieldType() {
 		return fieldType;
@@ -78,6 +109,9 @@ public class DataDefinitionField {
 
 		try {
 			fieldType = fieldTypeUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -100,6 +134,9 @@ public class DataDefinitionField {
 	public void setId(UnsafeSupplier<Long, Exception> idUnsafeSupplier) {
 		try {
 			id = idUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -125,6 +162,9 @@ public class DataDefinitionField {
 		try {
 			indexable = indexableUnsafeSupplier.get();
 		}
+		catch (RuntimeException re) {
+			throw re;
+		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -148,6 +188,9 @@ public class DataDefinitionField {
 
 		try {
 			label = labelUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -173,6 +216,9 @@ public class DataDefinitionField {
 		try {
 			localizable = localizableUnsafeSupplier.get();
 		}
+		catch (RuntimeException re) {
+			throw re;
+		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -194,6 +240,9 @@ public class DataDefinitionField {
 	public void setName(UnsafeSupplier<String, Exception> nameUnsafeSupplier) {
 		try {
 			name = nameUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -219,6 +268,9 @@ public class DataDefinitionField {
 		try {
 			repeatable = repeatableUnsafeSupplier.get();
 		}
+		catch (RuntimeException re) {
+			throw re;
+		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
 		}
@@ -242,6 +294,9 @@ public class DataDefinitionField {
 
 		try {
 			tip = tipUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
 		}
 		catch (Exception e) {
 			throw new RuntimeException(e);
@@ -279,11 +334,30 @@ public class DataDefinitionField {
 
 		sb.append("{");
 
+		sb.append("\"customProperties\": ");
+
+		if (customProperties == null) {
+			sb.append("null");
+		}
+		else {
+			sb.append("[");
+
+			for (int i = 0; i < customProperties.length; i++) {
+				sb.append(customProperties[i]);
+
+				if ((i + 1) < customProperties.length) {
+					sb.append(", ");
+				}
+			}
+
+			sb.append("]");
+		}
+
+		sb.append(", ");
+
 		sb.append("\"defaultValue\": ");
 
-		sb.append("\"");
 		sb.append(defaultValue);
-		sb.append("\"");
 		sb.append(", ");
 
 		sb.append("\"fieldType\": ");

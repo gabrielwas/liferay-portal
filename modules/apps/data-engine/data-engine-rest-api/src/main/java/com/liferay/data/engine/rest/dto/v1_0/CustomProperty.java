@@ -35,25 +35,23 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @generated
  */
 @Generated("")
-@GraphQLName("DataLayoutColumn")
+@GraphQLName("CustomProperty")
 @JsonFilter("Liferay.Vulcan")
-@XmlRootElement(name = "DataLayoutColumn")
-public class DataLayoutColumn {
+@XmlRootElement(name = "CustomProperty")
+public class CustomProperty {
 
-	public Integer getColumnSize() {
-		return columnSize;
+	public String getKey() {
+		return key;
 	}
 
-	public void setColumnSize(Integer columnSize) {
-		this.columnSize = columnSize;
+	public void setKey(String key) {
+		this.key = key;
 	}
 
 	@JsonIgnore
-	public void setColumnSize(
-		UnsafeSupplier<Integer, Exception> columnSizeUnsafeSupplier) {
-
+	public void setKey(UnsafeSupplier<String, Exception> keyUnsafeSupplier) {
 		try {
-			columnSize = columnSizeUnsafeSupplier.get();
+			key = keyUnsafeSupplier.get();
 		}
 		catch (RuntimeException re) {
 			throw re;
@@ -65,22 +63,22 @@ public class DataLayoutColumn {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected Integer columnSize;
+	protected String key;
 
-	public String[] getFieldNames() {
-		return fieldNames;
+	public Object getValue() {
+		return value;
 	}
 
-	public void setFieldNames(String[] fieldNames) {
-		this.fieldNames = fieldNames;
+	public void setValue(Object value) {
+		this.value = value;
 	}
 
 	@JsonIgnore
-	public void setFieldNames(
-		UnsafeSupplier<String[], Exception> fieldNamesUnsafeSupplier) {
+	public void setValue(
+		UnsafeSupplier<Object, Exception> valueUnsafeSupplier) {
 
 		try {
-			fieldNames = fieldNamesUnsafeSupplier.get();
+			value = valueUnsafeSupplier.get();
 		}
 		catch (RuntimeException re) {
 			throw re;
@@ -92,7 +90,7 @@ public class DataLayoutColumn {
 
 	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
-	protected String[] fieldNames;
+	protected Object value;
 
 	@Override
 	public boolean equals(Object object) {
@@ -100,13 +98,13 @@ public class DataLayoutColumn {
 			return true;
 		}
 
-		if (!(object instanceof DataLayoutColumn)) {
+		if (!(object instanceof CustomProperty)) {
 			return false;
 		}
 
-		DataLayoutColumn dataLayoutColumn = (DataLayoutColumn)object;
+		CustomProperty customProperty = (CustomProperty)object;
 
-		return Objects.equals(toString(), dataLayoutColumn.toString());
+		return Objects.equals(toString(), customProperty.toString());
 	}
 
 	@Override
@@ -121,31 +119,16 @@ public class DataLayoutColumn {
 
 		sb.append("{");
 
-		sb.append("\"columnSize\": ");
+		sb.append("\"key\": ");
 
-		sb.append(columnSize);
+		sb.append("\"");
+		sb.append(key);
+		sb.append("\"");
 		sb.append(", ");
 
-		sb.append("\"fieldNames\": ");
+		sb.append("\"value\": ");
 
-		if (fieldNames == null) {
-			sb.append("null");
-		}
-		else {
-			sb.append("[");
-
-			for (int i = 0; i < fieldNames.length; i++) {
-				sb.append("\"");
-				sb.append(fieldNames[i]);
-				sb.append("\"");
-
-				if ((i + 1) < fieldNames.length) {
-					sb.append(", ");
-				}
-			}
-
-			sb.append("]");
-		}
+		sb.append(value);
 
 		sb.append("}");
 
