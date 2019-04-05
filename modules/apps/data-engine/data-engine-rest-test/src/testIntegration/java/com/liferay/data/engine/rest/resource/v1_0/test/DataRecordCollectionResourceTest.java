@@ -14,16 +14,106 @@
 
 package com.liferay.data.engine.rest.resource.v1_0.test;
 
-import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import java.util.Objects;
 
-import org.junit.Ignore;
+import org.junit.Assert;
 import org.junit.runner.RunWith;
 
+import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.data.engine.rest.dto.v1_0.DataRecordCollection;
+import com.liferay.data.engine.rest.dto.v1_0.LocalizedValue;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
+
 /**
- * @author Jeyvison Nascimento
+ * @author Gabriel Albuquerque
  */
-@Ignore
 @RunWith(Arquillian.class)
 public class DataRecordCollectionResourceTest
 	extends BaseDataRecordCollectionResourceTestCase {
+
+	@Override
+	protected DataRecordCollection randomDataRecordCollection() {
+		
+		try {
+			_ddmStructure = DataEngineTestUtil.addDDMStructure(testGroup);
+			
+			return new DataRecordCollection() {
+				{
+					dataDefinitionId = _ddmStructure.getStructureId();
+					id = RandomTestUtil.randomLong();
+					name = new LocalizedValue[] {
+						new LocalizedValue() {
+							{
+								key = "en_US";
+								value = RandomTestUtil.randomString();
+							}
+						}
+					};
+				}
+			};
+			
+		} catch (Exception e) {
+			return new DataRecordCollection() {
+				{
+					id = RandomTestUtil.randomLong();
+				}
+			};
+		}
+
+	}
+	
+	protected void assertValid(DataRecordCollection dataRecordCollection) {
+		boolean valid = false;
+
+		if ((dataRecordCollection.getDataDefinitionId() != null) &&
+			(dataRecordCollection.getName() != null) &&
+			(dataRecordCollection.getId() != null)) {
+
+			valid = true;
+		}
+
+		Assert.assertTrue(valid);
+	}
+	
+	@Override
+	protected boolean equals(
+			DataRecordCollection dataRecordCollection1, DataRecordCollection dataRecordCollection2) {
+
+		LocalizedValue[] localizedValues1 = dataRecordCollection1.getName();
+		LocalizedValue[] localizedValues2 = dataRecordCollection2.getName();
+
+		if (Objects.equals(
+				localizedValues1[0].getKey(), localizedValues2[0].getKey())) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
+	protected DataRecordCollection
+			testPostDataDefinitionDataRecordCollection_addDataRecordCollection(
+				DataRecordCollection dataRecordCollection)
+		throws Exception {
+
+		return invokePostDataDefinitionDataRecordCollection(
+			dataRecordCollection.getDataDefinitionId(), dataRecordCollection);
+	}
+	
+	@Override
+	protected DataRecordCollection
+		testGetDataRecordCollection_addDataRecordCollection()
+			throws Exception {
+		
+		DataRecordCollection dataRecordCollection = randomDataRecordCollection();
+		
+		return invokePostDataDefinitionDataRecordCollection(
+				dataRecordCollection.getDataDefinitionId(), dataRecordCollection);
+		
+	}
+
+	private DDMStructure _ddmStructure;
+
 }
