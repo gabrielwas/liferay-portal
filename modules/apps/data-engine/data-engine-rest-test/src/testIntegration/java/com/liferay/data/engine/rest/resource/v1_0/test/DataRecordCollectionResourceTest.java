@@ -24,7 +24,7 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import java.util.Arrays;
 
 import org.junit.Assert;
-import org.junit.Ignore;
+import org.junit.Before;
 import org.junit.runner.RunWith;
 
 /**
@@ -34,37 +34,11 @@ import org.junit.runner.RunWith;
 public class DataRecordCollectionResourceTest
 	extends BaseDataRecordCollectionResourceTestCase {
 
-	@Ignore
-	@Override
-	public void testDeleteDataRecordCollection() throws Exception {
-	}
+	@Before
+	public void setUp() throws Exception {
+		super.setUp();
 
-	@Ignore
-	@Override
-	public void testGetDataDefinitionDataRecordCollectionsPage()
-		throws Exception {
-	}
-
-	@Ignore
-	@Override
-	public void testGetDataDefinitionDataRecordCollectionsPageWithPagination()
-		throws Exception {
-	}
-
-	@Ignore
-	@Override
-	public void testGetSiteDataRecordCollectionsPage() throws Exception {
-	}
-
-	@Ignore
-	@Override
-	public void testGetSiteDataRecordCollectionsPageWithPagination()
-		throws Exception {
-	}
-
-	@Ignore
-	@Override
-	public void testPutDataRecordCollection() throws Exception {
+		_ddmStructure = DataDefinitionTestUtil.addDDMStructure(testGroup);
 	}
 
 	protected void assertValid(DataRecordCollection dataRecordCollection) {
@@ -92,8 +66,31 @@ public class DataRecordCollectionResourceTest
 	@Override
 	protected DataRecordCollection randomDataRecordCollection() {
 		try {
+			return new DataRecordCollection() {
+				{
+					dataDefinitionId = _ddmStructure.getStructureId();
+					id = RandomTestUtil.randomLong();
+					name = new LocalizedValue[] {
+						new LocalizedValue() {
+							{
+								key = "en_US";
+								value = RandomTestUtil.randomString();
+							}
+						}
+					};
+				}
+			};
+		}
+		catch (Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	protected DataRecordCollection randomIrrelevantDataRecordCollection() {
+		try {
 			DDMStructure ddmStructure = DataDefinitionTestUtil.addDDMStructure(
-				testGroup);
+				irrelevantGroup);
 
 			return new DataRecordCollection() {
 				{
@@ -117,11 +114,52 @@ public class DataRecordCollectionResourceTest
 
 	@Override
 	protected DataRecordCollection
+			testDeleteDataRecordCollection_addDataRecordCollection()
+		throws Exception {
+
+		DataRecordCollection dataRecordCollection =
+			randomDataRecordCollection();
+
+		return invokePostDataDefinitionDataRecordCollection(
+			dataRecordCollection.getDataDefinitionId(), dataRecordCollection);
+	}
+
+	@Override
+	protected DataRecordCollection
+			testGetDataDefinitionDataRecordCollectionsPage_addDataRecordCollection(
+				Long dataDefinitionId,
+				DataRecordCollection dataRecordCollection)
+		throws Exception {
+
+		return invokePostDataDefinitionDataRecordCollection(
+			dataRecordCollection.getDataDefinitionId(), dataRecordCollection);
+	}
+
+	@Override
+	protected Long
+			testGetDataDefinitionDataRecordCollectionsPage_getDataDefinitionId()
+		throws Exception {
+
+		return _ddmStructure.getStructureId();
+	}
+
+	@Override
+	protected DataRecordCollection
 			testGetDataRecordCollection_addDataRecordCollection()
 		throws Exception {
 
 		DataRecordCollection dataRecordCollection =
 			randomDataRecordCollection();
+
+		return invokePostDataDefinitionDataRecordCollection(
+			dataRecordCollection.getDataDefinitionId(), dataRecordCollection);
+	}
+
+	@Override
+	protected DataRecordCollection
+			testGetSiteDataRecordCollectionsPage_addDataRecordCollection(
+				Long contentSpaceId, DataRecordCollection dataRecordCollection)
+		throws Exception {
 
 		return invokePostDataDefinitionDataRecordCollection(
 			dataRecordCollection.getDataDefinitionId(), dataRecordCollection);
@@ -136,5 +174,19 @@ public class DataRecordCollectionResourceTest
 		return invokePostDataDefinitionDataRecordCollection(
 			dataRecordCollection.getDataDefinitionId(), dataRecordCollection);
 	}
+
+	@Override
+	protected DataRecordCollection
+			testPutDataRecordCollection_addDataRecordCollection()
+		throws Exception {
+
+		DataRecordCollection dataRecordCollection =
+			randomDataRecordCollection();
+
+		return invokePostDataDefinitionDataRecordCollection(
+			dataRecordCollection.getDataDefinitionId(), dataRecordCollection);
+	}
+
+	private DDMStructure _ddmStructure;
 
 }
