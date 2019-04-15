@@ -1,4 +1,3 @@
-<%--
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
@@ -12,12 +11,24 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
---%>
 
-<%@ include file="/data_layout_renderer/init.jsp" %>
+package com.liferay.data.engine.taglib.servlet.taglib;
 
-<div class="container-fluid-1280 ddm-form-builder-app">
-	<%= content %>
+import javax.servlet.http.HttpServletRequest;
 
-	<aui:input name="empty" type="hidden" value="" />
-</div>
+import com.liferay.data.engine.taglib.servlet.taglib.base.BaseDataLayoutRendererTag;
+import com.liferay.petra.string.StringPool;
+
+/**
+ * @author Jeyvison Nascimento
+ */
+public class DataLayoutRendererTag extends BaseDataLayoutRendererTag {
+
+	@Override
+	protected void setAttributes(HttpServletRequest request) {
+		super.setAttributes(request);
+
+		setNamespacedAttribute(request, "content", StringPool.BLANK);
+	}
+
+}
