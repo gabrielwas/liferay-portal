@@ -14,12 +14,14 @@
  */
 --%>
 
-<%@ page import="java.util.ResourceBundle" %>
+<%@ taglib uri="http://liferay.com/tld/data-engine" prefix="liferay-data-engine" %><%@
+taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
+taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %>
 
-<%@ taglib uri="http://liferay.com/tld/aui" prefix="aui" %>
+<%@ page import="com.liferay.portal.kernel.util.ParamUtil" %>
 
-<%
-String content = (String)request.getAttribute("liferay-data-engine:data-layout-renderer:content");
-String languageId = (String)request.getAttribute("liferay-data-engine:de-data-layout-renderer:languageId");
-ResourceBundle resourceBundle = (ResourceBundle)request.getAttribute("liferay-data-engine:de-data-layout-renderer:resourceBundle");
-%>
+<liferay-frontend:defineObjects />
+
+<liferay-theme:defineObjects />
+
+<%@ include file="/display/init-ext.jsp" %>

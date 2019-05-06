@@ -35,7 +35,7 @@ public class DataDefinitionFieldUtil {
 		spiDataDefinitionField.setDefaultValue(
 			LocalizedValueUtil.toMap(dataDefinitionField.getDefaultValue()));
 		spiDataDefinitionField.setFieldType(dataDefinitionField.getFieldType());
-		spiDataDefinitionField.setId(dataDefinitionField.getId());
+		spiDataDefinitionField.setId(0);
 		spiDataDefinitionField.setIndexable(dataDefinitionField.getIndexable());
 		spiDataDefinitionField.setLocalizable(
 			dataDefinitionField.getLocalizable());
@@ -44,6 +44,8 @@ public class DataDefinitionFieldUtil {
 			dataDefinitionField.getRepeatable());
 		spiDataDefinitionField.setTip(
 			LocalizedValueUtil.toMap(dataDefinitionField.getTip()));
+		spiDataDefinitionField.setLabel(
+				LocalizedValueUtil.toMap(dataDefinitionField.getLabel()));
 
 		return spiDataDefinitionField;
 	}

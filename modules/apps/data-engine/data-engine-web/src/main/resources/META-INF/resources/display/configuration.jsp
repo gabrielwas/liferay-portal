@@ -14,12 +14,4 @@
  */
 --%>
 
-<%@ page import="java.util.ResourceBundle" %>
-
-<%@ taglib uri="http://liferay.com/tld/aui" prefix="aui" %>
-
-<%
-String content = (String)request.getAttribute("liferay-data-engine:data-layout-renderer:content");
-String languageId = (String)request.getAttribute("liferay-data-engine:de-data-layout-renderer:languageId");
-ResourceBundle resourceBundle = (ResourceBundle)request.getAttribute("liferay-data-engine:de-data-layout-renderer:resourceBundle");
-%>
+<%@ include file="/display/init.jsp" %>

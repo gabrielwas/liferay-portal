@@ -123,12 +123,6 @@ public class DataLayoutResourceImpl extends BaseDataLayoutResourceImpl {
 
 		dataLayout.setId(ddmStructureLayout.getStructureLayoutId());
 
-		_resourceLocalService.addModelResources(
-			contextCompany.getCompanyId(), ddmStructure.getGroupId(),
-			PrincipalThreadLocal.getUserId(),
-			InternalDataLayout.class.getName(), dataLayout.getId(),
-			serviceContext.getModelPermissions());
-
 		return dataLayout;
 	}
 

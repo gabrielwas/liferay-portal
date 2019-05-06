@@ -194,12 +194,6 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 				DataDefinitionUtil.toJSON(dataDefinition),
 				dataDefinition.getStorageType(), serviceContext));
 
-		_resourceLocalService.addModelResources(
-			contextCompany.getCompanyId(), siteId,
-			PrincipalThreadLocal.getUserId(),
-			InternalDataDefinition.class.getName(), dataDefinition.getId(),
-			serviceContext.getModelPermissions());
-
 		return dataDefinition;
 	}
 

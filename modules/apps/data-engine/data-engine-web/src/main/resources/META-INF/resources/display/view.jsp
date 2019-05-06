@@ -14,12 +14,14 @@
  */
 --%>
 
-<%@ page import="java.util.ResourceBundle" %>
+<%@ page import="com.liferay.portal.kernel.util.ParamUtil" %>
 
-<%@ taglib uri="http://liferay.com/tld/aui" prefix="aui" %>
+<%@ include file="/display/init.jsp" %>
 
 <%
-String content = (String)request.getAttribute("liferay-data-engine:data-layout-renderer:content");
-String languageId = (String)request.getAttribute("liferay-data-engine:de-data-layout-renderer:languageId");
-ResourceBundle resourceBundle = (ResourceBundle)request.getAttribute("liferay-data-engine:de-data-layout-renderer:resourceBundle");
+String redirect = ParamUtil.getString(request, "redirect", currentURL);
 %>
+
+<liferay-data-engine:data-layout-renderer
+	dataLayoutId="37512"
+/>
