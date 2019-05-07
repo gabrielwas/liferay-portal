@@ -51,7 +51,7 @@ public class ValidationDDMFormFieldRenderer extends BaseDDMFormFieldRenderer {
 	@Activate
 	protected void activate(Map<String, Object> properties) {
 		_templateResource = getTemplateResource(
-			"/META-INF/resources/validation/validation.soy");
+			"/META-INF/resources/metal/Validation/Validation.soy");
 	}
 
 	private TemplateResource _templateResource;
