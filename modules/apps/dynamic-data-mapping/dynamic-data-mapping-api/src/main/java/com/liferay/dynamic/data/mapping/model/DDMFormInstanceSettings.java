@@ -42,7 +42,8 @@ import com.liferay.dynamic.data.mapping.annotations.DDMFormRule;
 	}
 )
 @DDMFormLayout(
-	{
+	paginationMode = com.liferay.dynamic.data.mapping.model.DDMFormLayout.TABBED_MODE,
+	value = {
 		@DDMFormLayoutPage(
 			title = "%form-options",
 			value = {
