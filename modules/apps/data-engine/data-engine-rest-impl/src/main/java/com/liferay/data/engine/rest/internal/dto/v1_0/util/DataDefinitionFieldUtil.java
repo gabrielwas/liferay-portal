@@ -33,7 +33,7 @@ public class DataDefinitionFieldUtil {
 		spiDataDefinitionField.setDefaultValue(
 			dataDefinitionField.getDefaultValue());
 		spiDataDefinitionField.setFieldType(dataDefinitionField.getFieldType());
-		spiDataDefinitionField.setId(dataDefinitionField.getId());
+		spiDataDefinitionField.setId(0);
 		spiDataDefinitionField.setIndexable(dataDefinitionField.getIndexable());
 		spiDataDefinitionField.setLabel(dataDefinitionField.getLabel());
 		spiDataDefinitionField.setLocalizable(
@@ -42,6 +42,7 @@ public class DataDefinitionFieldUtil {
 		spiDataDefinitionField.setRepeatable(
 			dataDefinitionField.getRepeatable());
 		spiDataDefinitionField.setTip(dataDefinitionField.getTip());
+		spiDataDefinitionField.setLabel(dataDefinitionField.getLabel());
 
 		return spiDataDefinitionField;
 	}

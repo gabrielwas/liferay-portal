@@ -14,7 +14,7 @@
 
 package com.liferay.data.engine.rest.internal.field.type.v1_0.util;
 
-import com.liferay.data.engine.rest.internal.field.type.v1_0.DataFieldOption;
+import com.liferay.data.engine.spi.field.type.DataFieldOption;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -42,8 +43,23 @@ public class CustomPropertiesUtil {
 			return Collections.emptyList();
 		}
 
-		return (List<DataFieldOption>)GetterUtil.getObject(
-			customProperties.get(key), Collections.emptyList());
+		List<DataFieldOption> dataFieldOptions = new ArrayList<>();
+
+		if(customProperties.get(key) != null){
+			Map<String, Object> dataFields =
+				(Map<String, Object>) customProperties.get(key);
+
+			for (Map.Entry<String, Object> entry : dataFields.entrySet()) {
+
+				dataFieldOptions.add(new DataFieldOption(
+					(Map<String, Object>) entry.getValue(), entry.getKey()));
+			}
+		}
+
+		return dataFieldOptions;
+
+		/*return (List<DataFieldOption>)GetterUtil.getObject(
+			customProperties.get(key), Collections.emptyList());*/
 	}
 
 	public static <K, V> Map<K, V> getMap(
@@ -90,29 +106,36 @@ public class CustomPropertiesUtil {
 		return JSONUtil.toStringList(jsonArray);
 	}
 
-	public static JSONObject toJSONObject(Map<String, String> values) {
+	public static <V> JSONObject toJSONObject(Map<String, V> values) {
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
 
 		if (values.isEmpty()) {
 			return jsonObject;
 		}
 
-		for (Map.Entry<String, String> entry : values.entrySet()) {
-			jsonObject.put(entry.getKey(), entry.getValue());
+		for (Map.Entry<String, V> entry : values.entrySet()) {
+			jsonObject.put( entry.getKey(), entry.getValue());
 		}
 
 		return jsonObject;
 	}
 
-	public static Map<String, String> toMap(JSONObject jsonObject) {
-		Map<String, String> values = new HashMap<>();
+	public static <V> Map<String, V> toMap(JSONObject jsonObject) {
+		Map<String, V> values = new HashMap<>();
 
 		Iterator<String> keys = jsonObject.keys();
 
 		while (keys.hasNext()) {
 			String key = keys.next();
 
-			values.put(key, jsonObject.getString(key));
+			Object value = jsonObject.get(key);
+
+			if(value instanceof JSONObject){
+				values.put(key, (V) toMap( (JSONObject) value));
+			}else{
+				values.put(key, (V) value);
+			}
+
 		}
 
 		return values;

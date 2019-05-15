@@ -24,7 +24,10 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -123,12 +126,49 @@ public class SelectFieldType extends BaseFieldType {
 			MapUtil.getBoolean(
 				spiDataDefinitionField.getCustomProperties(), "multiple",
 				false));
-		context.put(
+/*		context.put(
 			"options",
 			DataFieldOptionUtil.toDataFieldOptions(
 				CustomPropertiesUtil.getDataFieldOptions(
 					spiDataDefinitionField.getCustomProperties(), "options"),
-				LanguageUtil.getLanguageId(httpServletRequest)));
+				LanguageUtil.getLanguageId(httpServletRequest)));*/
+
+/*		context.put("options",
+
+			new HashMap<String, Object>() {
+				{
+					put("Option Label 1", "Option Value 1");
+
+					put("Option Label 2", "Option Value 2");
+				}
+			});*/
+
+		List<Object> options = new ArrayList<>();
+
+		Map<String, String> option1 = new HashMap<>();
+
+		option1.put("label", "Option Label 1");
+		option1.put("value", "Option Value 1");
+
+		options.add(option1);
+
+		Map<String, String> option2 = new HashMap<>();
+
+		option2.put("label", "Option Label 2");
+		option2.put("value", "Option Value 2");
+
+		options.add(option2);
+
+
+
+		context.put("options", options);
+
+/*		context.put(
+			"options",
+			DataFieldOptionUtil.toDataFieldOptions(
+				CustomPropertiesUtil.getDataFieldOptions(
+					spiDataDefinitionField.getCustomProperties(), "options"),
+				LanguageUtil.getLanguageId(httpServletRequest)));*/
 		context.put(
 			"predefinedValue",
 			MapUtil.getString(

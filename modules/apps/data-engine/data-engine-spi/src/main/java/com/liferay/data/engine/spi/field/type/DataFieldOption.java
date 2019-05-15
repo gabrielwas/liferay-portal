@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.data.engine.rest.internal.field.type.v1_0;
+package com.liferay.data.engine.spi.field.type;
 
 import com.liferay.portal.kernel.util.MapUtil;
 

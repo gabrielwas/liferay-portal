@@ -14,6 +14,19 @@
 
 package com.liferay.data.engine.rest.internal.renderer.v1_0;
 
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import com.liferay.data.engine.rest.dto.v1_0.DataDefinition;
 import com.liferay.data.engine.rest.dto.v1_0.DataDefinitionField;
 import com.liferay.data.engine.rest.dto.v1_0.DataLayout;
@@ -37,20 +50,6 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.template.soy.renderer.ComponentDescriptor;
 import com.liferay.portal.template.soy.renderer.SoyComponentRenderer;
-
-import java.io.Writer;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author Marcela Cunha
@@ -234,8 +233,7 @@ public class DataLayoutRenderer {
 	}
 
 	private static final String _MODULE_NAME =
-		"dynamic-data-mapping-form-builder/metal/js/components/Form" +
-			"/FormRenderer.es";
+		"dynamic-data-mapping-form-renderer/js/metal/containers/Form/Form.es";
 
 	private static final String _TEMPLATE_NAMESPACE = "FormRenderer.render";
 

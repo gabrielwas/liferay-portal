@@ -16,8 +16,12 @@
 
 <%@ include file="/data_layout_renderer/init.jsp" %>
 
-<div class="container-fluid-1280 ddm-form-builder-app">
-	<%= content %>
+<div class="portlet-forms">
 
-	<aui:input name="empty" type="hidden" value="" />
+	<div class="container-fluid-1280 ddm-form-builder-app">
+		<%= content %>
+	
+		<aui:input name="empty" type="hidden" value="" />
+	</div>
+
 </div>

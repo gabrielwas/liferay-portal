@@ -17,6 +17,7 @@ package com.liferay.data.engine.rest.internal.dto.v1_0.util;
 import com.liferay.data.engine.rest.dto.v1_0.DataDefinition;
 import com.liferay.data.engine.rest.dto.v1_0.DataDefinitionField;
 import com.liferay.data.engine.rest.dto.v1_0.DataDefinitionRule;
+import com.liferay.data.engine.rest.internal.field.type.v1_0.util.CustomPropertiesUtil;
 import com.liferay.data.engine.spi.field.type.util.LocalizedValueUtil;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -81,6 +82,9 @@ public class DataDefinitionUtil {
 
 		return new DataDefinitionField() {
 			{
+				customProperties = CustomPropertiesUtil.toMap(
+					jsonObject.getJSONObject("customProperties"));
+
 				if (jsonObject.has("predefinedValue")) {
 					defaultValue = LocalizedValueUtil.toLocalizedValues(
 						jsonObject.getJSONObject("predefinedValue"));
@@ -155,7 +159,7 @@ public class DataDefinitionUtil {
 		}
 
 		return JSONUtil.put(
-			"defaultValue", dataDefinitionField.getDefaultValue()
+			"customProperties", CustomPropertiesUtil.toJSONObject(dataDefinitionField.getCustomProperties())
 		).put(
 			"indexable", dataDefinitionField.getIndexable()
 		).put(
@@ -171,6 +175,8 @@ public class DataDefinitionUtil {
 			"tip", LocalizedValueUtil.toJSONObject(dataDefinitionField.getTip())
 		).put(
 			"type", type
+		).put(
+			"defaultValue", dataDefinitionField.getDefaultValue()
 		);
 	}
 
