@@ -22,12 +22,8 @@ import com.liferay.data.engine.rest.resource.v1_0.test.util.DataDefinitionTestUt
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.RoleConstants;
-import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.RoleTestUtil;
-import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.util.Validator;
-
-import java.util.HashMap;
 
 import org.junit.Assert;
 import org.junit.runner.RunWith;
@@ -109,36 +105,7 @@ public class DataDefinitionResourceTest
 
 	@Override
 	protected DataDefinition randomDataDefinition() throws Exception {
-		return new DataDefinition() {
-			{
-				dataDefinitionFields = new DataDefinitionField[] {
-					new DataDefinitionField() {
-						{
-							fieldType = "fieldType";
-							label = new HashMap<String, Object>() {
-								{
-									put("label", RandomTestUtil.randomString());
-								}
-							};
-							name = RandomTestUtil.randomString();
-							tip = new HashMap<String, Object>() {
-								{
-									put("tip", RandomTestUtil.randomString());
-								}
-							};
-						}
-					}
-				};
-				dataDefinitionKey = RandomTestUtil.randomString();
-				name = new HashMap<String, Object>() {
-					{
-						put("en_US", RandomTestUtil.randomString());
-					}
-				};
-				siteId = testGroup.getGroupId();
-				userId = TestPropsValues.getUserId();
-			}
-		};
+		return DataDefinitionTestUtil.randomDataDefinition(testGroup);
 	}
 
 	private static final String _OPERATION_SAVE_PERMISSION = "save";
