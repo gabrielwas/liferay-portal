@@ -25,6 +25,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import java.util.HashMap;
 
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 
 /**
@@ -53,6 +54,20 @@ public class DataRecordCollectionResourceTest
 			dataDefinitionResource.postSiteDataDefinition(
 				irrelevantGroup.getGroupId(),
 				DataDefinitionTestUtil.randomDataDefinition(irrelevantGroup));
+	}
+
+	@Test
+	public void testPostDataDefinitionDataRecordCollectionWithNoDataDefinition()
+		throws Exception {
+
+		DataRecordCollection randomDataRecordCollection =
+			randomDataRecordCollection();
+
+		assertHttpResponseStatusCode(
+			404,
+			dataRecordCollectionResource.
+				postDataDefinitionDataRecordCollectionHttpResponse(
+					Long.valueOf(0), randomDataRecordCollection));
 	}
 
 	@Override
