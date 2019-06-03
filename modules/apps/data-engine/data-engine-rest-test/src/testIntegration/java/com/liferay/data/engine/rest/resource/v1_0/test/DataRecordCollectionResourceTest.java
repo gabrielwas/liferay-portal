@@ -57,6 +57,16 @@ public class DataRecordCollectionResourceTest
 	}
 
 	@Test
+	public void testGetDataRecordCollectionWithNonexistingId()
+		throws Exception {
+
+		assertHttpResponseStatusCode(
+			404,
+			dataRecordCollectionResource.getDataRecordCollectionHttpResponse(
+				Long.valueOf(0)));
+	}
+
+	@Test
 	public void testPostDataDefinitionDataRecordCollectionWithNoDataDefinition()
 		throws Exception {
 
