@@ -57,6 +57,57 @@ public class DataRecordCollectionResourceTest
 	}
 
 	@Test
+	public void testDeleteDataDefinitionAfterDeleteDataCollection()
+		throws Exception {
+
+		DataRecordCollection dataRecordCollection =
+			testDeleteDataRecordCollection_addDataRecordCollection();
+
+		assertHttpResponseStatusCode(
+			204,
+			dataRecordCollectionResource.deleteDataRecordCollectionHttpResponse(
+				dataRecordCollection.getId()));
+
+		assertHttpResponseStatusCode(
+			204,
+			dataDefinitionResource.deleteDataDefinitionHttpResponse(
+				_dataDefinition.getId()));
+	}
+
+	@Test
+	public void testDeleteDataDefinitionWithDataRecordCollectionAssociated()
+		throws Exception {
+
+		testDeleteDataRecordCollection_addDataRecordCollection();
+
+		assertHttpResponseStatusCode(
+			500,
+			dataDefinitionResource.deleteDataDefinitionHttpResponse(
+				_dataDefinition.getId()));
+	}
+
+	@Test
+	public void testDeleteDataRecordCollectionAndKeepTheOther()
+		throws Exception {
+
+		DataRecordCollection dataRecordCollection1 =
+			testDeleteDataRecordCollection_addDataRecordCollection();
+
+		DataRecordCollection dataRecordCollection2 =
+			testDeleteDataRecordCollection_addDataRecordCollection();
+
+		assertHttpResponseStatusCode(
+			204,
+			dataRecordCollectionResource.deleteDataRecordCollectionHttpResponse(
+				dataRecordCollection1.getId()));
+
+		assertHttpResponseStatusCode(
+			204,
+			dataRecordCollectionResource.deleteDataRecordCollectionHttpResponse(
+				dataRecordCollection2.getId()));
+	}
+
+	@Test
 	public void testGetDataRecordCollectionWithNonexistingId()
 		throws Exception {
 
