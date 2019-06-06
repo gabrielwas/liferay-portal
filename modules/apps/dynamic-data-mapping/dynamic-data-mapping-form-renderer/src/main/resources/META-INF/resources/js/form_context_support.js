@@ -196,11 +196,6 @@ AUI.add(
 								}
 							}
 						});
-
-						instance._removeFieldContexts(
-							columnFieldContexts,
-							repeatedSiblings
-						);
 					}
 				});
 
@@ -226,43 +221,6 @@ AUI.add(
 					'fields',
 					instance._createFieldsFromContext(context)
 				);
-			},
-
-			_removeFieldContexts: function(
-				columnFieldContexts,
-				repeatedSiblings
-			) {
-				var removeContext = [];
-				var repeatedContext = [];
-
-				repeatedSiblings.forEach(function(context) {
-					repeatedContext.push(context.get('context'));
-				});
-
-				columnFieldContexts.forEach(function(columnFieldContext) {
-					var foundFieldContext = AArray.find(
-						repeatedContext,
-						function(repeatedContext) {
-							return (
-								columnFieldContext.fieldName ===
-									repeatedContext.fieldName &&
-								columnFieldContext.instanceId ===
-									repeatedContext.instanceId
-							);
-						}
-					);
-
-					if (!foundFieldContext) {
-						removeContext.push(columnFieldContext);
-					}
-				});
-
-				for (var i in removeContext) {
-					columnFieldContexts.splice(
-						columnFieldContexts.indexOf(removeContext[i]),
-						1
-					);
-				}
 			},
 
 			_scheduleFieldDisposal: function(field) {
