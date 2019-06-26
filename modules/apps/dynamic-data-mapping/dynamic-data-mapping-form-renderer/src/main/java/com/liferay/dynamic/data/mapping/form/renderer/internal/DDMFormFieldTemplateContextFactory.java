@@ -39,6 +39,8 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Validator;
 
+import java.math.BigDecimal;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -611,28 +613,32 @@ public class DDMFormFieldTemplateContextFactory {
 		DDMFormField ddmFormField = _ddmFormFieldsMap.get(
 			ddmFormFieldValue.getName());
 
-		DDMFormFieldValueAccessor<?> ddmFormFieldValueAccessor =
+		DDMFormFieldValueAccessor<?> ddmFormFieldValueAccessorValue =
 			_ddmFormFieldTypeServicesTracker.getDDMFormFieldValueAccessor(
 				ddmFormField.getType());
 
-		Map<String, Object> localizedValue = new HashMap<>();
+		Map<String, Object> localizedValues = new HashMap<>();
 
 		for (Locale availableLocale : value.getAvailableLocales()) {
 			String languageId = LanguageUtil.getLanguageId(availableLocale);
 
-			if (ddmFormFieldValueAccessor == null) {
-				localizedValue.put(
-					languageId, value.getString(availableLocale));
+			Object localizedValue = value.getString(availableLocale);
+
+			if (ddmFormFieldValueAccessorValue != null) {
+				Object valueDDMFormFieldValueAccessor =
+					ddmFormFieldValueAccessorValue.getValue(
+						ddmFormFieldValue, availableLocale);
+
+				if (!(valueDDMFormFieldValueAccessor instanceof BigDecimal)) {
+					localizedValue = ddmFormFieldValueAccessorValue.getValue(
+						ddmFormFieldValue, availableLocale);
+				}
 			}
-			else {
-				localizedValue.put(
-					languageId,
-					ddmFormFieldValueAccessor.getValue(
-						ddmFormFieldValue, availableLocale));
-			}
+
+			localizedValues.put(languageId, localizedValue);
 		}
 
-		ddmFormFieldTemplateContext.put("localizedValue", localizedValue);
+		ddmFormFieldTemplateContext.put("localizedValue", localizedValues);
 	}
 
 	protected void setDDMFormFieldTemplateContextVisibilityExpression(
