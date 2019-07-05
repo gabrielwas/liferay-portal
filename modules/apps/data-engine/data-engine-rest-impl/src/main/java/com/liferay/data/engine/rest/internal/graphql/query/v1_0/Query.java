@@ -127,7 +127,8 @@ public class Query {
 			@GraphQLName("dataDefinitionId") Long dataDefinitionId,
 			@GraphQLName("keywords") String keywords,
 			@GraphQLName("pageSize") int pageSize,
-			@GraphQLName("page") int page)
+			@GraphQLName("page") int page,
+			@GraphQLName("sorts") String sortsString)
 		throws Exception {
 
 		return _applyComponentServiceObjects(
@@ -135,8 +136,8 @@ public class Query {
 			this::_populateResourceContext,
 			dataLayoutResource -> new DataLayoutPage(
 				dataLayoutResource.getDataDefinitionDataLayoutsPage(
-					dataDefinitionId, keywords,
-					Pagination.of(page, pageSize))));
+					dataDefinitionId, keywords, Pagination.of(page, pageSize),
+					_sortsBiFunction.apply(dataLayoutResource, sortsString))));
 	}
 
 	@GraphQLField
@@ -156,7 +157,8 @@ public class Query {
 			@GraphQLName("siteId") Long siteId,
 			@GraphQLName("keywords") String keywords,
 			@GraphQLName("pageSize") int pageSize,
-			@GraphQLName("page") int page)
+			@GraphQLName("page") int page,
+			@GraphQLName("sorts") String sortsString)
 		throws Exception {
 
 		return _applyComponentServiceObjects(
@@ -164,7 +166,8 @@ public class Query {
 			this::_populateResourceContext,
 			dataLayoutResource -> new DataLayoutPage(
 				dataLayoutResource.getSiteDataLayoutPage(
-					siteId, keywords, Pagination.of(page, pageSize))));
+					siteId, keywords, Pagination.of(page, pageSize),
+					_sortsBiFunction.apply(dataLayoutResource, sortsString))));
 	}
 
 	@GraphQLField
