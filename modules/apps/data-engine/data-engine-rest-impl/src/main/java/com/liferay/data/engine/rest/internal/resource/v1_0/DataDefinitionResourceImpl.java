@@ -24,6 +24,7 @@ import com.liferay.data.engine.rest.internal.dto.v1_0.util.DataDefinitionUtil;
 import com.liferay.data.engine.rest.internal.dto.v1_0.util.DataRecordCollectionUtil;
 import com.liferay.data.engine.rest.internal.model.InternalDataDefinition;
 import com.liferay.data.engine.rest.internal.model.InternalDataRecordCollection;
+import com.liferay.data.engine.rest.internal.odata.entity.v1_0.DataDefinitionEntityModel;
 import com.liferay.data.engine.rest.internal.resource.common.CommonDataRecordCollectionResource;
 import com.liferay.data.engine.rest.internal.resource.v1_0.util.DataEnginePermissionUtil;
 import com.liferay.data.engine.rest.resource.v1_0.DataDefinitionResource;
@@ -34,8 +35,9 @@ import com.liferay.dynamic.data.mapping.model.DDMStructureVersion;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureVersionLocalService;
-import com.liferay.dynamic.data.mapping.util.comparator.StructureNameComparator;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
@@ -45,16 +47,20 @@ import com.liferay.portal.kernel.service.ResourceLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
+import com.liferay.portal.vulcan.resource.EntityModelResource;
+import com.liferay.portal.vulcan.util.SearchUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.MultivaluedMap;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -69,7 +75,8 @@ import org.osgi.service.component.annotations.ServiceScope;
 	properties = "OSGI-INF/liferay/rest/v1_0/data-definition.properties",
 	scope = ServiceScope.PROTOTYPE, service = DataDefinitionResource.class
 )
-public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
+public class DataDefinitionResourceImpl
+	extends BaseDataDefinitionResourceImpl implements EntityModelResource {
 
 	@Override
 	public void deleteDataDefinition(Long dataDefinitionId) throws Exception {
@@ -105,6 +112,13 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 	}
 
 	@Override
+	public EntityModel getEntityModel(MultivaluedMap multivaluedMap)
+		throws Exception {
+
+		return _entityModel;
+	}
+
+	@Override
 	public DataDefinition getSiteDataDefinition(
 			Long siteId, String dataDefinitionKey)
 		throws Exception {
@@ -116,7 +130,8 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 
 	@Override
 	public Page<DataDefinition> getSiteDataDefinitionsPage(
-		Long siteId, String keywords, Pagination pagination) {
+			Long siteId, String keywords, Pagination pagination, Sort[] sorts)
+		throws Exception {
 
 		if (pagination.getPageSize() > 250) {
 			throw new BadRequestException(
@@ -125,18 +140,33 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 					"page-size-is-greater-than-x", 250));
 		}
 
-		return Page.of(
-			transform(
-				_ddmStructureService.search(
-					contextCompany.getCompanyId(), new long[] {siteId},
-					_getClassNameId(), keywords, WorkflowConstants.STATUS_ANY,
-					pagination.getStartPosition(), pagination.getEndPosition(),
-					new StructureNameComparator()),
-				DataDefinitionUtil::toDataDefinition),
-			pagination,
-			_ddmStructureService.searchCount(
-				contextCompany.getCompanyId(), new long[] {siteId},
-				_getClassNameId(), keywords, WorkflowConstants.STATUS_ANY));
+		if (ArrayUtil.isEmpty(sorts)) {
+			sorts = new Sort[] {
+				new Sort(
+					Field.getSortableFieldName(Field.MODIFIED_DATE),
+					Sort.STRING_TYPE, true)
+			};
+		}
+
+		return SearchUtil.search(
+			booleanQuery -> {
+			},
+			null, DDMStructure.class, keywords, pagination,
+			queryConfig -> queryConfig.setSelectedFieldNames(
+				Field.ENTRY_CLASS_PK),
+			searchContext -> {
+				searchContext.setCompanyId(contextCompany.getCompanyId());
+				searchContext.setGroupIds(new long[] {siteId});
+				searchContext.setAttribute(
+					Field.CLASS_NAME_ID,
+					_portal.getClassNameId(InternalDataDefinition.class));
+				searchContext.setAttribute(Field.DESCRIPTION, keywords);
+				searchContext.setAttribute(Field.NAME, keywords);
+			},
+			document -> DataDefinitionUtil.toDataDefinition(
+				_ddmStructureLocalService.getStructure(
+					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))),
+			sorts);
 	}
 
 	@Override
@@ -296,6 +326,9 @@ public class DataDefinitionResourceImpl extends BaseDataDefinitionResourceImpl {
 	private long _getClassNameId() {
 		return _portal.getClassNameId(InternalDataDefinition.class);
 	}
+
+	private static final EntityModel _entityModel =
+		new DataDefinitionEntityModel();
 
 	private CommonDataRecordCollectionResource<DataRecordCollection>
 		_commonDataRecordCollectionResource;
