@@ -1,0 +1,352 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
+package com.liferay.app.builder.rest.client.serdes.v1_0;
+
+import com.liferay.app.builder.rest.client.dto.v1_0.App;
+import com.liferay.app.builder.rest.client.json.BaseJSONParser;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
+import javax.annotation.Generated;
+
+/**
+ * @author Gabriel Albuquerque
+ * @generated
+ */
+@Generated("")
+public class AppSerDes {
+
+	public static App toDTO(String json) {
+		AppJSONParser appJSONParser = new AppJSONParser();
+
+		return appJSONParser.parseToDTO(json);
+	}
+
+	public static App[] toDTOs(String json) {
+		AppJSONParser appJSONParser = new AppJSONParser();
+
+		return appJSONParser.parseToDTOs(json);
+	}
+
+	public static String toJSON(App app) {
+		if (app == null) {
+			return "null";
+		}
+
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("{");
+
+		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
+			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+		if (app.getDateCreated() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"dateCreated\": ");
+
+			sb.append("\"");
+
+			sb.append(liferayToJSONDateFormat.format(app.getDateCreated()));
+
+			sb.append("\"");
+		}
+
+		if (app.getDateModified() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"dateModified\": ");
+
+			sb.append("\"");
+
+			sb.append(liferayToJSONDateFormat.format(app.getDateModified()));
+
+			sb.append("\"");
+		}
+
+		if (app.getDeDataLayoutId() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"deDataLayoutId\": ");
+
+			sb.append(app.getDeDataLayoutId());
+		}
+
+		if (app.getDeDataListViewId() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"deDataListViewId\": ");
+
+			sb.append(app.getDeDataListViewId());
+		}
+
+		if (app.getId() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"id\": ");
+
+			sb.append(app.getId());
+		}
+
+		if (app.getName() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"name\": ");
+
+			sb.append(_toJSON(app.getName()));
+		}
+
+		if (app.getSettings() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"settings\": ");
+
+			sb.append(_toJSON(app.getSettings()));
+		}
+
+		if (app.getSiteId() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"siteId\": ");
+
+			sb.append(app.getSiteId());
+		}
+
+		if (app.getUserId() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"userId\": ");
+
+			sb.append(app.getUserId());
+		}
+
+		sb.append("}");
+
+		return sb.toString();
+	}
+
+	public static Map<String, Object> toMap(String json) {
+		AppJSONParser appJSONParser = new AppJSONParser();
+
+		return appJSONParser.parseToMap(json);
+	}
+
+	public static Map<String, String> toMap(App app) {
+		if (app == null) {
+			return null;
+		}
+
+		Map<String, String> map = new HashMap<>();
+
+		DateFormat liferayToJSONDateFormat = new SimpleDateFormat(
+			"yyyy-MM-dd'T'HH:mm:ss'Z'");
+
+		map.put(
+			"dateCreated",
+			liferayToJSONDateFormat.format(app.getDateCreated()));
+
+		map.put(
+			"dateModified",
+			liferayToJSONDateFormat.format(app.getDateModified()));
+
+		if (app.getDeDataLayoutId() == null) {
+			map.put("deDataLayoutId", null);
+		}
+		else {
+			map.put("deDataLayoutId", String.valueOf(app.getDeDataLayoutId()));
+		}
+
+		if (app.getDeDataListViewId() == null) {
+			map.put("deDataListViewId", null);
+		}
+		else {
+			map.put(
+				"deDataListViewId", String.valueOf(app.getDeDataListViewId()));
+		}
+
+		if (app.getId() == null) {
+			map.put("id", null);
+		}
+		else {
+			map.put("id", String.valueOf(app.getId()));
+		}
+
+		if (app.getName() == null) {
+			map.put("name", null);
+		}
+		else {
+			map.put("name", String.valueOf(app.getName()));
+		}
+
+		if (app.getSettings() == null) {
+			map.put("settings", null);
+		}
+		else {
+			map.put("settings", String.valueOf(app.getSettings()));
+		}
+
+		if (app.getSiteId() == null) {
+			map.put("siteId", null);
+		}
+		else {
+			map.put("siteId", String.valueOf(app.getSiteId()));
+		}
+
+		if (app.getUserId() == null) {
+			map.put("userId", null);
+		}
+		else {
+			map.put("userId", String.valueOf(app.getUserId()));
+		}
+
+		return map;
+	}
+
+	private static String _escape(Object object) {
+		String string = String.valueOf(object);
+
+		string = string.replace("\\", "\\\\");
+
+		return string.replace("\"", "\\\"");
+	}
+
+	private static String _toJSON(Map<String, ?> map) {
+		StringBuilder sb = new StringBuilder("{");
+
+		@SuppressWarnings("unchecked")
+		Set set = map.entrySet();
+
+		@SuppressWarnings("unchecked")
+		Iterator<Map.Entry<String, ?>> iterator = set.iterator();
+
+		while (iterator.hasNext()) {
+			Map.Entry<String, ?> entry = iterator.next();
+
+			sb.append("\"");
+			sb.append(entry.getKey());
+			sb.append("\":");
+			sb.append("\"");
+			sb.append(entry.getValue());
+			sb.append("\"");
+
+			if (iterator.hasNext()) {
+				sb.append(",");
+			}
+		}
+
+		sb.append("}");
+
+		return sb.toString();
+	}
+
+	private static class AppJSONParser extends BaseJSONParser<App> {
+
+		@Override
+		protected App createDTO() {
+			return new App();
+		}
+
+		@Override
+		protected App[] createDTOArray(int size) {
+			return new App[size];
+		}
+
+		@Override
+		protected void setField(
+			App app, String jsonParserFieldName, Object jsonParserFieldValue) {
+
+			if (Objects.equals(jsonParserFieldName, "dateCreated")) {
+				if (jsonParserFieldValue != null) {
+					app.setDateCreated(toDate((String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "dateModified")) {
+				if (jsonParserFieldValue != null) {
+					app.setDateModified(toDate((String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "deDataLayoutId")) {
+				if (jsonParserFieldValue != null) {
+					app.setDeDataLayoutId(
+						Long.valueOf((String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "deDataListViewId")) {
+				if (jsonParserFieldValue != null) {
+					app.setDeDataListViewId(
+						Long.valueOf((String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "id")) {
+				if (jsonParserFieldValue != null) {
+					app.setId(Long.valueOf((String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "name")) {
+				if (jsonParserFieldValue != null) {
+					app.setName(
+						(Map)AppSerDes.toMap((String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "settings")) {
+				if (jsonParserFieldValue != null) {
+					app.setSettings(
+						(Map)AppSerDes.toMap((String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "siteId")) {
+				if (jsonParserFieldValue != null) {
+					app.setSiteId(Long.valueOf((String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "userId")) {
+				if (jsonParserFieldValue != null) {
+					app.setUserId(Long.valueOf((String)jsonParserFieldValue));
+				}
+			}
+			else {
+				throw new IllegalArgumentException(
+					"Unsupported field name " + jsonParserFieldName);
+			}
+		}
+
+	}
+
+}
