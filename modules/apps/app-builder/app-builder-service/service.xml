@@ -39,5 +39,9 @@
 			<finder-column name="companyId" />
 			<finder-column name="ddmStructureId" />
 		</finder>
+
+		<!-- References -->
+
+		<reference entity="User" package-path="com.liferay.portal" />
 	</entity>
 </service-builder>

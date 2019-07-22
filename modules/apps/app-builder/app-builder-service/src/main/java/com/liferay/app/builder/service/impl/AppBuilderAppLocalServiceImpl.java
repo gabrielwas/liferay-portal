@@ -14,10 +14,29 @@
 
 package com.liferay.app.builder.service.impl;
 
+import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.service.base.AppBuilderAppLocalServiceBaseImpl;
+import com.liferay.data.engine.exception.NoSuchDataListViewException;
+import com.liferay.data.engine.model.DEDataListView;
+import com.liferay.data.engine.service.DEDataListViewLocalService;
+import com.liferay.dynamic.data.mapping.exception.NoSuchStructureException;
+import com.liferay.dynamic.data.mapping.exception.NoSuchStructureLayoutException;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.portal.aop.AopService;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.search.Indexable;
+import com.liferay.portal.kernel.search.IndexableType;
+
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Brian Wing Shun Chan
@@ -28,4 +47,87 @@ import org.osgi.service.component.annotations.Component;
 )
 public class AppBuilderAppLocalServiceImpl
 	extends AppBuilderAppLocalServiceBaseImpl {
+
+	@Indexable(type = IndexableType.REINDEX)
+	@Override
+	public AppBuilderApp addAppBuilderApp(
+			long userId, long groupId, long ddmStructureId,
+			long ddmStructureLayoutId, long deDataListViewId,
+			Map<Locale, String> nameMap, String settings)
+		throws PortalException {
+
+		validateDataListView(deDataListViewId);
+		validateStructureId(ddmStructureId);
+		validateStructureLayoutId(ddmStructureLayoutId);
+
+		AppBuilderApp appBuilderApp = appBuilderAppPersistence.create(
+			counterLocalService.increment());
+
+		appBuilderApp.setGroupId(groupId);
+
+		User user = userLocalService.getUser(userId);
+
+		appBuilderApp.setCompanyId(user.getCompanyId());
+		appBuilderApp.setUserId(userId);
+		appBuilderApp.setUserName(user.getFullName());
+		appBuilderApp.setCreateDate(new Date());
+		appBuilderApp.setDdmStructureId(ddmStructureId);
+		appBuilderApp.setDdmStructureLayoutId(ddmStructureLayoutId);
+		appBuilderApp.setDeDataListViewId(deDataListViewId);
+		appBuilderApp.setModifiedDate(new Date());
+		appBuilderApp.setNameMap(nameMap);
+		appBuilderApp.setSettings(settings);
+
+		return appBuilderAppPersistence.update(appBuilderApp);
+	}
+
+	protected void validateDataListView(long deDataListViewId)
+		throws PortalException {
+
+		DEDataListView deDataListView =
+			_deDataListViewLocalService.fetchDEDataListView(deDataListViewId);
+
+		if (deDataListView == null) {
+			throw new NoSuchDataListViewException(
+				"No DEDataListView exists with the DEDataListView ID " +
+					deDataListViewId);
+		}
+	}
+
+	protected void validateStructureId(long ddmStructureId)
+		throws PortalException {
+
+		DDMStructure ddmStructure = _ddmStructureLocalService.fetchStructure(
+			ddmStructureId);
+
+		if (ddmStructure == null) {
+			throw new NoSuchStructureException(
+				"No DDMStructure exists with the DDMStructure ID " +
+					ddmStructureId);
+		}
+	}
+
+	protected void validateStructureLayoutId(long ddmStructureLayoutId)
+		throws PortalException {
+
+		DDMStructureLayout ddmStructureLayout =
+			_ddmStructureLayoutLocalService.fetchStructureLayout(
+				ddmStructureLayoutId);
+
+		if (ddmStructureLayout == null) {
+			throw new NoSuchStructureLayoutException(
+				"No DDMStructureLayout exists with the DDMStructureLayout ID " +
+					ddmStructureLayoutId);
+		}
+	}
+
+	@Reference
+	private DDMStructureLayoutLocalService _ddmStructureLayoutLocalService;
+
+	@Reference
+	private DDMStructureLocalService _ddmStructureLocalService;
+
+	@Reference
+	private DEDataListViewLocalService _deDataListViewLocalService;
+
 }
