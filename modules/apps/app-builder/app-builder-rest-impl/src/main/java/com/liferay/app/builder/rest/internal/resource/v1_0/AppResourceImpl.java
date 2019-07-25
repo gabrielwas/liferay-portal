@@ -16,16 +16,33 @@ package com.liferay.app.builder.rest.internal.resource.v1_0;
 
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.rest.dto.v1_0.App;
+import com.liferay.app.builder.rest.internal.odata.entity.v1_0.AppBuilderAppEntityModel;
 import com.liferay.app.builder.rest.resource.v1_0.AppResource;
 import com.liferay.app.builder.service.AppBuilderAppLocalService;
 import com.liferay.data.engine.field.type.util.LocalizedValueUtil;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.odata.entity.EntityModel;
+import com.liferay.portal.vulcan.pagination.Page;
+import com.liferay.portal.vulcan.pagination.Pagination;
+import com.liferay.portal.vulcan.resource.EntityModelResource;
+import com.liferay.portal.vulcan.util.SearchUtil;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.ws.rs.BadRequestException;
+import javax.ws.rs.core.MultivaluedMap;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -38,7 +55,100 @@ import org.osgi.service.component.annotations.ServiceScope;
 	properties = "OSGI-INF/liferay/rest/v1_0/app.properties",
 	scope = ServiceScope.PROTOTYPE, service = AppResource.class
 )
-public class AppResourceImpl extends BaseAppResourceImpl {
+public class AppResourceImpl
+	extends BaseAppResourceImpl implements EntityModelResource {
+
+	public Page<App> getDataDefinitionAppsPage(
+			Long dataDefinitionId, String keywords, Pagination pagination,
+			Sort[] sorts)
+		throws Exception {
+
+		if (pagination.getPageSize() > 250) {
+			throw new BadRequestException(
+				LanguageUtil.format(
+					contextAcceptLanguage.getPreferredLocale(),
+					"page-size-is-greater-than-x", 250));
+		}
+
+		if (ArrayUtil.isEmpty(sorts)) {
+			sorts = new Sort[] {
+				new Sort(
+					Field.getSortableFieldName(Field.MODIFIED_DATE),
+					Sort.STRING_TYPE, true)
+			};
+		}
+
+		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
+			dataDefinitionId);
+
+		return SearchUtil.search(
+			booleanQuery -> {
+			},
+			null, AppBuilderApp.class, keywords, pagination,
+			queryConfig -> queryConfig.setSelectedFieldNames(
+				Field.ENTRY_CLASS_PK),
+			searchContext -> {
+				searchContext.setAttribute("ddmStructureId", dataDefinitionId);
+				searchContext.setAttribute(
+					Field.CLASS_NAME_ID,
+					_portal.getClassNameId(AppBuilderApp.class));
+				searchContext.setAttribute(Field.NAME, keywords);
+				searchContext.setCompanyId(contextCompany.getCompanyId());
+				searchContext.setGroupIds(
+					new long[] {ddmStructure.getGroupId()});
+			},
+			document -> _toApp(
+				_appBuilderAppLocalService.getAppBuilderApp(
+					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))),
+			sorts);
+	}
+
+	@Override
+	public EntityModel getEntityModel(MultivaluedMap multivaluedMap)
+		throws Exception {
+
+		return _entityModel;
+	}
+
+	@Override
+	public Page<App> getSiteAppsPage(
+			Long siteId, String keywords, Pagination pagination, Sort[] sorts)
+		throws Exception {
+
+		if (pagination.getPageSize() > 250) {
+			throw new BadRequestException(
+				LanguageUtil.format(
+					contextAcceptLanguage.getPreferredLocale(),
+					"page-size-is-greater-than-x", 250));
+		}
+
+		if (ArrayUtil.isEmpty(sorts)) {
+			sorts = new Sort[] {
+				new Sort(
+					Field.getSortableFieldName(Field.MODIFIED_DATE),
+					Sort.STRING_TYPE, true)
+			};
+		}
+
+		return SearchUtil.search(
+			booleanQuery -> {
+			},
+			null, AppBuilderApp.class, keywords, pagination,
+			queryConfig -> queryConfig.setSelectedFieldNames(
+				Field.ENTRY_CLASS_PK),
+			searchContext -> {
+				searchContext.setAttribute(
+					Field.CLASS_NAME_ID,
+					_portal.getClassNameId(AppBuilderApp.class));
+				searchContext.setAttribute(Field.NAME, keywords);
+				searchContext.setCompanyId(contextCompany.getCompanyId());
+				searchContext.setGroupIds(new long[] {siteId});
+			},
+			document -> _toApp(
+				_appBuilderAppLocalService.getAppBuilderApp(
+					GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK)))),
+			sorts);
+	}
 
 	@Override
 	public App postDataDefinitionApp(Long dataDefinitionId, App app)
@@ -93,7 +203,16 @@ public class AppResourceImpl extends BaseAppResourceImpl {
 		};
 	}
 
+	private static final EntityModel _entityModel =
+		new AppBuilderAppEntityModel();
+
 	@Reference
 	private AppBuilderAppLocalService _appBuilderAppLocalService;
+
+	@Reference
+	private DDMStructureLocalService _ddmStructureLocalService;
+
+	@Reference
+	private Portal _portal;
 
 }
