@@ -14,15 +14,131 @@
 
 package com.liferay.app.builder.rest.resource.v1_0.test;
 
+import com.liferay.app.builder.rest.client.dto.v1_0.App;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.data.engine.model.DEDataListView;
+import com.liferay.data.engine.service.DEDataListViewLocalService;
+import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
+import com.liferay.dynamic.data.mapping.storage.StorageType;
+import com.liferay.dynamic.data.mapping.test.util.DDMStructureLayoutTestHelper;
+import com.liferay.dynamic.data.mapping.test.util.DDMStructureTestHelper;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.test.util.RandomTestUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.test.rule.Inject;
 
-import org.junit.Ignore;
+import java.io.InputStream;
+
+import java.util.HashMap;
+import java.util.Locale;
+
+import org.junit.Before;
 import org.junit.runner.RunWith;
 
 /**
  * @author Gabriel Albuquerque
  */
-@Ignore
 @RunWith(Arquillian.class)
 public class AppResourceTest extends BaseAppResourceTestCase {
+
+	@Before
+	public void setUp() throws Exception {
+		super.setUp();
+
+		DDMFormLayout ddmFormLayout = new DDMFormLayout();
+
+		ddmFormLayout.setDefaultLocale(new Locale("en_US"));
+
+		_ddmStructure = _addDDMStructure(testGroup);
+
+		_ddmStructureLayout = _addDDMStructureLayout(
+			ddmFormLayout, testGroup, _ddmStructure.getStructureId());
+
+		_deDataListView = _deDataListViewLocalService.addDEDataListView(
+			testGroup.getGroupId(), testCompany.getCompanyId(),
+			testGroup.getCreatorUserId(), "", _ddmStructure.getStructureId(),
+			"", null, "");
+	}
+
+	protected App randomApp() throws Exception {
+		return new App() {
+			{
+				dataLayoutId = _ddmStructureLayout.getStructureLayoutId();
+				dataListViewId = _deDataListView.getDeDataListViewId();
+				siteId = testGroup.getGroupId();
+				userId = testGroup.getCreatorUserId();
+				settings = new HashMap<String, Object>() {
+					{
+						put("deploymentStatus", "ok");
+						put(
+							"deploymentTypes",
+							new String[] {
+								"widget", "standalone", "productMenu"
+							});
+					}
+				};
+			}
+		};
+	}
+
+	@Override
+	protected Long testGetDataDefinitionAppsPage_getDataDefinitionId()
+		throws Exception {
+
+		return _ddmStructure.getStructureId();
+	}
+
+	@Override
+	protected App testGetSiteAppsPage_addApp(Long siteId, App app)
+		throws Exception {
+
+		return appResource.postDataDefinitionApp(
+			_ddmStructure.getStructureId(), app);
+	}
+
+	private DDMStructure _addDDMStructure(Group group) throws Exception {
+		DDMStructureTestHelper ddmStructureTestHelper =
+			new DDMStructureTestHelper(
+				PortalUtil.getClassNameId(_RESOURCE_NAME), group);
+
+		return ddmStructureTestHelper.addStructure(
+			PortalUtil.getClassNameId(_RESOURCE_NAME),
+			RandomTestUtil.randomString(), RandomTestUtil.randomString(),
+			_read("test-structured-content-structure.json"),
+			StorageType.JSON.getValue());
+	}
+
+	private DDMStructureLayout _addDDMStructureLayout(
+			DDMFormLayout ddmFormLayout, Group group, long structureId)
+		throws Exception {
+
+		DDMStructureLayoutTestHelper ddmStructureLayoutTestHelper =
+			new DDMStructureLayoutTestHelper(group);
+
+		return ddmStructureLayoutTestHelper.addStructureLayout(
+			structureId, ddmFormLayout);
+	}
+
+	private String _read(String fileName) throws Exception {
+		Class<?> clazz = AppResourceTest.class;
+
+		InputStream inputStream = clazz.getResourceAsStream(
+			"dependencies/" + fileName);
+
+		return StringUtil.read(inputStream);
+	}
+
+	private static final String _RESOURCE_NAME =
+		"com.liferay.data.engine.rest.internal.model.InternalDataDefinition";
+
+	private DDMStructure _ddmStructure;
+	private DDMStructureLayout _ddmStructureLayout;
+	private DEDataListView _deDataListView;
+
+	@Inject
+	private DEDataListViewLocalService _deDataListViewLocalService;
+
 }
