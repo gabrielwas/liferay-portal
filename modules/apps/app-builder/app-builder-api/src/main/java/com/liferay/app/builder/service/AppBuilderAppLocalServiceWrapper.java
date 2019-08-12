@@ -284,6 +284,31 @@ public class AppBuilderAppLocalServiceWrapper
 		return _appBuilderAppLocalService.getAppBuilderApps(start, end);
 	}
 
+	@Override
+	public java.util.List<com.liferay.app.builder.model.AppBuilderApp>
+		getAppBuilderApps(
+			long groupId, long companyId, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.app.builder.model.AppBuilderApp>
+					orderByComparator) {
+
+		return _appBuilderAppLocalService.getAppBuilderApps(
+			groupId, companyId, start, end, orderByComparator);
+	}
+
+	@Override
+	public java.util.List<com.liferay.app.builder.model.AppBuilderApp>
+		getAppBuilderApps(
+			long groupId, long companyId, long ddmStructureId, int start,
+			int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.app.builder.model.AppBuilderApp>
+					orderByComparator) {
+
+		return _appBuilderAppLocalService.getAppBuilderApps(
+			groupId, companyId, ddmStructureId, start, end, orderByComparator);
+	}
+
 	/**
 	 * Returns all the app builder apps matching the UUID and company.
 	 *
@@ -329,6 +354,20 @@ public class AppBuilderAppLocalServiceWrapper
 	@Override
 	public int getAppBuilderAppsCount() {
 		return _appBuilderAppLocalService.getAppBuilderAppsCount();
+	}
+
+	@Override
+	public int getAppBuilderAppsCount(long groupId, long companyId) {
+		return _appBuilderAppLocalService.getAppBuilderAppsCount(
+			groupId, companyId);
+	}
+
+	@Override
+	public int getAppBuilderAppsCount(
+		long groupId, long companyId, long ddmStructureId) {
+
+		return _appBuilderAppLocalService.getAppBuilderAppsCount(
+			groupId, companyId, ddmStructureId);
 	}
 
 	@Override

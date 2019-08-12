@@ -2014,6 +2014,565 @@ public class AppBuilderAppPersistenceImpl
 	private static final String _FINDER_COLUMN_GROUPID_GROUPID_2 =
 		"appBuilderApp.groupId = ?";
 
+	private FinderPath _finderPathWithPaginationFindByG_C;
+	private FinderPath _finderPathWithoutPaginationFindByG_C;
+	private FinderPath _finderPathCountByG_C;
+
+	/**
+	 * Returns all the app builder apps where groupId = &#63; and companyId = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @return the matching app builder apps
+	 */
+	@Override
+	public List<AppBuilderApp> findByG_C(long groupId, long companyId) {
+		return findByG_C(
+			groupId, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+	}
+
+	/**
+	 * Returns a range of all the app builder apps where groupId = &#63; and companyId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not <code>QueryUtil#ALL_POS</code>), then the query will include the default ORDER BY logic from <code>AppBuilderAppModelImpl</code>. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @param start the lower bound of the range of app builder apps
+	 * @param end the upper bound of the range of app builder apps (not inclusive)
+	 * @return the range of matching app builder apps
+	 */
+	@Override
+	public List<AppBuilderApp> findByG_C(
+		long groupId, long companyId, int start, int end) {
+
+		return findByG_C(groupId, companyId, start, end, null);
+	}
+
+	/**
+	 * Returns an ordered range of all the app builder apps where groupId = &#63; and companyId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not <code>QueryUtil#ALL_POS</code>), then the query will include the default ORDER BY logic from <code>AppBuilderAppModelImpl</code>. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @param start the lower bound of the range of app builder apps
+	 * @param end the upper bound of the range of app builder apps (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @return the ordered range of matching app builder apps
+	 */
+	@Override
+	public List<AppBuilderApp> findByG_C(
+		long groupId, long companyId, int start, int end,
+		OrderByComparator<AppBuilderApp> orderByComparator) {
+
+		return findByG_C(
+			groupId, companyId, start, end, orderByComparator, true);
+	}
+
+	/**
+	 * Returns an ordered range of all the app builder apps where groupId = &#63; and companyId = &#63;.
+	 *
+	 * <p>
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent and pagination is required (<code>start</code> and <code>end</code> are not <code>QueryUtil#ALL_POS</code>), then the query will include the default ORDER BY logic from <code>AppBuilderAppModelImpl</code>. If both <code>orderByComparator</code> and pagination are absent, for performance reasons, the query will not have an ORDER BY clause and the returned result set will be sorted on by the primary key in an ascending order.
+	 * </p>
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @param start the lower bound of the range of app builder apps
+	 * @param end the upper bound of the range of app builder apps (not inclusive)
+	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the ordered range of matching app builder apps
+	 */
+	@Override
+	public List<AppBuilderApp> findByG_C(
+		long groupId, long companyId, int start, int end,
+		OrderByComparator<AppBuilderApp> orderByComparator,
+		boolean useFinderCache) {
+
+		boolean pagination = true;
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			pagination = false;
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByG_C;
+				finderArgs = new Object[] {groupId, companyId};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByG_C;
+			finderArgs = new Object[] {
+				groupId, companyId, start, end, orderByComparator
+			};
+		}
+
+		List<AppBuilderApp> list = null;
+
+		if (useFinderCache) {
+			list = (List<AppBuilderApp>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (AppBuilderApp appBuilderApp : list) {
+					if ((groupId != appBuilderApp.getGroupId()) ||
+						(companyId != appBuilderApp.getCompanyId())) {
+
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler query = null;
+
+			if (orderByComparator != null) {
+				query = new StringBundler(
+					4 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				query = new StringBundler(4);
+			}
+
+			query.append(_SQL_SELECT_APPBUILDERAPP_WHERE);
+
+			query.append(_FINDER_COLUMN_G_C_GROUPID_2);
+
+			query.append(_FINDER_COLUMN_G_C_COMPANYID_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					query, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else if (pagination) {
+				query.append(AppBuilderAppModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(groupId);
+
+				qPos.add(companyId);
+
+				if (!pagination) {
+					list = (List<AppBuilderApp>)QueryUtil.list(
+						q, getDialect(), start, end, false);
+
+					Collections.sort(list);
+
+					list = Collections.unmodifiableList(list);
+				}
+				else {
+					list = (List<AppBuilderApp>)QueryUtil.list(
+						q, getDialect(), start, end);
+				}
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception e) {
+				if (useFinderCache) {
+					finderCache.removeResult(finderPath, finderArgs);
+				}
+
+				throw processException(e);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
+	}
+
+	/**
+	 * Returns the first app builder app in the ordered set where groupId = &#63; and companyId = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching app builder app
+	 * @throws NoSuchAppException if a matching app builder app could not be found
+	 */
+	@Override
+	public AppBuilderApp findByG_C_First(
+			long groupId, long companyId,
+			OrderByComparator<AppBuilderApp> orderByComparator)
+		throws NoSuchAppException {
+
+		AppBuilderApp appBuilderApp = fetchByG_C_First(
+			groupId, companyId, orderByComparator);
+
+		if (appBuilderApp != null) {
+			return appBuilderApp;
+		}
+
+		StringBundler msg = new StringBundler(6);
+
+		msg.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		msg.append("groupId=");
+		msg.append(groupId);
+
+		msg.append(", companyId=");
+		msg.append(companyId);
+
+		msg.append("}");
+
+		throw new NoSuchAppException(msg.toString());
+	}
+
+	/**
+	 * Returns the first app builder app in the ordered set where groupId = &#63; and companyId = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the first matching app builder app, or <code>null</code> if a matching app builder app could not be found
+	 */
+	@Override
+	public AppBuilderApp fetchByG_C_First(
+		long groupId, long companyId,
+		OrderByComparator<AppBuilderApp> orderByComparator) {
+
+		List<AppBuilderApp> list = findByG_C(
+			groupId, companyId, 0, 1, orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the last app builder app in the ordered set where groupId = &#63; and companyId = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching app builder app
+	 * @throws NoSuchAppException if a matching app builder app could not be found
+	 */
+	@Override
+	public AppBuilderApp findByG_C_Last(
+			long groupId, long companyId,
+			OrderByComparator<AppBuilderApp> orderByComparator)
+		throws NoSuchAppException {
+
+		AppBuilderApp appBuilderApp = fetchByG_C_Last(
+			groupId, companyId, orderByComparator);
+
+		if (appBuilderApp != null) {
+			return appBuilderApp;
+		}
+
+		StringBundler msg = new StringBundler(6);
+
+		msg.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+		msg.append("groupId=");
+		msg.append(groupId);
+
+		msg.append(", companyId=");
+		msg.append(companyId);
+
+		msg.append("}");
+
+		throw new NoSuchAppException(msg.toString());
+	}
+
+	/**
+	 * Returns the last app builder app in the ordered set where groupId = &#63; and companyId = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the last matching app builder app, or <code>null</code> if a matching app builder app could not be found
+	 */
+	@Override
+	public AppBuilderApp fetchByG_C_Last(
+		long groupId, long companyId,
+		OrderByComparator<AppBuilderApp> orderByComparator) {
+
+		int count = countByG_C(groupId, companyId);
+
+		if (count == 0) {
+			return null;
+		}
+
+		List<AppBuilderApp> list = findByG_C(
+			groupId, companyId, count - 1, count, orderByComparator);
+
+		if (!list.isEmpty()) {
+			return list.get(0);
+		}
+
+		return null;
+	}
+
+	/**
+	 * Returns the app builder apps before and after the current app builder app in the ordered set where groupId = &#63; and companyId = &#63;.
+	 *
+	 * @param appBuilderAppId the primary key of the current app builder app
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
+	 * @return the previous, current, and next app builder app
+	 * @throws NoSuchAppException if a app builder app with the primary key could not be found
+	 */
+	@Override
+	public AppBuilderApp[] findByG_C_PrevAndNext(
+			long appBuilderAppId, long groupId, long companyId,
+			OrderByComparator<AppBuilderApp> orderByComparator)
+		throws NoSuchAppException {
+
+		AppBuilderApp appBuilderApp = findByPrimaryKey(appBuilderAppId);
+
+		Session session = null;
+
+		try {
+			session = openSession();
+
+			AppBuilderApp[] array = new AppBuilderAppImpl[3];
+
+			array[0] = getByG_C_PrevAndNext(
+				session, appBuilderApp, groupId, companyId, orderByComparator,
+				true);
+
+			array[1] = appBuilderApp;
+
+			array[2] = getByG_C_PrevAndNext(
+				session, appBuilderApp, groupId, companyId, orderByComparator,
+				false);
+
+			return array;
+		}
+		catch (Exception e) {
+			throw processException(e);
+		}
+		finally {
+			closeSession(session);
+		}
+	}
+
+	protected AppBuilderApp getByG_C_PrevAndNext(
+		Session session, AppBuilderApp appBuilderApp, long groupId,
+		long companyId, OrderByComparator<AppBuilderApp> orderByComparator,
+		boolean previous) {
+
+		StringBundler query = null;
+
+		if (orderByComparator != null) {
+			query = new StringBundler(
+				5 + (orderByComparator.getOrderByConditionFields().length * 3) +
+					(orderByComparator.getOrderByFields().length * 3));
+		}
+		else {
+			query = new StringBundler(4);
+		}
+
+		query.append(_SQL_SELECT_APPBUILDERAPP_WHERE);
+
+		query.append(_FINDER_COLUMN_G_C_GROUPID_2);
+
+		query.append(_FINDER_COLUMN_G_C_COMPANYID_2);
+
+		if (orderByComparator != null) {
+			String[] orderByConditionFields =
+				orderByComparator.getOrderByConditionFields();
+
+			if (orderByConditionFields.length > 0) {
+				query.append(WHERE_AND);
+			}
+
+			for (int i = 0; i < orderByConditionFields.length; i++) {
+				query.append(_ORDER_BY_ENTITY_ALIAS);
+				query.append(orderByConditionFields[i]);
+
+				if ((i + 1) < orderByConditionFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN_HAS_NEXT);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(WHERE_GREATER_THAN);
+					}
+					else {
+						query.append(WHERE_LESSER_THAN);
+					}
+				}
+			}
+
+			query.append(ORDER_BY_CLAUSE);
+
+			String[] orderByFields = orderByComparator.getOrderByFields();
+
+			for (int i = 0; i < orderByFields.length; i++) {
+				query.append(_ORDER_BY_ENTITY_ALIAS);
+				query.append(orderByFields[i]);
+
+				if ((i + 1) < orderByFields.length) {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC_HAS_NEXT);
+					}
+					else {
+						query.append(ORDER_BY_DESC_HAS_NEXT);
+					}
+				}
+				else {
+					if (orderByComparator.isAscending() ^ previous) {
+						query.append(ORDER_BY_ASC);
+					}
+					else {
+						query.append(ORDER_BY_DESC);
+					}
+				}
+			}
+		}
+		else {
+			query.append(AppBuilderAppModelImpl.ORDER_BY_JPQL);
+		}
+
+		String sql = query.toString();
+
+		Query q = session.createQuery(sql);
+
+		q.setFirstResult(0);
+		q.setMaxResults(2);
+
+		QueryPos qPos = QueryPos.getInstance(q);
+
+		qPos.add(groupId);
+
+		qPos.add(companyId);
+
+		if (orderByComparator != null) {
+			for (Object orderByConditionValue :
+					orderByComparator.getOrderByConditionValues(
+						appBuilderApp)) {
+
+				qPos.add(orderByConditionValue);
+			}
+		}
+
+		List<AppBuilderApp> list = q.list();
+
+		if (list.size() == 2) {
+			return list.get(1);
+		}
+		else {
+			return null;
+		}
+	}
+
+	/**
+	 * Removes all the app builder apps where groupId = &#63; and companyId = &#63; from the database.
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 */
+	@Override
+	public void removeByG_C(long groupId, long companyId) {
+		for (AppBuilderApp appBuilderApp :
+				findByG_C(
+					groupId, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+					null)) {
+
+			remove(appBuilderApp);
+		}
+	}
+
+	/**
+	 * Returns the number of app builder apps where groupId = &#63; and companyId = &#63;.
+	 *
+	 * @param groupId the group ID
+	 * @param companyId the company ID
+	 * @return the number of matching app builder apps
+	 */
+	@Override
+	public int countByG_C(long groupId, long companyId) {
+		FinderPath finderPath = _finderPathCountByG_C;
+
+		Object[] finderArgs = new Object[] {groupId, companyId};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler query = new StringBundler(3);
+
+			query.append(_SQL_COUNT_APPBUILDERAPP_WHERE);
+
+			query.append(_FINDER_COLUMN_G_C_GROUPID_2);
+
+			query.append(_FINDER_COLUMN_G_C_COMPANYID_2);
+
+			String sql = query.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query q = session.createQuery(sql);
+
+				QueryPos qPos = QueryPos.getInstance(q);
+
+				qPos.add(groupId);
+
+				qPos.add(companyId);
+
+				count = (Long)q.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception e) {
+				finderCache.removeResult(finderPath, finderArgs);
+
+				throw processException(e);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
+	}
+
+	private static final String _FINDER_COLUMN_G_C_GROUPID_2 =
+		"appBuilderApp.groupId = ? AND ";
+
+	private static final String _FINDER_COLUMN_G_C_COMPANYID_2 =
+		"appBuilderApp.companyId = ?";
+
 	private FinderPath _finderPathWithPaginationFindByG_C_D;
 	private FinderPath _finderPathWithoutPaginationFindByG_C_D;
 	private FinderPath _finderPathCountByG_C_D;
@@ -3614,6 +4173,15 @@ public class AppBuilderAppPersistenceImpl
 
 			args = new Object[] {
 				appBuilderAppModelImpl.getGroupId(),
+				appBuilderAppModelImpl.getCompanyId()
+			};
+
+			finderCache.removeResult(_finderPathCountByG_C, args);
+			finderCache.removeResult(
+				_finderPathWithoutPaginationFindByG_C, args);
+
+			args = new Object[] {
+				appBuilderAppModelImpl.getGroupId(),
 				appBuilderAppModelImpl.getCompanyId(),
 				appBuilderAppModelImpl.getDdmStructureId()
 			};
@@ -3697,6 +4265,29 @@ public class AppBuilderAppPersistenceImpl
 				finderCache.removeResult(_finderPathCountByGroupId, args);
 				finderCache.removeResult(
 					_finderPathWithoutPaginationFindByGroupId, args);
+			}
+
+			if ((appBuilderAppModelImpl.getColumnBitmask() &
+				 _finderPathWithoutPaginationFindByG_C.getColumnBitmask()) !=
+					 0) {
+
+				Object[] args = new Object[] {
+					appBuilderAppModelImpl.getOriginalGroupId(),
+					appBuilderAppModelImpl.getOriginalCompanyId()
+				};
+
+				finderCache.removeResult(_finderPathCountByG_C, args);
+				finderCache.removeResult(
+					_finderPathWithoutPaginationFindByG_C, args);
+
+				args = new Object[] {
+					appBuilderAppModelImpl.getGroupId(),
+					appBuilderAppModelImpl.getCompanyId()
+				};
+
+				finderCache.removeResult(_finderPathCountByG_C, args);
+				finderCache.removeResult(
+					_finderPathWithoutPaginationFindByG_C, args);
 			}
 
 			if ((appBuilderAppModelImpl.getColumnBitmask() &
@@ -4133,6 +4724,27 @@ public class AppBuilderAppPersistenceImpl
 			entityCacheEnabled, finderCacheEnabled, Long.class,
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByGroupId",
 			new String[] {Long.class.getName()});
+
+		_finderPathWithPaginationFindByG_C = new FinderPath(
+			entityCacheEnabled, finderCacheEnabled, AppBuilderAppImpl.class,
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByG_C",
+			new String[] {
+				Long.class.getName(), Long.class.getName(),
+				Integer.class.getName(), Integer.class.getName(),
+				OrderByComparator.class.getName()
+			});
+
+		_finderPathWithoutPaginationFindByG_C = new FinderPath(
+			entityCacheEnabled, finderCacheEnabled, AppBuilderAppImpl.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByG_C",
+			new String[] {Long.class.getName(), Long.class.getName()},
+			AppBuilderAppModelImpl.GROUPID_COLUMN_BITMASK |
+			AppBuilderAppModelImpl.COMPANYID_COLUMN_BITMASK);
+
+		_finderPathCountByG_C = new FinderPath(
+			entityCacheEnabled, finderCacheEnabled, Long.class,
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByG_C",
+			new String[] {Long.class.getName(), Long.class.getName()});
 
 		_finderPathWithPaginationFindByG_C_D = new FinderPath(
 			entityCacheEnabled, finderCacheEnabled, AppBuilderAppImpl.class,
