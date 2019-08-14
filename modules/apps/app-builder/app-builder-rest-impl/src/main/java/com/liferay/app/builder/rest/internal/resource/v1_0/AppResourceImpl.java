@@ -23,6 +23,9 @@ import com.liferay.app.builder.rest.internal.odata.entity.v1_0.AppBuilderAppEnti
 import com.liferay.app.builder.rest.internal.resource.v1_0.util.LocalizedValueUtil;
 import com.liferay.app.builder.rest.resource.v1_0.AppResource;
 import com.liferay.app.builder.service.AppBuilderAppLocalService;
+import com.liferay.app.builder.util.comparator.AppBuilderAppCreateDateComparator;
+import com.liferay.app.builder.util.comparator.AppBuilderAppModifiedDateComparator;
+import com.liferay.app.builder.util.comparator.AppBuilderAppNameComparator;
 import com.liferay.data.engine.rest.client.resource.v1_0.DataListViewResource;
 import com.liferay.dynamic.data.mapping.exception.NoSuchStructureLayoutException;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
@@ -41,7 +44,9 @@ import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.CookieKeys;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.pagination.Page;
@@ -102,6 +107,24 @@ public class AppResourceImpl
 		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
 			dataDefinitionId);
 
+		if (Validator.isNull(keywords)) {
+			return Page.of(
+				transform(
+					_appBuilderAppLocalService.getAppBuilderApps(
+						ddmStructure.getGroupId(),
+						contextCompany.getCompanyId(),
+						ddmStructure.getStructureId(),
+						pagination.getStartPosition(),
+						pagination.getEndPosition(),
+						_toOrderByComparator(
+							(Sort)ArrayUtil.getValue(sorts, 0))),
+					this::_toApp),
+				pagination,
+				_appBuilderAppLocalService.getAppBuilderAppsCount(
+					ddmStructure.getGroupId(), contextCompany.getCompanyId(),
+					ddmStructure.getStructureId()));
+		}
+
 		return SearchUtil.search(
 			booleanQuery -> {
 			},
@@ -149,6 +172,21 @@ public class AppResourceImpl
 					Field.getSortableFieldName(Field.MODIFIED_DATE),
 					Sort.STRING_TYPE, true)
 			};
+		}
+
+		if (Validator.isNull(keywords)) {
+			return Page.of(
+				transform(
+					_appBuilderAppLocalService.getAppBuilderApps(
+						siteId, contextCompany.getCompanyId(),
+						pagination.getStartPosition(),
+						pagination.getEndPosition(),
+						_toOrderByComparator(
+							(Sort)ArrayUtil.getValue(sorts, 0))),
+					this::_toApp),
+				pagination,
+				_appBuilderAppLocalService.getAppBuilderAppsCount(
+					siteId, contextCompany.getCompanyId()));
 		}
 
 		return SearchUtil.search(
@@ -239,6 +277,21 @@ public class AppResourceImpl
 		return JSONUtil.put(
 			"deploymentTypes", settings.get("deploymentTypes")
 		).toString();
+	}
+
+	private OrderByComparator<AppBuilderApp> _toOrderByComparator(Sort sort) {
+		boolean ascending = !sort.isReverse();
+
+		String sortFieldName = sort.getFieldName();
+
+		if (StringUtil.startsWith(sortFieldName, "createDate")) {
+			return new AppBuilderAppCreateDateComparator(ascending);
+		}
+		else if (StringUtil.startsWith(sortFieldName, "localized_name")) {
+			return new AppBuilderAppNameComparator(ascending);
+		}
+
+		return new AppBuilderAppModifiedDateComparator(ascending);
 	}
 
 	private Map<String, Object> _toSettings(String settings) throws Exception {
