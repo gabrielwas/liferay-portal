@@ -503,9 +503,55 @@ public class DDMStructureLayoutLocalServiceWrapper
 	}
 
 	@Override
+	public java.util.List
+		<com.liferay.dynamic.data.mapping.model.DDMStructureLayout>
+			getStructureLayouts(
+				long groupId, long companyId, long classNameId, int start,
+				int end,
+				com.liferay.portal.kernel.util.OrderByComparator
+					<com.liferay.dynamic.data.mapping.model.DDMStructureLayout>
+						orderByComparator) {
+
+		return _ddmStructureLayoutLocalService.getStructureLayouts(
+			groupId, companyId, classNameId, start, end, orderByComparator);
+	}
+
+	@Override
+	public java.util.List
+		<com.liferay.dynamic.data.mapping.model.DDMStructureLayout>
+			getStructureLayouts(
+				long groupId, long companyId, long classNameId,
+				long structureVersionId, int start, int end,
+				com.liferay.portal.kernel.util.OrderByComparator
+					<com.liferay.dynamic.data.mapping.model.DDMStructureLayout>
+						orderByComparator) {
+
+		return _ddmStructureLayoutLocalService.getStructureLayouts(
+			groupId, companyId, classNameId, structureVersionId, start, end,
+			orderByComparator);
+	}
+
+	@Override
 	public int getStructureLayoutsCount(long groupId) {
 		return _ddmStructureLayoutLocalService.getStructureLayoutsCount(
 			groupId);
+	}
+
+	@Override
+	public int getStructureLayoutsCount(
+		long groupId, long companyId, long classNameId) {
+
+		return _ddmStructureLayoutLocalService.getStructureLayoutsCount(
+			groupId, companyId, classNameId);
+	}
+
+	@Override
+	public int getStructureLayoutsCount(
+		long groupId, long companyId, long classNameId,
+		long structureVersionId) {
+
+		return _ddmStructureLayoutLocalService.getStructureLayoutsCount(
+			groupId, companyId, classNameId, structureVersionId);
 	}
 
 	@Override
