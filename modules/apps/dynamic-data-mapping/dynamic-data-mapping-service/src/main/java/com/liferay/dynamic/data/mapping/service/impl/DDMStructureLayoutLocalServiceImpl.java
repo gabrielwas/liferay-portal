@@ -224,8 +224,45 @@ public class DDMStructureLayoutLocalServiceImpl
 	}
 
 	@Override
+	public List<DDMStructureLayout> getStructureLayouts(
+		long groupId, long companyId, long classNameId, int start, int end,
+		OrderByComparator<DDMStructureLayout> orderByComparator) {
+
+		return ddmStructureLayoutPersistence.findByG_C_C(
+			groupId, companyId, classNameId, start, end, orderByComparator);
+	}
+
+	@Override
+	public List<DDMStructureLayout> getStructureLayouts(
+		long groupId, long companyId, long classNameId, long structureVersionId,
+		int start, int end,
+		OrderByComparator<DDMStructureLayout> orderByComparator) {
+
+		return ddmStructureLayoutPersistence.findByG_C_C_S(
+			groupId, companyId, classNameId, structureVersionId, start, end,
+			orderByComparator);
+	}
+
+	@Override
 	public int getStructureLayoutsCount(long groupId) {
 		return ddmStructureLayoutPersistence.countByGroupId(groupId);
+	}
+
+	@Override
+	public int getStructureLayoutsCount(
+		long groupId, long companyId, long classNameId) {
+
+		return ddmStructureLayoutPersistence.countByG_C_C(
+			groupId, companyId, classNameId);
+	}
+
+	@Override
+	public int getStructureLayoutsCount(
+		long groupId, long companyId, long classNameId,
+		long structureVersionId) {
+
+		return ddmStructureLayoutPersistence.countByG_C_C_S(
+			groupId, companyId, classNameId, structureVersionId);
 	}
 
 	public List<DDMStructureLayout> search(
