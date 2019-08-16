@@ -35,6 +35,10 @@ import com.liferay.dynamic.data.mapping.model.DDMStructureConstants;
 import com.liferay.dynamic.data.mapping.model.DDMStructureVersion;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureVersionLocalService;
+import com.liferay.dynamic.data.mapping.util.comparator.StructureCreateDateComparator;
+import com.liferay.dynamic.data.mapping.util.comparator.StructureModifiedDateComparator;
+import com.liferay.dynamic.data.mapping.util.comparator.StructureNameComparator;
+import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
@@ -49,7 +53,10 @@ import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
@@ -147,6 +154,23 @@ public class DataDefinitionResourceImpl
 					Field.getSortableFieldName(Field.MODIFIED_DATE),
 					Sort.STRING_TYPE, true)
 			};
+		}
+
+		if (Validator.isNull(keywords)) {
+			return Page.of(
+				transform(
+					_ddmStructureLocalService.getStructures(
+						siteId, contextCompany.getCompanyId(),
+						_portal.getClassNameId(InternalDataDefinition.class),
+						pagination.getStartPosition(),
+						pagination.getEndPosition(),
+						_toOrderByComparator(
+							(Sort)ArrayUtil.getValue(sorts, 0))),
+					_toDataDefinition()),
+				pagination,
+				_ddmStructureLocalService.getStructuresCount(
+					siteId, contextCompany.getCompanyId(),
+					_portal.getClassNameId(InternalDataDefinition.class)));
 		}
 
 		return SearchUtil.search(
@@ -322,6 +346,28 @@ public class DataDefinitionResourceImpl
 
 	private long _getClassNameId() {
 		return _portal.getClassNameId(InternalDataDefinition.class);
+	}
+
+	private UnsafeFunction<DDMStructure, DataDefinition, Exception>
+		_toDataDefinition() {
+
+		return ddmStructure -> DataDefinitionUtil.toDataDefinition(
+			ddmStructure, _fieldTypeTracker);
+	}
+
+	private OrderByComparator<DDMStructure> _toOrderByComparator(Sort sort) {
+		boolean ascending = !sort.isReverse();
+
+		String sortFieldName = sort.getFieldName();
+
+		if (StringUtil.startsWith(sortFieldName, "createDate")) {
+			return new StructureCreateDateComparator(ascending);
+		}
+		else if (StringUtil.startsWith(sortFieldName, "localized_name")) {
+			return new StructureNameComparator(ascending);
+		}
+
+		return new StructureModifiedDateComparator(ascending);
 	}
 
 	private static final EntityModel _entityModel =
