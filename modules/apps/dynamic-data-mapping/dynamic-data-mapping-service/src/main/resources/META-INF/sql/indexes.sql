@@ -38,6 +38,7 @@ create index IX_DB81EB42 on DDMStorageLink (uuid_[$COLUMN_LENGTH:75$], companyId
 create index IX_31817A62 on DDMStructure (classNameId);
 create index IX_4FBAC092 on DDMStructure (companyId, classNameId);
 create unique index IX_C8785130 on DDMStructure (groupId, classNameId, structureKey[$COLUMN_LENGTH:75$]);
+create index IX_763ABBE4 on DDMStructure (groupId, companyId, classNameId);
 create index IX_43395316 on DDMStructure (groupId, parentStructureId);
 create index IX_657899A8 on DDMStructure (parentStructureId);
 create index IX_20FDE04C on DDMStructure (structureKey[$COLUMN_LENGTH:75$]);

@@ -1068,6 +1068,18 @@ public class DDMStructureLocalServiceWrapper
 	@Override
 	public java.util.List<com.liferay.dynamic.data.mapping.model.DDMStructure>
 		getStructures(
+			long groupId, long companyId, long classNameId, int start, int end,
+			com.liferay.portal.kernel.util.OrderByComparator
+				<com.liferay.dynamic.data.mapping.model.DDMStructure>
+					orderByComparator) {
+
+		return _ddmStructureLocalService.getStructures(
+			groupId, companyId, classNameId, start, end, orderByComparator);
+	}
+
+	@Override
+	public java.util.List<com.liferay.dynamic.data.mapping.model.DDMStructure>
+		getStructures(
 			long companyId, long[] groupIds, long classNameId, int start,
 			int end,
 			com.liferay.portal.kernel.util.OrderByComparator
@@ -1232,6 +1244,14 @@ public class DDMStructureLocalServiceWrapper
 	public int getStructuresCount(long groupId, long classNameId) {
 		return _ddmStructureLocalService.getStructuresCount(
 			groupId, classNameId);
+	}
+
+	@Override
+	public int getStructuresCount(
+		long groupId, long companyId, long classNameId) {
+
+		return _ddmStructureLocalService.getStructuresCount(
+			groupId, companyId, classNameId);
 	}
 
 	@Override
