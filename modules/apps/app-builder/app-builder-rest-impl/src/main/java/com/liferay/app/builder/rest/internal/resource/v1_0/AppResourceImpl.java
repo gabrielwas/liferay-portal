@@ -15,6 +15,8 @@
 package com.liferay.app.builder.rest.internal.resource.v1_0;
 
 import com.liferay.app.builder.constants.AppBuilderAppConstants;
+import com.liferay.app.builder.deploy.AppDeployer;
+import com.liferay.app.builder.deploy.AppDeployerTracker;
 import com.liferay.app.builder.exception.AppBuilderAppStatusException;
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.rest.dto.v1_0.App;
@@ -84,10 +86,19 @@ public class AppResourceImpl
 		return _toApp(_appBuilderAppLocalService.getAppBuilderApp(appId));
 	}
 
+	private AppDeployer _appDeployer;
+
+	@Reference
+	private AppDeployerTracker _appDeployerTracker;
+
 	public Page<App> getDataDefinitionAppsPage(
 			Long dataDefinitionId, String keywords, Pagination pagination,
 			Sort[] sorts)
 		throws Exception {
+
+		_appDeployer = _appDeployerTracker.getAppDeployer("standalone");
+
+		_appDeployer.deploy(37365);
 
 		if (pagination.getPageSize() > 250) {
 			throw new BadRequestException(
@@ -158,6 +169,10 @@ public class AppResourceImpl
 	public Page<App> getSiteAppsPage(
 			Long siteId, String keywords, Pagination pagination, Sort[] sorts)
 		throws Exception {
+
+		_appDeployer = _appDeployerTracker.getAppDeployer("standalone");
+
+		_appDeployer.undeploy(37365);
 
 		if (pagination.getPageSize() > 250) {
 			throw new BadRequestException(

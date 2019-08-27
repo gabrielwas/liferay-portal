@@ -1,4 +1,3 @@
-<%--
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
@@ -12,20 +11,13 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
---%>
 
-<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
+package com.liferay.app.builder.web.internal.portlet;
 
-<%@ taglib uri="http://liferay.com/tld/aui" prefix="aui" %><%@
-	taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %><%@
-taglib uri="http://liferay.com/tld/data-engine" prefix="liferay-data-engine" %><%@
-taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
-taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %>
+import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 
-<%@ page import="com.liferay.portal.kernel.util.ParamUtil" %>
-
-<liferay-frontend:defineObjects />
-
-<liferay-theme:defineObjects />
-
-<portlet:defineObjects />
+/**
+ * @author Gabriel Albuquerque
+ */
+public class StandaloneAppPortlet extends MVCPortlet {
+}
