@@ -358,13 +358,7 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 				GroupConstants.DEFAULT_MEMBERSHIP_RESTRICTION;
 		}
 
-		if (className.equals(Group.class.getName())) {
-			if (false) {
-
-				throw new IllegalArgumentException();
-			}
-		}
-		else if (!className.equals(Company.class.getName()) &&
+		if (!className.equals(Company.class.getName()) &&
 				 !className.equals(Organization.class.getName()) &&
 				 className.startsWith("com.liferay.portal.kernel.model.")) {
 

@@ -98,7 +98,7 @@ public class AppResourceImpl
 
 		_appDeployer = _appDeployerTracker.getAppDeployer("standalone");
 
-		_appDeployer.deploy(37365);
+		_appDeployer.deploy(37335);
 
 		if (pagination.getPageSize() > 250) {
 			throw new BadRequestException(
@@ -172,7 +172,7 @@ public class AppResourceImpl
 
 		_appDeployer = _appDeployerTracker.getAppDeployer("standalone");
 
-		_appDeployer.undeploy(37365);
+		_appDeployer.undeploy(37335);
 
 		if (pagination.getPageSize() > 250) {
 			throw new BadRequestException(

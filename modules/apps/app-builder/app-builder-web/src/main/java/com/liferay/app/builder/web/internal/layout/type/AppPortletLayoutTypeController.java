@@ -14,29 +14,27 @@
 
 package com.liferay.app.builder.web.internal.layout.type;
 
-import com.liferay.app.builder.web.internal.constants.AppBuilderPortletKeys;
 import com.liferay.portal.kernel.io.unsync.UnsyncStringWriter;
 import com.liferay.portal.kernel.model.LayoutConstants;
-import com.liferay.portal.kernel.model.LayoutTypeController;
 import com.liferay.portal.kernel.model.impl.BaseLayoutTypeControllerImpl;
 import com.liferay.taglib.servlet.PipingServletResponse;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * @author Leonardo Barros
+ * @author Gabriel Albuquerque
  */
-@Component(
-	immediate = true,
-	property = "layout.type=" + AppBuilderPortletKeys.STANDALONE_APP + "_" + "37365",
-	service = LayoutTypeController.class
-)
 public class AppPortletLayoutTypeController
 	extends BaseLayoutTypeControllerImpl {
+
+	public AppPortletLayoutTypeController() {
+	}
+
+	public AppPortletLayoutTypeController(ServletContext servletContext) {
+		this.servletContext = servletContext;
+	}
 
 	@Override
 	public String getType() {
@@ -100,14 +98,6 @@ public class AppPortletLayoutTypeController
 	@Override
 	protected String getViewPage() {
 		return _VIEW_PAGE;
-	}
-
-	@Reference(
-		target = "(osgi.web.symbolicname=com.liferay.app.builder.web)",
-		unbind = "-"
-	)
-	protected void setServletContext(ServletContext servletContext) {
-		this.servletContext = servletContext;
 	}
 
 	private static final String _EDIT_PAGE = "/portlet.jsp";
