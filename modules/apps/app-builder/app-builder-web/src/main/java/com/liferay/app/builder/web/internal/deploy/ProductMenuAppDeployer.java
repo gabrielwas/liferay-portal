@@ -152,8 +152,8 @@ public class ProductMenuAppDeployer implements AppDeployer {
 					put("javax.portlet.init-param.view-template", "/view.jsp");
 					put(
 						"javax.portlet.security-role-ref",
-						"administrator,guest,power-user,user ");
-					put("javax.portlet.supports.mime-type", "text/html ");
+						"administrator,guest,power-user,user");
+					put("javax.portlet.supports.mime-type", "text/html");
 				}
 			});
 	}

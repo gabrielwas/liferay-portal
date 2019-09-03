@@ -1,3 +1,4 @@
+<%--
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
@@ -11,24 +12,8 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
+--%>
 
-package com.liferay.app.builder.web.internal.constants;
+<%@ include file="/layout/init.jsp" %>
 
-/**
- * @author Bruno Farache
- */
-public class AppBuilderPortletKeys {
-
-	public static final String CUSTOM_OBJECTS =
-		"com_liferay_app_builder_web_internal_portlet_CustomObjectsPortlet";
-
-	public static final String PRODUCT_MENU_APP =
-		"com_liferay_app_builder_web_internal_portlet_ProductMenuAppPortlet";
-
-	public static final String STANDALONE_APP =
-		"com_liferay_app_builder_web_internal_portlet_StandaloneAppPortlet";
-
-	public static final String WIDGET_APP =
-		"com_liferay_app_builder_web_internal_portlet_WidgetAppPortlet";
-
-}
+<liferay-ui:layout-common />

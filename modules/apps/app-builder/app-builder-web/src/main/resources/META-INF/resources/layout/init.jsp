@@ -1,3 +1,4 @@
+<%--
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
@@ -11,24 +12,16 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
+--%>
 
-package com.liferay.app.builder.web.internal.constants;
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 
-/**
- * @author Bruno Farache
- */
-public class AppBuilderPortletKeys {
+<%@ taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
+taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
+taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 
-	public static final String CUSTOM_OBJECTS =
-		"com_liferay_app_builder_web_internal_portlet_CustomObjectsPortlet";
+<liferay-frontend:defineObjects />
 
-	public static final String PRODUCT_MENU_APP =
-		"com_liferay_app_builder_web_internal_portlet_ProductMenuAppPortlet";
+<liferay-theme:defineObjects />
 
-	public static final String STANDALONE_APP =
-		"com_liferay_app_builder_web_internal_portlet_StandaloneAppPortlet";
-
-	public static final String WIDGET_APP =
-		"com_liferay_app_builder_web_internal_portlet_WidgetAppPortlet";
-
-}
+<portlet:defineObjects />
