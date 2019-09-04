@@ -15,8 +15,11 @@
 package com.liferay.app.builder.rest.internal.resource.v1_0;
 
 import com.liferay.app.builder.constants.AppBuilderAppConstants;
+import com.liferay.app.builder.deploy.AppDeployer;
+import com.liferay.app.builder.deploy.AppDeployerTracker;
 import com.liferay.app.builder.exception.AppBuilderAppStatusException;
 import com.liferay.app.builder.model.AppBuilderApp;
+import com.liferay.app.builder.rest.constant.v1_0.StatusType;
 import com.liferay.app.builder.rest.dto.v1_0.App;
 import com.liferay.app.builder.rest.dto.v1_0.AppDeployment;
 import com.liferay.app.builder.rest.internal.jaxrs.exception.InvalidAppException;
@@ -62,6 +65,7 @@ import java.util.Set;
 
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -87,6 +91,7 @@ public class AppResourceImpl
 		return _toApp(_appBuilderAppLocalService.getAppBuilderApp(appId));
 	}
 
+	@Override
 	public Page<App> getDataDefinitionAppsPage(
 			Long dataDefinitionId, String keywords, Pagination pagination,
 			Sort[] sorts)
@@ -261,6 +266,35 @@ public class AppResourceImpl
 				appBuilderAppConstantsStatus.getValue()));
 	}
 
+	@Override
+	public Response putAppDeployment(Long appId, StatusType actionType)
+		throws Exception {
+
+		List<AppBuilderAppDeployment> appBuilderAppDeployments =
+			_appBuilderAppDeploymentLocalService.getAppBuilderAppDeployments(
+				appId);
+
+		for (AppBuilderAppDeployment appBuilderAppDeployment :
+				appBuilderAppDeployments) {
+
+			AppDeployer appDeployer = _appDeployerTracker.getAppDeployer(
+				appBuilderAppDeployment.getType());
+
+			if (appDeployer != null) {
+				if (actionType.equals(StatusType.DEPLOY)) {
+					appDeployer.deploy(appId);
+				}
+				else {
+					appDeployer.undeploy(appId);
+				}
+			}
+		}
+
+		Response.ResponseBuilder responseBuilder = Response.accepted();
+
+		return responseBuilder.build();
+	}
+
 	private App _toApp(AppBuilderApp appBuilderApp) throws Exception {
 		AppBuilderAppConstants.Status appBuilderAppConstantsStatus =
 			AppBuilderAppConstants.Status.parse(appBuilderApp.getStatus());
@@ -398,6 +432,9 @@ public class AppResourceImpl
 
 	@Reference
 	private AppBuilderAppLocalService _appBuilderAppLocalService;
+
+	@Reference
+	private AppDeployerTracker _appDeployerTracker;
 
 	@Reference
 	private DDMStructureLayoutLocalService _ddmStructureLayoutLocalService;
