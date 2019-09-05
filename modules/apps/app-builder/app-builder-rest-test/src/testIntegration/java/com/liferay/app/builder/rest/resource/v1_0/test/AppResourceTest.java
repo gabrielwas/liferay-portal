@@ -15,6 +15,7 @@
 package com.liferay.app.builder.rest.resource.v1_0.test;
 
 import com.liferay.app.builder.constants.AppBuilderAppConstants;
+import com.liferay.app.builder.rest.client.constant.v1_0.StatusType;
 import com.liferay.app.builder.rest.client.dto.v1_0.App;
 import com.liferay.app.builder.rest.client.dto.v1_0.AppDeployment;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
@@ -85,6 +86,27 @@ public class AppResourceTest extends BaseAppResourceTestCase {
 	}
 
 	@Override
+	public void testPutAppDeployment() throws Exception {
+		App postApp = testPutApp_addApp();
+
+		appResource.putAppDeployment(postApp.getId(), StatusType.DEPLOY);
+
+		App getApp = appResource.getApp(postApp.getId());
+
+		postApp.setStatus(AppBuilderAppConstants.Status.DEPLOYED.getLabel());
+
+		assertEquals(getApp, postApp);
+		assertValid(getApp);
+	}
+
+	@Override
+	protected String[] getAdditionalAssertFieldNames() {
+		return new String[] {
+			"dataDefinitionId", "dataLayoutId", "dataListViewId", "status"
+		};
+	}
+
+	@Override
 	protected App randomApp() {
 		return new App() {
 			{
@@ -112,7 +134,7 @@ public class AppResourceTest extends BaseAppResourceTestCase {
 				dataLayoutId = _ddmStructureLayout.getStructureLayoutId();
 				dataListViewId = _deDataListView.getDeDataListViewId();
 				siteId = _ddmStructure.getGroupId();
-				status = AppBuilderAppConstants.Status.DEPLOYED.getLabel();
+				status = AppBuilderAppConstants.Status.UNDEPLOYED.getLabel();
 				userId = testGroup.getCreatorUserId();
 			}
 		};
