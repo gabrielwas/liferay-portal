@@ -51,6 +51,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 /**
@@ -113,6 +114,33 @@ public abstract class BaseAppResourceImpl implements AppResource {
 		throws Exception {
 
 		return new App();
+	}
+
+	/**
+	 * Invoke this method with the command line:
+	 *
+	 * curl -X 'PUT' 'http://localhost:8080/o/app-builder/v1.0/apps/{appId}/deployment'  -u 'test@liferay.com:test'
+	 */
+	@Override
+	@PUT
+	@Parameters(
+		value = {
+			@Parameter(in = ParameterIn.PATH, name = "appId"),
+			@Parameter(in = ParameterIn.QUERY, name = "statusType")
+		}
+	)
+	@Path("/apps/{appId}/deployment")
+	@Tags(value = {@Tag(name = "App")})
+	public Response putAppDeployment(
+			@NotNull @Parameter(hidden = true) @PathParam("appId") Long appId,
+			@NotNull @Parameter(hidden = true) @QueryParam("statusType")
+				com.liferay.app.builder.rest.constant.v1_0.StatusType
+					statusType)
+		throws Exception {
+
+		Response.ResponseBuilder responseBuilder = Response.ok();
+
+		return responseBuilder.build();
 	}
 
 	/**

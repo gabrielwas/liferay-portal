@@ -325,6 +325,11 @@ public abstract class BaseAppResourceTestCase {
 	}
 
 	@Test
+	public void testPutAppDeployment() throws Exception {
+		Assert.assertTrue(false);
+	}
+
+	@Test
 	public void testGetDataDefinitionAppsPage() throws Exception {
 		Page<App> page = appResource.getDataDefinitionAppsPage(
 			testGetDataDefinitionAppsPage_getDataDefinitionId(),
