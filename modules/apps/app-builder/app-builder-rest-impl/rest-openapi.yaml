@@ -46,6 +46,9 @@ components:
                 type:
                     type: string
             type: object
+        StatusType:
+            enum: [deploy, undeploy]
+            type: string
 info:
     description: ""
     license:
@@ -118,6 +121,25 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/App"
                     description: ""
+            tags: ["App"]
+    "/apps/{appId}/deployment":
+        put:
+            operationId: putAppDeployment
+            parameters:
+                - in: path
+                  name: appId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+                - in: query
+                  name: statusType
+                  required: true
+                  schema:
+                      $ref: "#/components/schemas/StatusType"
+            responses:
+                200:
+                    description: "OK"
             tags: ["App"]
     "/data-definitions/{dataDefinitionId}/apps":
         get:

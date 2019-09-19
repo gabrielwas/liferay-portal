@@ -29,6 +29,7 @@ import javax.annotation.Generated;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.osgi.service.component.ComponentServiceObjects;
@@ -67,6 +68,19 @@ public class Mutation {
 		return _applyComponentServiceObjects(
 			_appResourceComponentServiceObjects, this::_populateResourceContext,
 			appResource -> appResource.putApp(appId, app));
+	}
+
+	@GraphQLField
+	public Response updateAppDeployment(
+			@GraphQLName("appId") Long appId,
+			@GraphQLName("statusType")
+				com.liferay.app.builder.rest.constant.v1_0.StatusType
+					statusType)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_appResourceComponentServiceObjects, this::_populateResourceContext,
+			appResource -> appResource.putAppDeployment(appId, statusType));
 	}
 
 	@GraphQLField
