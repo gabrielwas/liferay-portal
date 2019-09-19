@@ -267,8 +267,9 @@ public class AppResourceImpl
 		app = _toApp(
 			_appBuilderAppLocalService.updateAppBuilderApp(
 				PrincipalThreadLocal.getUserId(), appId,
-				ddmStructure.getStructureId(), app.getDataLayoutId(),
-				app.getDataListViewId(),
+				ddmStructure.getStructureId(),
+				GetterUtil.getLong(app.getDataLayoutId()),
+				GetterUtil.getLong(app.getDataListViewId()),
 				LocalizedValueUtil.toLocaleStringMap(app.getName()),
 				appBuilderAppConstantsStatus.getValue()));
 
