@@ -19,6 +19,7 @@ import com.liferay.app.builder.deploy.AppDeployer;
 import com.liferay.app.builder.deploy.AppDeployerTracker;
 import com.liferay.app.builder.exception.AppBuilderAppStatusException;
 import com.liferay.app.builder.model.AppBuilderApp;
+import com.liferay.app.builder.model.AppBuilderAppDeployment;
 import com.liferay.app.builder.rest.constant.v1_0.StatusType;
 import com.liferay.app.builder.rest.dto.v1_0.App;
 import com.liferay.app.builder.rest.dto.v1_0.AppDeployment;
@@ -60,6 +61,7 @@ import com.liferay.portal.vulcan.util.SearchUtil;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -242,6 +244,11 @@ public class AppResourceImpl
 			_appBuilderAppDeploymentLocalService.addAppBuilderAppDeployment(
 				app.getId(), _toJSONString(appDeployment.getSettings()),
 				appDeployment.getType());
+
+			AppDeployer appDeployer = _appDeployerTracker.getAppDeployer(
+				appDeployment.getType());
+
+			appDeployer.deploy(app.getId());
 		}
 
 		return _toApp(appBuilderApp);
@@ -257,13 +264,29 @@ public class AppResourceImpl
 		AppBuilderAppConstants.Status appBuilderAppConstantsStatus =
 			AppBuilderAppConstants.Status.parse(app.getStatus());
 
-		return _toApp(
+		app = _toApp(
 			_appBuilderAppLocalService.updateAppBuilderApp(
 				PrincipalThreadLocal.getUserId(), appId,
 				ddmStructure.getStructureId(), app.getDataLayoutId(),
 				app.getDataListViewId(),
 				LocalizedValueUtil.toLocaleStringMap(app.getName()),
 				appBuilderAppConstantsStatus.getValue()));
+
+		for (AppDeployment appDeployment : app.getAppDeployments()) {
+			AppDeployer appDeployer = _appDeployerTracker.getAppDeployer(
+				appDeployment.getType());
+
+			String status = app.getStatus();
+
+			if (status.equals(AppBuilderAppConstants.Status.DEPLOYED)) {
+				appDeployer.deploy(app.getId());
+			}
+			else {
+				appDeployer.undeploy(app.getId());
+			}
+		}
+
+		return app;
 	}
 
 	@Override
