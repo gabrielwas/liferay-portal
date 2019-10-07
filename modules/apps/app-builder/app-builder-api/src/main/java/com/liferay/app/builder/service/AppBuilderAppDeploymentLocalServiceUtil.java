@@ -103,6 +103,12 @@ public class AppBuilderAppDeploymentLocalServiceUtil {
 			appBuilderAppDeploymentId);
 	}
 
+	public static void deleteAppBuilderAppDeployments(long appBuilderAppId)
+		throws Exception {
+
+		getService().deleteAppBuilderAppDeployments(appBuilderAppId);
+	}
+
 	/**
 	 * @throws PortalException
 	 */

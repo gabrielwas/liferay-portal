@@ -106,6 +106,9 @@ public interface AppBuilderAppDeploymentLocalService
 			long appBuilderAppDeploymentId)
 		throws PortalException;
 
+	public void deleteAppBuilderAppDeployments(long appBuilderAppId)
+		throws Exception;
+
 	/**
 	 * @throws PortalException
 	 */

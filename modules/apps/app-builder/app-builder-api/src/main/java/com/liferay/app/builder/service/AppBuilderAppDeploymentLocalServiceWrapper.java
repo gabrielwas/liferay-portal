@@ -106,6 +106,14 @@ public class AppBuilderAppDeploymentLocalServiceWrapper
 			deleteAppBuilderAppDeployment(appBuilderAppDeploymentId);
 	}
 
+	@Override
+	public void deleteAppBuilderAppDeployments(long appBuilderAppId)
+		throws Exception {
+
+		_appBuilderAppDeploymentLocalService.deleteAppBuilderAppDeployments(
+			appBuilderAppId);
+	}
+
 	/**
 	 * @throws PortalException
 	 */
