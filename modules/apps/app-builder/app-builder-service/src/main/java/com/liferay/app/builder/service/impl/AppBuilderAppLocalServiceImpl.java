@@ -15,6 +15,7 @@
 package com.liferay.app.builder.service.impl;
 
 import com.liferay.app.builder.model.AppBuilderApp;
+import com.liferay.app.builder.service.AppBuilderAppDeploymentLocalService;
 import com.liferay.app.builder.service.base.AppBuilderAppLocalServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -29,6 +30,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Brian Wing Shun Chan
@@ -66,6 +68,21 @@ public class AppBuilderAppLocalServiceImpl
 		appBuilderApp.setStatus(status);
 
 		return appBuilderAppPersistence.update(appBuilderApp);
+	}
+
+	@Override
+	public void deleteAppBuilderAppsByDDMStructureId(long ddmStructureId)
+		throws Exception {
+
+		List<AppBuilderApp> appBuilderApps =
+			appBuilderAppPersistence.findByDDMStructureId(ddmStructureId);
+
+		for (AppBuilderApp appBuilderApp : appBuilderApps) {
+			_appBuilderAppDeploymentLocalService.deleteAppBuilderAppDeployments(
+				appBuilderApp.getAppBuilderAppId());
+
+			deleteAppBuilderApp(appBuilderApp.getAppBuilderAppId());
+		}
 	}
 
 	@Override
@@ -133,5 +150,9 @@ public class AppBuilderAppLocalServiceImpl
 
 		return appBuilderAppPersistence.update(appBuilderApp);
 	}
+
+	@Reference
+	private AppBuilderAppDeploymentLocalService
+		_appBuilderAppDeploymentLocalService;
 
 }
