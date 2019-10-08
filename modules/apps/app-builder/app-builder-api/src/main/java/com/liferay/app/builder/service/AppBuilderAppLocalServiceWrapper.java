@@ -99,6 +99,14 @@ public class AppBuilderAppLocalServiceWrapper
 		return _appBuilderAppLocalService.deleteAppBuilderApp(appBuilderAppId);
 	}
 
+	@Override
+	public void deleteAppBuilderAppsByDDMStructureId(long ddmStructureId)
+		throws Exception {
+
+		_appBuilderAppLocalService.deleteAppBuilderAppsByDDMStructureId(
+			ddmStructureId);
+	}
+
 	/**
 	 * @throws PortalException
 	 */

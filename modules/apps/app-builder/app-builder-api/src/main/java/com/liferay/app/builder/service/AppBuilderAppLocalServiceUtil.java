@@ -100,6 +100,12 @@ public class AppBuilderAppLocalServiceUtil {
 		return getService().deleteAppBuilderApp(appBuilderAppId);
 	}
 
+	public static void deleteAppBuilderAppsByDDMStructureId(long ddmStructureId)
+		throws Exception {
+
+		getService().deleteAppBuilderAppsByDDMStructureId(ddmStructureId);
+	}
+
 	/**
 	 * @throws PortalException
 	 */
