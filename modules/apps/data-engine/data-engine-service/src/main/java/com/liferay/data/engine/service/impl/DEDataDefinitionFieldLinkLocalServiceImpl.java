@@ -18,6 +18,8 @@ import com.liferay.data.engine.model.DEDataDefinitionFieldLink;
 import com.liferay.data.engine.service.base.DEDataDefinitionFieldLinkLocalServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
 
+import java.util.List;
+
 import org.osgi.service.component.annotations.Component;
 
 /**
@@ -50,11 +52,27 @@ public class DEDataDefinitionFieldLinkLocalServiceImpl
 	}
 
 	@Override
+	public void deleteDEDataDefinitionFieldLinks(
+		long classNameId, long classPK, long ddmStructureId) {
+
+		deDataDefinitionFieldLinkPersistence.removeByC_C_D(
+			classNameId, classPK, ddmStructureId);
+	}
+
+	@Override
 	public void deleteDEDataDefinitionFieldLinksByDDMStructureId(
 		long ddmStructureId) {
 
 		deDataDefinitionFieldLinkPersistence.removeByDDMStructureId(
 			ddmStructureId);
+	}
+
+	@Override
+	public List<DEDataDefinitionFieldLink> getDEDataDefinitionFieldLinks(
+		long classNameId, long ddmStructureId, String fieldName) {
+
+		return deDataDefinitionFieldLinkPersistence.findByC_D_F(
+			classNameId, ddmStructureId, fieldName);
 	}
 
 }
