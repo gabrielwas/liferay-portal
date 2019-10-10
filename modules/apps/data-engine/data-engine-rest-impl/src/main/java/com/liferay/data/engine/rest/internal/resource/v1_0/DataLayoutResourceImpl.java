@@ -281,16 +281,9 @@ public class DataLayoutResourceImpl
 			InternalDataLayout.class.getName(), dataLayout.getId(),
 			serviceContext.getModelPermissions());
 
-		DocumentContext documentContext = JsonPath.parse(dataLayoutJSON);
-
-		List<String> fieldNames = documentContext.read(
-			"$[\"pages\"][*][\"rows\"][*][\"columns\"][*][\"fieldNames\"][*]");
-
-		for (String fieldName : fieldNames) {
-			_deDataDefinitionFieldLinkLocalService.addDEDataDefinitionFieldLink(
-				dataLayout.getSiteId(), _getClassNameId(), dataLayout.getId(),
-				dataDefinitionId, fieldName);
-		}
+		_saveDataDefinitionFieldLinks(
+			dataLayout.getSiteId(), dataDefinitionId, dataLayout.getId(),
+			dataLayoutJSON);
 
 		return dataLayout;
 	}
@@ -374,14 +367,25 @@ public class DataLayoutResourceImpl
 			PermissionThreadLocal.getPermissionChecker(), dataLayoutId,
 			ActionKeys.UPDATE);
 
-		return _toDataLayout(
+		String dataLayoutJSON = DataLayoutUtil.toJSON(dataLayout);
+
+		dataLayout = _toDataLayout(
 			_ddmStructureLayoutLocalService.updateStructureLayout(
 				dataLayoutId,
 				_getDDMStructureVersionId(dataLayout.getDataDefinitionId()),
 				LocalizedValueUtil.toLocaleStringMap(dataLayout.getName()),
 				LocalizedValueUtil.toLocaleStringMap(
 					dataLayout.getDescription()),
-				DataLayoutUtil.toJSON(dataLayout), new ServiceContext()));
+				dataLayoutJSON, new ServiceContext()));
+
+		_deDataDefinitionFieldLinkLocalService.deleteDEDataDefinitionFieldLinks(
+			_getClassNameId(), dataLayoutId, dataLayout.getDataDefinitionId());
+
+		_saveDataDefinitionFieldLinks(
+			dataLayout.getSiteId(), dataLayout.getDataDefinitionId(),
+			dataLayoutId, dataLayoutJSON);
+
+		return dataLayout;
 	}
 
 	@Reference(
@@ -419,6 +423,22 @@ public class DataLayoutResourceImpl
 				deDataDefinitionId);
 
 		return ddmStructureVersion.getStructureVersionId();
+	}
+
+	private void _saveDataDefinitionFieldLinks(
+		long groupId, long dataDefinitionId, long dataLayoutId,
+		String dataLayoutJSON) {
+
+		DocumentContext documentContext = JsonPath.parse(dataLayoutJSON);
+
+		List<String> fieldNames = documentContext.read(
+			"$[\"pages\"][*][\"rows\"][*][\"columns\"][*][\"fieldNames\"][*]");
+
+		for (String fieldName : fieldNames) {
+			_deDataDefinitionFieldLinkLocalService.addDEDataDefinitionFieldLink(
+				groupId, _getClassNameId(), dataLayoutId, dataDefinitionId,
+				fieldName);
+		}
 	}
 
 	private DataLayout _toDataLayout(DDMStructureLayout ddmStructureLayout)

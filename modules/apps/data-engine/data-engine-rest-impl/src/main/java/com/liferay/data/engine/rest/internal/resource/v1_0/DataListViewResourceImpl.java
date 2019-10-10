@@ -167,12 +167,9 @@ public class DataListViewResourceImpl
 				LocalizedValueUtil.toLocaleStringMap(dataListView.getName()),
 				dataListView.getSortField()));
 
-		for (String fieldName : dataListView.getFieldNames()) {
-			_deDataDefinitionFieldLinkLocalService.addDEDataDefinitionFieldLink(
-				dataListView.getSiteId(),
-				_portal.getClassNameId(DEDataListView.class),
-				dataListView.getId(), ddmStructure.getStructureId(), fieldName);
-		}
+		_saveDataDefinitionFieldLinks(
+			dataListView.getSiteId(), dataListView.getDataDefinitionId(),
+			dataListView.getId(), dataListView.getFieldNames());
 
 		return dataListView;
 	}
@@ -182,13 +179,38 @@ public class DataListViewResourceImpl
 			Long dataListViewId, DataListView dataListView)
 		throws Exception {
 
-		return _toDataListView(
+		dataListView = _toDataListView(
 			_deDataListViewLocalService.updateDEDataListView(
 				dataListViewId,
 				MapUtil.toString(dataListView.getAppliedFilters()),
 				Arrays.toString(dataListView.getFieldNames()),
 				LocalizedValueUtil.toLocaleStringMap(dataListView.getName()),
 				dataListView.getSortField()));
+
+		_deDataDefinitionFieldLinkLocalService.deleteDEDataDefinitionFieldLinks(
+			_getClassNameId(), dataListViewId,
+			dataListView.getDataDefinitionId());
+
+		_saveDataDefinitionFieldLinks(
+			dataListView.getSiteId(), dataListView.getDataDefinitionId(),
+			dataListView.getId(), dataListView.getFieldNames());
+
+		return dataListView;
+	}
+
+	private long _getClassNameId() {
+		return _portal.getClassNameId(DEDataListView.class);
+	}
+
+	private void _saveDataDefinitionFieldLinks(
+		long groupId, long dataDefinitionId, long dataListViewId,
+		String[] fieldNames) {
+
+		for (String fieldName : fieldNames) {
+			_deDataDefinitionFieldLinkLocalService.addDEDataDefinitionFieldLink(
+				groupId, _getClassNameId(), dataListViewId, dataDefinitionId,
+				fieldName);
+		}
 	}
 
 	private DataListView _toDataListView(DEDataListView deDataListView)
