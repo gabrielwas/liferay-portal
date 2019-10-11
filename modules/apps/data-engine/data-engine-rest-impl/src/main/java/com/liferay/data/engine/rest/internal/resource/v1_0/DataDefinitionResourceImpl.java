@@ -17,6 +17,8 @@ package com.liferay.data.engine.rest.internal.resource.v1_0;
 import com.liferay.data.engine.field.type.FieldType;
 import com.liferay.data.engine.field.type.FieldTypeTracker;
 import com.liferay.data.engine.field.type.util.LocalizedValueUtil;
+import com.liferay.data.engine.model.DEDataDefinitionFieldLink;
+import com.liferay.data.engine.model.DEDataListView;
 import com.liferay.data.engine.rest.dto.v1_0.DataDefinition;
 import com.liferay.data.engine.rest.dto.v1_0.DataDefinitionPermission;
 import com.liferay.data.engine.rest.dto.v1_0.DataRecordCollection;
@@ -39,6 +41,7 @@ import com.liferay.dynamic.data.mapping.form.renderer.DDMFormTemplateContextFact
 import com.liferay.dynamic.data.mapping.form.values.factory.DDMFormValuesFactory;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMStructureConstants;
+import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
 import com.liferay.dynamic.data.mapping.model.DDMStructureVersion;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
@@ -49,6 +52,7 @@ import com.liferay.dynamic.data.mapping.util.comparator.StructureNameComparator;
 import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
@@ -168,6 +172,56 @@ public class DataDefinitionResourceImpl
 		);
 
 		return jsonArray.toJSONString();
+	}
+
+	@Override
+	public String getDataDefinitionDataDefinitionFieldLink(
+			Long dataDefinitionId, String fieldName)
+		throws Exception {
+
+		List<DEDataDefinitionFieldLink> deDataLayoutFieldLinks =
+			_deDataDefinitionFieldLinkLocalService.
+				getDEDataDefinitionFieldLinks(
+					_portal.getClassNameId(InternalDataLayout.class),
+					dataDefinitionId, fieldName);
+
+		String[] dataLayoutNames = {};
+
+		for (DEDataDefinitionFieldLink deDataDefinitionFieldLink :
+				deDataLayoutFieldLinks) {
+
+			DDMStructureLayout ddmStructureLayout =
+				_ddmStructureLayoutLocalService.getDDMStructureLayout(
+					deDataDefinitionFieldLink.getClassPK());
+
+			dataLayoutNames = ArrayUtil.append(
+				dataLayoutNames, ddmStructureLayout.getName());
+		}
+
+		List<DEDataDefinitionFieldLink> deDataListViewFieldLinks =
+			_deDataDefinitionFieldLinkLocalService.
+				getDEDataDefinitionFieldLinks(
+					_portal.getClassNameId(DEDataListView.class),
+					dataDefinitionId, fieldName);
+
+		String[] dataListViewNames = {};
+
+		for (DEDataDefinitionFieldLink deDataListViewFieldLink :
+				deDataListViewFieldLinks) {
+
+			DEDataListView deDataListView =
+				_deDataListViewLocalService.getDEDataListView(
+					deDataListViewFieldLink.getClassPK());
+
+			dataListViewNames = ArrayUtil.append(
+				dataListViewNames, deDataListView.getName());
+		}
+
+		return JSONUtil.put(
+			"dataLayouts", dataLayoutNames
+		).put(
+			"dataListViews", dataListViewNames
+		).toString();
 	}
 
 	@Override
