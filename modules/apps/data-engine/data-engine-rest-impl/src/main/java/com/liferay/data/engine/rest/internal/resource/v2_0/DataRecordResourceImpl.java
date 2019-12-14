@@ -44,6 +44,7 @@ import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.util.DDMIndexer;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
@@ -63,6 +64,7 @@ import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.resource.EntityModelResource;
 import com.liferay.portal.vulcan.util.SearchUtil;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -184,10 +186,6 @@ public class DataRecordResourceImpl
 		DDLRecordSet ddlRecordSet = _ddlRecordSetLocalService.getDDLRecordSet(
 			dataRecordCollectionId);
 
-		if (ArrayUtil.isNotEmpty(sorts)) {
-			_indexSortableFields(ddlRecordSet.getDDMStructure());
-		}
-
 		return SearchUtil.search(
 			booleanQuery -> {
 			},
@@ -208,8 +206,28 @@ public class DataRecordResourceImpl
 	}
 
 	@Override
-	public EntityModel getEntityModel(MultivaluedMap multivaluedMap) {
-		return _entityModel;
+	public EntityModel getEntityModel(MultivaluedMap multivaluedMap)
+		throws PortalException {
+
+		Long dataRecordCollectionId = GetterUtil.getLong(
+			(String)multivaluedMap.getFirst("dataRecordCollectionId"));
+
+		DDLRecordSet ddlRecordSet = _ddlRecordSetLocalService.getDDLRecordSet(
+			dataRecordCollectionId);
+
+		DDMStructure ddmStructure = ddlRecordSet.getDDMStructure();
+
+		List<EntityField> entityFields = new ArrayList<>();
+
+		for (String fieldName : ddmStructure.getFieldNames()) {
+			entityFields.add(new StringEntityField(
+				fieldName,
+				locale -> _getSortableIndexFieldName(
+					ddmStructure.getStructureId(), fieldName, locale)));
+		}
+
+		return new DataRecordEntityModel(
+			entityFields);
 	}
 
 	@Override
@@ -359,22 +377,6 @@ public class DataRecordResourceImpl
 		return sb.toString();
 	}
 
-	private void _indexSortableFields(DDMStructure ddmStructure) {
-		Map<String, EntityField> entityFieldsMap =
-			_entityModel.getEntityFieldsMap();
-
-		entityFieldsMap.clear();
-
-		for (String fieldName : ddmStructure.getFieldNames()) {
-			entityFieldsMap.put(
-				fieldName,
-				new StringEntityField(
-					fieldName,
-					locale -> _getSortableIndexFieldName(
-						ddmStructure.getStructureId(), fieldName, locale)));
-		}
-	}
-
 	private DataRecord _toDataRecord(DDLRecord ddlRecord) throws Exception {
 		DDLRecordSet ddlRecordSet = ddlRecord.getRecordSet();
 
@@ -490,8 +492,6 @@ public class DataRecordResourceImpl
 			throw new ValidationException(errorCodesMap.toString());
 		}
 	}
-
-	private static final EntityModel _entityModel = new DataRecordEntityModel();
 
 	@Reference
 	private DataRuleFunctionTracker _dataRuleFunctionTracker;

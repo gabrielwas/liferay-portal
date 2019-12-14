@@ -14,9 +14,11 @@
 
 package com.liferay.data.engine.rest.internal.odata.entity.v1_0;
 
+import com.liferay.portal.odata.entity.ComplexEntityField;
 import com.liferay.portal.odata.entity.EntityField;
 import com.liferay.portal.odata.entity.EntityModel;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -24,8 +26,10 @@ import java.util.Map;
  */
 public class DataRecordEntityModel implements EntityModel {
 
-	public DataRecordEntityModel() {
-		_entityFieldsMap = EntityModel.toEntityFieldsMap();
+	public DataRecordEntityModel(List<EntityField> entityFields) {
+		_entityFieldsMap = EntityModel.toEntityFieldsMap(
+			new ComplexEntityField("dataRecordValues", entityFields)
+		);
 	}
 
 	@Override
