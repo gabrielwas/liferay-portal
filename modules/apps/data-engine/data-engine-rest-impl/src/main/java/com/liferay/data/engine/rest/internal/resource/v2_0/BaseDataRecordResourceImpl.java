@@ -72,6 +72,7 @@ public abstract class BaseDataRecordResourceImpl implements DataRecordResource {
 	@Parameters(
 		value = {
 			@Parameter(in = ParameterIn.PATH, name = "dataDefinitionId"),
+			@Parameter(in = ParameterIn.QUERY, name = "dataListViewId"),
 			@Parameter(in = ParameterIn.QUERY, name = "keywords"),
 			@Parameter(in = ParameterIn.QUERY, name = "page"),
 			@Parameter(in = ParameterIn.QUERY, name = "pageSize"),
@@ -84,6 +85,8 @@ public abstract class BaseDataRecordResourceImpl implements DataRecordResource {
 	public Page<DataRecord> getDataDefinitionDataRecordsPage(
 			@NotNull @Parameter(hidden = true) @PathParam("dataDefinitionId")
 				Long dataDefinitionId,
+			@Parameter(hidden = true) @QueryParam("dataListViewId") Long
+				dataListViewId,
 			@Parameter(hidden = true) @QueryParam("keywords") String keywords,
 			@Context Pagination pagination, @Context Sort[] sorts)
 		throws Exception {
@@ -124,6 +127,7 @@ public abstract class BaseDataRecordResourceImpl implements DataRecordResource {
 	@Parameters(
 		value = {
 			@Parameter(in = ParameterIn.PATH, name = "dataRecordCollectionId"),
+			@Parameter(in = ParameterIn.QUERY, name = "dataListViewId"),
 			@Parameter(in = ParameterIn.QUERY, name = "keywords"),
 			@Parameter(in = ParameterIn.QUERY, name = "page"),
 			@Parameter(in = ParameterIn.QUERY, name = "pageSize"),
@@ -136,6 +140,8 @@ public abstract class BaseDataRecordResourceImpl implements DataRecordResource {
 	public Page<DataRecord> getDataRecordCollectionDataRecordsPage(
 			@NotNull @Parameter(hidden = true)
 			@PathParam("dataRecordCollectionId") Long dataRecordCollectionId,
+			@Parameter(hidden = true) @QueryParam("dataListViewId") Long
+				dataListViewId,
 			@Parameter(hidden = true) @QueryParam("keywords") String keywords,
 			@Context Pagination pagination, @Context Sort[] sorts)
 		throws Exception {

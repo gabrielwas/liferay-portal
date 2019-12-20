@@ -412,11 +412,12 @@ public class Query {
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {dataDefinitionDataRecords(dataDefinitionId: ___, keywords: ___, page: ___, pageSize: ___, sorts: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {dataDefinitionDataRecords(dataDefinitionId: ___, dataListViewId: ___, keywords: ___, page: ___, pageSize: ___, sorts: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField
 	public DataRecordPage dataDefinitionDataRecords(
 			@GraphQLName("dataDefinitionId") Long dataDefinitionId,
+			@GraphQLName("dataListViewId") Long dataListViewId,
 			@GraphQLName("keywords") String keywords,
 			@GraphQLName("pageSize") int pageSize,
 			@GraphQLName("page") int page,
@@ -428,18 +429,20 @@ public class Query {
 			this::_populateResourceContext,
 			dataRecordResource -> new DataRecordPage(
 				dataRecordResource.getDataDefinitionDataRecordsPage(
-					dataDefinitionId, keywords, Pagination.of(page, pageSize),
+					dataDefinitionId, dataListViewId, keywords,
+					Pagination.of(page, pageSize),
 					_sortsBiFunction.apply(dataRecordResource, sortsString))));
 	}
 
 	/**
 	 * Invoke this method with the command line:
 	 *
-	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {dataRecordCollectionDataRecords(dataRecordCollectionId: ___, keywords: ___, page: ___, pageSize: ___, sorts: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
+	 * curl -H 'Content-Type: text/plain; charset=utf-8' -X 'POST' 'http://localhost:8080/o/graphql' -d $'{"query": "query {dataRecordCollectionDataRecords(dataListViewId: ___, dataRecordCollectionId: ___, keywords: ___, page: ___, pageSize: ___, sorts: ___){items {__}, page, pageSize, totalCount}}"}' -u 'test@liferay.com:test'
 	 */
 	@GraphQLField
 	public DataRecordPage dataRecordCollectionDataRecords(
 			@GraphQLName("dataRecordCollectionId") Long dataRecordCollectionId,
+			@GraphQLName("dataListViewId") Long dataListViewId,
 			@GraphQLName("keywords") String keywords,
 			@GraphQLName("pageSize") int pageSize,
 			@GraphQLName("page") int page,
@@ -451,7 +454,7 @@ public class Query {
 			this::_populateResourceContext,
 			dataRecordResource -> new DataRecordPage(
 				dataRecordResource.getDataRecordCollectionDataRecordsPage(
-					dataRecordCollectionId, keywords,
+					dataRecordCollectionId, dataListViewId, keywords,
 					Pagination.of(page, pageSize),
 					_sortsBiFunction.apply(dataRecordResource, sortsString))));
 	}
@@ -868,6 +871,7 @@ public class Query {
 
 		@GraphQLField
 		public DataRecordPage dataRecords(
+				@GraphQLName("dataListViewId") Long dataListViewId,
 				@GraphQLName("keywords") String keywords,
 				@GraphQLName("pageSize") int pageSize,
 				@GraphQLName("page") int page,
@@ -879,7 +883,7 @@ public class Query {
 				Query.this::_populateResourceContext,
 				dataRecordResource -> new DataRecordPage(
 					dataRecordResource.getDataDefinitionDataRecordsPage(
-						_dataDefinition.getId(), keywords,
+						_dataDefinition.getId(), dataListViewId, keywords,
 						Pagination.of(page, pageSize),
 						_sortsBiFunction.apply(
 							dataRecordResource, sortsString))));
@@ -932,6 +936,7 @@ public class Query {
 
 		@GraphQLField
 		public DataRecordPage dataRecords(
+				@GraphQLName("dataListViewId") Long dataListViewId,
 				@GraphQLName("keywords") String keywords,
 				@GraphQLName("pageSize") int pageSize,
 				@GraphQLName("page") int page,
@@ -943,7 +948,7 @@ public class Query {
 				Query.this::_populateResourceContext,
 				dataRecordResource -> new DataRecordPage(
 					dataRecordResource.getDataRecordCollectionDataRecordsPage(
-						_dataRecordCollection.getId(), keywords,
+						_dataRecordCollection.getId(), dataListViewId, keywords,
 						Pagination.of(page, pageSize),
 						_sortsBiFunction.apply(
 							dataRecordResource, sortsString))));
