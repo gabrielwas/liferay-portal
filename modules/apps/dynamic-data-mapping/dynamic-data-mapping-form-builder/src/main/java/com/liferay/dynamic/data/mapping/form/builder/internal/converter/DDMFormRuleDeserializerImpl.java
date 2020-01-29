@@ -14,13 +14,17 @@
 
 package com.liferay.dynamic.data.mapping.form.builder.internal.converter;
 
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.DDMFormRule;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.DDMFormRuleAction;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.DDMFormRuleCondition;
+import com.liferay.dynamic.data.mapping.form.builder.converter.DDMFormRuleConverter;
+import com.liferay.dynamic.data.mapping.form.builder.converter.model.DDMFormRule;
+import com.liferay.dynamic.data.mapping.form.builder.converter.model.DDMFormRuleAction;
+import com.liferay.dynamic.data.mapping.form.builder.converter.model.DDMFormRuleCondition;
+import com.liferay.dynamic.data.mapping.form.builder.converter.serializer.DDMFormRuleSerializerContext;
 import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.action.AutoFillDDMFormRuleAction;
 import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.action.CalculateDDMFormRuleAction;
 import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.action.DefaultDDMFormRuleAction;
 import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.action.JumpToPageDDMFormRuleAction;
+import com.liferay.dynamic.data.mapping.form.builder.rule.DDMFormRuleDeserializer;
+import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONDeserializer;
@@ -29,6 +33,7 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.util.ListUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.osgi.service.component.annotations.Component;
@@ -38,9 +43,31 @@ import org.osgi.service.component.annotations.Reference;
  * @author Rafael Praxedes
  */
 @Component(immediate = true, service = DDMFormRuleDeserializer.class)
-public class DDMFormRuleDeserializer {
+public class DDMFormRuleDeserializerImpl implements DDMFormRuleDeserializer {
 
-	public List<DDMFormRule> deserialize(String rules) throws PortalException {
+	@Override
+	public List<com.liferay.dynamic.data.mapping.model.DDMFormRule> deserialize(
+			JSONArray jsonArray, DDMForm ddmForm)
+		throws PortalException {
+
+		if ((jsonArray == null) || (jsonArray.length() == 0)) {
+			return Collections.emptyList();
+		}
+
+		List<DDMFormRule> ddmFormRules = deserialize(jsonArray.toString());
+
+		DDMFormRuleSerializerContext ddmFormRuleSerializerContext =
+			new DDMFormRuleSerializerContext();
+
+		ddmFormRuleSerializerContext.addAttribute("form", ddmForm);
+
+		return _ddmFormRuleConverter.convert(
+			ddmFormRules, ddmFormRuleSerializerContext);
+	}
+
+	protected List<DDMFormRule> deserialize(String rules)
+		throws PortalException {
+
 		JSONArray rulesJSONArray = _jsonFactory.createJSONArray(rules);
 
 		List<DDMFormRule> ddmFormRules = new ArrayList<>(
@@ -136,6 +163,9 @@ public class DDMFormRuleDeserializer {
 
 		return DefaultDDMFormRuleAction.class;
 	}
+
+	@Reference
+	private DDMFormRuleConverter _ddmFormRuleConverter;
 
 	@Reference
 	private JSONFactory _jsonFactory;
