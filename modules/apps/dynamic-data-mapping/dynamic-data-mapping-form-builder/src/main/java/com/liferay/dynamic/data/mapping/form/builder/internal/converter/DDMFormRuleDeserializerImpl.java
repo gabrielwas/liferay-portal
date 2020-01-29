@@ -21,6 +21,9 @@ import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.ac
 import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.action.CalculateDDMFormRuleAction;
 import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.action.DefaultDDMFormRuleAction;
 import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.action.JumpToPageDDMFormRuleAction;
+import com.liferay.dynamic.data.mapping.form.builder.internal.converter.serializer.DDMFormRuleSerializerContext;
+import com.liferay.dynamic.data.mapping.form.builder.rule.DDMFormRuleDeserializer;
+import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONDeserializer;
@@ -29,6 +32,7 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.util.ListUtil;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.osgi.service.component.annotations.Component;
@@ -38,22 +42,27 @@ import org.osgi.service.component.annotations.Reference;
  * @author Rafael Praxedes
  */
 @Component(immediate = true, service = DDMFormRuleDeserializer.class)
-public class DDMFormRuleDeserializer {
+public class DDMFormRuleDeserializerImpl implements DDMFormRuleDeserializer {
 
-	public List<DDMFormRule> deserialize(String rules) throws PortalException {
-		JSONArray rulesJSONArray = _jsonFactory.createJSONArray(rules);
+	@Override
+	public List<com.liferay.dynamic.data.mapping.model.DDMFormRule> deserialize(
+			JSONArray jsonArray, DDMForm ddmForm)
+		throws PortalException {
 
-		List<DDMFormRule> ddmFormRules = new ArrayList<>(
-			rulesJSONArray.length());
-
-		for (int i = 0; i < rulesJSONArray.length(); i++) {
-			DDMFormRule ddmFormRule = deserializeDDMFormRule(
-				rulesJSONArray.getJSONObject(i));
-
-			ddmFormRules.add(ddmFormRule);
+		if ((jsonArray == null) || (jsonArray.length() == 0)) {
+			return Collections.emptyList();
 		}
 
-		return ddmFormRules;
+		List<DDMFormRule> ddmFormRules = _deserializeDDMFormRules(
+			jsonArray.toString());
+
+		DDMFormRuleSerializerContext ddmFormRuleSerializerContext =
+			new DDMFormRuleSerializerContext();
+
+		ddmFormRuleSerializerContext.addAttribute("form", ddmForm);
+
+		return ddmFormRuleConverter.convert(
+			ddmFormRules, ddmFormRuleSerializerContext);
 	}
 
 	protected DDMFormRule deserializeDDMFormRule(JSONObject ruleJSONObject) {
@@ -135,6 +144,27 @@ public class DDMFormRuleDeserializer {
 		}
 
 		return DefaultDDMFormRuleAction.class;
+	}
+
+	@Reference
+	protected DDMFormRuleConverter ddmFormRuleConverter;
+
+	private List<DDMFormRule> _deserializeDDMFormRules(String rules)
+		throws PortalException {
+
+		JSONArray rulesJSONArray = _jsonFactory.createJSONArray(rules);
+
+		List<DDMFormRule> ddmFormRules = new ArrayList<>(
+			rulesJSONArray.length());
+
+		for (int i = 0; i < rulesJSONArray.length(); i++) {
+			DDMFormRule ddmFormRule = deserializeDDMFormRule(
+				rulesJSONArray.getJSONObject(i));
+
+			ddmFormRules.add(ddmFormRule);
+		}
+
+		return ddmFormRules;
 	}
 
 	@Reference
