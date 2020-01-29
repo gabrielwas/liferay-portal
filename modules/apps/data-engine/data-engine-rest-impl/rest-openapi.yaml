@@ -38,6 +38,11 @@ components:
                     additionalProperties:
                         type: object
                     type: object
+                dataRules:
+                    items:
+                        $ref: "#/components/schemas/DataRule"
+                    type:
+                        array
                 siteId:
                     format: int64
                     type: integer
@@ -129,6 +134,11 @@ components:
                     type: object
                 paginationMode:
                     type: string
+                dataRules:
+                    items:
+                        $ref: "#/components/schemas/DataRule"
+                    type:
+                        array
                 siteId:
                     format: int64
                     type: integer
@@ -243,6 +253,21 @@ components:
                 siteId:
                     format: int64
                     type: integer
+            type: object
+        DataRule:
+            properties:
+                actions:
+                    items:
+                        type: object
+                    type:
+                        array
+                conditions:
+                    items:
+                        type: object
+                    type:
+                        array
+                logical-operator:
+                    type: string
             type: object
 info:
     description:
