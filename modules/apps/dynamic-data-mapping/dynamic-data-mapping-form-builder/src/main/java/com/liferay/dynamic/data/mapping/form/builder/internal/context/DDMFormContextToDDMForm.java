@@ -17,8 +17,7 @@ package com.liferay.dynamic.data.mapping.form.builder.internal.context;
 import com.liferay.dynamic.data.mapping.form.builder.context.DDMFormContextDeserializer;
 import com.liferay.dynamic.data.mapping.form.builder.context.DDMFormContextDeserializerRequest;
 import com.liferay.dynamic.data.mapping.form.builder.context.DDMFormContextVisitor;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.DDMFormRuleConverter;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.DDMFormRuleDeserializer;
+import com.liferay.dynamic.data.mapping.form.builder.rule.DDMFormRuleDeserializer;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldValueAccessor;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
@@ -26,12 +25,9 @@ import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidation;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidationExpression;
-import com.liferay.dynamic.data.mapping.model.DDMFormRule;
 import com.liferay.dynamic.data.mapping.model.DDMFormSuccessPageSettings;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.model.UnlocalizedValue;
-import com.liferay.dynamic.data.mapping.spi.converter.model.ModelDDMFormRule;
-import com.liferay.dynamic.data.mapping.spi.converter.serializer.DDMFormRuleSerializerContext;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
@@ -45,10 +41,8 @@ import com.liferay.portal.kernel.util.Validator;
 
 import java.math.BigDecimal;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
@@ -290,22 +284,6 @@ public class DDMFormContextToDDMForm
 		return ddmFormFieldValidation;
 	}
 
-	protected List<DDMFormRule> getDDMFormRules(
-			DDMFormRuleSerializerContext ddmFormRuleSerializerContext,
-			JSONArray jsonArray)
-		throws PortalException {
-
-		if ((jsonArray == null) || (jsonArray.length() == 0)) {
-			return Collections.emptyList();
-		}
-
-		List<ModelDDMFormRule> modelDDMFormRules =
-			ddmFormRuleDeserializer.deserialize(jsonArray.toString());
-
-		return ddmFormRuleConverter.convert(
-			modelDDMFormRules, ddmFormRuleSerializerContext);
-	}
-
 	protected LocalizedValue getLocalizedValue(
 			JSONObject jsonObject, Set<Locale> availableLocales)
 		throws PortalException {
@@ -484,15 +462,8 @@ public class DDMFormContextToDDMForm
 	protected void setDDMFormRules(JSONArray jsonArray, DDMForm ddmForm)
 		throws PortalException {
 
-		DDMFormRuleSerializerContext ddmFormRuleSerializerContext =
-			new DDMFormRuleSerializerContext();
-
-		ddmFormRuleSerializerContext.addAttribute("form", ddmForm);
-
-		List<DDMFormRule> ddmFormRules = getDDMFormRules(
-			ddmFormRuleSerializerContext, jsonArray);
-
-		ddmForm.setDDMFormRules(ddmFormRules);
+		ddmForm.setDDMFormRules(
+			ddmFormRuleDeserializer.deserialize(jsonArray, ddmForm));
 	}
 
 	protected void setDDMFormSuccessPageSettings(
@@ -522,9 +493,6 @@ public class DDMFormContextToDDMForm
 
 	@Reference
 	protected DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker;
-
-	@Reference
-	protected DDMFormRuleConverter ddmFormRuleConverter;
 
 	@Reference
 	protected DDMFormRuleDeserializer ddmFormRuleDeserializer;
