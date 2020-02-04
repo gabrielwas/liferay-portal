@@ -14,6 +14,7 @@
 
 package com.liferay.dynamic.data.mapping.internal.io;
 
+import com.liferay.dynamic.data.mapping.form.builder.converter.DDMFormRuleConverter;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldType;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeSettings;
@@ -157,7 +158,7 @@ public class DDMFormJSONSerializer implements DDMFormSerializer {
 			return;
 		}
 
-		jsonObject.put("rules", rulesToJSONArray(ddmFormRules));
+		jsonObject.put("rules", _ddmFormRuleConverter.toJSONArray(ddmFormRules));
 	}
 
 	protected void addSuccessPageSettings(
@@ -214,26 +215,6 @@ public class DDMFormJSONSerializer implements DDMFormSerializer {
 			);
 
 			jsonArray.put(jsonObject);
-		}
-
-		return jsonArray;
-	}
-
-	protected JSONArray ruleActionsToJSONArray(List<String> ruleActions) {
-		JSONArray jsonArray = _jsonFactory.createJSONArray();
-
-		for (String ruleAction : ruleActions) {
-			jsonArray.put(ruleAction);
-		}
-
-		return jsonArray;
-	}
-
-	protected JSONArray rulesToJSONArray(List<DDMFormRule> ddmFormRules) {
-		JSONArray jsonArray = _jsonFactory.createJSONArray();
-
-		for (DDMFormRule ddmFormRule : ddmFormRules) {
-			jsonArray.put(toJSONObject(ddmFormRule));
 		}
 
 		return jsonArray;
@@ -323,20 +304,6 @@ public class DDMFormJSONSerializer implements DDMFormSerializer {
 		return jsonObject;
 	}
 
-	protected JSONObject toJSONObject(DDMFormRule ddmFormRule) {
-		JSONObject jsonObject = _jsonFactory.createJSONObject();
-
-		jsonObject.put(
-			"actions", ruleActionsToJSONArray(ddmFormRule.getActions())
-		).put(
-			"condition", ddmFormRule.getCondition()
-		).put(
-			"enabled", ddmFormRule.isEnabled()
-		);
-
-		return jsonObject;
-	}
-
 	protected JSONObject toJSONObject(
 		DDMFormSuccessPageSettings ddmFormSuccessPageSettings) {
 
@@ -375,7 +342,15 @@ public class DDMFormJSONSerializer implements DDMFormSerializer {
 		return jsonObject;
 	}
 
+	@Reference(unbind = "-")
+	protected void setDDMFormRuleConverter(
+		DDMFormRuleConverter ddmFormRuleConverter) {
+
+		_ddmFormRuleConverter = ddmFormRuleConverter;
+	}
+
 	private DDMFormFieldTypeServicesTracker _ddmFormFieldTypeServicesTracker;
 	private JSONFactory _jsonFactory;
+	private static DDMFormRuleConverter _ddmFormRuleConverter;
 
 }
