@@ -14,6 +14,7 @@
 
 package com.liferay.dynamic.data.mapping.internal.io;
 
+import com.liferay.dynamic.data.mapping.form.builder.converter.DDMFormRuleConverter;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutSerializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutSerializerSerializeRequest;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutSerializerSerializeResponse;
@@ -21,6 +22,7 @@ import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutColumn;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutPage;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutRow;
+import com.liferay.dynamic.data.mapping.model.DDMFormRule;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
@@ -56,6 +58,7 @@ public class DDMFormLayoutJSONSerializer implements DDMFormLayoutSerializer {
 		addDefaultLanguageId(jsonObject, ddmFormLayout.getDefaultLocale());
 		addPages(jsonObject, ddmFormLayout.getDDMFormLayoutPages());
 		addPaginationMode(jsonObject, ddmFormLayout.getPaginationMode());
+		addRules(jsonObject, ddmFormLayout.getDDMFormRules());
 
 		DDMFormLayoutSerializerSerializeResponse.Builder builder =
 			DDMFormLayoutSerializerSerializeResponse.Builder.newBuilder(
@@ -145,6 +148,17 @@ public class DDMFormLayoutJSONSerializer implements DDMFormLayoutSerializer {
 		jsonObject.put("rows", jsonArray);
 	}
 
+	protected void addRules(
+		JSONObject jsonObject, List<DDMFormRule> ddmFormRules) {
+
+		if (ddmFormRules.isEmpty()) {
+			return;
+		}
+
+		jsonObject.put(
+			"rules", _ddmFormRuleConverter.toJSONArray(ddmFormRules));
+	}
+
 	protected void addTitle(JSONObject pageJSONObject, LocalizedValue title) {
 		Map<Locale, String> values = title.getValues();
 
@@ -161,6 +175,13 @@ public class DDMFormLayoutJSONSerializer implements DDMFormLayoutSerializer {
 		}
 
 		pageJSONObject.put("title", jsonObject);
+	}
+
+	@Reference(unbind = "-")
+	protected void setDDMFormRuleConverter(
+		DDMFormRuleConverter ddmFormRuleConverter) {
+
+		_ddmFormRuleConverter = ddmFormRuleConverter;
 	}
 
 	@Reference(unbind = "-")
@@ -195,6 +216,8 @@ public class DDMFormLayoutJSONSerializer implements DDMFormLayoutSerializer {
 
 		return jsonObject;
 	}
+
+	private static DDMFormRuleConverter _ddmFormRuleConverter;
 
 	private JSONFactory _jsonFactory;
 
