@@ -16,6 +16,11 @@ components:
                     type: array
                 dataDefinitionKey:
                     type: string
+                dataRules:
+                    items:
+                        $ref: "#/components/schemas/DataRule"
+                    type:
+                        array
                 dateCreated:
                     format: date-time
                     type: string
@@ -38,11 +43,6 @@ components:
                     additionalProperties:
                         type: object
                     type: object
-                dataRules:
-                    items:
-                        $ref: "#/components/schemas/DataRule"
-                    type:
-                        array
                 siteId:
                     format: int64
                     type: integer
@@ -115,6 +115,11 @@ components:
                         $ref: "#/components/schemas/DataLayoutPage"
                     type:
                         array
+                dataRules:
+                    items:
+                        $ref: "#/components/schemas/DataRule"
+                    type:
+                        array
                 dateCreated:
                     format: date-time
                     type: string
@@ -134,11 +139,6 @@ components:
                     type: object
                 paginationMode:
                     type: string
-                dataRules:
-                    items:
-                        $ref: "#/components/schemas/DataRule"
-                    type:
-                        array
                 siteId:
                     format: int64
                     type: integer
@@ -266,7 +266,7 @@ components:
                         type: object
                     type:
                         array
-                logical-operator:
+                logicalOperator:
                     type: string
             type: object
 info:
