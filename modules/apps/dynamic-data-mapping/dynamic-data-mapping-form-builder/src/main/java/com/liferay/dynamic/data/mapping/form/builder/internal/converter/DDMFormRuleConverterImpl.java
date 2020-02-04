@@ -22,10 +22,11 @@ import com.liferay.dynamic.data.mapping.expression.model.Expression;
 import com.liferay.dynamic.data.mapping.form.builder.internal.converter.visitor.ActionExpressionVisitor;
 import com.liferay.dynamic.data.mapping.form.builder.internal.converter.visitor.ConditionExpressionVisitor;
 import com.liferay.dynamic.data.mapping.model.DDMFormRule;
-import com.liferay.dynamic.data.mapping.spi.converter.model.DDMFormRuleAction;
-import com.liferay.dynamic.data.mapping.spi.converter.model.DDMFormRuleCondition;
-import com.liferay.dynamic.data.mapping.spi.converter.model.ModelDDMFormRule;
-import com.liferay.dynamic.data.mapping.spi.converter.serializer.DDMFormRuleSerializerContext;
+import com.liferay.dynamic.data.mapping.spi.converter.SPIDDMFormRuleConverter;
+import com.liferay.dynamic.data.mapping.spi.converter.model.SPIDDMFormRule;
+import com.liferay.dynamic.data.mapping.spi.converter.model.SPIDDMFormRuleAction;
+import com.liferay.dynamic.data.mapping.spi.converter.model.SPIDDMFormRuleCondition;
+import com.liferay.dynamic.data.mapping.spi.converter.serializer.SPIDDMFormRuleSerializerContext;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -47,50 +48,54 @@ import org.osgi.service.component.annotations.Reference;
  * @author Leonardo Barros
  * @author Marcellus Tavares
  */
-@Component(immediate = true, service = DDMFormRuleConverter.class)
-public class DDMFormRuleConverter {
+@Component(immediate = true, service = SPIDDMFormRuleConverter.class)
+public class DDMFormRuleConverterImpl implements SPIDDMFormRuleConverter {
 
-	public List<ModelDDMFormRule> convert(List<DDMFormRule> ddmFormRules) {
-		List<ModelDDMFormRule> modelDDMFormRules = new ArrayList<>();
+	@Override
+	public List<SPIDDMFormRule> convert(List<DDMFormRule> ddmFormRules) {
+		List<SPIDDMFormRule> spiDDMFormRules = new ArrayList<>();
 
 		for (DDMFormRule ddmFormRule : ddmFormRules) {
-			modelDDMFormRules.add(convertRule(ddmFormRule));
+			spiDDMFormRules.add(convertRule(ddmFormRule));
 		}
 
-		return modelDDMFormRules;
+		return spiDDMFormRules;
 	}
 
+	@Override
 	public List<DDMFormRule> convert(
-		List<ModelDDMFormRule> modelDDMFormRules,
-		DDMFormRuleSerializerContext ddmFormRuleSerializerContext) {
+		List<SPIDDMFormRule> spiDDMFormRules,
+		SPIDDMFormRuleSerializerContext spiDDMFormRuleSerializerContext) {
 
-		Stream<ModelDDMFormRule> stream = modelDDMFormRules.stream();
+		Stream<SPIDDMFormRule> stream = spiDDMFormRules.stream();
 
 		Stream<DDMFormRule> convertedFormRulesStream = stream.map(
-			formRule -> convertRule(formRule, ddmFormRuleSerializerContext));
+			formRule -> convertRule(formRule, spiDDMFormRuleSerializerContext));
 
 		return convertedFormRulesStream.collect(Collectors.toList());
 	}
 
-	protected DDMFormRuleAction convertAction(String actionExpressionString) {
+	protected SPIDDMFormRuleAction convertAction(
+		String actionExpressionString) {
+
 		Expression actionExpression = createExpression(actionExpressionString);
 
 		ActionExpressionVisitor actionExpressionVisitor =
 			new ActionExpressionVisitor();
 
-		return (DDMFormRuleAction)actionExpression.accept(
+		return (SPIDDMFormRuleAction)actionExpression.accept(
 			actionExpressionVisitor);
 	}
 
 	protected String convertCondition(
-		DDMFormRuleCondition ddmFormRuleCondition) {
+		SPIDDMFormRuleCondition spiDDMFormRuleCondition) {
 
-		String operator = ddmFormRuleCondition.getOperator();
+		String operator = spiDDMFormRuleCondition.getOperator();
 
 		String functionName = _operatorFunctionNameMap.get(operator);
 
-		List<DDMFormRuleCondition.Operand> operands =
-			ddmFormRuleCondition.getOperands();
+		List<SPIDDMFormRuleCondition.Operand> operands =
+			spiDDMFormRuleCondition.getOperands();
 
 		if (functionName == null) {
 			return String.format(
@@ -109,18 +114,19 @@ public class DDMFormRuleConverter {
 
 	protected String convertConditions(
 		String logicalOperator,
-		List<DDMFormRuleCondition> ddmFormRuleConditions) {
+		List<SPIDDMFormRuleCondition> spiDDMFormRuleConditions) {
 
-		if (ddmFormRuleConditions.size() == 1) {
-			return convertCondition(ddmFormRuleConditions.get(0));
+		if (spiDDMFormRuleConditions.size() == 1) {
+			return convertCondition(spiDDMFormRuleConditions.get(0));
 		}
 
-		StringBundler sb = new StringBundler(ddmFormRuleConditions.size() * 4);
+		StringBundler sb = new StringBundler(
+			spiDDMFormRuleConditions.size() * 4);
 
-		for (DDMFormRuleCondition ddmFormRuleCondition :
-				ddmFormRuleConditions) {
+		for (SPIDDMFormRuleCondition spiDDMFormRuleCondition :
+				spiDDMFormRuleConditions) {
 
-			sb.append(convertCondition(ddmFormRuleCondition));
+			sb.append(convertCondition(spiDDMFormRuleCondition));
 			sb.append(StringPool.SPACE);
 			sb.append(logicalOperator);
 			sb.append(StringPool.SPACE);
@@ -131,7 +137,7 @@ public class DDMFormRuleConverter {
 		return sb.toString();
 	}
 
-	protected String convertOperand(DDMFormRuleCondition.Operand operand) {
+	protected String convertOperand(SPIDDMFormRuleCondition.Operand operand) {
 		if (Objects.equals("field", operand.getType())) {
 			return String.format(
 				_FUNCTION_CALL_UNARY_EXPRESSION_FORMAT, "getValue",
@@ -159,11 +165,11 @@ public class DDMFormRuleConverter {
 	}
 
 	protected String convertOperands(
-		List<DDMFormRuleCondition.Operand> operands) {
+		List<SPIDDMFormRuleCondition.Operand> operands) {
 
 		StringBundler sb = new StringBundler(operands.size());
 
-		for (DDMFormRuleCondition.Operand operand : operands) {
+		for (SPIDDMFormRuleCondition.Operand operand : operands) {
 			sb.append(convertOperand(operand));
 			sb.append(StringPool.COMMA_AND_SPACE);
 		}
@@ -173,37 +179,38 @@ public class DDMFormRuleConverter {
 		return sb.toString();
 	}
 
-	protected ModelDDMFormRule convertRule(DDMFormRule ddmFormRule) {
-		ModelDDMFormRule modelDDMFormRule = new ModelDDMFormRule();
+	protected SPIDDMFormRule convertRule(DDMFormRule ddmFormRule) {
+		SPIDDMFormRule spiDDMFormRule = new SPIDDMFormRule();
 
-		setDDMFormRuleConditions(modelDDMFormRule, ddmFormRule.getCondition());
-		setDDMFormRuleActions(modelDDMFormRule, ddmFormRule.getActions());
+		setDDMFormRuleConditions(spiDDMFormRule, ddmFormRule.getCondition());
+		setDDMFormRuleActions(spiDDMFormRule, ddmFormRule.getActions());
 
-		return modelDDMFormRule;
+		return spiDDMFormRule;
 	}
 
 	protected DDMFormRule convertRule(
-		ModelDDMFormRule modelDDMFormRule,
-		DDMFormRuleSerializerContext ddmFormRuleSerializerContext) {
+		SPIDDMFormRule spiDDMFormRule,
+		SPIDDMFormRuleSerializerContext spiDDMFormRuleSerializerContext) {
 
 		String condition = convertConditions(
-			modelDDMFormRule.getLogicalOperator(),
-			modelDDMFormRule.getDDMFormRuleConditions());
+			spiDDMFormRule.getLogicalOperator(),
+			spiDDMFormRule.getDDMFormRuleConditions());
 
 		List<String> actions = new ArrayList<>();
 
-		for (DDMFormRuleAction ddmFormRuleAction :
-				modelDDMFormRule.getDDMFormRuleActions()) {
+		for (SPIDDMFormRuleAction spiDDMFormRuleAction :
+				spiDDMFormRule.getDDMFormRuleActions()) {
 
 			actions.add(
-				ddmFormRuleAction.serialize(ddmFormRuleSerializerContext));
+				spiDDMFormRuleAction.serialize(
+					spiDDMFormRuleSerializerContext));
 		}
 
 		return new DDMFormRule(condition, actions);
 	}
 
 	protected String createCondition(
-		String functionName, List<DDMFormRuleCondition.Operand> operands) {
+		String functionName, List<SPIDDMFormRuleCondition.Operand> operands) {
 
 		if (Objects.equals(functionName, "belongsTo")) {
 			operands.remove(0);
@@ -255,19 +262,19 @@ public class DDMFormRuleConverter {
 	}
 
 	protected void setDDMFormRuleActions(
-		ModelDDMFormRule modelDDMFormRule, List<String> actions) {
+		SPIDDMFormRule spiDDMFormRule, List<String> actions) {
 
-		List<DDMFormRuleAction> ddmFormRuleActions = new ArrayList<>();
+		List<SPIDDMFormRuleAction> spiDDMFormRuleActions = new ArrayList<>();
 
 		for (String action : actions) {
-			ddmFormRuleActions.add(convertAction(action));
+			spiDDMFormRuleActions.add(convertAction(action));
 		}
 
-		modelDDMFormRule.setDDMFormRuleActions(ddmFormRuleActions);
+		spiDDMFormRule.setSPIDDMFormRuleActions(spiDDMFormRuleActions);
 	}
 
 	protected void setDDMFormRuleConditions(
-		ModelDDMFormRule modelDDMFormRule, String conditionExpressionString) {
+		SPIDDMFormRule spiDDMFormRule, String conditionExpressionString) {
 
 		Expression conditionExpression = createExpression(
 			conditionExpressionString);
@@ -277,9 +284,9 @@ public class DDMFormRuleConverter {
 
 		conditionExpression.accept(conditionExpressionVisitor);
 
-		modelDDMFormRule.setDDMFormRuleConditions(
+		spiDDMFormRule.setSPIDDMFormRuleConditions(
 			conditionExpressionVisitor.getConditions());
-		modelDDMFormRule.setLogicalOperator(
+		spiDDMFormRule.setLogicalOperator(
 			conditionExpressionVisitor.getLogicalOperator());
 	}
 
