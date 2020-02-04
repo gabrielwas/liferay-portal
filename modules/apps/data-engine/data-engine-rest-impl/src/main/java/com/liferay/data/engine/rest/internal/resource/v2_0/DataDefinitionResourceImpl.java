@@ -37,6 +37,7 @@ import com.liferay.data.engine.service.DEDataListViewLocalService;
 import com.liferay.data.engine.spi.resource.SPIDataLayoutResource;
 import com.liferay.data.engine.spi.resource.SPIDataRecordCollectionResource;
 import com.liferay.dynamic.data.lists.service.DDLRecordSetLocalService;
+import com.liferay.dynamic.data.mapping.form.builder.rule.DDMFormRuleDeserializer;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldType;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderingContext;
@@ -389,7 +390,11 @@ public class DataDefinitionResourceImpl
 
 			dataLayout = spiDataLayoutResource.addDataLayout(
 				ddmStructure.getStructureId(),
-				DataLayoutUtil.serialize(dataLayout, _ddmFormLayoutSerializer),
+				DataLayoutUtil.serialize(
+					dataLayout,
+					DataDefinitionUtil.toDDMForm(
+						dataDefinition, _ddmFormFieldTypeServicesTracker),
+					_ddmFormLayoutSerializer, _ddmFormRuleDeserializer),
 				dataLayout.getDataLayoutKey(), dataLayout.getDescription(),
 				dataLayout.getName());
 
@@ -439,7 +444,11 @@ public class DataDefinitionResourceImpl
 
 			dataLayout = spiDataLayoutResource.updateDataLayout(
 				dataLayout.getId(),
-				DataLayoutUtil.serialize(dataLayout, _ddmFormLayoutSerializer),
+				DataLayoutUtil.serialize(
+					dataLayout,
+					DataDefinitionUtil.toDDMForm(
+						dataDefinition, _ddmFormFieldTypeServicesTracker),
+					_ddmFormLayoutSerializer, _ddmFormRuleDeserializer),
 				dataLayout.getDescription(), dataLayout.getName());
 
 			dataDefinition.setDefaultDataLayout(dataLayout);
@@ -741,7 +750,8 @@ public class DataDefinitionResourceImpl
 	}
 
 	private void _updateDataLayouts(
-			Set<Long> ddmStructureLayoutIds, String[] removedFieldNames)
+			DataDefinition dataDefinition, Set<Long> ddmStructureLayoutIds,
+			String[] removedFieldNames)
 		throws Exception {
 
 		for (Long ddmStructureLayoutId : ddmStructureLayoutIds) {
@@ -755,7 +765,10 @@ public class DataDefinitionResourceImpl
 			_updateDataLayoutFieldNames(dataLayout, removedFieldNames);
 
 			DDMFormLayout ddmFormLayout = DataLayoutUtil.toDDMFormLayout(
-				dataLayout);
+				dataLayout,
+				DataDefinitionUtil.toDDMForm(
+					dataDefinition, _ddmFormFieldTypeServicesTracker),
+				_ddmFormRuleDeserializer);
 
 			DDMFormLayoutSerializerSerializeRequest.Builder builder =
 				DDMFormLayoutSerializerSerializeRequest.Builder.newBuilder(
@@ -835,7 +848,8 @@ public class DataDefinitionResourceImpl
 					ddmStructure.getStructureId(), removedFieldName);
 		}
 
-		_updateDataLayouts(ddmStructureLayoutIds, removedFieldNames);
+		_updateDataLayouts(
+			dataDefinition, ddmStructureLayoutIds, removedFieldNames);
 		_updateDataListViews(deDataListViewIds, removedFieldNames);
 	}
 
@@ -860,6 +874,9 @@ public class DataDefinitionResourceImpl
 
 	@Reference(target = "(ddm.form.layout.serializer.type=json)")
 	private DDMFormLayoutSerializer _ddmFormLayoutSerializer;
+
+	@Reference
+	private DDMFormRuleDeserializer _ddmFormRuleDeserializer;
 
 	@Reference(target = "(ddm.form.serializer.type=json)")
 	private DDMFormSerializer _ddmFormSerializer;

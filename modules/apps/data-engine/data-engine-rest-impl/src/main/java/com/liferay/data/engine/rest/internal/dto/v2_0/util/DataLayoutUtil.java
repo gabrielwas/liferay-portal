@@ -19,14 +19,21 @@ import com.liferay.data.engine.rest.dto.v2_0.DataLayout;
 import com.liferay.data.engine.rest.dto.v2_0.DataLayoutColumn;
 import com.liferay.data.engine.rest.dto.v2_0.DataLayoutPage;
 import com.liferay.data.engine.rest.dto.v2_0.DataLayoutRow;
+import com.liferay.data.engine.rest.dto.v2_0.DataRule;
+import com.liferay.dynamic.data.mapping.form.builder.rule.DDMFormRuleDeserializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutSerializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutSerializerSerializeRequest;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutSerializerSerializeResponse;
+import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutColumn;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutPage;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutRow;
+import com.liferay.dynamic.data.mapping.model.DDMFormRule;
 import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 
@@ -42,12 +49,14 @@ import java.util.stream.Stream;
 public class DataLayoutUtil {
 
 	public static String serialize(
-		DataLayout dataLayout,
-		DDMFormLayoutSerializer ddmFormLayoutSerializer) {
+			DataLayout dataLayout, DDMForm ddmForm,
+			DDMFormLayoutSerializer ddmFormLayoutSerializer,
+			DDMFormRuleDeserializer ddmFormRuleDeserializer)
+		throws Exception {
 
 		DDMFormLayoutSerializerSerializeRequest.Builder builder =
 			DDMFormLayoutSerializerSerializeRequest.Builder.newBuilder(
-				toDDMFormLayout(dataLayout));
+				toDDMFormLayout(dataLayout, ddmForm, ddmFormRuleDeserializer));
 
 		DDMFormLayoutSerializerSerializeResponse
 			ddmFormLayoutSerializerSerializeResponse =
@@ -62,8 +71,34 @@ public class DataLayoutUtil {
 				dataLayoutPages = _toDataLayoutPages(
 					ddmFormLayout.getDDMFormLayoutPages());
 				paginationMode = ddmFormLayout.getPaginationMode();
+				dataRules = _toDataRules(ddmFormLayout.getDDMFormRules());
 			}
 		};
+	}
+
+	private static DataRule[] _toDataRules(List<DDMFormRule> ddmFormRules){
+
+		if (ListUtil.isEmpty(ddmFormRules)) {
+			return new DataRule[0];
+		}
+
+		Stream<DDMFormRule> stream = ddmFormRules.stream();
+
+		return stream.map(DataLayoutUtil::_toDataRule).collect(Collectors.toList()).toArray(new DataRule[0]);
+	}
+
+	private static DataRule _toDataRule(DDMFormRule ddmFormRule){
+
+		return new DataRule();
+
+
+//		return new DataRule(){
+//			{
+//				actions = ArrayUtil.toStringArray(ddmFormRule.getActions());
+//				conditions =
+//			}
+//
+//		}
 	}
 
 	public static DataLayout toDataLayout(DDMStructureLayout ddmStructureLayout)
@@ -93,14 +128,36 @@ public class DataLayoutUtil {
 		return dataLayout;
 	}
 
-	public static DDMFormLayout toDDMFormLayout(DataLayout dataLayout) {
+	public static DDMFormLayout toDDMFormLayout(
+			DataLayout dataLayout, DDMForm ddmForm,
+			DDMFormRuleDeserializer ddmFormRuleDeserializer)
+		throws Exception {
+
 		DDMFormLayout ddmFormLayout = new DDMFormLayout();
 
 		ddmFormLayout.setDDMFormLayoutPages(
 			_toDDMFormLayoutPages(dataLayout.getDataLayoutPages()));
 		ddmFormLayout.setPaginationMode(dataLayout.getPaginationMode());
 
+		ddmFormLayout.setDDMFormRules(
+			ddmFormRuleDeserializer.deserialize(
+				JSONUtil.toJSONArray(
+					dataLayout.getDataRules(), rule -> _serializeRule(rule)),
+				ddmForm));
+
 		return ddmFormLayout;
+	}
+
+	private static JSONObject _serializeRule(DataRule dataRule) {
+		JSONObject jsonObject = JSONFactoryUtil.createJSONObject();
+
+		return jsonObject.put(
+			"actions", dataRule.getActions()
+		).put(
+			"conditions", dataRule.getConditions()
+		).put(
+			"logical-operator", dataRule.getLogicalOperator()
+		);
 	}
 
 	private static DataLayoutColumn _toDataLayoutColumn(
