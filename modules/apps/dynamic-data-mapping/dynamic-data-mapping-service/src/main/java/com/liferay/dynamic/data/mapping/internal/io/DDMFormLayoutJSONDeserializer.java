@@ -14,6 +14,7 @@
 
 package com.liferay.dynamic.data.mapping.internal.io;
 
+import com.liferay.dynamic.data.mapping.form.builder.converter.DDMFormRuleConverter;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutDeserializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutDeserializerDeserializeRequest;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutDeserializerDeserializeResponse;
@@ -69,6 +70,7 @@ public class DDMFormLayoutJSONDeserializer
 			setDDMFormLayoutPageTitlesDefaultLocale(ddmFormLayout);
 			setDDMFormLayoutPaginationMode(
 				jsonObject.getString("paginationMode"), ddmFormLayout);
+			setDDMFormRules(jsonObject.getJSONArray("rules"), ddmFormLayout);
 		}
 		catch (JSONException jsonException) {
 			if (_log.isWarnEnabled()) {
@@ -81,6 +83,17 @@ public class DDMFormLayoutJSONDeserializer
 				ddmFormLayout);
 
 		return builder.build();
+	}
+
+	protected static void setDDMFormRules(
+		JSONArray jsonArray, DDMFormLayout ddmFormLayout) {
+
+		if ((jsonArray == null) || (jsonArray.length() == 0)) {
+			return;
+		}
+
+		ddmFormLayout.setDDMFormRules(
+			_ddmFormRuleConverter.toDDMFormRules(jsonArray));
 	}
 
 	protected DDMFormLayoutColumn getDDMFormLayoutColumn(
@@ -294,6 +307,15 @@ public class DDMFormLayoutJSONDeserializer
 	protected void setJSONFactory(JSONFactory jsonFactory) {
 		_jsonFactory = jsonFactory;
 	}
+
+	@Reference(unbind = "-")
+	protected void setDDMFormRuleConverter(
+		DDMFormRuleConverter ddmFormRuleConverter) {
+
+		_ddmFormRuleConverter = ddmFormRuleConverter;
+	}
+
+	private static DDMFormRuleConverter _ddmFormRuleConverter;
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		DDMFormLayoutJSONDeserializer.class);
