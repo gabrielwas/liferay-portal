@@ -22,6 +22,7 @@ import com.liferay.dynamic.data.mapping.model.DDMFormLayoutColumn;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutPage;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutRow;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
+import com.liferay.dynamic.data.mapping.util.DDMFormRuleConverter;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
@@ -69,6 +70,7 @@ public class DDMFormLayoutJSONDeserializer
 			setDDMFormLayoutPageTitlesDefaultLocale(ddmFormLayout);
 			setDDMFormLayoutPaginationMode(
 				jsonObject.getString("paginationMode"), ddmFormLayout);
+			setDDMFormRules(jsonObject.getJSONArray("rules"), ddmFormLayout);
 		}
 		catch (JSONException jsonException) {
 			if (_log.isWarnEnabled()) {
@@ -81,6 +83,17 @@ public class DDMFormLayoutJSONDeserializer
 				ddmFormLayout);
 
 		return builder.build();
+	}
+
+	protected static void setDDMFormRules(
+		JSONArray jsonArray, DDMFormLayout ddmFormLayout) {
+
+		if ((jsonArray == null) || (jsonArray.length() == 0)) {
+			return;
+		}
+
+		ddmFormLayout.setDDMFormRules(
+			DDMFormRuleConverter.toDDMFormRules(jsonArray));
 	}
 
 	protected DDMFormLayoutColumn getDDMFormLayoutColumn(
