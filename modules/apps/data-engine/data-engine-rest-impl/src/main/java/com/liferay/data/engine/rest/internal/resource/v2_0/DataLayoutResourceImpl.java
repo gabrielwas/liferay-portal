@@ -27,6 +27,7 @@ import com.liferay.data.engine.rest.resource.v2_0.DataLayoutResource;
 import com.liferay.data.engine.service.DEDataDefinitionFieldLinkLocalService;
 import com.liferay.data.engine.spi.resource.SPIDataLayoutResource;
 import com.liferay.dynamic.data.mapping.form.builder.rule.DDMFormRuleDeserializer;
+import com.liferay.dynamic.data.mapping.form.builder.rule.DDMFormRuleSerializer;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutSerializer;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
@@ -158,7 +159,8 @@ public class DataLayoutResourceImpl
 				dataLayout,
 				DataDefinitionUtil.toDDMForm(
 					DataDefinitionUtil.toDataDefinition(
-						_ddmFormFieldTypeServicesTracker, ddmStructure),
+						_ddmFormFieldTypeServicesTracker,
+						_ddmFormRuleSerializer, ddmStructure),
 					_ddmFormFieldTypeServicesTracker),
 				_ddmFormLayoutSerializer, _ddmFormRuleDeserializer),
 			dataLayout.getDataLayoutKey(), dataLayout.getDescription(),
@@ -186,6 +188,7 @@ public class DataLayoutResourceImpl
 				DataDefinitionUtil.toDDMForm(
 					DataDefinitionUtil.toDataDefinition(
 						_ddmFormFieldTypeServicesTracker,
+						_ddmFormRuleSerializer,
 						_ddmStructureLocalService.getStructure(
 							ddmStructureLayout.getDDMStructureId())),
 					_ddmFormFieldTypeServicesTracker),
@@ -198,7 +201,8 @@ public class DataLayoutResourceImpl
 			_ddmFormLayoutSerializer, _ddmStructureLayoutLocalService,
 			_ddmStructureLocalService, _ddmStructureVersionLocalService,
 			_deDataDefinitionFieldLinkLocalService,
-			DataLayoutUtil::toDataLayout);
+			ddmStructureLayout -> DataLayoutUtil.toDataLayout(
+				ddmStructureLayout, _ddmFormRuleSerializer));
 	}
 
 	private static final EntityModel _entityModel = new DataLayoutEntityModel();
@@ -218,6 +222,9 @@ public class DataLayoutResourceImpl
 
 	@Reference
 	private DDMFormRuleDeserializer _ddmFormRuleDeserializer;
+
+	@Reference
+	private DDMFormRuleSerializer _ddmFormRuleSerializer;
 
 	@Reference
 	private DDMStructureLayoutLocalService _ddmStructureLayoutLocalService;

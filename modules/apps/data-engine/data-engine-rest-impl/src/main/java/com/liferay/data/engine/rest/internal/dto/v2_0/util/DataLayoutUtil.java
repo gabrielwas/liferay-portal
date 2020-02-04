@@ -21,6 +21,7 @@ import com.liferay.data.engine.rest.dto.v2_0.DataLayoutPage;
 import com.liferay.data.engine.rest.dto.v2_0.DataLayoutRow;
 import com.liferay.data.engine.rest.dto.v2_0.DataRule;
 import com.liferay.dynamic.data.mapping.form.builder.rule.DDMFormRuleDeserializer;
+import com.liferay.dynamic.data.mapping.form.builder.rule.DDMFormRuleSerializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutSerializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutSerializerSerializeRequest;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutSerializerSerializeResponse;
@@ -31,12 +32,18 @@ import com.liferay.dynamic.data.mapping.model.DDMFormLayoutPage;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutRow;
 import com.liferay.dynamic.data.mapping.model.DDMFormRule;
 import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
+import com.liferay.portal.json.JSONArrayImpl;
+import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.MapUtil;
+import javafx.scene.control.cell.MapValueFactory;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -65,43 +72,24 @@ public class DataLayoutUtil {
 		return ddmFormLayoutSerializerSerializeResponse.getContent();
 	}
 
-	public static DataLayout toDataLayout(DDMFormLayout ddmFormLayout) {
+	public static DataLayout toDataLayout(
+		DDMFormLayout ddmFormLayout,
+		DDMFormRuleSerializer ddmFormRuleSerializer) throws JSONException {
+
 		return new DataLayout() {
 			{
 				dataLayoutPages = _toDataLayoutPages(
 					ddmFormLayout.getDDMFormLayoutPages());
+				dataRules = _toDataRules(
+					ddmFormLayout.getDDMFormRules(), ddmFormRuleSerializer);
 				paginationMode = ddmFormLayout.getPaginationMode();
-				dataRules = _toDataRules(ddmFormLayout.getDDMFormRules());
 			}
 		};
 	}
 
-	private static DataRule[] _toDataRules(List<DDMFormRule> ddmFormRules){
-
-		if (ListUtil.isEmpty(ddmFormRules)) {
-			return new DataRule[0];
-		}
-
-		Stream<DDMFormRule> stream = ddmFormRules.stream();
-
-		return stream.map(DataLayoutUtil::_toDataRule).collect(Collectors.toList()).toArray(new DataRule[0]);
-	}
-
-	private static DataRule _toDataRule(DDMFormRule ddmFormRule){
-
-		return new DataRule();
-
-
-//		return new DataRule(){
-//			{
-//				actions = ArrayUtil.toStringArray(ddmFormRule.getActions());
-//				conditions =
-//			}
-//
-//		}
-	}
-
-	public static DataLayout toDataLayout(DDMStructureLayout ddmStructureLayout)
+	public static DataLayout toDataLayout(
+			DDMStructureLayout ddmStructureLayout,
+			DDMFormRuleSerializer ddmFormRuleSerializer)
 		throws Exception {
 
 		if (ddmStructureLayout == null) {
@@ -109,7 +97,7 @@ public class DataLayoutUtil {
 		}
 
 		DataLayout dataLayout = toDataLayout(
-			ddmStructureLayout.getDDMFormLayout());
+			ddmStructureLayout.getDDMFormLayout(), ddmFormRuleSerializer);
 
 		dataLayout.setDateCreated(ddmStructureLayout.getCreateDate());
 		dataLayout.setDataDefinitionId(ddmStructureLayout.getDDMStructureId());
@@ -246,6 +234,43 @@ public class DataLayoutUtil {
 		).toArray(
 			new DataLayoutRow[0]
 		);
+	}
+
+	private static DataRule[] _toDataRules(
+		List<DDMFormRule> ddmFormRules,
+		DDMFormRuleSerializer ddmFormRuleSerializer) throws JSONException {
+
+		if (ListUtil.isEmpty(ddmFormRules)) {
+			return new DataRule[0];
+		}
+
+		JSONArray jsonArray = JSONFactoryUtil.createJSONArray(
+			ddmFormRuleSerializer.serialize(ddmFormRules));
+
+		List<Object> objects =
+			JSONUtil.toObjectList(jsonArray);
+
+		Stream<Object> stream = objects.stream();
+
+		DataRule[] dataRules = stream.map(
+			DataLayoutUtil::toRule
+		).collect(Collectors.toList()).toArray(new DataRule[0]);
+
+		return dataRules;
+	}
+
+	private static DataRule toRule(Object object) {
+
+		JSONObject jsonObject = (JSONObject) object;
+
+		DataRule dataRule = new DataRule();
+
+
+		JSONArray jsonArray = (JSONArray) jsonObject.get("actions");
+
+
+		return dataRule;
+
 	}
 
 	private static DDMFormLayoutColumn _toDDMFormLayoutColumn(

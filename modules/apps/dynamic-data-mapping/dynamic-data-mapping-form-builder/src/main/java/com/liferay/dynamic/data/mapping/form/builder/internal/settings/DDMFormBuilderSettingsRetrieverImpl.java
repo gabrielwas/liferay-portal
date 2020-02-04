@@ -14,9 +14,11 @@
 
 package com.liferay.dynamic.data.mapping.form.builder.internal.settings;
 
+import com.liferay.dynamic.data.mapping.form.builder.rule.DDMFormRuleSerializer;
 import com.liferay.dynamic.data.mapping.form.builder.settings.DDMFormBuilderSettingsRequest;
 import com.liferay.dynamic.data.mapping.form.builder.settings.DDMFormBuilderSettingsResponse;
 import com.liferay.dynamic.data.mapping.form.builder.settings.DDMFormBuilderSettingsRetriever;
+import com.liferay.dynamic.data.mapping.model.DDMForm;
 
 import java.util.Locale;
 
@@ -72,9 +74,10 @@ public class DDMFormBuilderSettingsRetrieverImpl
 					ddmFormBuilderSettingsRequest.getFieldSetClassNameId(),
 					locale));
 
+		DDMForm ddmForm = ddmFormBuilderSettingsRequest.getDDMForm();
+
 		ddmFormBuilderSettings.setSerializedDDMFormRules(
-			_ddmFormBuilderSettingsRetrieverHelper.getSerializedDDMFormRules(
-				ddmFormBuilderSettingsRequest.getDDMForm()));
+			_ddmFormRuleSerializer.serialize(ddmForm.getDDMFormRules()));
 
 		return ddmFormBuilderSettings;
 	}
@@ -82,5 +85,8 @@ public class DDMFormBuilderSettingsRetrieverImpl
 	@Reference
 	private DDMFormBuilderSettingsRetrieverHelper
 		_ddmFormBuilderSettingsRetrieverHelper;
+
+	@Reference
+	private DDMFormRuleSerializer _ddmFormRuleSerializer;
 
 }

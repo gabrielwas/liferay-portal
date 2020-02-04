@@ -17,6 +17,7 @@ package com.liferay.data.engine.rest.internal.dto.v2_0.util;
 import com.liferay.data.engine.field.type.util.LocalizedValueUtil;
 import com.liferay.data.engine.rest.dto.v2_0.DataDefinition;
 import com.liferay.data.engine.rest.dto.v2_0.DataDefinitionField;
+import com.liferay.dynamic.data.mapping.form.builder.rule.DDMFormRuleSerializer;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldType;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeSettings;
@@ -55,6 +56,7 @@ public class DataDefinitionUtil {
 
 	public static DataDefinition toDataDefinition(
 			DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker,
+			DDMFormRuleSerializer ddmFormRuleSerializer,
 			DDMStructure ddmStructure)
 		throws Exception {
 
@@ -71,7 +73,8 @@ public class DataDefinitionUtil {
 				dateCreated = ddmStructure.getCreateDate();
 				dateModified = ddmStructure.getModifiedDate();
 				defaultDataLayout = DataLayoutUtil.toDataLayout(
-					ddmStructure.fetchDDMStructureLayout());
+					ddmStructure.fetchDDMStructureLayout(),
+					ddmFormRuleSerializer);
 				defaultLanguageId = LanguageUtil.getLanguageId(
 					ddmForm.getDefaultLocale());
 				description = LocalizedValueUtil.toStringObjectMap(
