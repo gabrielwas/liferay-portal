@@ -14,6 +14,7 @@
 
 package com.liferay.dynamic.data.mapping.internal.io;
 
+import com.liferay.dynamic.data.mapping.form.builder.converter.DDMFormRuleConverter;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldType;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeSettings;
@@ -26,7 +27,6 @@ import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidation;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidationExpression;
-import com.liferay.dynamic.data.mapping.model.DDMFormRule;
 import com.liferay.dynamic.data.mapping.model.DDMFormSuccessPageSettings;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.util.DDMFormFactory;
@@ -77,9 +77,9 @@ public class DDMFormJSONDeserializer implements DDMFormDeserializer {
 			setDDMFormDefaultLocale(
 				jsonObject.getString("defaultLanguageId"), ddmForm);
 			setDDMFormFields(jsonObject.getJSONArray("fields"), ddmForm);
-			setDDMFormRules(jsonObject.getJSONArray("rules"), ddmForm);
 
 			setDDMFormLocalizedValuesDefaultLocale(ddmForm);
+			setDDMFormRules(jsonObject.getJSONArray("rules"), ddmForm);
 			setDDMFormSuccessPageSettings(
 				jsonObject.getJSONObject("successPage"), ddmForm);
 
@@ -305,44 +305,6 @@ public class DDMFormJSONDeserializer implements DDMFormDeserializer {
 		return DDMFormFactory.create(ddmFormFieldTypeSettings);
 	}
 
-	protected static DDMFormRule getDDMFormRule(JSONObject jsonObject) {
-		String condition = jsonObject.getString("condition");
-
-		List<String> actions = getDDMFormRuleActions(
-			jsonObject.getJSONArray("actions"));
-
-		DDMFormRule ddmFormRule = new DDMFormRule(condition, actions);
-
-		boolean enabled = jsonObject.getBoolean("enabled", true);
-
-		ddmFormRule.setEnabled(enabled);
-
-		return ddmFormRule;
-	}
-
-	protected static List<String> getDDMFormRuleActions(JSONArray jsonArray) {
-		List<String> actions = new ArrayList<>();
-
-		for (int i = 0; i < jsonArray.length(); i++) {
-			actions.add(jsonArray.getString(i));
-		}
-
-		return actions;
-	}
-
-	protected static List<DDMFormRule> getDDMFormRules(JSONArray jsonArray) {
-		List<DDMFormRule> ddmFormRules = new ArrayList<>();
-
-		for (int i = 0; i < jsonArray.length(); i++) {
-			DDMFormRule ddmFormRule = getDDMFormRule(
-				jsonArray.getJSONObject(i));
-
-			ddmFormRules.add(ddmFormRule);
-		}
-
-		return ddmFormRules;
-	}
-
 	protected static void setDDMFormAvailableLocales(
 		JSONArray jsonArray, DDMForm ddmForm) {
 
@@ -451,7 +413,8 @@ public class DDMFormJSONDeserializer implements DDMFormDeserializer {
 			return;
 		}
 
-		ddmForm.setDDMFormRules(getDDMFormRules(jsonArray));
+		ddmForm.setDDMFormRules(
+			_ddmFormRuleConverter.toDDMFormRules(jsonArray));
 	}
 
 	protected static void setDDMFormSuccessPageSettings(
@@ -492,6 +455,13 @@ public class DDMFormJSONDeserializer implements DDMFormDeserializer {
 	}
 
 	@Reference(unbind = "-")
+	protected void setDDMFormRuleConverter(
+		DDMFormRuleConverter ddmFormRuleConverter) {
+
+		_ddmFormRuleConverter = ddmFormRuleConverter;
+	}
+
+	@Reference(unbind = "-")
 	protected void setJSONFactory(JSONFactory jsonFactory) {
 		_jsonFactory = jsonFactory;
 	}
@@ -501,6 +471,7 @@ public class DDMFormJSONDeserializer implements DDMFormDeserializer {
 
 	private static DDMFormFieldTypeServicesTracker
 		_ddmFormFieldTypeServicesTracker;
+	private static DDMFormRuleConverter _ddmFormRuleConverter;
 	private static JSONFactory _jsonFactory;
 
 }
