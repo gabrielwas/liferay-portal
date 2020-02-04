@@ -69,6 +69,7 @@ public class DDMFormLayoutJSONDeserializer
 			setDDMFormLayoutPageTitlesDefaultLocale(ddmFormLayout);
 			setDDMFormLayoutPaginationMode(
 				jsonObject.getString("paginationMode"), ddmFormLayout);
+			setDDMFormRules(jsonObject.getJSONArray("rules"), ddmFormLayout);
 		}
 		catch (JSONException jsonException) {
 			if (_log.isWarnEnabled()) {
@@ -81,6 +82,17 @@ public class DDMFormLayoutJSONDeserializer
 				ddmFormLayout);
 
 		return builder.build();
+	}
+
+	protected static void setDDMFormRules(
+		JSONArray jsonArray, DDMFormLayout ddmFormLayout) {
+
+		if ((jsonArray == null) || (jsonArray.length() == 0)) {
+			return;
+		}
+
+		ddmFormLayout.setDDMFormRules(
+			DDMFormRuleJSONDeserializer.deserialize(jsonArray));
 	}
 
 	protected DDMFormLayoutColumn getDDMFormLayoutColumn(
