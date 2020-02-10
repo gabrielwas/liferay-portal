@@ -14,9 +14,9 @@
 
 package com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.action;
 
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.DDMFormRuleAction;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.serializer.DDMFormRuleActionSerializer;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.serializer.DDMFormRuleSerializerContext;
+import com.liferay.dynamic.data.mapping.form.builder.converter.model.DDMFormRuleAction;
+import com.liferay.dynamic.data.mapping.form.builder.converter.serializer.DDMFormRuleActionSerializer;
+import com.liferay.dynamic.data.mapping.form.builder.converter.serializer.DDMFormRuleSerializerContext;
 import com.liferay.dynamic.data.mapping.form.builder.internal.converter.serializer.DefaultDDMFormRuleActionSerializer;
 import com.liferay.petra.lang.HashUtil;
 

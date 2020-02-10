@@ -14,9 +14,9 @@
 
 package com.liferay.dynamic.data.mapping.form.builder.internal.converter;
 
-import com.liferay.dynamic.data.mapping.expression.internal.DDMExpressionFactoryImpl;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.DDMFormRule;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.serializer.DDMFormRuleSerializerContext;
+import com.liferay.dynamic.data.mapping.form.builder.converter.DDMFormRuleConverter;
+import com.liferay.dynamic.data.mapping.form.builder.converter.model.DDMFormRule;
+import com.liferay.dynamic.data.mapping.form.builder.converter.serializer.DDMFormRuleSerializerContext;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.storage.FieldConstants;
@@ -65,10 +65,10 @@ public class DDMFormRuleToDDMFormRuleModelConverterTest
 	public void setUp() throws Exception {
 		setUpDDMFormRuleDeserializer();
 
-		_ddmFormRuleConverter = new DDMFormRuleConverter();
+		_ddmFormRuleConverter = new DDMFormRuleConverterImpl();
 
-		_ddmFormRuleConverter.ddmExpressionFactory =
-			new DDMExpressionFactoryImpl();
+		//_ddmFormRuleConverter.ddmExpressionFactory =
+			//new DDMExpressionFactoryImpl();
 	}
 
 	@Test
