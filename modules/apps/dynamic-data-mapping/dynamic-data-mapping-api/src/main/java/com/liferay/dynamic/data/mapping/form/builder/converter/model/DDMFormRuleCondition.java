@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.dynamic.data.mapping.form.builder.internal.converter.model;
+package com.liferay.dynamic.data.mapping.form.builder.converter.model;
 
 import com.liferay.petra.lang.HashUtil;
 
