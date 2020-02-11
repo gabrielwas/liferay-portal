@@ -14,8 +14,8 @@
 
 package com.liferay.dynamic.data.mapping.form.builder.internal.settings;
 
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.DDMFormRuleConverter;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.DDMFormRule;
+import com.liferay.dynamic.data.mapping.form.builder.converter.DDMFormRuleConverter;
+import com.liferay.dynamic.data.mapping.form.builder.converter.model.DDMFormRule;
 import com.liferay.dynamic.data.mapping.form.builder.internal.util.DDMExpressionFunctionMetadataHelper;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
