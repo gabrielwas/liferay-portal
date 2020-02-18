@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.dynamic.data.mapping.form.builder.internal.converter.model;
+package com.liferay.dynamic.data.mapping.spi.converter.model;
 
 import com.liferay.petra.lang.HashUtil;
 
@@ -22,12 +22,12 @@ import java.util.Objects;
 /**
  * @author Marcellus Tavares
  */
-public class DDMFormRuleCondition {
+public class SPIDDMFormRuleCondition {
 
-	public DDMFormRuleCondition() {
+	public SPIDDMFormRuleCondition() {
 	}
 
-	public DDMFormRuleCondition(String operator, List<Operand> operands) {
+	public SPIDDMFormRuleCondition(String operator, List<Operand> operands) {
 		_operator = operator;
 		_operands = operands;
 	}
@@ -38,14 +38,15 @@ public class DDMFormRuleCondition {
 			return true;
 		}
 
-		if (!(obj instanceof DDMFormRuleCondition)) {
+		if (!(obj instanceof SPIDDMFormRuleCondition)) {
 			return false;
 		}
 
-		DDMFormRuleCondition ddmFormRuleCondition = (DDMFormRuleCondition)obj;
+		SPIDDMFormRuleCondition spiDDMFormRuleCondition =
+			(SPIDDMFormRuleCondition)obj;
 
-		if (Objects.equals(_operands, ddmFormRuleCondition._operands) &&
-			Objects.equals(_operator, ddmFormRuleCondition._operator)) {
+		if (Objects.equals(_operands, spiDDMFormRuleCondition._operands) &&
+			Objects.equals(_operator, spiDDMFormRuleCondition._operator)) {
 
 			return true;
 		}

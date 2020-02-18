@@ -12,14 +12,26 @@
  * details.
  */
 
-package com.liferay.dynamic.data.mapping.form.builder.internal.converter.serializer;
+package com.liferay.dynamic.data.mapping.spi.converter.serializer;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * @author Leonardo Barros
+ * @author Rafael Praxedes
  */
-public interface DDMFormRuleActionSerializer {
+public class SPIDDMFormRuleSerializerContext {
 
-	public String serialize(
-		DDMFormRuleSerializerContext ddmFormRuleSerializerContext);
+	public void addAttribute(String key, Object value) {
+		_serializerContext.put(key, value);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> T getAttribute(String key) {
+		return (T)_serializerContext.get(key);
+	}
+
+	private final Map<String, Object> _serializerContext =
+		new ConcurrentHashMap<>();
 
 }
