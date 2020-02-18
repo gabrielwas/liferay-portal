@@ -15,12 +15,12 @@
 package com.liferay.dynamic.data.mapping.form.builder.internal.settings;
 
 import com.liferay.dynamic.data.mapping.form.builder.internal.converter.DDMFormRuleConverter;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.DDMFormRule;
 import com.liferay.dynamic.data.mapping.form.builder.internal.util.DDMExpressionFunctionMetadataHelper;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMStructureConstants;
 import com.liferay.dynamic.data.mapping.service.DDMStructureService;
+import com.liferay.dynamic.data.mapping.spi.converter.model.ModelDDMFormRule;
 import com.liferay.dynamic.data.mapping.util.comparator.StructureNameComparator;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -151,11 +151,11 @@ public class DDMFormBuilderSettingsRetrieverHelper {
 	public String getSerializedDDMFormRules(DDMForm ddmForm) {
 		JSONSerializer jsonSerializer = _jsonFactory.createJSONSerializer();
 
-		List<DDMFormRule> ddmFormRules =
+		List<ModelDDMFormRule> modelDDMFormRules =
 			_ddmFormRuleToDDMFormRuleConverter.convert(
 				ddmForm.getDDMFormRules());
 
-		return jsonSerializer.serializeDeep(ddmFormRules);
+		return jsonSerializer.serializeDeep(modelDDMFormRules);
 	}
 
 	protected String getServletContextPath(Servlet servlet) {

@@ -19,8 +19,6 @@ import com.liferay.dynamic.data.mapping.form.builder.context.DDMFormContextDeser
 import com.liferay.dynamic.data.mapping.form.builder.context.DDMFormContextVisitor;
 import com.liferay.dynamic.data.mapping.form.builder.internal.converter.DDMFormRuleConverter;
 import com.liferay.dynamic.data.mapping.form.builder.internal.converter.DDMFormRuleDeserializer;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.DDMFormRule;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.serializer.DDMFormRuleSerializerContext;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldValueAccessor;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
@@ -28,9 +26,12 @@ import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidation;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidationExpression;
+import com.liferay.dynamic.data.mapping.model.DDMFormRule;
 import com.liferay.dynamic.data.mapping.model.DDMFormSuccessPageSettings;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.model.UnlocalizedValue;
+import com.liferay.dynamic.data.mapping.spi.converter.model.ModelDDMFormRule;
+import com.liferay.dynamic.data.mapping.spi.converter.serializer.DDMFormRuleSerializerContext;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
@@ -289,21 +290,20 @@ public class DDMFormContextToDDMForm
 		return ddmFormFieldValidation;
 	}
 
-	protected List<com.liferay.dynamic.data.mapping.model.DDMFormRule>
-			getDDMFormRules(
-				DDMFormRuleSerializerContext ddmFormRuleSerializerContext,
-				JSONArray jsonArray)
+	protected List<DDMFormRule> getDDMFormRules(
+			DDMFormRuleSerializerContext ddmFormRuleSerializerContext,
+			JSONArray jsonArray)
 		throws PortalException {
 
 		if ((jsonArray == null) || (jsonArray.length() == 0)) {
 			return Collections.emptyList();
 		}
 
-		List<DDMFormRule> ddmFormRules = ddmFormRuleDeserializer.deserialize(
-			jsonArray.toString());
+		List<ModelDDMFormRule> modelDDMFormRules =
+			ddmFormRuleDeserializer.deserialize(jsonArray.toString());
 
 		return ddmFormRuleConverter.convert(
-			ddmFormRules, ddmFormRuleSerializerContext);
+			modelDDMFormRules, ddmFormRuleSerializerContext);
 	}
 
 	protected LocalizedValue getLocalizedValue(
@@ -489,8 +489,8 @@ public class DDMFormContextToDDMForm
 
 		ddmFormRuleSerializerContext.addAttribute("form", ddmForm);
 
-		List<com.liferay.dynamic.data.mapping.model.DDMFormRule> ddmFormRules =
-			getDDMFormRules(ddmFormRuleSerializerContext, jsonArray);
+		List<DDMFormRule> ddmFormRules = getDDMFormRules(
+			ddmFormRuleSerializerContext, jsonArray);
 
 		ddmForm.setDDMFormRules(ddmFormRules);
 	}
