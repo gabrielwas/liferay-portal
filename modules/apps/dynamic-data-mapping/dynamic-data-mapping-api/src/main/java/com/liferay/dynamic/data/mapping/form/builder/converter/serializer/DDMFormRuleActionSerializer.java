@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.dynamic.data.mapping.form.builder.internal.converter.serializer;
+package com.liferay.dynamic.data.mapping.form.builder.converter.serializer;
 
 /**
  * @author Leonardo Barros

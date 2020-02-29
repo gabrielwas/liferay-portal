@@ -14,6 +14,7 @@
 
 package com.liferay.dynamic.data.mapping.internal.util;
 
+import com.liferay.dynamic.data.mapping.form.builder.converter.DDMFormRuleConverter;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.internal.io.DDMFormJSONSerializer;
 import com.liferay.dynamic.data.mapping.internal.test.util.DDMFixture;
@@ -250,6 +251,9 @@ public class DDMIndexerImplTest {
 			{
 				setDDMFormFieldTypeServicesTracker(
 					Mockito.mock(DDMFormFieldTypeServicesTracker.class));
+
+				setDDMFormRuleConverter(
+					Mockito.mock(DDMFormRuleConverter.class));
 
 				setJSONFactory(new JSONFactoryImpl());
 			}

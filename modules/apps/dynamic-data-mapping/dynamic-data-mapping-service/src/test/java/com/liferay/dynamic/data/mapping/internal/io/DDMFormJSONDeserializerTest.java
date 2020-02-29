@@ -14,6 +14,8 @@
 
 package com.liferay.dynamic.data.mapping.internal.io;
 
+import com.liferay.dynamic.data.mapping.expression.internal.DDMExpressionFactoryImpl;
+import com.liferay.dynamic.data.mapping.form.builder.internal.converter.DDMFormRuleConverterImpl;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldRenderer;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldType;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
@@ -149,6 +151,18 @@ public class DDMFormJSONDeserializerTest
 			DDMFormJSONDeserializer.class, "_jsonFactory");
 
 		field.set(_ddmFormJSONDeserializer, new JSONFactoryImpl());
+
+		// DDM form JSON deserializer
+
+		field = ReflectionUtil.getDeclaredField(
+			_ddmFormRuleConverterImpl.getClass(), "ddmExpressionFactory");
+
+		field.set(_ddmFormRuleConverterImpl, new DDMExpressionFactoryImpl());
+
+		field = ReflectionUtil.getDeclaredField(
+			DDMFormJSONDeserializer.class, "_ddmFormRuleConverter");
+
+		field.set(_ddmFormJSONDeserializer, _ddmFormRuleConverterImpl);
 	}
 
 	protected void setUpDefaultDDMFormFieldType() {
@@ -257,6 +271,8 @@ public class DDMFormJSONDeserializerTest
 
 	private final DDMFormJSONDeserializer _ddmFormJSONDeserializer =
 		new DDMFormJSONDeserializer();
+	private final DDMFormRuleConverterImpl _ddmFormRuleConverterImpl =
+		new DDMFormRuleConverterImpl();
 
 	@Mock
 	private DDMFormFieldType _defaultDDMFormFieldType;

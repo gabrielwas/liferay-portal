@@ -32,6 +32,7 @@ import com.liferay.dynamic.data.lists.model.DDLRecordSet;
 import com.liferay.dynamic.data.lists.model.DDLRecordSetVersion;
 import com.liferay.dynamic.data.lists.service.DDLRecordLocalService;
 import com.liferay.dynamic.data.lists.service.DDLRecordSetLocalService;
+import com.liferay.dynamic.data.mapping.form.builder.converter.DDMFormRuleConverter;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMStructureVersion;
@@ -154,7 +155,8 @@ public class DataRecordResourceImpl
 			dataRecordCollectionId, DataActionKeys.EXPORT_DATA_RECORDS);
 
 		DataRecordExporter dataRecordExporter = new DataRecordExporter(
-			_ddlRecordSetLocalService, _ddmFormFieldTypeServicesTracker);
+			_ddlRecordSetLocalService, _ddmFormFieldTypeServicesTracker,
+			_ddmFormRuleConverter);
 
 		return dataRecordExporter.export(
 			transform(
@@ -273,7 +275,8 @@ public class DataRecordResourceImpl
 
 		_validate(
 			DataDefinitionUtil.toDataDefinition(
-				_ddmFormFieldTypeServicesTracker, ddmStructure),
+				_ddmFormFieldTypeServicesTracker, _ddmFormRuleConverter,
+				ddmStructure),
 			dataRecord);
 
 		DataStorage dataStorage = _getDataStorage(
@@ -320,7 +323,8 @@ public class DataRecordResourceImpl
 
 		_validate(
 			DataDefinitionUtil.toDataDefinition(
-				_ddmFormFieldTypeServicesTracker, ddmStructure),
+				_ddmFormFieldTypeServicesTracker, _ddmFormRuleConverter,
+				ddmStructure),
 			dataRecord);
 
 		DataStorage dataStorage = _getDataStorage(
@@ -505,6 +509,9 @@ public class DataRecordResourceImpl
 
 	@Reference
 	private DDMFormFieldTypeServicesTracker _ddmFormFieldTypeServicesTracker;
+
+	@Reference
+	private DDMFormRuleConverter _ddmFormRuleConverter;
 
 	@Reference
 	private DDMIndexer _ddmIndexer;

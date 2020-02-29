@@ -20,6 +20,7 @@ import com.liferay.data.engine.rest.internal.dto.v2_0.util.DataDefinitionUtil;
 import com.liferay.data.engine.rest.internal.dto.v2_0.util.DataRecordValuesUtil;
 import com.liferay.dynamic.data.lists.model.DDLRecordSet;
 import com.liferay.dynamic.data.lists.service.DDLRecordSetLocalService;
+import com.liferay.dynamic.data.mapping.form.builder.converter.DDMFormRuleConverter;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONArray;
@@ -36,10 +37,12 @@ public class DataRecordExporter {
 
 	public DataRecordExporter(
 		DDLRecordSetLocalService ddlRecordSetLocalService,
-		DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker) {
+		DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker,
+		DDMFormRuleConverter ddmFormRuleConverter) {
 
 		_ddlRecordSetLocalService = ddlRecordSetLocalService;
 		_ddmFormFieldTypeServicesTracker = ddmFormFieldTypeServicesTracker;
+		_ddmFormRuleConverter = ddmFormRuleConverter;
 	}
 
 	public String export(List<DataRecord> dataRecords) throws Exception {
@@ -53,7 +56,8 @@ public class DataRecordExporter {
 			dataRecord.getDataRecordCollectionId());
 
 		DataDefinition dataDefinition = DataDefinitionUtil.toDataDefinition(
-			_ddmFormFieldTypeServicesTracker, ddlRecordSet.getDDMStructure());
+			_ddmFormFieldTypeServicesTracker, _ddmFormRuleConverter,
+			ddlRecordSet.getDDMStructure());
 
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 
@@ -83,5 +87,6 @@ public class DataRecordExporter {
 	private final DDLRecordSetLocalService _ddlRecordSetLocalService;
 	private final DDMFormFieldTypeServicesTracker
 		_ddmFormFieldTypeServicesTracker;
+	private final DDMFormRuleConverter _ddmFormRuleConverter;
 
 }

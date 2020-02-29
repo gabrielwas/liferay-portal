@@ -19,14 +19,19 @@ import com.liferay.dynamic.data.mapping.expression.DDMExpression;
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionException;
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionFactory;
 import com.liferay.dynamic.data.mapping.expression.model.Expression;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.DDMFormRule;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.DDMFormRuleAction;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.DDMFormRuleCondition;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.serializer.DDMFormRuleSerializerContext;
+import com.liferay.dynamic.data.mapping.form.builder.converter.DDMFormRuleConverter;
+import com.liferay.dynamic.data.mapping.form.builder.converter.model.DDMFormRule;
+import com.liferay.dynamic.data.mapping.form.builder.converter.model.DDMFormRuleAction;
+import com.liferay.dynamic.data.mapping.form.builder.converter.model.DDMFormRuleCondition;
+import com.liferay.dynamic.data.mapping.form.builder.converter.serializer.DDMFormRuleSerializerContext;
 import com.liferay.dynamic.data.mapping.form.builder.internal.converter.visitor.ActionExpressionVisitor;
 import com.liferay.dynamic.data.mapping.form.builder.internal.converter.visitor.ConditionExpressionVisitor;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.StringUtil;
 
@@ -47,8 +52,9 @@ import org.osgi.service.component.annotations.Reference;
  * @author Marcellus Tavares
  */
 @Component(immediate = true, service = DDMFormRuleConverter.class)
-public class DDMFormRuleConverter {
+public class DDMFormRuleConverterImpl implements DDMFormRuleConverter {
 
+	@Override
 	public List<DDMFormRule> convert(
 		List<com.liferay.dynamic.data.mapping.model.DDMFormRule> ddmFormRules) {
 
@@ -63,6 +69,7 @@ public class DDMFormRuleConverter {
 		return convertedDDMFormRules;
 	}
 
+	@Override
 	public List<com.liferay.dynamic.data.mapping.model.DDMFormRule> convert(
 		List<DDMFormRule> ddmFormRules,
 		DDMFormRuleSerializerContext ddmFormRuleSerializerContext) {
@@ -75,6 +82,38 @@ public class DDMFormRuleConverter {
 					formRule, ddmFormRuleSerializerContext));
 
 		return convertedFormRulesStream.collect(Collectors.toList());
+	}
+
+	@Override
+	public List<com.liferay.dynamic.data.mapping.model.DDMFormRule>
+		toDDMFormRules(JSONArray jsonArray) {
+
+		List<com.liferay.dynamic.data.mapping.model.DDMFormRule> ddmFormRules =
+			new ArrayList<>();
+
+		for (int i = 0; i < jsonArray.length(); i++) {
+			com.liferay.dynamic.data.mapping.model.DDMFormRule ddmFormRule =
+				_getDDMFormRule(jsonArray.getJSONObject(i));
+
+			ddmFormRules.add(ddmFormRule);
+		}
+
+		return ddmFormRules;
+	}
+
+	@Override
+	public JSONArray toJSONArray(
+		List<com.liferay.dynamic.data.mapping.model.DDMFormRule> ddmFormRules) {
+
+		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+
+		for (com.liferay.dynamic.data.mapping.model.DDMFormRule ddmFormRule :
+				ddmFormRules) {
+
+			jsonArray.put(_toJSONObject(ddmFormRule));
+		}
+
+		return jsonArray;
 	}
 
 	protected DDMFormRuleAction convertAction(String actionExpressionString) {
@@ -294,6 +333,57 @@ public class DDMFormRuleConverter {
 
 	@Reference
 	protected DDMExpressionFactory ddmExpressionFactory;
+
+	private static com.liferay.dynamic.data.mapping.model.DDMFormRule
+		_getDDMFormRule(JSONObject jsonObject) {
+
+		String condition = jsonObject.getString("condition");
+
+		List<String> actions = _getDDMFormRuleActions(
+			jsonObject.getJSONArray("actions"));
+
+		com.liferay.dynamic.data.mapping.model.DDMFormRule ddmFormRule =
+			new com.liferay.dynamic.data.mapping.model.DDMFormRule(
+				condition, actions);
+
+		boolean enabled = jsonObject.getBoolean("enabled", true);
+
+		ddmFormRule.setEnabled(enabled);
+
+		return ddmFormRule;
+	}
+
+	private static List<String> _getDDMFormRuleActions(JSONArray jsonArray) {
+		List<String> actions = new ArrayList<>();
+
+		for (int i = 0; i < jsonArray.length(); i++) {
+			actions.add(jsonArray.getString(i));
+		}
+
+		return actions;
+	}
+
+	private static JSONArray _ruleActionsToJSONArray(List<String> ruleActions) {
+		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
+
+		for (String ruleAction : ruleActions) {
+			jsonArray.put(ruleAction);
+		}
+
+		return jsonArray;
+	}
+
+	private static JSONObject _toJSONObject(
+		com.liferay.dynamic.data.mapping.model.DDMFormRule ddmFormRule) {
+
+		return JSONUtil.put(
+			"actions", _ruleActionsToJSONArray(ddmFormRule.getActions())
+		).put(
+			"condition", ddmFormRule.getCondition()
+		).put(
+			"enabled", ddmFormRule.isEnabled()
+		);
+	}
 
 	private static final String _COMPARISON_EXPRESSION_FORMAT = "%s %s %s";
 
