@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.dynamic.data.mapping.form.builder.internal.converter.model;
+package com.liferay.dynamic.data.mapping.spi.converter.model;
 
 import com.liferay.petra.lang.HashUtil;
 import com.liferay.portal.kernel.json.JSON;
@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * @author Marcellus Tavares
  */
-public class DDMFormRule {
+public class SPIDDMFormRule {
 
 	@Override
 	public boolean equals(Object obj) {
@@ -32,17 +32,19 @@ public class DDMFormRule {
 			return true;
 		}
 
-		if (!(obj instanceof DDMFormRule)) {
+		if (!(obj instanceof SPIDDMFormRule)) {
 			return false;
 		}
 
-		DDMFormRule ddmFormRule = (DDMFormRule)obj;
+		SPIDDMFormRule spiDDMFormRule = (SPIDDMFormRule)obj;
 
 		if (Objects.equals(
-				_ddmFormRuleActions, ddmFormRule._ddmFormRuleActions) &&
+				_spiDDMFormRuleActions,
+				spiDDMFormRule._spiDDMFormRuleActions) &&
 			Objects.equals(
-				_ddmFormRuleConditions, ddmFormRule._ddmFormRuleConditions) &&
-			Objects.equals(_logicalOperator, ddmFormRule._logicalOperator)) {
+				_spiDDMFormRuleConditions,
+				spiDDMFormRule._spiDDMFormRuleConditions) &&
+			Objects.equals(_logicalOperator, spiDDMFormRule._logicalOperator)) {
 
 			return true;
 		}
@@ -51,13 +53,13 @@ public class DDMFormRule {
 	}
 
 	@JSON(name = "actions")
-	public List<DDMFormRuleAction> getDDMFormRuleActions() {
-		return _ddmFormRuleActions;
+	public List<SPIDDMFormRuleAction> getDDMFormRuleActions() {
+		return _spiDDMFormRuleActions;
 	}
 
 	@JSON(name = "conditions")
-	public List<DDMFormRuleCondition> getDDMFormRuleConditions() {
-		return _ddmFormRuleConditions;
+	public List<SPIDDMFormRuleCondition> getDDMFormRuleConditions() {
+		return _spiDDMFormRuleConditions;
 	}
 
 	@JSON(name = "logical-operator")
@@ -67,32 +69,33 @@ public class DDMFormRule {
 
 	@Override
 	public int hashCode() {
-		int hash = HashUtil.hash(0, _ddmFormRuleActions);
+		int hash = HashUtil.hash(0, _spiDDMFormRuleActions);
 
-		hash = HashUtil.hash(hash, _ddmFormRuleConditions);
+		hash = HashUtil.hash(hash, _spiDDMFormRuleConditions);
 
 		return HashUtil.hash(hash, _logicalOperator);
-	}
-
-	public void setDDMFormRuleActions(
-		List<DDMFormRuleAction> ddmFormRuleActions) {
-
-		_ddmFormRuleActions = ddmFormRuleActions;
-	}
-
-	public void setDDMFormRuleConditions(
-		List<DDMFormRuleCondition> ddmFormRuleConditions) {
-
-		_ddmFormRuleConditions = ddmFormRuleConditions;
 	}
 
 	public void setLogicalOperator(String logicalOperator) {
 		_logicalOperator = logicalOperator;
 	}
 
-	private List<DDMFormRuleAction> _ddmFormRuleActions = new ArrayList<>();
-	private List<DDMFormRuleCondition> _ddmFormRuleConditions =
-		new ArrayList<>();
+	public void setSPIDDMFormRuleActions(
+		List<SPIDDMFormRuleAction> spiDDMFormRuleActions) {
+
+		_spiDDMFormRuleActions = spiDDMFormRuleActions;
+	}
+
+	public void setSPIDDMFormRuleConditions(
+		List<SPIDDMFormRuleCondition> spiDDMFormRuleConditions) {
+
+		_spiDDMFormRuleConditions = spiDDMFormRuleConditions;
+	}
+
 	private String _logicalOperator = "AND";
+	private List<SPIDDMFormRuleAction> _spiDDMFormRuleActions =
+		new ArrayList<>();
+	private List<SPIDDMFormRuleCondition> _spiDDMFormRuleConditions =
+		new ArrayList<>();
 
 }

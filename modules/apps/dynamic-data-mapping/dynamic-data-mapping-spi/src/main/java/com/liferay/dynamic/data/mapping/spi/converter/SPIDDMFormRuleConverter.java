@@ -12,14 +12,23 @@
  * details.
  */
 
-package com.liferay.dynamic.data.mapping.form.builder.internal.converter.serializer;
+package com.liferay.dynamic.data.mapping.spi.converter;
+
+import com.liferay.dynamic.data.mapping.model.DDMFormRule;
+import com.liferay.dynamic.data.mapping.spi.converter.model.SPIDDMFormRule;
+import com.liferay.dynamic.data.mapping.spi.converter.serializer.SPIDDMFormRuleSerializerContext;
+
+import java.util.List;
 
 /**
- * @author Leonardo Barros
+ * @author Gabriel Albuquerque
  */
-public interface DDMFormRuleActionSerializer {
+public interface SPIDDMFormRuleConverter {
 
-	public String serialize(
-		DDMFormRuleSerializerContext ddmFormRuleSerializerContext);
+	public List<SPIDDMFormRule> convert(List<DDMFormRule> ddmFormRules);
+
+	public List<DDMFormRule> convert(
+		List<SPIDDMFormRule> ddmFormRules,
+		SPIDDMFormRuleSerializerContext spiDDMFormRuleSerializerContext);
 
 }

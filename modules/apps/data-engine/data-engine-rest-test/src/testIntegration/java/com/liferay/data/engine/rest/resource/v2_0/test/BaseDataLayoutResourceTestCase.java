@@ -772,6 +772,14 @@ public abstract class BaseDataLayoutResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("dataRules", additionalAssertFieldName)) {
+				if (dataLayout.getDataRules() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("description", additionalAssertFieldName)) {
 				if (dataLayout.getDescription() == null) {
 					valid = false;
@@ -898,6 +906,17 @@ public abstract class BaseDataLayoutResourceTestCase {
 				if (!Objects.deepEquals(
 						dataLayout1.getDataLayoutPages(),
 						dataLayout2.getDataLayoutPages())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("dataRules", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						dataLayout1.getDataRules(),
+						dataLayout2.getDataRules())) {
 
 					return false;
 				}
@@ -1134,6 +1153,11 @@ public abstract class BaseDataLayoutResourceTestCase {
 		}
 
 		if (entityFieldName.equals("dataLayoutPages")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
+		if (entityFieldName.equals("dataRules")) {
 			throw new IllegalArgumentException(
 				"Invalid entity field " + entityFieldName);
 		}
