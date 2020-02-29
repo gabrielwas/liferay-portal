@@ -19,10 +19,11 @@ import com.liferay.dynamic.data.mapping.expression.DDMExpression;
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionException;
 import com.liferay.dynamic.data.mapping.expression.DDMExpressionFactory;
 import com.liferay.dynamic.data.mapping.expression.model.Expression;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.DDMFormRule;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.DDMFormRuleAction;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.model.DDMFormRuleCondition;
-import com.liferay.dynamic.data.mapping.form.builder.internal.converter.serializer.DDMFormRuleSerializerContext;
+import com.liferay.dynamic.data.mapping.form.builder.converter.DDMFormRuleConverter;
+import com.liferay.dynamic.data.mapping.form.builder.converter.model.DDMFormRule;
+import com.liferay.dynamic.data.mapping.form.builder.converter.model.DDMFormRuleAction;
+import com.liferay.dynamic.data.mapping.form.builder.converter.model.DDMFormRuleCondition;
+import com.liferay.dynamic.data.mapping.form.builder.converter.serializer.DDMFormRuleSerializerContext;
 import com.liferay.dynamic.data.mapping.form.builder.internal.converter.visitor.ActionExpressionVisitor;
 import com.liferay.dynamic.data.mapping.form.builder.internal.converter.visitor.ConditionExpressionVisitor;
 import com.liferay.petra.string.StringBundler;
@@ -47,8 +48,9 @@ import org.osgi.service.component.annotations.Reference;
  * @author Marcellus Tavares
  */
 @Component(immediate = true, service = DDMFormRuleConverter.class)
-public class DDMFormRuleConverter {
+public class DDMFormRuleConverterImpl implements DDMFormRuleConverter {
 
+	@Override
 	public List<DDMFormRule> convert(
 		List<com.liferay.dynamic.data.mapping.model.DDMFormRule> ddmFormRules) {
 
@@ -63,6 +65,7 @@ public class DDMFormRuleConverter {
 		return convertedDDMFormRules;
 	}
 
+	@Override
 	public List<com.liferay.dynamic.data.mapping.model.DDMFormRule> convert(
 		List<DDMFormRule> ddmFormRules,
 		DDMFormRuleSerializerContext ddmFormRuleSerializerContext) {

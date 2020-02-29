@@ -21,6 +21,7 @@ import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutColumn;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutPage;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayoutRow;
+import com.liferay.dynamic.data.mapping.model.DDMFormRule;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
@@ -56,6 +57,7 @@ public class DDMFormLayoutJSONSerializer implements DDMFormLayoutSerializer {
 		addDefaultLanguageId(jsonObject, ddmFormLayout.getDefaultLocale());
 		addPages(jsonObject, ddmFormLayout.getDDMFormLayoutPages());
 		addPaginationMode(jsonObject, ddmFormLayout.getPaginationMode());
+		addRules(jsonObject, ddmFormLayout.getDDMFormRules());
 
 		DDMFormLayoutSerializerSerializeResponse.Builder builder =
 			DDMFormLayoutSerializerSerializeResponse.Builder.newBuilder(
@@ -143,6 +145,17 @@ public class DDMFormLayoutJSONSerializer implements DDMFormLayoutSerializer {
 		}
 
 		jsonObject.put("rows", jsonArray);
+	}
+
+	protected void addRules(
+		JSONObject jsonObject, List<DDMFormRule> ddmFormRules) {
+
+		if (ddmFormRules.isEmpty()) {
+			return;
+		}
+
+		jsonObject.put(
+			"rules", DDMFormRuleJSONSerializer.serialize(ddmFormRules));
 	}
 
 	protected void addTitle(JSONObject pageJSONObject, LocalizedValue title) {
