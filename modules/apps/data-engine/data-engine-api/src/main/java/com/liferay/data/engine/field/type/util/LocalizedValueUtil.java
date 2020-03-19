@@ -15,9 +15,12 @@
 package com.liferay.data.engine.field.type.util;
 
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
+import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
@@ -142,7 +145,25 @@ public class LocalizedValueUtil {
 		return stream.collect(
 			Collectors.toMap(
 				entry -> LanguageUtil.getLanguageId(entry.getKey()),
-				entry -> entry.getValue()));
+				entry -> {
+					String value = entry.getValue();
+
+					if ((value != null) && !value.isEmpty() &&
+						(value.charAt(0) == '[') &&
+						(value.charAt(value.length() - 1) == ']')) {
+
+						try {
+							return JSONFactoryUtil.createJSONArray(value);
+						}
+						catch (JSONException jsonException) {
+							_log.error(jsonException, jsonException);
+
+							return value;
+						}
+					}
+
+					return value;
+				}));
 	}
 
 	public static Map<String, Object> toStringObjectMap(
@@ -157,5 +178,8 @@ public class LocalizedValueUtil {
 
 		return stringObjectMap;
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		LocalizedValueUtil.class);
 
 }
