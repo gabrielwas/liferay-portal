@@ -79,7 +79,12 @@ const RuleEditorModal = ({isVisible, onClose}) => {
 	}
 
 	return (
-		<ClayModal observer={observer} size="lg" status="info">
+		<ClayModal
+			className="data-layout-builder-rule-editor-modal"
+			observer={observer}
+			size="lg"
+			status="info"
+		>
 			<ClayModal.Header>{'Title'}</ClayModal.Header>
 			<RuleEditorModalBody />
 			<ClayModal.Footer

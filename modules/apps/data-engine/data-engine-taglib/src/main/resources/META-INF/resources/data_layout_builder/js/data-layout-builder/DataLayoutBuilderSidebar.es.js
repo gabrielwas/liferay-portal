@@ -32,7 +32,7 @@ import {
 import Button from '../components/button/Button.es';
 import FieldSets from '../components/field-sets/FieldSets.es';
 import FieldTypeList from '../components/field-types/FieldTypeList.es';
-import RulesEditorModal from '../components/rules/RuleEditorModal.es';
+import RulesEditorModal from '../components/rule-editor/RuleEditorModal.es';
 import Sidebar from '../components/sidebar/Sidebar.es';
 import {useSidebarContent} from '../hooks/index.es';
 import isClickOutside from '../utils/clickOutside.es';
