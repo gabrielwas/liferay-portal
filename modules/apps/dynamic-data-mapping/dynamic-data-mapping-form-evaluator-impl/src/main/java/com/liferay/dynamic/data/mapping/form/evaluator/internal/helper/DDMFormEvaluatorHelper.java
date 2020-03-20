@@ -36,6 +36,7 @@ import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidation;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldValidationExpression;
+import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
 import com.liferay.dynamic.data.mapping.model.DDMFormRule;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.model.Value;
@@ -45,6 +46,7 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.AggregateResourceBundle;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ResourceBundleLoader;
 import com.liferay.portal.kernel.util.ResourceBundleLoaderUtil;
@@ -52,6 +54,7 @@ import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -59,6 +62,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -96,6 +100,8 @@ public class DDMFormEvaluatorHelper {
 
 		_ddmForm = ddmFormEvaluatorEvaluateRequest.getDDMForm();
 
+		_ddmFormLayout = ddmFormEvaluatorEvaluateRequest.getDDMFormLayout();
+
 		_ddmFormFieldsMap = _ddmForm.getDDMFormFieldsMap(true);
 
 		ddmFormEvaluatorDDMExpressionFieldAccessor =
@@ -115,7 +121,17 @@ public class DDMFormEvaluatorHelper {
 	public DDMFormEvaluatorEvaluateResponse evaluate() {
 		evaluateVisibilityExpressions();
 
-		List<DDMFormRule> ddmFormRules = _ddmForm.getDDMFormRules();
+		List<DDMFormRule> ddmFormRules = Optional.ofNullable(
+			_ddmFormLayout
+		).map(
+			ddmFormLayout -> ddmFormLayout.getDDMFormRules()
+		).orElse(
+			new ArrayList<>()
+		);
+
+		if (ListUtil.isEmpty(ddmFormRules)) {
+			ddmFormRules = _ddmForm.getDDMFormRules();
+		}
 
 		Stream<DDMFormRule> stream = ddmFormRules.stream();
 
@@ -694,6 +710,7 @@ public class DDMFormEvaluatorHelper {
 		_ddmFormFieldsPropertyChanges = new HashMap<>();
 	private final DDMFormFieldTypeServicesTracker
 		_ddmFormFieldTypeServicesTracker;
+	private final DDMFormLayout _ddmFormLayout;
 	private final DDMFormEvaluatorRuleHelper _ddmFormRuleHelper;
 	private final Map<Integer, Integer> _pageFlow = new HashMap<>();
 	private ResourceBundle _resourceBundle;
