@@ -17,6 +17,7 @@ import {RuleEditor} from 'dynamic-data-mapping-form-builder';
 import React, {useContext, useEffect, useRef, useState} from 'react';
 
 import AppContext from '../../AppContext.es';
+import DataLayoutBuilderContext from '../../data-layout-builder/DataLayoutBuilderContext.es';
 import {getItem} from '../../utils/client.es';
 import Button from '../button/Button.es';
 
@@ -27,6 +28,9 @@ const RuleEditorModalBody = () => {
 			config: {ruleSettings},
 		},
 	] = useContext(AppContext);
+
+	const [dataLayoutBuilder] = useContext(DataLayoutBuilderContext);
+	const {pages} = dataLayoutBuilder.getStore();
 
 	const [state, setState] = useState({
 		isLoading: true,
@@ -40,8 +44,13 @@ const RuleEditorModalBody = () => {
 			return;
 		}
 
-		RuleEditorWrapper.newInstance(ruleEditorRef, roles, ruleSettings);
-	}, [ruleEditorRef, ruleSettings, state]);
+		RuleEditorWrapper.newInstance(
+			ruleEditorRef,
+			roles,
+			ruleSettings,
+			pages
+		);
+	}, [pages, ruleEditorRef, ruleSettings, state]);
 
 	useEffect(() => {
 		getItem('/o/headless-admin-user/v1.0/roles').then(
@@ -103,7 +112,7 @@ class RuleEditorWrapper extends RuleEditor {
 		};
 	}
 
-	static newInstance(ruleEditorRef, roles, {functionsMetadata = {}}) {
+	static newInstance(ruleEditorRef, roles, {functionsMetadata = {}}, pages) {
 		return new RuleEditorWrapper(
 			{
 				actions: [],
@@ -121,28 +130,7 @@ class RuleEditorWrapper extends RuleEditor {
 				functionsMetadata,
 				functionsURL: '/o/dynamic-data-mapping-form-builder-functions/',
 				key: 'create',
-				pages: [
-					{
-						description: '',
-						localizedDescription: {
-							en_US: '',
-						},
-						localizedTitle: {
-							en_US: '',
-						},
-						rows: [
-							{
-								columns: [
-									{
-										fields: [],
-										size: 12,
-									},
-								],
-							},
-						],
-						title: '',
-					},
-				],
+				pages,
 				ref: 'RuleEditor',
 				roles,
 				spritemap: `${Liferay.ThemeDisplay.getPathThemeImages()}/lexicon/icons.svg`,
