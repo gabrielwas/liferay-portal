@@ -24,6 +24,7 @@ import {
 	UPDATE_DATA_DEFINITION,
 	UPDATE_DATA_LAYOUT,
 	UPDATE_DATA_LAYOUT_NAME,
+	UPDATE_DATA_LAYOUT_RULES,
 	UPDATE_EDITING_LANGUAGE_ID,
 	UPDATE_FIELDSETS,
 	UPDATE_FIELD_TYPES,
@@ -54,9 +55,9 @@ const initialState = {
 	dataDefinitionId: 0,
 	dataLayout: {
 		dataLayoutPages: [],
+		dataRules: [],
 		name: {},
 		paginationMode: 'wizard',
-		rules: [],
 	},
 	dataLayoutId: 0,
 	editingLanguageId: themeDisplay.getLanguageId(),
@@ -299,6 +300,17 @@ const createReducer = dataLayoutBuilder => {
 					dataLayout: {
 						...state.dataLayout,
 						name,
+					},
+				};
+			}
+			case UPDATE_DATA_LAYOUT_RULES: {
+				const {dataRules} = action.payload;
+
+				return {
+					...state,
+					dataLayout: {
+						...state.dataLayout,
+						dataRules,
 					},
 				};
 			}

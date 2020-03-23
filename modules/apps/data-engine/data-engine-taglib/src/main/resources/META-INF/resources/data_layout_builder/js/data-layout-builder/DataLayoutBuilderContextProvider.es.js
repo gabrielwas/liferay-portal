@@ -16,6 +16,7 @@ import React, {useContext, useEffect} from 'react';
 
 import AppContext from '../AppContext.es';
 import {
+	UPDATE_DATA_LAYOUT_RULES,
 	UPDATE_EDITING_LANGUAGE_ID,
 	UPDATE_FIELD_TYPES,
 	UPDATE_FOCUSED_FIELD,
@@ -65,6 +66,21 @@ export default ({children, dataLayoutBuilder}) => {
 		const eventHandler = provider.on('pagesChanged', ({newVal}) => {
 			provider.once('rendered', () => {
 				dispatch({payload: {pages: newVal}, type: UPDATE_PAGES});
+			});
+		});
+
+		return () => eventHandler.removeListener();
+	}, [dataLayoutBuilder, dispatch]);
+
+	useEffect(() => {
+		const provider = dataLayoutBuilder.getLayoutProvider();
+
+		const eventHandler = provider.on('rulesChanged', ({newVal}) => {
+			provider.once('rendered', () => {
+				dispatch({
+					payload: {dataRules: newVal},
+					type: UPDATE_DATA_LAYOUT_RULES,
+				});
 			});
 		});
 
