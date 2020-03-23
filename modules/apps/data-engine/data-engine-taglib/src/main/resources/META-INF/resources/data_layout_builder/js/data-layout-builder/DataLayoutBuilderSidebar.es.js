@@ -32,7 +32,7 @@ import {
 import Button from '../components/button/Button.es';
 import FieldSets from '../components/field-sets/FieldSets.es';
 import FieldTypeList from '../components/field-types/FieldTypeList.es';
-import RulesEditorModal from '../components/rule-editor/RuleEditorModal.es';
+import RuleEditorModal from '../components/rule-editor/RuleEditorModal.es';
 import Sidebar from '../components/sidebar/Sidebar.es';
 import {useSidebarContent} from '../hooks/index.es';
 import isClickOutside from '../utils/clickOutside.es';
@@ -114,7 +114,7 @@ const DefaultSidebarBody = ({keywords}) => {
 	return (
 		<>
 			{allowRules && (
-				<RulesEditorModal
+				<RuleEditorModal
 					isVisible={isRulesEditorVisible}
 					onClose={() => setRulesEditorVisible(false)}
 				/>

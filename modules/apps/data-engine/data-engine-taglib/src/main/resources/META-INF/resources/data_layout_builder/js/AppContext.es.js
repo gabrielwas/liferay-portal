@@ -56,6 +56,7 @@ const initialState = {
 		dataLayoutPages: [],
 		name: {},
 		paginationMode: 'wizard',
+		rules: [],
 	},
 	dataLayoutId: 0,
 	editingLanguageId: themeDisplay.getLanguageId(),

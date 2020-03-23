@@ -72,6 +72,7 @@ class DataLayoutBuilder extends React.Component {
 					initialPaginationMode: paginationMode,
 					initialSuccessPageSettings: config.successPageSettings,
 					ref: 'layoutProvider',
+					rules: context.rules,
 				},
 			},
 			this.containerRef.current
