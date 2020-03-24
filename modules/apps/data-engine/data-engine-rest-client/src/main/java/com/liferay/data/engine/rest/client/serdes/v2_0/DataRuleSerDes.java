@@ -115,6 +115,20 @@ public class DataRuleSerDes {
 			sb.append("\"");
 		}
 
+		if (dataRule.getName() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"name\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(dataRule.getName()));
+
+			sb.append("\"");
+		}
+
 		sb.append("}");
 
 		return sb.toString();
@@ -156,6 +170,13 @@ public class DataRuleSerDes {
 				String.valueOf(dataRule.getLogicalOperator()));
 		}
 
+		if (dataRule.getName() == null) {
+			map.put("name", null);
+		}
+		else {
+			map.put("name", String.valueOf(dataRule.getName()));
+		}
+
 		return map;
 	}
 
@@ -189,6 +210,11 @@ public class DataRuleSerDes {
 			else if (Objects.equals(jsonParserFieldName, "logicalOperator")) {
 				if (jsonParserFieldValue != null) {
 					dataRule.setLogicalOperator((String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "name")) {
+				if (jsonParserFieldValue != null) {
+					dataRule.setName((String)jsonParserFieldValue);
 				}
 			}
 			else {
