@@ -145,6 +145,8 @@ public class DataLayoutUtil {
 			"conditions", dataRule.getConditions()
 		).put(
 			"logical-operator", dataRule.getLogicalOperator()
+		).put(
+			"name", dataRule.getName()
 		);
 	}
 
@@ -278,6 +280,8 @@ public class DataLayoutUtil {
 				));
 
 			dataRule.setLogicalOperator(spiDDMFormRule.getLogicalOperator());
+
+			dataRule.setName(spiDDMFormRule.getName());
 
 			dataRules = ArrayUtil.append(dataRules, dataRule);
 		}
