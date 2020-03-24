@@ -49,6 +49,8 @@ public class DDMFormRuleJSONDeserializer {
 
 		ddmFormRule.setEnabled(jsonObject.getBoolean("enabled", true));
 
+		ddmFormRule.setName(jsonObject.getString("name"));
+
 		return ddmFormRule;
 	}
 

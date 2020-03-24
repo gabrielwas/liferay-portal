@@ -54,6 +54,8 @@ public class DDMFormRuleJSONSerializer {
 			"condition", ddmFormRule.getCondition()
 		).put(
 			"enabled", ddmFormRule.isEnabled()
+		).put(
+			"name", ddmFormRule.getName()
 		);
 	}
 
