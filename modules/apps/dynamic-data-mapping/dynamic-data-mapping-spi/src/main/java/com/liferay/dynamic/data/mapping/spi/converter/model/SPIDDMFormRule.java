@@ -38,13 +38,14 @@ public class SPIDDMFormRule {
 
 		SPIDDMFormRule spiDDMFormRule = (SPIDDMFormRule)obj;
 
-		if (Objects.equals(
+		if (Objects.equals(_logicalOperator, spiDDMFormRule._logicalOperator) &&
+			Objects.equals(_name, spiDDMFormRule._name) &&
+			Objects.equals(
 				_spiDDMFormRuleActions,
 				spiDDMFormRule._spiDDMFormRuleActions) &&
 			Objects.equals(
 				_spiDDMFormRuleConditions,
-				spiDDMFormRule._spiDDMFormRuleConditions) &&
-			Objects.equals(_logicalOperator, spiDDMFormRule._logicalOperator)) {
+				spiDDMFormRule._spiDDMFormRuleConditions)) {
 
 			return true;
 		}
@@ -55,6 +56,11 @@ public class SPIDDMFormRule {
 	@JSON(name = "logical-operator")
 	public String getLogicalOperator() {
 		return _logicalOperator;
+	}
+
+	@JSON(name = "name")
+	public String getName() {
+		return _name;
 	}
 
 	@JSON(name = "actions")
@@ -69,15 +75,21 @@ public class SPIDDMFormRule {
 
 	@Override
 	public int hashCode() {
-		int hash = HashUtil.hash(0, _spiDDMFormRuleActions);
+		int hash = HashUtil.hash(0, _logicalOperator);
 
-		hash = HashUtil.hash(hash, _spiDDMFormRuleConditions);
+		hash = HashUtil.hash(hash, _name);
 
-		return HashUtil.hash(hash, _logicalOperator);
+		hash = HashUtil.hash(hash, _spiDDMFormRuleActions);
+
+		return HashUtil.hash(hash, _spiDDMFormRuleConditions);
 	}
 
 	public void setLogicalOperator(String logicalOperator) {
 		_logicalOperator = logicalOperator;
+	}
+
+	public void setName(String name) {
+		_name = name;
 	}
 
 	public void setSPIDDMFormRuleActions(
@@ -93,6 +105,7 @@ public class SPIDDMFormRule {
 	}
 
 	private String _logicalOperator = "AND";
+	private String _name;
 	private List<SPIDDMFormRuleAction> _spiDDMFormRuleActions =
 		new ArrayList<>();
 	private List<SPIDDMFormRuleCondition> _spiDDMFormRuleConditions =
