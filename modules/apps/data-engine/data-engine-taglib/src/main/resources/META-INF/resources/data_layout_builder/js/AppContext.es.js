@@ -307,8 +307,15 @@ const createReducer = dataLayoutBuilder => {
 				let {dataRules} = action.payload;
 
 				dataRules = dataRules.map(rule => {
-					rule['logicalOperator'] = rule['logical-operator'];
-					delete rule['logical-operator'];
+					if (
+						Object.prototype.hasOwnProperty.call(
+							rule,
+							'logical-operator'
+						)
+					) {
+						rule['logicalOperator'] = rule['logical-operator'];
+						delete rule['logical-operator'];
+					}
 
 					return rule;
 				});
