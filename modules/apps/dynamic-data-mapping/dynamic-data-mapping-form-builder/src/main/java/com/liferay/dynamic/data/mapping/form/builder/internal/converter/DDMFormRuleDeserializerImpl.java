@@ -86,6 +86,11 @@ public class DDMFormRuleDeserializerImpl implements DDMFormRuleDeserializer {
 
 		SPIDDMFormRule spiDDMFormRule = new SPIDDMFormRule();
 
+		spiDDMFormRule.setLogicalOperator(
+			ruleJSONObject.getString("logical-operator"));
+
+		spiDDMFormRule.setName(ruleJSONObject.getString("name"));
+
 		List<SPIDDMFormRuleAction> spiDDMFormRuleActions =
 			deserializeSPIDDMFormRuleActions(
 				ruleJSONObject.getJSONArray("actions"));
@@ -97,9 +102,6 @@ public class DDMFormRuleDeserializerImpl implements DDMFormRuleDeserializer {
 				ruleJSONObject.getJSONArray("conditions"));
 
 		spiDDMFormRule.setSPIDDMFormRuleConditions(spiDDMFormRuleConditions);
-
-		spiDDMFormRule.setLogicalOperator(
-			ruleJSONObject.getString("logical-operator"));
 
 		return spiDDMFormRule;
 	}
