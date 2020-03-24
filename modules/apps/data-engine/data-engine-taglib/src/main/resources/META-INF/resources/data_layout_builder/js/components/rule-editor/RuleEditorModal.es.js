@@ -102,6 +102,10 @@ const RuleEditorModalContent = ({onClose}) => {
 	]);
 
 	useEffect(() => {
+		return () => ruleEditor && ruleEditor.dispose();
+	}, [ruleEditor]);
+
+	useEffect(() => {
 		getItem('/o/headless-admin-user/v1.0/roles').then(
 			({items: roles = []}) => {
 				roles = roles.map(({id, name}) => ({
