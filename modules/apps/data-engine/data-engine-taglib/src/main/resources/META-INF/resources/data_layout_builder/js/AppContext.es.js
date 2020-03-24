@@ -304,7 +304,14 @@ const createReducer = dataLayoutBuilder => {
 				};
 			}
 			case UPDATE_DATA_LAYOUT_RULES: {
-				const {dataRules} = action.payload;
+				let {dataRules} = action.payload;
+
+				dataRules = dataRules.map(rule => {
+					rule['logicalOperator'] = rule['logical-operator'];
+					delete rule['logical-operator'];
+
+					return rule;
+				});
 
 				return {
 					...state,
