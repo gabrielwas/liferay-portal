@@ -755,8 +755,16 @@ public class DataLayoutTaglibUtil {
 				JSONArray actionsJSONArray = _jsonFactory.createJSONArray();
 
 				for (Object action : dataRule.getActions()) {
-					actionsJSONArray.put(
-						_jsonFactory.createJSONObject((String)action));
+					JSONObject jsonObject = _jsonFactory.createJSONObject();
+
+					Map<String, String> actionMap = (Map)action;
+
+					for (Map.Entry entry : actionMap.entrySet()) {
+						jsonObject.put(
+							(String)entry.getKey(), entry.getValue());
+					}
+
+					actionsJSONArray.put(jsonObject);
 				}
 
 				dataRuleJSONObject.put("actions", actionsJSONArray);
@@ -764,8 +772,16 @@ public class DataLayoutTaglibUtil {
 				JSONArray conditionsJSONArray = _jsonFactory.createJSONArray();
 
 				for (Object condition : dataRule.getConditions()) {
-					conditionsJSONArray.put(
-						_jsonFactory.createJSONObject((String)condition));
+					JSONObject jsonObject = _jsonFactory.createJSONObject();
+
+					Map<String, String> conditionMap = (Map)condition;
+
+					for (Map.Entry entry : conditionMap.entrySet()) {
+						jsonObject.put(
+							(String)entry.getKey(), entry.getValue());
+					}
+
+					conditionsJSONArray.put(jsonObject);
 				}
 
 				dataRuleJSONObject.put(
