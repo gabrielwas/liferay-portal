@@ -13,7 +13,6 @@
  */
 
 import {
-	DataDefinitionUtils,
 	DataLayoutBuilderActions,
 	DataLayoutVisitor,
 	DragTypes,
@@ -37,14 +36,17 @@ const getFieldTypes = ({
 }) => {
 	const dataDefinitionFields = [];
 	const {dataLayoutPages} = dataLayout;
+	const {dataDefinitionFields: fields} = dataDefinition;
 
-	DataDefinitionUtils.forEachDataDefinitionField(
-		dataDefinition,
-		({fieldType, label, name}) => {
-			if (fieldType === 'section') {
-				return;
-			}
+	const validateField = (field) => {
+		if (field.fieldType === 'section') {
+			return;
+		}
 
+		const model = (
+			{fieldType, label, name, nestedDataDefinitionFields = []},
+			nested
+		) => {
 			const fieldTypeSettings = fieldTypes.find(({name}) => {
 				return name === fieldType;
 			});
@@ -58,8 +60,16 @@ const getFieldTypes = ({
 
 			dataDefinitionFields.push({
 				active: name === focusedCustomObjectField.name,
-				className: 'custom-object-field',
-				description: fieldTypeSettings.label,
+				className: nested
+					? 'custom-object-field-children'
+					: 'custom-object-field',
+				description: `${fieldTypeSettings.label} ${
+					nestedDataDefinitionFields.length
+						? `- ${
+								nestedDataDefinitionFields.length
+						  } ${Liferay.Language.get('fields')}`
+						: ''
+				}`,
 				disabled: DataLayoutVisitor.containsField(
 					dataLayoutPages,
 					name
@@ -69,9 +79,18 @@ const getFieldTypes = ({
 				icon: fieldTypeSettings.icon,
 				label,
 				name,
-			});
-		}
-	);
+				nestedDataDefinitionFields: nestedDataDefinitionFields.map(
+					(field) => model(field, true)
+				),
+			};
+		};
+
+		return model(field);
+	};
+
+	fields.forEach((fieldType) => {
+		dataDefinitionFields.push(validateField(fieldType));
+	});
 
 	return dataDefinitionFields;
 };

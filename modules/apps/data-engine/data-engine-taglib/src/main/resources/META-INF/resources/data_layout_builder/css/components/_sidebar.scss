@@ -49,3 +49,22 @@
 		margin: 2px 0;
 	}
 }
+
+.field-type-list {
+	.list-item::before {
+		position: absolute;
+		content: '';
+		height: 100%;
+		width: 0;
+		border-left: 2px solid #c3d5f7;
+	}
+
+	.panel-body {
+		padding-right: 0;
+	}
+
+	.data-layout-builder-field-sticker {
+		z-index: 999 !important;
+		background-color: #c3d5f7;
+	}
+}

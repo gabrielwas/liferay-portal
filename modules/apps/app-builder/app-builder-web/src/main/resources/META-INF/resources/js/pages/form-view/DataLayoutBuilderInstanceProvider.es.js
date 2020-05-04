@@ -90,7 +90,7 @@ export default ({children, dataLayoutBuilder}) => {
 				fieldSetDefinition
 			)
 				.then(({id: dataDefinitionId}) => {
-					fieldSetReponseIds.dataDefinitionId = dataDefinitionId;
+					fieldSetReponseIds.ddmStructureId = dataDefinitionId;
 
 					return addItem(
 						`/o/data-engine/v2.0/data-definitions/${dataDefinitionId}/data-layouts`,
@@ -98,16 +98,14 @@ export default ({children, dataLayoutBuilder}) => {
 					);
 				})
 				.then(({id: dataLayoutId}) => {
-					fieldSetReponseIds.dataLayoutId = dataLayoutId;
+					fieldSetReponseIds.ddmStructureLayoutId = dataLayoutId;
 					const dataDefinitionFields = dataDefinition.dataDefinitionFields.map(
 						(definitionField) => {
 							if (definitionField.name === fieldName) {
 								return {
 									...definitionField,
 									customProperties: {
-										dataDefinitionId:
-											fieldSetReponseIds.dataDefinitionId,
-										dataLayoutId,
+										...fieldSetReponseIds,
 										rows: '',
 									},
 									nestedDataDefinitionFields: [],
