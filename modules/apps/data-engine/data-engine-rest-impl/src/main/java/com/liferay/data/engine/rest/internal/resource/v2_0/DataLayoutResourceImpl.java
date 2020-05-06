@@ -31,6 +31,7 @@ import com.liferay.data.engine.service.DEDataDefinitionFieldLinkLocalService;
 import com.liferay.dynamic.data.mapping.form.builder.rule.DDMFormRuleDeserializer;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutSerializer;
+import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMStructureLayout;
 import com.liferay.dynamic.data.mapping.model.DDMStructureVersion;
@@ -235,6 +236,19 @@ public class DataLayoutResourceImpl
 		throws PortalException {
 
 		for (String fieldName : fieldNames) {
+			DDMFormField ddmFormField = ddmStructure.getDDMFormField(fieldName);
+
+			Long fieldSetDDMStructureId = GetterUtil.getLong(
+				ddmFormField.getProperty("ddmStructureId"));
+
+			if (Validator.isNotNull(fieldSetDDMStructureId)) {
+				_deDataDefinitionFieldLinkLocalService.
+					addDEDataDefinitionFieldLink(
+						ddmStructureLayout.getGroupId(), _getClassNameId(),
+						ddmStructureLayout.getStructureLayoutId(),
+						fieldSetDDMStructureId, fieldName);
+			}
+
 			_deDataDefinitionFieldLinkLocalService.addDEDataDefinitionFieldLink(
 				ddmStructureLayout.getGroupId(), _getClassNameId(),
 				ddmStructureLayout.getStructureLayoutId(),
