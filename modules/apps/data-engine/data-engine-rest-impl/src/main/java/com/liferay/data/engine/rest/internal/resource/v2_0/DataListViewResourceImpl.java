@@ -27,6 +27,7 @@ import com.liferay.data.engine.service.DEDataListViewLocalService;
 import com.liferay.data.engine.util.comparator.DEDataListViewCreateDateComparator;
 import com.liferay.data.engine.util.comparator.DEDataListViewModifiedDateComparator;
 import com.liferay.data.engine.util.comparator.DEDataListViewNameComparator;
+import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -200,9 +201,7 @@ public class DataListViewResourceImpl
 				LocalizedValueUtil.toLocaleStringMap(dataListView.getName()),
 				dataListView.getSortField()));
 
-		_addDataDefinitionFieldLinks(
-			dataListView.getDataDefinitionId(), dataListView.getId(),
-			dataListView.getFieldNames(), dataListView.getSiteId());
+		_addDataDefinitionFieldLinks(dataListView);
 
 		return dataListView;
 	}
@@ -232,21 +231,34 @@ public class DataListViewResourceImpl
 		_deDataDefinitionFieldLinkLocalService.deleteDEDataDefinitionFieldLinks(
 			_getClassNameId(), dataListViewId);
 
-		_addDataDefinitionFieldLinks(
-			dataListView.getDataDefinitionId(), dataListView.getId(),
-			dataListView.getFieldNames(), dataListView.getSiteId());
+		_addDataDefinitionFieldLinks(dataListView);
 
 		return dataListView;
 	}
 
-	private void _addDataDefinitionFieldLinks(
-			long dataDefinitionId, long dataListViewId, String[] fieldNames,
-			long groupId)
+	private void _addDataDefinitionFieldLinks(DataListView dataListView)
 		throws PortalException {
 
-		for (String fieldName : fieldNames) {
+		DDMStructure ddmStructure = _ddmStructureLocalService.getStructure(
+			dataListView.getDataDefinitionId());
+
+		for (String fieldName : dataListView.getFieldNames()) {
+			DDMFormField ddmFormField = ddmStructure.getDDMFormField(fieldName);
+
+			Long fieldSetDDMStructureId = GetterUtil.getLong(
+				ddmFormField.getProperty("ddmStructureId"));
+
+			if (Validator.isNotNull(fieldSetDDMStructureId)) {
+				_deDataDefinitionFieldLinkLocalService.
+					addDEDataDefinitionFieldLink(
+						dataListView.getSiteId(), _getClassNameId(),
+						dataListView.getId(), fieldSetDDMStructureId,
+						fieldName);
+			}
+
 			_deDataDefinitionFieldLinkLocalService.addDEDataDefinitionFieldLink(
-				groupId, _getClassNameId(), dataListViewId, dataDefinitionId,
+				dataListView.getSiteId(), _getClassNameId(),
+				dataListView.getId(), dataListView.getDataDefinitionId(),
 				fieldName);
 		}
 	}
