@@ -37,7 +37,7 @@ export default ({children, dataLayoutBuilder}) => {
 
 	const saveAsFieldSet = useCallback(
 		(fieldName) => {
-			const fieldSetReponseIds = {};
+			const customProperties = {};
 			const {
 				customProperties: {rows},
 				label,
@@ -89,23 +89,31 @@ export default ({children, dataLayoutBuilder}) => {
 				`/o/data-engine/v2.0/data-definitions/by-content-type/app-builder-fieldset`,
 				fieldSetDefinition
 			)
-				.then(({id: dataDefinitionId}) => {
-					fieldSetReponseIds.ddmStructureId = dataDefinitionId;
+				.then((dataDefinitionFieldSet) => {
+					const {id: ddmStructureId} = dataDefinitionFieldSet;
+					customProperties.ddmStructureId = ddmStructureId;
+
+					dispatch({
+						payload: {
+							fieldSets: [...fieldSets, dataDefinitionFieldSet],
+						},
+						type: DataLayoutBuilderActions.UPDATE_FIELDSETS,
+					});
 
 					return addItem(
-						`/o/data-engine/v2.0/data-definitions/${dataDefinitionId}/data-layouts`,
+						`/o/data-engine/v2.0/data-definitions/${ddmStructureId}/data-layouts`,
 						fieldSetDataLayout
 					);
 				})
-				.then(({id: dataLayoutId}) => {
-					fieldSetReponseIds.ddmStructureLayoutId = dataLayoutId;
+				.then(({id: ddmStructureLayoutId}) => {
+					customProperties.ddmStructureLayoutId = ddmStructureLayoutId;
 					const dataDefinitionFields = dataDefinition.dataDefinitionFields.map(
 						(definitionField) => {
 							if (definitionField.name === fieldName) {
 								return {
 									...definitionField,
 									customProperties: {
-										...fieldSetReponseIds,
+										...customProperties,
 										rows: '',
 									},
 									nestedDataDefinitionFields: [],
@@ -178,6 +186,7 @@ export default ({children, dataLayoutBuilder}) => {
 				action: (fieldName) => saveAsFieldSet(fieldName),
 				label: Liferay.Language.get('save-as-fieldset'),
 				separator: true,
+				showOnFieldSet: true,
 			},
 			{
 				action: (fieldName) => {

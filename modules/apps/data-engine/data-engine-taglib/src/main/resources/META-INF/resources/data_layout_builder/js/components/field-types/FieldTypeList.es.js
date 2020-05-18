@@ -67,7 +67,10 @@ export default ({
 			const Header = ({expanded, setExpanded}) => (
 				<FieldTypeWrapper
 					expanded={expanded}
-					fieldType={fieldType}
+					fieldType={{
+						...fieldType,
+						className: `${fieldType.className} field-type-header`,
+					}}
 					setExpanded={setExpanded}
 					showArrows
 				/>
@@ -76,7 +79,7 @@ export default ({
 			return (
 				<div className="field-type-list">
 					<CollapsablePanel Header={Header} key={key}>
-						<div className="list-item position-relative">
+						<div className="field-type-item position-relative">
 							{nestedDataDefinitionFields.map(
 								(nestedFieldType) => (
 									<FieldTypeWrapper

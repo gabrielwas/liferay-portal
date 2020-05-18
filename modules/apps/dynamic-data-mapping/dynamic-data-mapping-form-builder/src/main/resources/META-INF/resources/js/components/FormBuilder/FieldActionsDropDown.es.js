@@ -103,6 +103,16 @@ class FieldActionsDropDown extends Component {
 		const {expanded} = this.state;
 		const {disabled, items, spritemap} = this.props;
 
+		const filteredItems = items.filter((item) => {
+			if (Object.prototype.hasOwnProperty.call(item, 'showOnFieldSet')) {
+				const isFieldSet = this.isFieldSet();
+
+				return isFieldSet;
+			}
+
+			return true;
+		});
+
 		return (
 			<div
 				class={this.getCssClasses()}

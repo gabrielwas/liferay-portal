@@ -28,6 +28,7 @@
 
 		.sidebar-body {
 			height: calc(100vh - 224px);
+			overflow: hidden;
 
 			.component-tbar {
 				height: auto;
@@ -51,20 +52,30 @@
 }
 
 .field-type-list {
-	.list-item::before {
+	.field-type-header:hover {
+		background-color: rgba($fieldTypePrimary, 0.05) !important;
+	}
+
+	.field-type-header .data-layout-builder-field-sticker {
+		z-index: 999 !important;
+		background-color: rgba($fieldTypePrimary, 0.1) !important;
+
+		.sticker-overlay {
+			svg {
+				color: $fieldTypePrimary !important;
+			}
+		}
+	}
+
+	.field-type-item::before {
 		position: absolute;
 		content: '';
-		height: 100%;
+		height: calc(100% - 15px);
 		width: 0;
-		border-left: 2px solid #c3d5f7;
+		border-left: 2px solid rgba($fieldTypePrimary, 0.2);
 	}
 
 	.panel-body {
 		padding-right: 0;
-	}
-
-	.data-layout-builder-field-sticker {
-		z-index: 999 !important;
-		background-color: #c3d5f7;
 	}
 }
