@@ -41,14 +41,6 @@ export default () => {
 			}))[0];
 		});
 
-		const fieldSetDefinition = {
-			availableLanguageIds: [defaultLanguageId],
-			dataDefinitionFields: nestedDataDefinitionFields,
-			name: {
-				[defaultLanguageId]: fieldLabel,
-			},
-		};
-
 		const fieldSetDataLayout = {
 			dataLayoutPages: [
 				{
@@ -66,14 +58,23 @@ export default () => {
 			},
 		};
 
+		const fieldSetDefinition = {
+			availableLanguageIds: [defaultLanguageId],
+			dataDefinitionFields: nestedDataDefinitionFields,
+			defaultDataLayout: fieldSetDataLayout,
+			name: {
+				[defaultLanguageId]: fieldLabel,
+			},
+		};
+
 		addItem(
 			`/o/data-engine/v2.0/data-definitions/by-content-type/app-builder-fieldset`,
 			fieldSetDefinition
 		)
 			.then((dataDefinitionFieldSet) => {
-				const {id: ddmStructureId} = dataDefinitionFieldSet;
-
-				customProperties.ddmStructureId = ddmStructureId;
+				customProperties.ddmStructureId = dataDefinitionFieldSet.id;
+				customProperties.ddmStructureLayoutId =
+					dataDefinitionFieldSet.defaultDataLayout.id;
 
 				dispatch({
 					payload: {
@@ -81,14 +82,6 @@ export default () => {
 					},
 					type: DataLayoutBuilderActions.UPDATE_FIELDSETS,
 				});
-
-				return addItem(
-					`/o/data-engine/v2.0/data-definitions/${ddmStructureId}/data-layouts`,
-					fieldSetDataLayout
-				);
-			})
-			.then(({id: ddmStructureLayoutId}) => {
-				customProperties.ddmStructureLayoutId = ddmStructureLayoutId;
 
 				const dataDefinitionFields = dataDefinition.dataDefinitionFields.map(
 					(definitionField) => {
