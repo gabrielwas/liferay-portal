@@ -168,7 +168,7 @@ class DataLayoutBuilder extends React.Component {
 		};
 	}
 
-	getDataDefinitionField({nestedFields = [], settingsContext}) {
+	getDataDefinitionField({nestedFields = [], settingsContext, type}) {
 		const fieldConfig = {
 			customProperties: {},
 			nestedDataDefinitionFields: nestedFields.map((nestedField) =>
@@ -176,6 +176,8 @@ class DataLayoutBuilder extends React.Component {
 			),
 		};
 		const settingsContextVisitor = new PagesVisitor(settingsContext.pages);
+
+		const {editingLanguageId = themeDisplay.getLanguageId()} = this.props;
 
 		settingsContextVisitor.mapFields(
 			({dataType, fieldName, localizable, localizedValue, value}) => {
@@ -191,6 +193,28 @@ class DataLayoutBuilder extends React.Component {
 						fieldConfig.customProperties[
 							fieldName
 						] = localizedValue;
+					}
+					else if (
+						fieldName === 'defaultValue' &&
+						(type === 'checkbox_multiple' ||
+							type === 'radio' ||
+							type === 'select')
+					) {
+						const options = settingsContextVisitor.findField(
+							(field) => field.fieldName === 'options'
+						);
+
+						const valueOptions = options.value[editingLanguageId];
+
+						fieldConfig[fieldName] = {
+							[editingLanguageId]: localizedValue[
+								editingLanguageId
+							].filter((defaultValue) =>
+								valueOptions.some(
+									(option) => option.value === defaultValue
+								)
+							),
+						};
 					}
 					else {
 						fieldConfig[fieldName] = localizedValue;
