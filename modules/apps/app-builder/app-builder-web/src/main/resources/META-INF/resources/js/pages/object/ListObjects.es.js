@@ -91,6 +91,11 @@ export default ({history, listViewProps = {}, objectType}) => {
 		...actions,
 	];
 
+	const getItemName = (item) =>
+		item.name[defaultLanguageId]
+			? item.name[defaultLanguageId]
+			: item.name[item.defaultLanguageId];
+
 	const rolesFilter = ({name, roleType}) =>
 		name !== 'Administrator' &&
 		name !== 'Guest' &&
@@ -132,7 +137,7 @@ export default ({history, listViewProps = {}, objectType}) => {
 					dateModified: fromNow(item.dateModified),
 					name: (
 						<Link to={`/${objectType}/${item.id}/form-views`}>
-							{item.name[defaultLanguageId]}
+							{getItemName(item)}
 						</Link>
 					),
 				})}
