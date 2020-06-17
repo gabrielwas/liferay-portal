@@ -129,7 +129,7 @@ export default function RuleItem({rule, toggleRulesEditorVisibility}) {
 
 				{actions.map(({action, expression, target}, index) => (
 					<>
-						<Text lowercase>{action}</Text>
+						<Text lowercase>{Liferay.Language.get(action)}</Text>
 
 						{expression && (
 							<>

@@ -23,6 +23,10 @@ import java.util.Collection;
  */
 public interface DataEngineNativeObjectTracker {
 
+	public void createDataEngineNativeObject(
+			Long companyId, DataEngineNativeObject dataEngineNativeObject)
+		throws Exception;
+
 	public DataEngineNativeObject getDataEngineNativeObject(String className);
 
 	public Collection<DataEngineNativeObject> getDataEngineNativeObjects();
