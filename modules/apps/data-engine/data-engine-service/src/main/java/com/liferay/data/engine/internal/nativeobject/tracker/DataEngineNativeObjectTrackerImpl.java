@@ -14,6 +14,7 @@
 
 package com.liferay.data.engine.internal.nativeobject.tracker;
 
+import com.liferay.data.engine.internal.petra.executor.DataEnginePortalExecutor;
 import com.liferay.data.engine.nativeobject.DataEngineNativeObject;
 import com.liferay.data.engine.nativeobject.DataEngineNativeObjectField;
 import com.liferay.data.engine.nativeobject.tracker.DataEngineNativeObjectTracker;
@@ -54,6 +55,7 @@ import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -64,14 +66,14 @@ import org.osgi.service.component.annotations.ReferencePolicyOption;
  */
 @Component(immediate = true, service = DataEngineNativeObjectTracker.class)
 public class DataEngineNativeObjectTrackerImpl
-	implements DataEngineNativeObjectTracker, Runnable {
+	implements DataEngineNativeObjectTracker {
 
 	@Override
 	public void createDataEngineNativeObject(
 			Long companyId, DataEngineNativeObject dataEngineNativeObject)
 		throws Exception {
 
-		System.out.println("-------------------------- Create Company - Native");
+		System.out.println("-------------------------- Before Create Company - Native");
 
 		DataDefinitionResource dataDefinitionResource = DataDefinitionResource.builder(
 		).checkPermissions(
@@ -136,6 +138,8 @@ public class DataEngineNativeObjectTrackerImpl
 			dataDefinitionResource.putDataDefinition(
 				dataDefinition.getId(), dataDefinition);
 		}
+
+		System.out.println("-------------------------- After Create Company - Native");
 	}
 
 	@Override
@@ -148,9 +152,7 @@ public class DataEngineNativeObjectTrackerImpl
 		return _dataEngineNativeObjects.values();
 	}
 
-	@Override
-	public void run() {
-
+	private void consumeNativeQueue() {
 		while (true) {
 
 			try {
@@ -166,34 +168,16 @@ public class DataEngineNativeObjectTrackerImpl
 				e.printStackTrace();
 			}
 
-			System.out.println("-------------------------- After create");
-
 		}
 	}
 
-	private volatile boolean _started;
-
-	private final Thread _dispatchThread;
-
-	public DataEngineNativeObjectTrackerImpl(){
-
-		System.out.println("-------------------------- Build DataEngineNativeObjectTrackerImpl");
-
-		_dispatchThread = new Thread(
-			this, "Here");
-	}
 
 	@Activate
 	protected void activate() {
 
-		if(!_started){
+		System.out.println("-------------------------- Activate");
 
-			System.out.println("-------------------------- Start Thread");
-
-			_dispatchThread.start();
-			_started = true;
-
-		}
+		_dataEnginePortalExecutor.execute(() -> consumeNativeQueue());
 
 	}
 
@@ -207,6 +191,8 @@ public class DataEngineNativeObjectTrackerImpl
 		throws Exception {
 
 		System.out.println("-------------------------- addDataEngineNativeObject");
+
+		_createDataEngineNativeObjects(dataEngineNativeObject);
 
 		_dataEngineNativeObjects.put(
 			dataEngineNativeObject.getClassName(), dataEngineNativeObject);
@@ -225,6 +211,7 @@ public class DataEngineNativeObjectTrackerImpl
 		throws Exception {
 
 		for (Long companyId : _portal.getCompanyIds()) {
+			System.out.println("-------------------------- Company " + companyId);
 			createDataEngineNativeObject(companyId, dataEngineNativeObject);
 		}
 	}
@@ -354,6 +341,9 @@ public class DataEngineNativeObjectTrackerImpl
 		_dataEngineNativeObjectQueue = new LinkedBlockingQueue<>();
 	private final Map<String, DataEngineNativeObject> _dataEngineNativeObjects =
 		new ConcurrentHashMap<>();
+
+	@Reference
+	private DataEnginePortalExecutor _dataEnginePortalExecutor;
 
 	@Reference
 	private Portal _portal;
