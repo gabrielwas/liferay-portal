@@ -22,13 +22,13 @@ import com.liferay.data.engine.rest.dto.v2_0.DataDefinition;
 import com.liferay.data.engine.rest.dto.v2_0.DataDefinitionField;
 import com.liferay.data.engine.rest.resource.v2_0.DataDefinitionResource;
 import com.liferay.dynamic.data.mapping.exception.NoSuchStructureException;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
+import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.messaging.async.Async;
 import com.liferay.portal.kernel.security.auth.GuestOrUserUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -53,13 +53,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Stream;
 
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
-import org.osgi.service.component.annotations.ReferencePolicyOption;
+
 
 /**
  * @author Jeyvison Nascimento
@@ -173,32 +172,58 @@ public class DataEngineNativeObjectTrackerImpl
 
 
 	@Activate
-	protected void activate() {
+	protected void activate(BundleContext bundleContext) {
 
 		System.out.println("-------------------------- Activate");
 
-		_dataEnginePortalExecutor.execute(() -> consumeNativeQueue());
+		_serviceTrackerMap = ServiceTrackerMapFactory.openSingleValueMap(
+			bundleContext, DataEngineNativeObject.class, null,
+			(serviceReference, emitter) -> {
+
+				DataEngineNativeObject dataEngineNativeObject = bundleContext.getService(serviceReference);
+
+				try {
+					_createDataEngineNativeObjects(dataEngineNativeObject);
+
+					emitter.emit(dataEngineNativeObject.getClassName());
+
+				}
+				catch (Exception e) {
+					e.printStackTrace();
+				}
+				finally {
+					bundleContext.ungetService(serviceReference);
+				}
+			});
 
 	}
 
-	@Reference(
-		cardinality = ReferenceCardinality.MULTIPLE,
-		policy = ReferencePolicy.DYNAMIC,
-		policyOption = ReferencePolicyOption.GREEDY
-	)
-	protected void addDataEngineNativeObject(
-			DataEngineNativeObject dataEngineNativeObject)
-		throws Exception {
+//	@Reference(
+//		cardinality = ReferenceCardinality.MULTIPLE,
+//		policy = ReferencePolicy.DYNAMIC,
+//		policyOption = ReferencePolicyOption.GREEDY
+//	)
+//	protected void addDataEngineNativeObject(
+//			DataEngineNativeObject dataEngineNativeObject)
+//		throws Exception {
+//
+//		System.out.println("-------------------------- addDataEngineNativeObject");
+//
+//		//_createDataEngineNativeObjects(dataEngineNativeObject);
+//
+//		_dataEngineNativeObjects.put(
+//			dataEngineNativeObject.getClassName(), dataEngineNativeObject);
+//
+//		_dataEngineNativeObjectQueue.put(dataEngineNativeObject);
+//	}
 
-		System.out.println("-------------------------- addDataEngineNativeObject");
+	@Deactivate
+	protected void deactivate() {
+		_serviceTrackerMap.close();
 
-		_createDataEngineNativeObjects(dataEngineNativeObject);
-
-		_dataEngineNativeObjects.put(
-			dataEngineNativeObject.getClassName(), dataEngineNativeObject);
-
-		_dataEngineNativeObjectQueue.put(dataEngineNativeObject);
 	}
+
+	private ServiceTrackerMap<String, DataEngineNativeObject> _serviceTrackerMap;
 
 	protected void removeDataEngineNativeObject(
 		DataEngineNativeObject dataEngineNativeObject) {
