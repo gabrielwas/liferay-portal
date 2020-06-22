@@ -1,14 +1,30 @@
+/**
+ * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 package com.liferay.data.engine.rest.internal.dto.v2_0.util;
 
 import com.liferay.data.engine.nativeobject.DataEngineNativeObject;
 import com.liferay.data.engine.nativeobject.DataEngineNativeObjectField;
-import com.liferay.data.engine.nativeobject.tracker.DataEngineNativeObjectTracker;
-import jdk.nashorn.internal.ir.annotations.Reference;
-import org.osgi.service.component.annotations.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.osgi.service.component.annotations.Component;
+
+/**
+ * @author Gabriel Albuquerque
+ */
 @Component(immediate = true, service = DataEngineNativeObject.class)
 public class ImplementNative implements DataEngineNativeObject {
 
@@ -26,4 +42,5 @@ public class ImplementNative implements DataEngineNativeObject {
 	public String getName() {
 		return "Native Object Name";
 	}
+
 }

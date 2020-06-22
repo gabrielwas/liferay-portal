@@ -51,10 +51,14 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
+import org.osgi.framework.Filter;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.util.tracker.ServiceTracker;
 
 /**
  * @author Jeyvison Nascimento
@@ -75,6 +79,9 @@ public class DataEngineNativeObjectTrackerImpl
 			).user(
 				GuestOrUserUtil.getGuestOrUser(companyId)
 			).build();
+
+		System.out.println(
+			"-------------------------- After builder - Data Definition");
 
 		DataDefinition dataDefinition = null;
 
@@ -148,7 +155,8 @@ public class DataEngineNativeObjectTrackerImpl
 	}
 
 	@Activate
-	protected void activate(BundleContext bundleContext) {
+	protected void activate(BundleContext bundleContext)
+		throws Exception {
 		System.out.println("-------------------------- Activate");
 
 		_serviceTrackerMap = ServiceTrackerMapFactory.openSingleValueMap(
@@ -169,15 +177,14 @@ public class DataEngineNativeObjectTrackerImpl
 					bundleContext.ungetService(serviceReference);
 				}
 			});
+
+
 	}
 
-	@Reference(
-		target = "(release.bundle.symbolic.name=com.liferay.mobile.device.rules.service)",
-		unbind = "-"
-	)
-	protected void setRelease(Release release) {
+	@Reference(unbind = "-")
+	protected void setDataDefinitionResource(
+		DataDefinitionResource dataDefinitionResource) {
 	}
-
 
 	@Deactivate
 	protected void deactivate() {
