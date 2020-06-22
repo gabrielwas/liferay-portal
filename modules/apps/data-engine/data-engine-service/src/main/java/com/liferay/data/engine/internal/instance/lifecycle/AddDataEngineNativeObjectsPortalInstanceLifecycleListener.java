@@ -14,7 +14,6 @@
 
 package com.liferay.data.engine.internal.instance.lifecycle;
 
-import com.liferay.data.engine.nativeobject.DataEngineNativeObject;
 import com.liferay.data.engine.nativeobject.tracker.DataEngineNativeObjectTracker;
 import com.liferay.portal.instance.lifecycle.BasePortalInstanceLifecycleListener;
 import com.liferay.portal.instance.lifecycle.PortalInstanceLifecycleListener;
@@ -35,12 +34,12 @@ public class AddDataEngineNativeObjectsPortalInstanceLifecycleListener
 
 	@Override
 	public void portalInstanceRegistered(Company company) throws Exception {
-//		for (DataEngineNativeObject dataEngineNativeObject :
-//				_dataEngineNativeObjectTracker.getDataEngineNativeObjects()) {
-//
-//			_dataEngineNativeObjectTracker.createDataEngineNativeObject(
-//				company.getCompanyId(), dataEngineNativeObject);
-//		}
+		//	for (DataEngineNativeObject dataEngineNativeObject :
+		//		_dataEngineNativeObjectTracker.getDataEngineNativeObjects()) {
+		//
+		//		_dataEngineNativeObjectTracker.createDataEngineNativeObject(
+		//			company.getCompanyId(), dataEngineNativeObject);
+		//		}
 	}
 
 	@Reference

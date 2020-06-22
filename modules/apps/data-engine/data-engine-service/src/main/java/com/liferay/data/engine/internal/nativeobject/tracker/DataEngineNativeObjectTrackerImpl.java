@@ -14,7 +14,6 @@
 
 package com.liferay.data.engine.internal.nativeobject.tracker;
 
-import com.liferay.data.engine.internal.petra.executor.DataEnginePortalExecutor;
 import com.liferay.data.engine.nativeobject.DataEngineNativeObject;
 import com.liferay.data.engine.nativeobject.DataEngineNativeObjectField;
 import com.liferay.data.engine.nativeobject.tracker.DataEngineNativeObjectTracker;
@@ -27,8 +26,8 @@ import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONUtil;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Release;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.GuestOrUserUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -48,9 +47,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Stream;
 
 import org.osgi.framework.BundleContext;
@@ -58,7 +55,6 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
-
 
 /**
  * @author Jeyvison Nascimento
@@ -72,14 +68,13 @@ public class DataEngineNativeObjectTrackerImpl
 			Long companyId, DataEngineNativeObject dataEngineNativeObject)
 		throws Exception {
 
-		System.out.println("-------------------------- Before Create Company - Native");
-
-		DataDefinitionResource dataDefinitionResource = DataDefinitionResource.builder(
-		).checkPermissions(
-			false
-		).user(
-			GuestOrUserUtil.getGuestOrUser(companyId)
-		).build();
+		DataDefinitionResource dataDefinitionResource =
+			DataDefinitionResource.builder(
+			).checkPermissions(
+				false
+			).user(
+				GuestOrUserUtil.getGuestOrUser(companyId)
+			).build();
 
 		DataDefinition dataDefinition = null;
 
@@ -138,7 +133,8 @@ public class DataEngineNativeObjectTrackerImpl
 				dataDefinition.getId(), dataDefinition);
 		}
 
-		System.out.println("-------------------------- After Create Company - Native");
+		System.out.println(
+			"-------------------------- After Create Company - Native");
 	}
 
 	@Override
@@ -151,79 +147,64 @@ public class DataEngineNativeObjectTrackerImpl
 		return _dataEngineNativeObjects.values();
 	}
 
-	private void consumeNativeQueue() {
-		while (true) {
-
-			try {
-
-				System.out.println("-------------------------- Before take()");
-
-				DataEngineNativeObject dataEngineNativeObject = _dataEngineNativeObjectQueue.take();
-				System.out.println("--------------------------  After take()");
-
-				_createDataEngineNativeObjects(dataEngineNativeObject);
-			}
-			catch (Exception e) {
-				e.printStackTrace();
-			}
-
-		}
-	}
-
-
 	@Activate
 	protected void activate(BundleContext bundleContext) {
-
 		System.out.println("-------------------------- Activate");
 
 		_serviceTrackerMap = ServiceTrackerMapFactory.openSingleValueMap(
 			bundleContext, DataEngineNativeObject.class, null,
 			(serviceReference, emitter) -> {
-
-				DataEngineNativeObject dataEngineNativeObject = bundleContext.getService(serviceReference);
+				DataEngineNativeObject dataEngineNativeObject =
+					bundleContext.getService(serviceReference);
 
 				try {
 					_createDataEngineNativeObjects(dataEngineNativeObject);
 
 					emitter.emit(dataEngineNativeObject.getClassName());
-
 				}
-				catch (Exception e) {
-					e.printStackTrace();
+				catch (Exception exception) {
+					exception.printStackTrace();
 				}
 				finally {
 					bundleContext.ungetService(serviceReference);
 				}
 			});
-
 	}
 
-//	@Reference(
-//		cardinality = ReferenceCardinality.MULTIPLE,
-//		policy = ReferencePolicy.DYNAMIC,
-//		policyOption = ReferencePolicyOption.GREEDY
-//	)
-//	protected void addDataEngineNativeObject(
-//			DataEngineNativeObject dataEngineNativeObject)
-//		throws Exception {
-//
-//		System.out.println("-------------------------- addDataEngineNativeObject");
-//
-//		//_createDataEngineNativeObjects(dataEngineNativeObject);
-//
-//		_dataEngineNativeObjects.put(
-//			dataEngineNativeObject.getClassName(), dataEngineNativeObject);
-//
-//		_dataEngineNativeObjectQueue.put(dataEngineNativeObject);
-//	}
+	@Reference(
+		target = "(release.bundle.symbolic.name=com.liferay.mobile.device.rules.service)",
+		unbind = "-"
+	)
+	protected void setRelease(Release release) {
+	}
+
 
 	@Deactivate
 	protected void deactivate() {
 		_serviceTrackerMap.close();
-
 	}
 
-	private ServiceTrackerMap<String, DataEngineNativeObject> _serviceTrackerMap;
+	//	@Reference(
+	//		cardinality = ReferenceCardinality.MULTIPLE,
+	//		policy = ReferencePolicy.DYNAMIC,
+	//		policyOption = ReferencePolicyOption.GREEDY
+	//	)
+	//	protected void addDataEngineNativeObject(
+	//			DataEngineNativeObject dataEngineNativeObject)
+	//		throws Exception {
+	//
+
+	//        System.out.println("--------------------------
+	//        addDataEngineNativeObject");
+
+	//
+	//		//_createDataEngineNativeObjects(dataEngineNativeObject);
+	//
+	//		_dataEngineNativeObjects.put(
+	//			dataEngineNativeObject.getClassName(), dataEngineNativeObject);
+	//
+	//		_dataEngineNativeObjectQueue.put(dataEngineNativeObject);
+	//	}
 
 	protected void removeDataEngineNativeObject(
 		DataEngineNativeObject dataEngineNativeObject) {
@@ -231,12 +212,30 @@ public class DataEngineNativeObjectTrackerImpl
 		_dataEngineNativeObjects.remove(dataEngineNativeObject.getClassName());
 	}
 
+	//	private void _consumeNativeQueue() {
+	//		while (true) {
+	//			try {
+	//		System.out.println("-------------------------- Before take()");
+	//
+	//				DataEngineNativeObject dataEngineNativeObject =
+	//					_dataEngineNativeObjectQueue.take();
+	//		System.out.println("--------------------------  After take()");
+	//
+	//				_createDataEngineNativeObjects(dataEngineNativeObject);
+	//			}
+	//			catch (Exception exception) {
+	//				exception.printStackTrace();
+	//			}
+	//		}
+	//	}
+
 	private void _createDataEngineNativeObjects(
 			DataEngineNativeObject dataEngineNativeObject)
 		throws Exception {
 
 		for (Long companyId : _portal.getCompanyIds()) {
-			System.out.println("-------------------------- Company " + companyId);
+			System.out.println(
+				"-------------------------- Company " + companyId);
 			createDataEngineNativeObject(companyId, dataEngineNativeObject);
 		}
 	}
@@ -359,19 +358,18 @@ public class DataEngineNativeObjectTrackerImpl
 		"checkbox_multiple", "date", "numeric", "radio", "select", "text"
 	};
 
-	private static final Log _log = LogFactoryUtil.getLog(
-		DataEngineNativeObjectTrackerImpl.class);
+	//	private static final Log _log = LogFactoryUtil.getLog(
+	//		DataEngineNativeObjectTrackerImpl.class);
 
-	private final BlockingQueue<DataEngineNativeObject>
-		_dataEngineNativeObjectQueue = new LinkedBlockingQueue<>();
+	//	private final BlockingQueue<DataEngineNativeObject>
+	//		_dataEngineNativeObjectQueue = new LinkedBlockingQueue<>();
 	private final Map<String, DataEngineNativeObject> _dataEngineNativeObjects =
 		new ConcurrentHashMap<>();
 
 	@Reference
-	private DataEnginePortalExecutor _dataEnginePortalExecutor;
-
-	@Reference
 	private Portal _portal;
 
+	private ServiceTrackerMap<String, DataEngineNativeObject>
+		_serviceTrackerMap;
 
 }
