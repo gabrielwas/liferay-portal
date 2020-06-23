@@ -117,6 +117,7 @@ public class DataDefinitionResourceFactoryImpl
 
 	@Activate
 	protected void activate() {
+		System.out.println(".................Factory Data Definition......................");
 		DataDefinitionResource.FactoryHolder.factory = this;
 	}
 
