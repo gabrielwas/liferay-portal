@@ -20,6 +20,8 @@ import com.liferay.data.engine.rest.dto.v2_0.DataDefinition;
 import com.liferay.data.engine.rest.dto.v2_0.DataDefinitionField;
 import com.liferay.data.engine.rest.dto.v2_0.DataLayout;
 import com.liferay.data.engine.rest.resource.v2_0.DataDefinitionResource;
+import com.liferay.data.engine.rest.resource.v2_0.DataLayoutResource;
+import com.liferay.data.engine.rest.resource.v2_0.DataRecordCollectionResource;
 import com.liferay.dynamic.data.mapping.exception.NoSuchStructureException;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
@@ -165,7 +167,20 @@ public class DataEngineNativeObjectObserver {
 		DataDefinitionResource.Factory dataDefinitionResourceFactory) {
 	}
 
-	@Reference(target = ModuleServiceLifecycle.PORTAL_INITIALIZED, unbind = "-")
+	@Reference(unbind = "-")
+	protected void setDataLayoutResourceFactory(
+		DataLayoutResource.Factory dataLayoutResourceFactory) {
+	}
+
+	@Reference(unbind = "-")
+	protected void setDataRecordCollectionResourceFactory(
+		DataRecordCollectionResource.Factory
+			dataRecordCollectionResourceFactory) {
+	}
+
+	@Reference(
+		target = ModuleServiceLifecycle.PORTLETS_INITIALIZED, unbind = "-"
+	)
 	protected void setModuleServiceLifecycle(
 		ModuleServiceLifecycle moduleServiceLifecycle) {
 	}
