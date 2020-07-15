@@ -57,7 +57,7 @@ export const getFieldProperty = (pages, fieldName, propertyName) => {
 		if (field.fieldName === fieldName) {
 			propertyValue = field[propertyName];
 		}
-	});
+	}, true, true);
 
 	return propertyValue;
 };

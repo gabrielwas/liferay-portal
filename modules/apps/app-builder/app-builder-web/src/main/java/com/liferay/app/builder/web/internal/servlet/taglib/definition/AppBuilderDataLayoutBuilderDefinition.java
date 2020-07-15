@@ -30,7 +30,7 @@ public class AppBuilderDataLayoutBuilderDefinition
 
 	@Override
 	public boolean allowFieldSets() {
-		return false;
+		return true;
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class AppBuilderDataLayoutBuilderDefinition
 
 	@Override
 	public boolean allowNestedFields() {
-		return false;
+		return true;
 	}
 
 	@Override
