@@ -40,7 +40,6 @@ import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.util.Validator;
 
 import java.sql.Types;
@@ -51,8 +50,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Stream;
 
 import org.osgi.framework.BundleContext;
@@ -67,88 +64,85 @@ import org.osgi.service.component.annotations.Reference;
 @Component(immediate = true, service = DataEngineNativeObjectObserver.class)
 public class DataEngineNativeObjectObserver {
 
-	public void createDataEngineNativeObject(
+	public void addDataEngineNativeObject(
+		Long companyId, DataEngineNativeObject dataEngineNativeObject) {
+
+		_dataEngineNativeObjectPortalExecutor.execute(
+			() -> createDataEngineNativeObject(
+				companyId, dataEngineNativeObject));
+	}
+
+	public synchronized void createDataEngineNativeObject(
 			Long companyId, DataEngineNativeObject dataEngineNativeObject)
 		throws Exception {
 
-		Tuple tuple = new Tuple(
-			companyId, dataEngineNativeObject.getClassName());
+		DataDefinitionResource dataDefinitionResource =
+			DataDefinitionResource.builder(
+			).checkPermissions(
+				false
+			).user(
+				GuestOrUserUtil.getGuestOrUser(companyId)
+			).build();
 
-		Tuple currentTuple = _dataDefinitions.computeIfAbsent(
-			tuple,
-			key -> new Tuple(companyId, dataEngineNativeObject.getClassName()));
+		Company company = _companyLocalService.getCompany(companyId);
 
-		synchronized (currentTuple) {
-			DataDefinitionResource dataDefinitionResource =
-				DataDefinitionResource.builder(
-				).checkPermissions(
-					false
-				).user(
-					GuestOrUserUtil.getGuestOrUser(companyId)
-				).build();
+		DataDefinition dataDefinition = null;
 
-			Company company = _companyLocalService.getCompany(companyId);
+		try {
+			dataDefinition =
+				dataDefinitionResource.
+					getSiteDataDefinitionByContentTypeByDataDefinitionKey(
+						_portal.getSiteGroupId(company.getGroupId()),
+						"native-object", dataEngineNativeObject.getClassName());
+		}
+		catch (Exception exception) {
+			if (!(exception instanceof NoSuchStructureException) &&
+				!(exception.getCause() instanceof NoSuchStructureException)) {
 
-			DataDefinition dataDefinition = null;
-
-			try {
-				dataDefinition =
-					dataDefinitionResource.
-						getSiteDataDefinitionByContentTypeByDataDefinitionKey(
-							_portal.getSiteGroupId(company.getGroupId()),
-							"native-object",
-							dataEngineNativeObject.getClassName());
+				throw exception;
 			}
-			catch (Exception exception) {
-				if (!(exception instanceof NoSuchStructureException) &&
-					!(exception.getCause() instanceof
-						NoSuchStructureException)) {
 
-					throw exception;
+			dataDefinition = new DataDefinition() {
+				{
+					availableLanguageIds = new String[] {defaultLanguageId};
+					dataDefinitionKey = dataEngineNativeObject.getClassName();
+					defaultDataLayout = new DataLayout();
+					storageType = "json";
 				}
+			};
+		}
 
-				dataDefinition = new DataDefinition() {
-					{
-						availableLanguageIds = new String[] {defaultLanguageId};
-						dataDefinitionKey =
-							dataEngineNativeObject.getClassName();
-						defaultDataLayout = new DataLayout();
-						storageType = "json";
-					}
-				};
-			}
+		dataDefinition.setDataDefinitionFields(
+			_toDataDefinitionFields(
+				Optional.ofNullable(
+					dataDefinition.getDataDefinitionFields()
+				).orElse(
+					new DataDefinitionField[0]
+				),
+				dataEngineNativeObject.getDataEngineNativeObjectFields()));
 
-			dataDefinition.setDataDefinitionFields(
-				_toDataDefinitionFields(
-					Optional.ofNullable(
-						dataDefinition.getDataDefinitionFields()
-					).orElse(
-						new DataDefinitionField[0]
-					),
-					dataEngineNativeObject.getDataEngineNativeObjectFields()));
+		String defaultLanguageId = LocaleUtil.toLanguageId(
+			LocaleUtil.getDefault());
 
-			String defaultLanguageId = LocaleUtil.toLanguageId(
-				LocaleUtil.getDefault());
+		dataDefinition.setName(
+			HashMapBuilder.<String, Object>putAll(
+				Optional.ofNullable(
+					dataDefinition.getName()
+				).orElse(
+					new HashMap<>()
+				)
+			).put(
+				defaultLanguageId, dataEngineNativeObject.getName()
+			).build());
 
-			dataDefinition.setName(
-				HashMapBuilder.<String, Object>putAll(
-					Optional.ofNullable(
-						dataDefinition.getName()
-					).orElse(
-						new HashMap<>()
-					)
-				).put(
-					defaultLanguageId, dataEngineNativeObject.getName()
-				).build());
-
-			if (Validator.isNull(dataDefinition.getId())) {
-				dataDefinitionResource.postDataDefinitionByContentType(
-					"native-object", dataDefinition);
-			}
-			else {
-				dataDefinitionResource.putDataDefinition(
-					dataDefinition.getId(), dataDefinition);
-			}
+		if (Validator.isNull(dataDefinition.getId())) {
+			dataDefinitionResource.postSiteDataDefinitionByContentType(
+				_portal.getSiteGroupId(company.getGroupId()), "native-object",
+				dataDefinition);
+		}
+		else {
+			dataDefinitionResource.putDataDefinition(
+				dataDefinition.getId(), dataDefinition);
 		}
 	}
 
@@ -330,9 +324,6 @@ public class DataEngineNativeObjectObserver {
 
 	@Reference
 	private CompanyLocalService _companyLocalService;
-
-	private final ConcurrentMap<Tuple, Tuple> _dataDefinitions =
-		new ConcurrentHashMap<>();
 
 	@Reference
 	private DataEngineNativeObjectPortalExecutor
