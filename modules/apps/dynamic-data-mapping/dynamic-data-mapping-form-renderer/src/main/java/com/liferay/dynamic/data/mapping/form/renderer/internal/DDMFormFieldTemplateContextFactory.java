@@ -883,7 +883,10 @@ public class DDMFormFieldTemplateContextFactory {
 		DDMFormField ddmFormField,
 		DDMFormFieldRenderingContext ddmFormFieldRenderingContext) {
 
-		if (Validator.isNotNull(ddmFormField.getProperty("ddmStructureId"))) {
+		if (Validator.isNotNull(ddmFormField.getProperty("ddmStructureId")) &&
+			Validator.isNotNull(
+				ddmFormField.getProperty("ddmStructureLayoutId"))) {
+
 			DDMFormLayout ddmFormLayout = _getDDMFormLayout(
 				GetterUtil.getLong(
 					ddmFormField.getProperty("ddmStructureLayoutId"),
