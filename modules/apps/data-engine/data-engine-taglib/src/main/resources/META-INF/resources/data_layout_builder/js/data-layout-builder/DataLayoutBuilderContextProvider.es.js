@@ -25,10 +25,11 @@ import {
 	UPDATE_PAGES,
 } from '../actions.es';
 import {getDropHandler} from '../drag-and-drop/getDropHandler.es';
+import generateDataDefinitionFieldName from '../utils/generateDataDefinitionFieldName.es';
 import DataLayoutBuilderContext from './DataLayoutBuilderContext.es';
 
 export default ({children, dataLayoutBuilder}) => {
-	const [{dataDefinition}, dispatch] = useContext(AppContext);
+	const [{dataDefinition, fieldSets = []}, dispatch] = useContext(AppContext);
 
 	useEffect(() => {
 		const provider = dataLayoutBuilder.getLayoutProvider();
@@ -70,6 +71,36 @@ export default ({children, dataLayoutBuilder}) => {
 
 		return () => eventHandler.removeListener();
 	}, [dataLayoutBuilder, dispatch]);
+
+	useEffect(() => {
+		const provider = dataLayoutBuilder.getLayoutProvider();
+
+		const dataDefinitionFieldSets = () => {
+			const fields = [];
+			fieldSets.forEach(({dataDefinitionFields = []}) => {
+				dataDefinitionFields.forEach((field) => {
+					fields.push(field);
+				});
+			});
+
+			return fields;
+		};
+
+		provider.props.fieldNameGenerator = (
+			desiredFieldName,
+			currentFieldName,
+			blacklist
+		) =>
+			generateDataDefinitionFieldName(
+				[
+					...dataDefinition.dataDefinitionFields,
+					...dataDefinitionFieldSets(),
+				],
+				desiredFieldName,
+				currentFieldName,
+				blacklist
+			);
+	}, [dataDefinition, dataLayoutBuilder, fieldSets]);
 
 	useEffect(() => {
 		const provider = dataLayoutBuilder.getLayoutProvider();

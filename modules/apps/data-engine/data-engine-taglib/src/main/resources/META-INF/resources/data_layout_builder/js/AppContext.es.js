@@ -93,7 +93,10 @@ const addCustomObjectField = ({
 		label: {
 			[themeDisplay.getLanguageId()]: fieldType.label,
 		},
-		name: generateDataDefinitionFieldName(dataDefinition, fieldType.label),
+		name: generateDataDefinitionFieldName(
+			dataDefinition.dataDefinitionFields,
+			fieldType.label
+		),
 	};
 };
 

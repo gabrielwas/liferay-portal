@@ -110,7 +110,7 @@ const ModalContent = ({
 				...provider.props,
 				fieldNameGenerator: (desiredName) =>
 					generateDataDefinitionFieldName(
-						{dataDefinitionFields: mergedDataDefinitionFields},
+						mergedDataDefinitionFields,
 						desiredName
 					),
 				shouldAutoGenerateName: () => false,

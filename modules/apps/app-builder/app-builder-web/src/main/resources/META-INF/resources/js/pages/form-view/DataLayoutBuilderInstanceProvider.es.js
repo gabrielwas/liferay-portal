@@ -119,22 +119,6 @@ export default ({children, dataLayoutBuilder}) => {
 		saveAsFieldset,
 	]);
 
-	useEffect(() => {
-		const provider = dataLayoutBuilder.getLayoutProvider();
-
-		provider.props.fieldNameGenerator = (
-			desiredFieldName,
-			currentFieldName,
-			blacklist
-		) =>
-			generateDataDefinitionFieldName(
-				dataDefinition,
-				desiredFieldName,
-				currentFieldName,
-				blacklist
-			);
-	}, [dataDefinition, dataLayoutBuilder]);
-
 	return (
 		<DataLayoutBuilderContext.Provider
 			value={[dataLayoutBuilder, dataLayoutBuilder.dispatch]}
