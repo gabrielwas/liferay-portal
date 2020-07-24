@@ -14,6 +14,7 @@
 
 package com.liferay.data.engine.rest.internal.resource.v2_0;
 
+import com.jayway.jsonpath.internal.path.ArrayPathToken;
 import com.liferay.data.engine.constants.DataActionKeys;
 import com.liferay.data.engine.content.type.DataDefinitionContentType;
 import com.liferay.data.engine.field.type.util.LocalizedValueUtil;
@@ -944,9 +945,13 @@ public class DataDefinitionResourceImpl
 
 		List<String> removedFieldNames = new ArrayList<>();
 
-		String[] fieldNames = transform(
-			dataDefinition.getDataDefinitionFields(),
-			DataDefinitionField::getName, String.class);
+		DDMForm ddmForm = DataDefinitionUtil.toDDMForm(
+			dataDefinition, _ddmFormFieldTypeServicesTracker);
+
+		Map<String, DDMFormField> ddmFormFieldsMap =
+			ddmForm.getDDMFormFieldsMap(true);
+
+		String[] fieldNames = ArrayUtil.toStringArray(ddmFormFieldsMap.keySet());
 
 		DataDefinition existingDataDefinition =
 			DataDefinitionUtil.toDataDefinition(
@@ -955,21 +960,27 @@ public class DataDefinitionResourceImpl
 				_ddmStructureLocalService.getStructure(dataDefinitionId),
 				_spiDDMFormRuleConverter);
 
-		for (DataDefinitionField dataDefinitionField :
-				existingDataDefinition.getDataDefinitionFields()) {
+		DDMForm existingDDMForm = DataDefinitionUtil.toDDMForm(
+			existingDataDefinition, _ddmFormFieldTypeServicesTracker);
 
+		Map<String, DDMFormField> existingDDMFormFieldsMap =
+			existingDDMForm.getDDMFormFieldsMap(true);
+
+		for(Map.Entry<String, DDMFormField> entry : existingDDMFormFieldsMap.entrySet()){
 			if (!ArrayUtil.contains(
-					fieldNames, dataDefinitionField.getName())) {
+				fieldNames, entry.getKey())) {
 
-				removedFieldNames.add(dataDefinitionField.getName());
+				removedFieldNames.add(entry.getKey());
+
+				DDMFormField ddmFormField = entry.getValue();
 
 				if (Objects.equals(
-						dataDefinitionField.getFieldType(), "fieldset")) {
+					ddmFormField.getType(), "fieldset")) {
 
 					DDMStructure fieldSetDDMStructure =
 						_ddmStructureLocalService.getDDMStructure(
 							MapUtil.getLong(
-								dataDefinitionField.getCustomProperties(),
+								ddmFormField.getProperties(),
 								"ddmStructureId"));
 
 					Map<String, DDMFormField> map =
