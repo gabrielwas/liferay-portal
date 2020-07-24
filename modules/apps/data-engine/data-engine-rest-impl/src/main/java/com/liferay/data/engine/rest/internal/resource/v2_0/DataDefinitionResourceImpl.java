@@ -76,6 +76,7 @@ import com.liferay.dynamic.data.mapping.validator.DDMFormValidator;
 import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -569,6 +570,42 @@ public class DataDefinitionResourceImpl
 				ddmStructure.getClassNameId()),
 			ddmForm);
 
+
+		List<DEDataDefinitionFieldLink> deDataDefinitionFieldLinks =
+			_deDataDefinitionFieldLinkLocalService.getDEDataDefinitionFieldLinks(
+				_portal.getClassNameId(DDMStructure.class),
+				dataDefinitionId);
+
+		for(DEDataDefinitionFieldLink deDataDefinitionFieldLink : deDataDefinitionFieldLinks){
+
+			DataDefinition existingDataDefinition =
+				DataDefinitionUtil.toDataDefinition(
+					_dataDefinitionContentTypeTracker,
+					_ddmFormFieldTypeServicesTracker,
+					_ddmStructureLocalService.getStructure(
+						deDataDefinitionFieldLink.getClassPK()),
+					_spiDDMFormRuleConverter);
+
+			for(DataDefinitionField dataDefinitionField : existingDataDefinition.getDataDefinitionFields()){
+
+				if (MapUtil.getLong(
+					dataDefinitionField.getCustomProperties(),
+					"ddmStructureId") == dataDefinitionId) {
+
+					JSONArray rows = _getRows(dataDefinition.getDefaultDataLayout());
+
+					Map<String, Object> customProperties =
+						dataDefinitionField.getCustomProperties();
+
+					customProperties.put("rows", rows.toString());
+
+					dataDefinitionField.setNestedDataDefinitionFields(dataDefinition.getDataDefinitionFields());
+				}
+			}
+
+			putDataDefinition(existingDataDefinition.getId(), existingDataDefinition);
+		}
+
 		_removeFieldsFromDataLayoutsAndDataListViews(
 			dataDefinition, dataDefinitionId,
 			_getRemovedFieldNames(dataDefinition, dataDefinitionId));
@@ -585,6 +622,29 @@ public class DataDefinitionResourceImpl
 			));
 
 		return _updateDataDefinition(dataDefinition, dataDefinitionId, ddmForm);
+	}
+
+	private JSONArray _getRows(DataLayout dataLayout)
+		throws PortalException {
+
+		DDMStructureLayout ddmStructureLayout =
+			_ddmStructureLayoutLocalService.getStructureLayout(
+				dataLayout.getId());
+
+		JSONObject jsonObject = _jsonFactory.createJSONObject(
+			StringUtil.replace(
+				ddmStructureLayout.getDefinition(),
+				new String[] {
+					"columnSize", "dataLayoutColumns", "dataLayoutPages",
+					"dataLayoutRows", "fieldNames"
+				},
+				new String[] {"size", "columns", "pages", "rows", "fields"}));
+
+		JSONArray jsonArray = (JSONArray) jsonObject.get("pages");
+
+		JSONObject page = (JSONObject) jsonArray.get(0);
+
+		return (JSONArray) page.get("rows");
 	}
 
 	@Override
