@@ -14,7 +14,6 @@
 
 package com.liferay.data.engine.rest.internal.resource.v2_0;
 
-import com.jayway.jsonpath.internal.path.ArrayPathToken;
 import com.liferay.data.engine.constants.DataActionKeys;
 import com.liferay.data.engine.content.type.DataDefinitionContentType;
 import com.liferay.data.engine.field.type.util.LocalizedValueUtil;
@@ -78,7 +77,6 @@ import com.liferay.dynamic.data.mapping.validator.DDMFormValidator;
 import com.liferay.frontend.js.loader.modules.extender.npm.NPMResolver;
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -165,14 +163,18 @@ public class DataDefinitionResourceImpl
 
 		DataListViewResource.Builder builder = DataListViewResource.builder();
 
-		DataListViewResource dataListViewResource =  builder.checkPermissions(
+		DataListViewResource dataListViewResource = builder.checkPermissions(
 			false
 		).user(
 			contextUser
 		).build();
 
-		for(DEDataListView deDataListView : _deDataListViewLocalService.getDEDataListViews(dataDefinitionId)){
-			dataListViewResource.deleteDataListView(deDataListView.getDeDataListViewId());
+		for (DEDataListView deDataListView :
+				_deDataListViewLocalService.getDEDataListViews(
+					dataDefinitionId)) {
+
+			dataListViewResource.deleteDataListView(
+				deDataListView.getDeDataListViewId());
 		}
 
 		_ddlRecordSetLocalService.deleteDDMStructureRecordSets(
@@ -582,13 +584,14 @@ public class DataDefinitionResourceImpl
 				ddmStructure.getClassNameId()),
 			ddmForm);
 
-
 		List<DEDataDefinitionFieldLink> deDataDefinitionFieldLinks =
-			_deDataDefinitionFieldLinkLocalService.getDEDataDefinitionFieldLinks(
-				_portal.getClassNameId(DDMStructure.class),
-				dataDefinitionId);
+			_deDataDefinitionFieldLinkLocalService.
+				getDEDataDefinitionFieldLinks(
+					_portal.getClassNameId(DDMStructure.class),
+					dataDefinitionId);
 
-		for(DEDataDefinitionFieldLink deDataDefinitionFieldLink : deDataDefinitionFieldLinks){
+		for (DEDataDefinitionFieldLink deDataDefinitionFieldLink :
+				deDataDefinitionFieldLinks) {
 
 			DataDefinition existingDataDefinition =
 				DataDefinitionUtil.toDataDefinition(
@@ -598,24 +601,29 @@ public class DataDefinitionResourceImpl
 						deDataDefinitionFieldLink.getClassPK()),
 					_spiDDMFormRuleConverter);
 
-			for(DataDefinitionField dataDefinitionField : existingDataDefinition.getDataDefinitionFields()){
+			for (DataDefinitionField dataDefinitionField :
+					existingDataDefinition.getDataDefinitionFields()) {
 
-				if (MapUtil.getLong(
+				long ddmStructureId = MapUtil.getLong(
 					dataDefinitionField.getCustomProperties(),
-					"ddmStructureId") == dataDefinitionId) {
+					"ddmStructureId");
 
-					JSONArray rows = _getRows(dataDefinition.getDefaultDataLayout());
+				if (ddmStructureId == dataDefinitionId) {
+					JSONArray rows = _getRows(
+						dataDefinition.getDefaultDataLayout());
 
 					Map<String, Object> customProperties =
 						dataDefinitionField.getCustomProperties();
 
 					customProperties.put("rows", rows.toString());
 
-					dataDefinitionField.setNestedDataDefinitionFields(dataDefinition.getDataDefinitionFields());
+					dataDefinitionField.setNestedDataDefinitionFields(
+						dataDefinition.getDataDefinitionFields());
 				}
 			}
 
-			putDataDefinition(existingDataDefinition.getId(), existingDataDefinition);
+			putDataDefinition(
+				existingDataDefinition.getId(), existingDataDefinition);
 		}
 
 		_removeFieldsFromDataLayoutsAndDataListViews(
@@ -634,29 +642,6 @@ public class DataDefinitionResourceImpl
 			));
 
 		return _updateDataDefinition(dataDefinition, dataDefinitionId, ddmForm);
-	}
-
-	private JSONArray _getRows(DataLayout dataLayout)
-		throws PortalException {
-
-		DDMStructureLayout ddmStructureLayout =
-			_ddmStructureLayoutLocalService.getStructureLayout(
-				dataLayout.getId());
-
-		JSONObject jsonObject = _jsonFactory.createJSONObject(
-			StringUtil.replace(
-				ddmStructureLayout.getDefinition(),
-				new String[] {
-					"columnSize", "dataLayoutColumns", "dataLayoutPages",
-					"dataLayoutRows", "fieldNames"
-				},
-				new String[] {"size", "columns", "pages", "rows", "fields"}));
-
-		JSONArray jsonArray = (JSONArray) jsonObject.get("pages");
-
-		JSONObject page = (JSONObject) jsonArray.get(0);
-
-		return (JSONArray) page.get("rows");
 	}
 
 	@Override
@@ -962,7 +947,8 @@ public class DataDefinitionResourceImpl
 		Map<String, DDMFormField> ddmFormFieldsMap =
 			ddmForm.getDDMFormFieldsMap(true);
 
-		String[] fieldNames = ArrayUtil.toStringArray(ddmFormFieldsMap.keySet());
+		String[] fieldNames = ArrayUtil.toStringArray(
+			ddmFormFieldsMap.keySet());
 
 		DataDefinition existingDataDefinition =
 			DataDefinitionUtil.toDataDefinition(
@@ -977,17 +963,15 @@ public class DataDefinitionResourceImpl
 		Map<String, DDMFormField> existingDDMFormFieldsMap =
 			existingDDMForm.getDDMFormFieldsMap(true);
 
-		for(Map.Entry<String, DDMFormField> entry : existingDDMFormFieldsMap.entrySet()){
-			if (!ArrayUtil.contains(
-				fieldNames, entry.getKey())) {
+		for (Map.Entry<String, DDMFormField> entry :
+				existingDDMFormFieldsMap.entrySet()) {
 
+			if (!ArrayUtil.contains(fieldNames, entry.getKey())) {
 				removedFieldNames.add(entry.getKey());
 
 				DDMFormField ddmFormField = entry.getValue();
 
-				if (Objects.equals(
-					ddmFormField.getType(), "fieldset")) {
-
+				if (Objects.equals(ddmFormField.getType(), "fieldset")) {
 					DDMStructure fieldSetDDMStructure =
 						_ddmStructureLocalService.getDDMStructure(
 							MapUtil.getLong(
@@ -1019,6 +1003,27 @@ public class DataDefinitionResourceImpl
 			ResourceBundleUtil.getBundle(
 				"content.Language", locale, ddmFormFieldType.getClass()),
 			_portal.getResourceBundle(locale));
+	}
+
+	private JSONArray _getRows(DataLayout dataLayout) throws Exception {
+		DDMStructureLayout ddmStructureLayout =
+			_ddmStructureLayoutLocalService.getStructureLayout(
+				dataLayout.getId());
+
+		JSONObject jsonObject = _jsonFactory.createJSONObject(
+			StringUtil.replace(
+				ddmStructureLayout.getDefinition(),
+				new String[] {
+					"columnSize", "dataLayoutColumns", "dataLayoutPages",
+					"dataLayoutRows", "fieldNames"
+				},
+				new String[] {"size", "columns", "pages", "rows", "fields"}));
+
+		JSONArray jsonArray = (JSONArray)jsonObject.get("pages");
+
+		JSONObject page = (JSONObject)jsonArray.get(0);
+
+		return (JSONArray)page.get("rows");
 	}
 
 	private void _removeFieldsFromDataLayout(
