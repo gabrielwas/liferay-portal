@@ -82,27 +82,38 @@ export default () => {
 						dataDefinitionFieldSet.name
 					);
 
-					items = items.map(({dataLayouts, ...item}) => {
-						if (fieldInDataLayout) {
-							const dataLayoutIndex = dataLayouts.findIndex(
-								findLayoutById
-							);
-
-							if (dataLayoutIndex === -1) {
-								dataLayouts.push(dataLayout);
-							}
-						}
-						else {
-							dataLayouts = dataLayouts.filter((layout) => {
-								return !findLayoutById(layout);
-							});
-						}
-
-						return {
+					items = items.map(
+						({
+							dataDefinition: linkedDataDefinition,
 							dataLayouts,
-							...item,
-						};
-					});
+							...item
+						}) => {
+							if (fieldInDataLayout) {
+								const dataLayoutIndex = dataLayouts.findIndex(
+									findLayoutById
+								);
+
+								if (
+									linkedDataDefinition.id ===
+										dataDefinition.id &&
+									dataLayoutIndex === -1
+								) {
+									dataLayouts.push(dataLayout);
+								}
+							}
+							else {
+								dataLayouts = dataLayouts.filter((layout) => {
+									return !findLayoutById(layout);
+								});
+							}
+
+							return {
+								dataDefinition: linkedDataDefinition,
+								dataLayouts,
+								...item,
+							};
+						}
+					);
 				}
 				else {
 					items = items.filter(({dataLayouts}) =>
@@ -120,7 +131,13 @@ export default () => {
 				items.push({dataDefinition, dataLayouts: [dataLayout]});
 			}
 
-			const {dataLayouts = [], dataListViews = []} = items[0] || {};
+			const dataLayouts = [];
+			const dataListViews = [];
+
+			items.forEach((item) => {
+				dataLayouts.push(...item.dataLayouts);
+				dataListViews.push(...item.dataListViews);
+			});
 
 			const isFieldSetUsed =
 				!!dataLayouts.length || !!dataListViews.length;

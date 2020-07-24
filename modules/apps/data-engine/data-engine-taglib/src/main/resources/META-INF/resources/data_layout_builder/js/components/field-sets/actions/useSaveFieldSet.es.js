@@ -17,7 +17,7 @@ import {useContext} from 'react';
 import AppContext from '../../../AppContext.es';
 import {UPDATE_DATA_DEFINITION, UPDATE_FIELDSETS} from '../../../actions.es';
 import DataLayoutBuilderContext from '../../../data-layout-builder/DataLayoutBuilderContext.es';
-import {getItem, updateItem} from '../../../utils/client.es';
+import {updateItem} from '../../../utils/client.es';
 import {getDataDefinitionFieldSet} from '../../../utils/dataDefinition.es';
 import {
 	containsField,
@@ -58,16 +58,23 @@ export default ({availableLanguageIds, childrenContext, fieldSet}) => {
 					fieldSet.id
 				);
 
-				if (dataDefinitionFieldSet) {
-					getItem(
-						`/o/data-engine/v2.0/data-definitions/${dataDefinition.id}`
-					).then((newDataDefinition) =>
-						dispatch({
-							payload: {newDataDefinition},
-							type: UPDATE_DATA_DEFINITION,
-						})
-					);
+				const normalizedDataDefinitionFields = () =>
+					dataDefinition.dataDefinitionFields.map((field) => {
+						const {
+							customProperties: {ddmStructureId},
+						} = field;
 
+						if (ddmStructureId == fieldSet.id) {
+							return {
+								...field,
+								nestedDataDefinitionFields: dataDefinitionFields,
+							};
+						}
+
+						return field;
+					});
+
+				if (dataDefinitionFieldSet) {
 					const fieldName = dataDefinitionFieldSet.name;
 
 					if (containsField(dataLayout.dataLayoutPages, fieldName)) {
@@ -90,6 +97,17 @@ export default ({availableLanguageIds, childrenContext, fieldSet}) => {
 									),
 								},
 							],
+						});
+					}
+					else {
+						dispatch({
+							payload: {
+								dataDefinition: {
+									...dataDefinition,
+									dataDefinitionFields: normalizedDataDefinitionFields(),
+								},
+							},
+							type: UPDATE_DATA_DEFINITION,
 						});
 					}
 				}
