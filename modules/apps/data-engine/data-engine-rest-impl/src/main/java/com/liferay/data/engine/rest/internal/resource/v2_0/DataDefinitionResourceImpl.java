@@ -38,6 +38,7 @@ import com.liferay.data.engine.rest.internal.security.permission.resource.DataDe
 import com.liferay.data.engine.rest.resource.exception.DataDefinitionValidationException;
 import com.liferay.data.engine.rest.resource.v2_0.DataDefinitionResource;
 import com.liferay.data.engine.rest.resource.v2_0.DataLayoutResource;
+import com.liferay.data.engine.rest.resource.v2_0.DataListViewResource;
 import com.liferay.data.engine.rest.resource.v2_0.DataRecordCollectionResource;
 import com.liferay.data.engine.service.DEDataDefinitionFieldLinkLocalService;
 import com.liferay.data.engine.service.DEDataListViewLocalService;
@@ -162,6 +163,18 @@ public class DataDefinitionResourceImpl
 
 		dataLayoutResource.deleteDataLayoutsDataDefinition(dataDefinitionId);
 
+		DataListViewResource.Builder builder = DataListViewResource.builder();
+
+		DataListViewResource dataListViewResource =  builder.checkPermissions(
+			false
+		).user(
+			contextUser
+		).build();
+
+		for(DEDataListView deDataListView : _deDataListViewLocalService.getDEDataListViews(dataDefinitionId)){
+			dataListViewResource.deleteDataListView(deDataListView.getDeDataListViewId());
+		}
+
 		_ddlRecordSetLocalService.deleteDDMStructureRecordSets(
 			dataDefinitionId);
 
@@ -203,8 +216,6 @@ public class DataDefinitionResourceImpl
 				DataDefinitionUtil.toDDMForm(
 					dataDefinition, _ddmFormFieldTypeServicesTracker));
 		}
-
-		_deDataListViewLocalService.deleteDEDataListViews(dataDefinitionId);
 	}
 
 	@Override
