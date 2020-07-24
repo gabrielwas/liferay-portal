@@ -28,6 +28,7 @@ import com.liferay.data.engine.rest.dto.v2_0.DataLayout;
 import com.liferay.data.engine.rest.dto.v2_0.DataLayoutColumn;
 import com.liferay.data.engine.rest.dto.v2_0.DataLayoutPage;
 import com.liferay.data.engine.rest.dto.v2_0.DataLayoutRow;
+import com.liferay.data.engine.rest.dto.v2_0.DataListView;
 import com.liferay.data.engine.rest.dto.v2_0.DataRecordCollection;
 import com.liferay.data.engine.rest.internal.content.type.DataDefinitionContentTypeTracker;
 import com.liferay.data.engine.rest.internal.dto.v2_0.util.DataDefinitionUtil;
@@ -1142,20 +1143,28 @@ public class DataDefinitionResourceImpl
 			Set<Long> deDataListViewIds, String[] removedFieldNames)
 		throws Exception {
 
+		DataListViewResource.Builder builder = DataListViewResource.builder();
+
+		DataListViewResource dataListViewResource = builder.checkPermissions(
+			false
+		).user(
+			contextUser
+		).build();
+
 		for (Long deDataListViewId : deDataListViewIds) {
-			DEDataListView deDataListView =
-				_deDataListViewLocalService.getDEDataListView(deDataListViewId);
+			DataListView dataListView = dataListViewResource.getDataListView(
+				deDataListViewId);
 
-			deDataListView.setFieldNames(
-				Arrays.toString(
-					ArrayUtil.filter(
-						JSONUtil.toStringArray(
-							_jsonFactory.createJSONArray(
-								deDataListView.getFieldNames())),
-						fieldName -> !ArrayUtil.contains(
-							removedFieldNames, fieldName))));
+			dataListView.setFieldNames(
+				ArrayUtil.filter(
+					JSONUtil.toStringArray(
+						_jsonFactory.createJSONArray(
+							dataListView.getFieldNames())),
+					fieldName -> !ArrayUtil.contains(
+						removedFieldNames, fieldName)));
 
-			_deDataListViewLocalService.updateDEDataListView(deDataListView);
+			dataListViewResource.putDataListView(
+				dataListView.getId(), dataListView);
 		}
 	}
 
