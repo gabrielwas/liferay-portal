@@ -17,13 +17,12 @@ import {useContext} from 'react';
 import AppContext from '../../../AppContext.es';
 import {UPDATE_DATA_DEFINITION, UPDATE_FIELDSETS} from '../../../actions.es';
 import DataLayoutBuilderContext from '../../../data-layout-builder/DataLayoutBuilderContext.es';
-import {updateItem} from '../../../utils/client.es';
+import {getItem, updateItem} from '../../../utils/client.es';
 import {getDataDefinitionFieldSet} from '../../../utils/dataDefinition.es';
 import {
 	containsField,
 	normalizeDataLayoutRows,
 } from '../../../utils/dataLayoutVisitor.es';
-import saveDataDefinition from '../../../utils/saveDataDefinition.es';
 import {errorToast, successToast} from '../../../utils/toast.es';
 
 export default ({availableLanguageIds, childrenContext, fieldSet}) => {
@@ -59,24 +58,16 @@ export default ({availableLanguageIds, childrenContext, fieldSet}) => {
 					fieldSet.id
 				);
 
-				const normalizedDataDefinitionFields = () =>
-					dataDefinition.dataDefinitionFields.map((field) => {
-						const {
-							customProperties: {ddmStructureId},
-						} = field;
-
-						if (ddmStructureId == fieldSet.id) {
-							return {
-								...field,
-								label: name,
-								nestedDataDefinitionFields: dataDefinitionFields,
-							};
-						}
-
-						return field;
-					});
-
 				if (dataDefinitionFieldSet) {
+					getItem(
+						`/o/data-engine/v2.0/data-definitions/${dataDefinition.id}`
+					).then((newDataDefinition) =>
+						dispatch({
+							payload: {newDataDefinition},
+							type: UPDATE_DATA_DEFINITION,
+						})
+					);
+
 					const fieldName = dataDefinitionFieldSet.name;
 
 					if (containsField(dataLayout.dataLayoutPages, fieldName)) {
@@ -98,32 +89,9 @@ export default ({availableLanguageIds, childrenContext, fieldSet}) => {
 										dataLayoutPages
 									),
 								},
-								{
-									name: 'label',
-									value: name.en_US,
-								},
 							],
 						});
 					}
-					else {
-						dispatch({
-							payload: {
-								dataDefinition: {
-									...dataDefinition,
-									dataDefinitionFields: normalizedDataDefinitionFields(),
-								},
-							},
-							type: UPDATE_DATA_DEFINITION,
-						});
-					}
-
-					return saveDataDefinition({
-						...context,
-						dataDefinition: {
-							...dataDefinition,
-							dataDefinitionFields: normalizedDataDefinitionFields(),
-						},
-					});
 				}
 
 				return Promise.resolve();
