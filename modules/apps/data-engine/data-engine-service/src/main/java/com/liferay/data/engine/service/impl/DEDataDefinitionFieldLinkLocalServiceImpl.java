@@ -14,6 +14,7 @@
 
 package com.liferay.data.engine.service.impl;
 
+import com.liferay.data.engine.exception.NoSuchDataDefinitionFieldLinkException;
 import com.liferay.data.engine.model.DEDataDefinitionFieldLink;
 import com.liferay.data.engine.service.base.DEDataDefinitionFieldLinkLocalServiceBaseImpl;
 import com.liferay.portal.aop.AopService;
@@ -151,6 +152,13 @@ public class DEDataDefinitionFieldLinkLocalServiceImpl
 
 		return deDataDefinitionFieldLinkPersistence.findByC_DDMSI_F(
 			classNameId, ddmStructureId, fieldNames);
+	}
+
+	@Override
+	public DEDataDefinitionFieldLink fetchDEDataDefinitionFieldLinks(
+		long classNameId, long classPK, long ddmStructureId, String fieldName) {
+
+		return deDataDefinitionFieldLinkPersistence.fetchByC_C_DDMSI_F(classNameId, classPK, ddmStructureId, fieldName);
 	}
 
 	@Override

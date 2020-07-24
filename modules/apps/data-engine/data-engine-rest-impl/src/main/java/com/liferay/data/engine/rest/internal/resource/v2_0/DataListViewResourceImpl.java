@@ -43,6 +43,7 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.Portal;
@@ -279,17 +280,28 @@ public class DataListViewResourceImpl
 				DDMFormField ddmFormField = fieldNameDDMFormFieldMap.get(
 					fieldName);
 
-				_deDataDefinitionFieldLinkLocalService.
-					addDEDataDefinitionFieldLink(
-						groupId, _getClassNameId(), dataListViewId,
-						ddmStructure.getStructureId(), ddmFormField.getName());
+				if(_deDataDefinitionFieldLinkLocalService.fetchDEDataDefinitionFieldLinks( _getClassNameId(), dataListViewId,
+					ddmStructure.getStructureId(), ddmFormField.getName()) == null){
+					_deDataDefinitionFieldLinkLocalService.
+						addDEDataDefinitionFieldLink(
+							groupId, _getClassNameId(), dataListViewId,
+							ddmStructure.getStructureId(), ddmFormField.getName());
 
-				_deDataDefinitionFieldLinkLocalService.
-					addDEDataDefinitionFieldLink(
-						groupId, _getClassNameId(), dataListViewId,
-						MapUtil.getLong(
-							ddmFormField.getProperties(), "ddmStructureId"),
-						ddmFormField.getName());
+				}
+
+				if(_deDataDefinitionFieldLinkLocalService.fetchDEDataDefinitionFieldLinks(_getClassNameId(), dataListViewId,
+					MapUtil.getLong(
+						ddmFormField.getProperties(), "ddmStructureId"),
+					ddmFormField.getName()) == null){
+					_deDataDefinitionFieldLinkLocalService.
+						addDEDataDefinitionFieldLink(
+							groupId, _getClassNameId(), dataListViewId,
+							MapUtil.getLong(
+								ddmFormField.getProperties(), "ddmStructureId"),
+							ddmFormField.getName());
+
+				}
+
 			}
 		}
 	}

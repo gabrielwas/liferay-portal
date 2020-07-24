@@ -58,81 +58,81 @@ export default ({
 			`/o/data-engine/v2.0/data-definitions/${fieldSet.id}`,
 			normalizedFieldSet
 		)
-			.then(() => {
-				const dataDefinitionFieldSet = getDataDefinitionFieldSet(
-					dataDefinition.dataDefinitionFields,
-					fieldSet.id
-				);
-
-				const normalizedDataDefinitionFields = () =>
-					dataDefinition.dataDefinitionFields.map((field) => {
-						const {
-							customProperties: {ddmStructureId},
-						} = field;
-
-						if (ddmStructureId == fieldSet.id) {
-							return {
-								...field,
-								label: name,
-								nestedDataDefinitionFields: dataDefinitionFields,
-							};
-						}
-
-						return field;
-					});
-
-				if (dataDefinitionFieldSet) {
-					const fieldName = dataDefinitionFieldSet.name;
-
-					if (containsField(dataLayout.dataLayoutPages, fieldName)) {
-						dataLayoutBuilder.dispatch('fieldEditedProperties', {
-							fieldName,
-							properties: [
-								{
-									name: 'nestedFields',
-									value: dataDefinitionFields.map(({name}) =>
-										DataLayout.getDDMFormField(
-											childrenState.dataDefinition,
-											name
-										)
-									),
-								},
-								{
-									name: 'rows',
-									value: normalizeDataLayoutRows(
-										dataLayoutPages
-									),
-								},
-								{
-									name: 'label',
-									value: name.en_US,
-								},
-							],
-						});
-					}
-					else {
-						dispatch({
-							payload: {
-								dataDefinition: {
-									...dataDefinition,
-									dataDefinitionFields: normalizedDataDefinitionFields(),
-								},
-							},
-							type: UPDATE_DATA_DEFINITION,
-						});
-					}
-
-					return saveDataDefinition({
-						...context,
-						dataDefinition: {
-							...dataDefinition,
-							dataDefinitionFields: normalizedDataDefinitionFields(),
-						},
-					});
-				}
-
-				return Promise.resolve();
-			})
+			// .then(() => {
+			// 	const dataDefinitionFieldSet = getDataDefinitionFieldSet(
+			// 		dataDefinition.dataDefinitionFields,
+			// 		fieldSet.id
+			// 	);
+			//
+			// 	const normalizedDataDefinitionFields = () =>
+			// 		dataDefinition.dataDefinitionFields.map((field) => {
+			// 			const {
+			// 				customProperties: {ddmStructureId},
+			// 			} = field;
+			//
+			// 			if (ddmStructureId == fieldSet.id) {
+			// 				return {
+			// 					...field,
+			// 					label: name,
+			// 					nestedDataDefinitionFields: dataDefinitionFields,
+			// 				};
+			// 			}
+			//
+			// 			return field;
+			// 		});
+			//
+			// 	if (dataDefinitionFieldSet) {
+			// 		const fieldName = dataDefinitionFieldSet.name;
+			//
+			// 		if (containsField(dataLayout.dataLayoutPages, fieldName)) {
+			// 			dataLayoutBuilder.dispatch('fieldEditedProperties', {
+			// 				fieldName,
+			// 				properties: [
+			// 					{
+			// 						name: 'nestedFields',
+			// 						value: dataDefinitionFields.map(({name}) =>
+			// 							DataLayout.getDDMFormField(
+			// 								childrenState.dataDefinition,
+			// 								name
+			// 							)
+			// 						),
+			// 					},
+			// 					{
+			// 						name: 'rows',
+			// 						value: normalizeDataLayoutRows(
+			// 							dataLayoutPages
+			// 						),
+			// 					},
+			// 					{
+			// 						name: 'label',
+			// 						value: name.en_US,
+			// 					},
+			// 				],
+			// 			});
+			// 		}
+			// 		else {
+			// 			dispatch({
+			// 				payload: {
+			// 					dataDefinition: {
+			// 						...dataDefinition,
+			// 						dataDefinitionFields: normalizedDataDefinitionFields(),
+			// 					},
+			// 				},
+			// 				type: UPDATE_DATA_DEFINITION,
+			// 			});
+			// 		}
+			//
+			// 		return saveDataDefinition({
+			// 			...context,
+			// 			dataDefinition: {
+			// 				...dataDefinition,
+			// 				dataDefinitionFields: normalizedDataDefinitionFields(),
+			// 			},
+			// 		});
+			// 	}
+			//
+			// 	return Promise.resolve();
+			// })
 			.then(() => {
 				dispatch({
 					payload: {
