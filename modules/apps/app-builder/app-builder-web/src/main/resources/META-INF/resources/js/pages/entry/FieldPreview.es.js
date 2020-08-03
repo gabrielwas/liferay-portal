@@ -18,7 +18,10 @@ import {SheetSection} from '@clayui/layout';
 import ClayPanel from '@clayui/panel';
 import {ClayTooltipProvider} from '@clayui/tooltip';
 import {DataDefinitionUtils} from 'data-engine-taglib';
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
+
+import {AppContext} from '../../AppContext.es';
+import {getLocalizedUserPreference} from '../../utils/lang.es';
 
 const createFileEntryPreviewURL = (groupId, fileEntryId) => {
 	const portletURL = Liferay.PortletURL.createURL(
@@ -155,7 +158,17 @@ export const SectionRenderer = ({
 	dataDefinition,
 	fieldName,
 }) => {
-	const label = DataDefinitionUtils.getFieldLabel(dataDefinition, fieldName);
+	const {userLanguageId} = useContext(AppContext);
+	const fieldLabel = DataDefinitionUtils.getFieldLabel(
+		dataDefinition,
+		fieldName,
+		true
+	);
+	const label = getLocalizedUserPreference(
+		fieldLabel,
+		userLanguageId,
+		dataDefinition.defaultLanguageId
+	);
 
 	return (
 		<ClayPanel
@@ -258,8 +271,23 @@ export const FieldValuePreview = ({
 	return <Renderer value={value} />;
 };
 
-export default ({dataDefinition, dataRecordValues, fieldName}) => {
-	const label = DataDefinitionUtils.getFieldLabel(dataDefinition, fieldName);
+export default ({
+	dataDefinition,
+	dataRecordValues,
+	defaultLanguageId,
+	fieldName,
+}) => {
+	const {userLanguageId} = useContext(AppContext);
+	const fieldLabel = DataDefinitionUtils.getFieldLabel(
+		dataDefinition,
+		fieldName,
+		true
+	);
+	const label = getLocalizedUserPreference(
+		fieldLabel,
+		userLanguageId,
+		defaultLanguageId
+	);
 
 	return (
 		<div className="data-record-field-preview">
