@@ -50,8 +50,10 @@ const ModalContent = ({
 	const {
 		dataLayoutBuilder,
 		dispatch,
-		state: {config, dataLayout, editingLanguageId = defaultLanguageId},
+		state: {config, dataLayout},
 	} = childrenContext;
+
+	const editingLanguageId = defaultLanguageId;
 
 	const {contentType} = appProps;
 
@@ -219,9 +221,6 @@ const ModalContent = ({
 							{Liferay.Language.get('cancel')}
 						</ClayButton>
 						<ClayButton
-							disabled={
-								!name[defaultLanguageId] || dataLayoutIsEmpty
-							}
 							onClick={onSave}
 						>
 							{Liferay.Language.get('save')}

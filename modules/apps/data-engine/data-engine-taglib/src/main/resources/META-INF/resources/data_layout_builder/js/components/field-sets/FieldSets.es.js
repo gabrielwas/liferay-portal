@@ -19,7 +19,10 @@ import AppContext from '../../AppContext.es';
 import {dropFieldSet} from '../../actions.es';
 import DataLayoutBuilderContext from '../../data-layout-builder/DataLayoutBuilderContext.es';
 import {DRAG_FIELDSET} from '../../drag-and-drop/dragTypes.es';
-import {containsFieldSet} from '../../utils/dataDefinition.es';
+import {
+	containsFieldSet
+} from '../../utils/dataDefinition.es';
+import {getProperty} from '../../utils/lang.es'
 import EmptyState from '../empty-state/EmptyState.es';
 import FieldType from '../field-types/FieldType.es';
 import FieldSetModal from './FieldSetModal.es';
@@ -36,10 +39,12 @@ export default function FieldSets({keywords}) {
 		isVisible: false,
 	});
 
-	const defaultLanguageId = Liferay.ThemeDisplay.getDefaultLanguageId();
+	let defaultLanguageId = Liferay.ThemeDisplay.getDefaultLanguageId();
 
 	const toggleFieldSet = (fieldSet, editingDataDefinition) => {
 		let childrenAppProps = {
+			availableLanguageIds: [defaultLanguageId],
+			editingLanguageId: defaultLanguageId,
 			context: {},
 			dataDefinitionId: null,
 			dataLayoutId: null,
@@ -55,7 +60,11 @@ export default function FieldSets({keywords}) {
 			const [{rows}] = ddmForm.pages;
 			delete ddmForm.pages;
 
+			defaultLanguageId = fieldSet.defaultLanguageId;
+
 			childrenAppProps = {
+				availableLanguageIds: fieldSet.availableLanguageIds,
+				editingLanguageId: fieldSet.defaultLanguageId,
 				context: {
 					...context,
 					pages: [
@@ -75,6 +84,7 @@ export default function FieldSets({keywords}) {
 		setState({
 			childrenAppProps,
 			editingDataDefinition,
+			defaultLanguageId,
 			fieldSet,
 			isVisible: !state.isVisible,
 		});
@@ -113,12 +123,13 @@ export default function FieldSets({keywords}) {
 	);
 
 	const filteredFieldSets = fieldSets
-		.filter(({name}) =>
-			new RegExp(keywords, 'ig').test(name[defaultLanguageId])
-		)
-		.sort(({name: a}, {name: b}) =>
-			a[defaultLanguageId].localeCompare(b[defaultLanguageId])
+		.filter(({name, defaultLanguageId: fieldSetDefaultLanguageId}) =>
+			new RegExp(keywords, 'ig').test(getProperty(fieldSetDefaultLanguageId, name))
 		);
+		// .sort(({name: a}, {name: b}) =>
+		// 		getProperty(fieldSetDefaultLanguageId, name)
+		// 	//a[defaultLanguageId].localeCompare(b[defaultLanguageId])
+		// );
 
 	return (
 		<>
@@ -127,8 +138,7 @@ export default function FieldSets({keywords}) {
 					<AddButton />
 					<div className="mt-3">
 						{filteredFieldSets.map((fieldSet) => {
-							const fieldSetName =
-								fieldSet.name[defaultLanguageId];
+							const fieldSetName = getProperty(fieldSet.defaultLanguageId, fieldSet.name);
 							const dropDownActions = [
 								{
 									action: () => toggleFieldSet(fieldSet),
