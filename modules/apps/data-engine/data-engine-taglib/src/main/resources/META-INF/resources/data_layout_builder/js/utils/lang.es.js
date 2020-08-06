@@ -22,6 +22,13 @@ const getLocalizedValue = (defaultLanguageId, localizedValues) => {
 	return localizedValues[defaultLanguageId];
 };
 
+export const getProperty = (defaultLanguageId, property) => {
+	return (
+		property[Liferay.ThemeDisplay.getLanguageId()] ||
+		property[defaultLanguageId]
+	);
+}
+
 const sub = (langKey, args) => {
 	const SPLIT_REGEX = /({\d+})/g;
 
