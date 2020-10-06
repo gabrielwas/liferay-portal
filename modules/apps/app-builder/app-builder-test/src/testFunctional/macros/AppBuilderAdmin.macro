@@ -614,6 +614,7 @@ definition {
 		while (IsElementNotPresent(locator1 = "AppBuilder#SAVE_BUTTON")) {
 			Pause(locator1 = "1000");
 		}
+		
 	}
 
 }
