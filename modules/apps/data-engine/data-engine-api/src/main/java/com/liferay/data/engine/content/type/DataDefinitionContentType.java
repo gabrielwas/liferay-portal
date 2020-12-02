@@ -14,6 +14,7 @@
 
 package com.liferay.data.engine.content.type;
 
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeSettings;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 
@@ -34,6 +35,12 @@ public interface DataDefinitionContentType {
 
 	public default String getContentType() {
 		return "default";
+	}
+
+	public default Class<? extends DDMFormFieldTypeSettings>
+		getDDMFormFieldTypeSettings(String fieldType) {
+
+		return null;
 	}
 
 	public default String getPortletResourceName() {

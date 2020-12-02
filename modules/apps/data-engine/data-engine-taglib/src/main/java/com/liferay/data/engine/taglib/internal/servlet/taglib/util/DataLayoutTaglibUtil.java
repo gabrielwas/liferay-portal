@@ -28,6 +28,7 @@ import com.liferay.data.engine.taglib.servlet.taglib.definition.DataLayoutBuilde
 import com.liferay.dynamic.data.mapping.form.builder.context.DDMFormBuilderContextFactory;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldType;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeSettings;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderingContext;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormTemplateContextFactory;
 import com.liferay.dynamic.data.mapping.form.values.factory.DDMFormValuesFactory;
@@ -627,13 +628,18 @@ public class DataLayoutTaglibUtil {
 				_ddmFormFieldTypeServicesTracker.getDDMFormFieldType(
 					ddmFormField.getType());
 
-			DDMForm ddmForm = DDMFormFactory.create(
-				ddmFormFieldType.getDDMFormFieldTypeSettings());
+			Class<? extends DDMFormFieldTypeSettings> ddmFormFieldTypeSettings =
+				ddmFormField.getDdmFormFieldTypeSettings();
+
+			if (ddmFormFieldTypeSettings == null) {
+				ddmFormFieldTypeSettings =
+					ddmFormFieldType.getDDMFormFieldTypeSettings();
+			}
+
+			DDMForm ddmForm = DDMFormFactory.create(ddmFormFieldTypeSettings);
 
 			return _ddmFormTemplateContextFactory.create(
-				ddmForm,
-				DDMFormLayoutFactory.create(
-					ddmFormFieldType.getDDMFormFieldTypeSettings()),
+				ddmForm, DDMFormLayoutFactory.create(ddmFormFieldTypeSettings),
 				new DDMFormRenderingContext() {
 					{
 						setContainerId("settings");

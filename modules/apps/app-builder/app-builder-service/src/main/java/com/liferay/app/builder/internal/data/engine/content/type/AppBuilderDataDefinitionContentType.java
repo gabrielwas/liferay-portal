@@ -15,11 +15,21 @@
 package com.liferay.app.builder.internal.data.engine.content.type;
 
 import com.liferay.app.builder.constants.AppBuilderConstants;
+import com.liferay.app.builder.internal.field.type.settings.checkbox.CheckboxAppBuilderFieldTypeSettings;
+import com.liferay.app.builder.internal.field.type.settings.checkbox.multiple.CheckboxMultipleAppBuilderFieldTypeSettings;
+import com.liferay.app.builder.internal.field.type.settings.date.DateAppBuilderFieldTypeSettings;
+import com.liferay.app.builder.internal.field.type.settings.document.library.DocumentLibraryAppBuilderFieldTypeSettings;
+import com.liferay.app.builder.internal.field.type.settings.fieldset.FieldSetAppBuilderFieldTypeSettings;
+import com.liferay.app.builder.internal.field.type.settings.numeric.NumericAppBuilderFieldTypeSettings;
+import com.liferay.app.builder.internal.field.type.settings.radio.RadioAppBuilderFieldTypeSettings;
+import com.liferay.app.builder.internal.field.type.settings.select.SelectAppBuilderFieldTypeSettings;
+import com.liferay.app.builder.internal.field.type.settings.text.TextAppBuilderFieldTypeSettings;
 import com.liferay.app.builder.model.AppBuilderApp;
 import com.liferay.app.builder.model.AppBuilderAppDataRecordLink;
 import com.liferay.app.builder.service.AppBuilderAppDataRecordLinkLocalService;
 import com.liferay.data.engine.content.type.DataDefinitionContentType;
 import com.liferay.dynamic.data.lists.model.DDLRecord;
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeSettings;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
@@ -30,8 +40,11 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.permission.WorkflowPermissionUtil;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -63,6 +76,13 @@ public class AppBuilderDataDefinitionContentType
 	@Override
 	public String getContentType() {
 		return "app-builder";
+	}
+
+	@Override
+	public Class<? extends DDMFormFieldTypeSettings>
+		getDDMFormFieldTypeSettings(String fieldType) {
+
+		return _ddmFormFieldTypeSettings.get(fieldType);
 	}
 
 	@Override
@@ -127,9 +147,36 @@ public class AppBuilderDataDefinitionContentType
 		return true;
 	}
 
+	@Activate
+	protected void activate() {
+		_ddmFormFieldTypeSettings.put(
+			"checkbox", CheckboxAppBuilderFieldTypeSettings.class);
+		_ddmFormFieldTypeSettings.put(
+			"checkbox_multiple",
+			CheckboxMultipleAppBuilderFieldTypeSettings.class);
+		_ddmFormFieldTypeSettings.put(
+			"date", DateAppBuilderFieldTypeSettings.class);
+		_ddmFormFieldTypeSettings.put(
+			"document_library",
+			DocumentLibraryAppBuilderFieldTypeSettings.class);
+		_ddmFormFieldTypeSettings.put(
+			"fieldset", FieldSetAppBuilderFieldTypeSettings.class);
+		_ddmFormFieldTypeSettings.put(
+			"numeric", NumericAppBuilderFieldTypeSettings.class);
+		_ddmFormFieldTypeSettings.put(
+			"radio", RadioAppBuilderFieldTypeSettings.class);
+		_ddmFormFieldTypeSettings.put(
+			"select", SelectAppBuilderFieldTypeSettings.class);
+		_ddmFormFieldTypeSettings.put(
+			"text", TextAppBuilderFieldTypeSettings.class);
+	}
+
 	@Reference
 	private AppBuilderAppDataRecordLinkLocalService
 		_appBuilderAppDataRecordLinkLocalService;
+
+	private final Map<String, Class<? extends DDMFormFieldTypeSettings>>
+		_ddmFormFieldTypeSettings = new HashMap<>();
 
 	@Reference
 	private Portal _portal;

@@ -16,6 +16,7 @@ package com.liferay.dynamic.data.mapping.form.builder.internal.context;
 
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldType;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeSettings;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderingContext;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormTemplateContextFactory;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
@@ -200,11 +201,16 @@ public class DDMFormBuilderContextFactoryHelper {
 			_ddmFormFieldTypeServicesTracker.getDDMFormFieldType(
 				ddmFormField.getType());
 
-		DDMForm ddmForm = DDMFormFactory.create(
-			ddmFormFieldType.getDDMFormFieldTypeSettings());
+		Class<? extends DDMFormFieldTypeSettings> ddmFormFieldTypeSettings =
+			ddmFormField.getDdmFormFieldTypeSettings();
 
-		DDMFormLayout ddmFormLayout = DDMFormLayoutFactory.create(
-			ddmFormFieldType.getDDMFormFieldTypeSettings());
+		if(ddmFormFieldTypeSettings == null){
+			ddmFormFieldTypeSettings = ddmFormFieldType.getDDMFormFieldTypeSettings();
+		}
+
+		DDMForm ddmForm = DDMFormFactory.create(ddmFormFieldTypeSettings);
+
+		DDMFormLayout ddmFormLayout = DDMFormLayoutFactory.create(ddmFormFieldTypeSettings);
 
 		DDMFormRenderingContext ddmFormRenderingContext =
 			new DDMFormRenderingContext();

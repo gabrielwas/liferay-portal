@@ -17,6 +17,7 @@ package com.liferay.data.engine.rest.internal.dto.v2_0.util;
 import com.liferay.data.engine.field.type.util.LocalizedValueUtil;
 import com.liferay.data.engine.rest.dto.v2_0.DataDefinition;
 import com.liferay.data.engine.rest.dto.v2_0.DataDefinitionField;
+import com.liferay.data.engine.rest.internal.content.type.DataDefinitionContentTypeTracker;
 import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
@@ -205,13 +206,15 @@ public class DataDefinitionUtilTest extends PowerMockito {
 						setDefaultLanguageId("en_US");
 					}
 				},
+				_dataDefinitionContentTypeTracker,
 				_ddmFormFieldTypeServicesTracker));
 	}
 
 	@Test
 	public void testToDDMFormWithEmptyDataDefinition() {
 		DDMForm ddmForm = DataDefinitionUtil.toDDMForm(
-			new DataDefinition(), _ddmFormFieldTypeServicesTracker);
+			new DataDefinition(), _dataDefinitionContentTypeTracker,
+			_ddmFormFieldTypeServicesTracker);
 
 		Assert.assertTrue(SetUtil.isEmpty(ddmForm.getAvailableLocales()));
 		Assert.assertTrue(ListUtil.isEmpty(ddmForm.getDDMFormFields()));
@@ -223,7 +226,8 @@ public class DataDefinitionUtilTest extends PowerMockito {
 		Assert.assertEquals(
 			new DDMForm(),
 			DataDefinitionUtil.toDDMForm(
-				null, _ddmFormFieldTypeServicesTracker));
+				null, _dataDefinitionContentTypeTracker,
+				_ddmFormFieldTypeServicesTracker));
 	}
 
 	private void _setUpLocaleUtil() {
@@ -254,6 +258,7 @@ public class DataDefinitionUtilTest extends PowerMockito {
 		);
 	}
 
+	private DataDefinitionContentTypeTracker _dataDefinitionContentTypeTracker;
 	private DDMFormFieldTypeServicesTracker _ddmFormFieldTypeServicesTracker;
 
 }

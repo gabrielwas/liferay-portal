@@ -209,6 +209,7 @@ public class DataLayoutResourceImpl
 						_ddmFormFieldTypeServicesTracker, ddmStructure,
 						_ddmStructureLayoutLocalService,
 						_spiDDMFormRuleConverter),
+					_dataDefinitionContentTypeTracker,
 					_ddmFormFieldTypeServicesTracker),
 				_ddmFormLayoutSerializer, _ddmFormRuleDeserializer),
 			dataLayout.getDataLayoutKey(), dataLayout.getDescription(),
@@ -301,6 +302,7 @@ public class DataLayoutResourceImpl
 							ddmStructureLayout.getDDMStructureId()),
 						_ddmStructureLayoutLocalService,
 						_spiDDMFormRuleConverter),
+					_dataDefinitionContentTypeTracker,
 					_ddmFormFieldTypeServicesTracker),
 				_ddmFormLayoutSerializer, _ddmFormRuleDeserializer),
 			dataLayout.getDescription(), dataLayout.getName());

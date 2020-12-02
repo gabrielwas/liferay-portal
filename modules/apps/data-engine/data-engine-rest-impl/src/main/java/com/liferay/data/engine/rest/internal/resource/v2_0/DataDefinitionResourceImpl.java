@@ -221,7 +221,8 @@ public class DataDefinitionResourceImpl
 			_updateDataDefinition(
 				dataDefinition, dataDefinition.getId(),
 				DataDefinitionUtil.toDDMForm(
-					dataDefinition, _ddmFormFieldTypeServicesTracker));
+					dataDefinition, _dataDefinitionContentTypeTracker,
+					_ddmFormFieldTypeServicesTracker));
 		}
 
 		_ddmStructureLocalService.deleteStructure(dataDefinitionId);
@@ -407,7 +408,8 @@ public class DataDefinitionResourceImpl
 			DataActionKeys.ADD_DATA_DEFINITION);
 
 		DDMForm ddmForm = DataDefinitionUtil.toDDMForm(
-			dataDefinition, _ddmFormFieldTypeServicesTracker);
+			dataDefinition, _dataDefinitionContentTypeTracker,
+			_ddmFormFieldTypeServicesTracker);
 
 		ddmForm.setDefinitionSchemaVersion("2.0");
 
@@ -526,7 +528,8 @@ public class DataDefinitionResourceImpl
 			ddmStructure.getDefinition());
 
 		DDMForm ddmForm = DataDefinitionUtil.toDDMForm(
-			dataDefinition, _ddmFormFieldTypeServicesTracker);
+			dataDefinition, _dataDefinitionContentTypeTracker,
+			_ddmFormFieldTypeServicesTracker);
 
 		ddmForm.setDefinitionSchemaVersion(
 			definitionJSONObject.getString("definitionSchemaVersion"));
@@ -958,7 +961,8 @@ public class DataDefinitionResourceImpl
 		List<String> removedFieldNames = new ArrayList<>();
 
 		DDMForm ddmForm = DataDefinitionUtil.toDDMForm(
-			dataDefinition, _ddmFormFieldTypeServicesTracker);
+			dataDefinition, _dataDefinitionContentTypeTracker,
+			_ddmFormFieldTypeServicesTracker);
 
 		Map<String, DDMFormField> ddmFormFieldsMap =
 			ddmForm.getDDMFormFieldsMap(true);
@@ -974,7 +978,8 @@ public class DataDefinitionResourceImpl
 				_ddmStructureLayoutLocalService, _spiDDMFormRuleConverter);
 
 		DDMForm existingDDMForm = DataDefinitionUtil.toDDMForm(
-			existingDataDefinition, _ddmFormFieldTypeServicesTracker);
+			existingDataDefinition, _dataDefinitionContentTypeTracker,
+			_ddmFormFieldTypeServicesTracker);
 
 		Map<String, DDMFormField> existingDDMFormFieldsMap =
 			existingDDMForm.getDDMFormFieldsMap(true);
@@ -1146,7 +1151,8 @@ public class DataDefinitionResourceImpl
 			ddmFormLayout = DataLayoutUtil.toDDMFormLayout(
 				dataLayout,
 				DataDefinitionUtil.toDDMForm(
-					dataDefinition, _ddmFormFieldTypeServicesTracker),
+					dataDefinition, _dataDefinitionContentTypeTracker,
+					_ddmFormFieldTypeServicesTracker),
 				_ddmFormRuleDeserializer);
 
 			ddmFormLayout.setDefinitionSchemaVersion(definitionSchemaVersion);

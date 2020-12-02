@@ -14,6 +14,7 @@
 
 package com.liferay.dynamic.data.mapping.model;
 
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeSettings;
 import com.liferay.petra.lang.HashUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONArray;
@@ -41,6 +42,7 @@ public class DDMFormField implements Serializable {
 
 	public DDMFormField() {
 		_ddmFormFieldRules = new ArrayList<>();
+		_ddmFormFieldTypeSettings = null;
 		_nestedDDMFormFields = new ArrayList<>();
 		_properties = new LinkedHashMap<>();
 	}
@@ -59,6 +61,8 @@ public class DDMFormField implements Serializable {
 
 			addDDMFormFieldRule(new DDMFormFieldRule(ddmFormFieldRule));
 		}
+
+		setDdmFormFieldTypeSettings(ddmFormField._ddmFormFieldTypeSettings);
 
 		DDMFormFieldValidation ddmFormFieldValidation =
 			ddmFormField.getDDMFormFieldValidation();
@@ -87,6 +91,7 @@ public class DDMFormField implements Serializable {
 
 	public DDMFormField(String name, String type) {
 		_ddmFormFieldRules = new ArrayList<>();
+		_ddmFormFieldTypeSettings = null;
 		_nestedDDMFormFields = new ArrayList<>();
 		_properties = new LinkedHashMap<>();
 
@@ -204,6 +209,12 @@ public class DDMFormField implements Serializable {
 		}
 
 		return ddmFormFieldOptions;
+	}
+
+	public Class<? extends DDMFormFieldTypeSettings>
+		getDdmFormFieldTypeSettings() {
+
+		return _ddmFormFieldTypeSettings;
 	}
 
 	public DDMFormFieldValidation getDDMFormFieldValidation() {
@@ -392,6 +403,12 @@ public class DDMFormField implements Serializable {
 		_properties.put("options", ddmFormFieldOptions);
 	}
 
+	public void setDdmFormFieldTypeSettings(
+		Class<? extends DDMFormFieldTypeSettings> ddmFormFieldTypeSettings) {
+
+		_ddmFormFieldTypeSettings = ddmFormFieldTypeSettings;
+	}
+
 	public void setDDMFormFieldValidation(
 		DDMFormFieldValidation ddmFormFieldValidation) {
 
@@ -474,6 +491,7 @@ public class DDMFormField implements Serializable {
 
 	private DDMForm _ddmForm;
 	private final List<DDMFormFieldRule> _ddmFormFieldRules;
+	private Class<? extends DDMFormFieldTypeSettings> _ddmFormFieldTypeSettings;
 	private List<DDMFormField> _nestedDDMFormFields;
 	private final Map<String, Object> _properties;
 
