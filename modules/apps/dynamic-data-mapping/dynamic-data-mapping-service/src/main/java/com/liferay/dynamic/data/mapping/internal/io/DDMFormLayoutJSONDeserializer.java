@@ -14,6 +14,8 @@
 
 package com.liferay.dynamic.data.mapping.internal.io;
 
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
+import com.liferay.dynamic.data.mapping.internal.io.util.DDMFormFieldDeserializerUtil;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutDeserializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutDeserializerDeserializeRequest;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutDeserializerDeserializeResponse;
@@ -24,7 +26,6 @@ import com.liferay.dynamic.data.mapping.model.DDMFormLayoutRow;
 import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.util.LocalizedValueUtil;
 import com.liferay.portal.kernel.json.JSONArray;
-import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
@@ -70,6 +71,11 @@ public class DDMFormLayoutJSONDeserializer
 					jsonObject.getString("definitionSchemaVersion"));
 			}
 
+			ddmFormLayout.setDDMFormFields(
+				DDMFormFieldDeserializerUtil.getDDMFormFields(
+					_ddmFormFieldTypeServicesTracker,
+					jsonObject.getJSONArray("fields"), _jsonFactory));
+
 			setDDMFormLayoutDefaultLocale(
 				jsonObject.getString("defaultLanguageId"), ddmFormLayout);
 			setDDMFormLayoutPages(
@@ -91,12 +97,12 @@ public class DDMFormLayoutJSONDeserializer
 
 			return builder.build();
 		}
-		catch (JSONException jsonException) {
+		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
-				_log.warn(jsonException, jsonException);
+				_log.warn(exception, exception);
 			}
 
-			builder = builder.exception(jsonException);
+			builder = builder.exception(exception);
 		}
 
 		return builder.build();
@@ -202,6 +208,13 @@ public class DDMFormLayoutJSONDeserializer
 		return ddmFormLayoutRows;
 	}
 
+	@Reference(unbind = "-")
+	protected void setDDMFormFieldTypeServicesTracker(
+		DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker) {
+
+		_ddmFormFieldTypeServicesTracker = ddmFormFieldTypeServicesTracker;
+	}
+
 	protected void setDDMFormLayouColumnFieldNames(
 		JSONArray jsonArray, DDMFormLayoutColumn ddmFormLayoutColumn) {
 
@@ -288,6 +301,7 @@ public class DDMFormLayoutJSONDeserializer
 	private static final Log _log = LogFactoryUtil.getLog(
 		DDMFormLayoutJSONDeserializer.class);
 
+	private DDMFormFieldTypeServicesTracker _ddmFormFieldTypeServicesTracker;
 	private JSONFactory _jsonFactory;
 
 }

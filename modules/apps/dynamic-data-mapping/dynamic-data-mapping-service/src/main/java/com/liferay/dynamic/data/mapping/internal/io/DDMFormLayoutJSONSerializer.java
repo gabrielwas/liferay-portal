@@ -14,6 +14,8 @@
 
 package com.liferay.dynamic.data.mapping.internal.io;
 
+import com.liferay.dynamic.data.mapping.form.field.type.DDMFormFieldTypeServicesTracker;
+import com.liferay.dynamic.data.mapping.internal.io.util.DDMFormFieldSerializerUtil;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutSerializer;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutSerializerSerializeRequest;
 import com.liferay.dynamic.data.mapping.io.DDMFormLayoutSerializerSerializeResponse;
@@ -59,6 +61,11 @@ public class DDMFormLayoutJSONSerializer implements DDMFormLayoutSerializer {
 		JSONObject jsonObject = _jsonFactory.createJSONObject();
 
 		addDefaultLanguageId(jsonObject, ddmFormLayout.getDefaultLocale());
+
+		DDMFormFieldSerializerUtil.addFields(
+			ddmFormLayout.getDDMFormFields(), _ddmFormFieldTypeServicesTracker,
+			_jsonFactory, jsonObject);
+
 		addPages(jsonObject, ddmFormLayout.getDDMFormLayoutPages());
 		addPaginationMode(jsonObject, ddmFormLayout.getPaginationMode());
 		addRules(jsonObject, ddmFormLayout.getDDMFormRules());
@@ -177,6 +184,13 @@ public class DDMFormLayoutJSONSerializer implements DDMFormLayoutSerializer {
 	}
 
 	@Reference(unbind = "-")
+	protected void setDDMFormFieldTypeServicesTracker(
+		DDMFormFieldTypeServicesTracker ddmFormFieldTypeServicesTracker) {
+
+		_ddmFormFieldTypeServicesTracker = ddmFormFieldTypeServicesTracker;
+	}
+
+	@Reference(unbind = "-")
 	protected void setJSONFactory(JSONFactory jsonFactory) {
 		_jsonFactory = jsonFactory;
 	}
@@ -209,6 +223,7 @@ public class DDMFormLayoutJSONSerializer implements DDMFormLayoutSerializer {
 		return jsonObject;
 	}
 
+	private DDMFormFieldTypeServicesTracker _ddmFormFieldTypeServicesTracker;
 	private JSONFactory _jsonFactory;
 
 }
