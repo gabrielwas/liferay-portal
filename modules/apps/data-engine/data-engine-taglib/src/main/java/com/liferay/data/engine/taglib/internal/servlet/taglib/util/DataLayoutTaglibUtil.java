@@ -182,11 +182,11 @@ public class DataLayoutTaglibUtil {
 	public static JSONObject getDataLayoutJSONObject(
 		Set<Locale> availableLocales, Long dataDefinitionId, Long dataLayoutId,
 		HttpServletRequest httpServletRequest,
-		HttpServletResponse httpServletResponse) {
+		HttpServletResponse httpServletResponse, boolean newDataLayout) {
 
 		return _dataLayoutTaglibUtil._getDataLayoutJSONObject(
 			availableLocales, dataDefinitionId, dataLayoutId,
-			httpServletRequest, httpServletResponse);
+			httpServletRequest, httpServletResponse, newDataLayout);
 	}
 
 	public static Map<String, Object> getDataRecordValues(
@@ -350,10 +350,11 @@ public class DataLayoutTaglibUtil {
 	private JSONObject _getDataLayoutJSONObject(
 		Set<Locale> availableLocales, Long dataDefinitionId, Long dataLayoutId,
 		HttpServletRequest httpServletRequest,
-		HttpServletResponse httpServletResponse) {
+		HttpServletResponse httpServletResponse, boolean newDataLayout) {
 
-		if (Validator.isNull(dataDefinitionId) &&
-			Validator.isNull(dataLayoutId)) {
+		if ((Validator.isNull(dataDefinitionId) &&
+			 Validator.isNull(dataLayoutId)) ||
+			newDataLayout) {
 
 			return _jsonFactory.createJSONObject();
 		}

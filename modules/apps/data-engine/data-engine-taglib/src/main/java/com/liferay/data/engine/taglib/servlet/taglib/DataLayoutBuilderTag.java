@@ -57,7 +57,7 @@ public class DataLayoutBuilderTag extends BaseDataLayoutBuilderTag {
 						"/DataLayoutBuilder.es"));
 
 			if (Validator.isNotNull(getDataDefinitionId()) &&
-				Validator.isNull(getDataLayoutId())) {
+				Validator.isNull(getDataLayoutId()) && !getNewDataLayout()) {
 
 				setDataLayoutId(
 					DataLayoutTaglibUtil.getDefaultDataLayoutId(
@@ -109,7 +109,8 @@ public class DataLayoutBuilderTag extends BaseDataLayoutBuilderTag {
 			DataLayoutTaglibUtil.getDataLayoutJSONObject(
 				availableLocales, getDataDefinitionId(), getDataLayoutId(),
 				httpServletRequest,
-				(HttpServletResponse)pageContext.getResponse()));
+				(HttpServletResponse)pageContext.getResponse(),
+				getNewDataLayout()));
 	}
 
 	private String[] _getLanguageIds(Set<Locale> locales) {
