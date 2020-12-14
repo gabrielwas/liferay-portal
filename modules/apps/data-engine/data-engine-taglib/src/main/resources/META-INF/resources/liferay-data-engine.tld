@@ -59,6 +59,12 @@
 			<rtexprvalue>true</rtexprvalue>
 		</attribute>
 		<attribute>
+			<name>newDataLayout</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<type>boolean</type>
+		</attribute>
+		<attribute>
 			<name>scopes</name>
 			<required>false</required>
 			<rtexprvalue>true</rtexprvalue>

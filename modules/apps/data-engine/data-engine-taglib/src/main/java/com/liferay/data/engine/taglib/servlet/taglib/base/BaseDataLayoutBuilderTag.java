@@ -70,6 +70,10 @@ public abstract class BaseDataLayoutBuilderTag extends com.liferay.taglib.util.I
 		return _namespace;
 	}
 
+	public boolean getNewDataLayout() {
+		return _newDataLayout;
+	}
+
 	public java.util.Set getScopes() {
 		return _scopes;
 	}
@@ -110,6 +114,10 @@ public abstract class BaseDataLayoutBuilderTag extends com.liferay.taglib.util.I
 		_namespace = namespace;
 	}
 
+	public void setNewDataLayout(boolean newDataLayout) {
+		_newDataLayout = newDataLayout;
+	}
+
 	public void setScopes(java.util.Set scopes) {
 		_scopes = scopes;
 	}
@@ -134,6 +142,7 @@ public abstract class BaseDataLayoutBuilderTag extends com.liferay.taglib.util.I
 		_groupId = null;
 		_localizable = false;
 		_namespace = null;
+		_newDataLayout = false;
 		_scopes = null;
 	}
 
@@ -158,6 +167,7 @@ public abstract class BaseDataLayoutBuilderTag extends com.liferay.taglib.util.I
 		setNamespacedAttribute(request, "groupId", _groupId);
 		setNamespacedAttribute(request, "localizable", _localizable);
 		setNamespacedAttribute(request, "namespace", _namespace);
+		setNamespacedAttribute(request, "newDataLayout", _newDataLayout);
 		setNamespacedAttribute(request, "scopes", _scopes);
 	}
 
@@ -178,6 +188,7 @@ public abstract class BaseDataLayoutBuilderTag extends com.liferay.taglib.util.I
 	private java.lang.Long _groupId = null;
 	private boolean _localizable = false;
 	private java.lang.String _namespace = null;
+	private boolean _newDataLayout = false;
 	private java.util.Set _scopes = null;
 
 }
