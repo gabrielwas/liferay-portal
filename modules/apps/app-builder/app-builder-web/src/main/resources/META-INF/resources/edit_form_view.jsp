@@ -78,6 +78,7 @@ boolean newCustomObject = ParamUtil.getBoolean(request, "newCustomObject");
 					dataLayoutId="<%= dataLayoutId %>"
 					fieldSetContentType="app-builder-fieldset"
 					namespace="<%= liferayPortletResponse.getNamespace() %>"
+					newDataLayout='<%= ParamUtil.getBoolean(request, "newDataLayout") %>'
 					scopes='<%= SetUtil.fromCollection(Arrays.asList("app-builder")) %>'
 				/>
 			</div>

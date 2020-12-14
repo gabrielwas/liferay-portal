@@ -69,6 +69,7 @@ export default ({
 	const addURL = Liferay.Util.PortletURL.createRenderURL(basePortletURL, {
 		dataDefinitionId,
 		mvcRenderCommandName: '/app_builder/edit_form_view',
+		newDataLayout: true,
 	});
 
 	return (
