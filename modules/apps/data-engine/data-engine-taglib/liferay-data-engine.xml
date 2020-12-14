@@ -62,6 +62,12 @@
 				<required>true</required>
 			</attribute>
 			<attribute>
+				<name>newDataLayout</name>
+				<inputType>boolean</inputType>
+				<outputType>boolean</outputType>
+				<required>false</required>
+			</attribute>
+			<attribute>
 				<name>scopes</name>
 				<inputType>java.util.Set</inputType>
 				<required>false</required>
