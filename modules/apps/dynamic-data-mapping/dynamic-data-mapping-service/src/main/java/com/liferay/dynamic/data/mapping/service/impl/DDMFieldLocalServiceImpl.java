@@ -379,6 +379,35 @@ public class DDMFieldLocalServiceImpl extends DDMFieldLocalServiceBaseImpl {
 
 		Map<String, Long> instanceToFieldIdMap = new HashMap<>();
 
+		List<Map.Entry<DDMField, DDMFieldInfo>> newList = new ArrayList<>();
+
+		for (Map.Entry<DDMField, DDMFieldInfo> entry :
+				ddmFormUpdateContext._ddmFieldEntries) {
+
+			DDMFieldInfo ddmFieldInfo = entry.getValue();
+
+			if ((ddmFieldInfo == null) ||
+				(ddmFieldInfo._parentInstanceId == null)) {
+
+				newList.add(entry);
+			}
+		}
+
+		for (Map.Entry<DDMField, DDMFieldInfo> entry :
+				ddmFormUpdateContext._ddmFieldEntries) {
+
+			DDMFieldInfo ddmFieldInfo = entry.getValue();
+
+			if ((ddmFieldInfo != null) &&
+				(ddmFieldInfo._parentInstanceId != null)) {
+
+				newList.add(entry);
+			}
+		}
+
+		ddmFormUpdateContext._ddmFieldEntries.clear();
+		ddmFormUpdateContext._ddmFieldEntries.addAll(newList);
+
 		for (Map.Entry<DDMField, DDMFieldInfo> entry :
 				ddmFormUpdateContext._ddmFieldEntries) {
 
