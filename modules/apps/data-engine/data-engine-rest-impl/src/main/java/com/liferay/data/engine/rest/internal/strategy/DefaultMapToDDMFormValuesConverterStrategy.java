@@ -76,14 +76,20 @@ public class DefaultMapToDDMFormValuesConverterStrategy
 				List<DDMFormField> nestedDDMFormFields =
 					ddmFormField.getNestedDDMFormFields();
 
+				List<DDMFormFieldValue> nestedDDMFormFieldValues =
+					ddmFormFieldValue.getNestedDDMFormFieldValues();
+
+				nestedDDMFormFieldValues.clear();
+
 				nestedDDMFormFields.forEach(
 					nestedDDMFormField -> {
-						List<DDMFormFieldValue> nestedDDMFormFieldValues =
-							_addDDFormFieldValues(
-								dataRecordValues, nestedDDMFormField,
-								ddmFormValues, defaultLocale, locale);
+						List<DDMFormFieldValue>
+							updatedNestedDDMFormFieldValues =
+								_addDDFormFieldValues(
+									dataRecordValues, nestedDDMFormField,
+									ddmFormValues, defaultLocale, locale);
 
-						nestedDDMFormFieldValues.forEach(
+						updatedNestedDDMFormFieldValues.forEach(
 							ddmFormFieldValue::addNestedDDMFormFieldValue);
 					});
 
