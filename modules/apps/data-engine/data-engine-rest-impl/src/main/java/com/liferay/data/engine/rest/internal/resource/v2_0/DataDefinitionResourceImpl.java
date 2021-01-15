@@ -621,6 +621,8 @@ public class DataDefinitionResourceImpl
 			dataDefinition, dataDefinitionId,
 			_getRemovedFieldNames(dataDefinition, dataDefinitionId));
 
+		_syncPropertiesDataLayouts(dataDefinition, dataDefinitionId);
+
 		_deDataDefinitionFieldLinkLocalService.deleteDEDataDefinitionFieldLinks(
 			_portal.getClassNameId(DDMStructure.class), dataDefinitionId);
 
@@ -1202,6 +1204,76 @@ public class DataDefinitionResourceImpl
 		DDMFormFieldValue ddmFormFieldValue = ddmFormFieldValues.get(0);
 
 		ddmFormFieldValue.setValue(new UnlocalizedValue(type));
+	}
+
+	private void _syncPropertiesDataLayouts(
+			DataDefinition dataDefinition, long dataDefinitionId)
+		throws Exception {
+
+		Map<String, DDMFormField> ddmFormFieldsMap = _getDDMFormFieldsMap(
+			dataDefinition);
+
+		Map<String, DDMFormField> existingDDMFormFieldsMap =
+			_getDDMFormFieldsMap(
+				DataDefinitionUtil.toDataDefinition(
+					_dataDefinitionContentTypeTracker,
+					_ddmFormFieldTypeServicesTracker,
+					_ddmStructureLocalService.getStructure(dataDefinitionId),
+					_ddmStructureLayoutLocalService, _spiDDMFormRuleConverter));
+
+		List<String> fieldNames = new ArrayList<>();
+
+		ddmFormFieldsMap.forEach(
+			(fieldName, ddmFormField) -> {
+				DDMFormField existingDDMFormField =
+					existingDDMFormFieldsMap.get(fieldName);
+
+				if (existingDDMFormField == null) {
+					return;
+				}
+
+				if (ddmFormField.isRequired() &&
+					!existingDDMFormField.isRequired()) {
+
+					fieldNames.add(fieldName);
+				}
+			});
+
+		if (ListUtil.isEmpty(fieldNames)) {
+			return;
+		}
+
+		Set<Long> ddmStructureLayoutIds = new HashSet<>(
+			transform(
+				_deDataDefinitionFieldLinkLocalService.
+					getDEDataDefinitionFieldLinks(
+						_portal.getClassNameId(DDMStructureLayout.class),
+						dataDefinitionId, fieldNames.toArray(new String[0])),
+				DEDataDefinitionFieldLink::getClassPK));
+
+		for (Long ddmStructureLayoutId : ddmStructureLayoutIds) {
+			DDMStructureLayout ddmStructureLayout =
+				_ddmStructureLayoutLocalService.getStructureLayout(
+					ddmStructureLayoutId);
+
+			DDMFormLayout ddmFormLayout = ddmStructureLayout.getDDMFormLayout();
+
+			Map<String, DDMFormField> ddmFormLayoutFieldsMap =
+				ddmFormLayout.getDDMFormFieldsMap(true);
+
+			fieldNames.forEach(
+				fieldName -> {
+					DDMFormField ddmFormLayoutField =
+						ddmFormLayoutFieldsMap.get(fieldName);
+
+					if (ddmFormLayoutField != null) {
+						ddmFormLayoutField.setRequired(true);
+					}
+				});
+
+			_ddmStructureLayoutLocalService.updateStructureLayout(
+				ddmStructureLayoutId, ddmFormLayout, new ServiceContext());
+		}
 	}
 
 	private DataDefinition _toDataDefinition(DDMStructure ddmStructure)
