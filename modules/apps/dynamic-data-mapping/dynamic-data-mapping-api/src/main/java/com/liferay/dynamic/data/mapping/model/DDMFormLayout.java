@@ -19,9 +19,11 @@ import com.liferay.petra.lang.HashUtil;
 import java.io.Serializable;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -101,6 +103,23 @@ public class DDMFormLayout implements Serializable {
 
 	public List<DDMFormField> getDDMFormFields() {
 		return _ddmFormFields;
+	}
+
+	public Map<String, DDMFormField> getDDMFormFieldsMap(
+		boolean includeNestedDDMFormFields) {
+
+		Map<String, DDMFormField> ddmFormFieldsMap = new LinkedHashMap<>();
+
+		for (DDMFormField ddmFormField : _ddmFormFields) {
+			ddmFormFieldsMap.put(ddmFormField.getName(), ddmFormField);
+
+			if (includeNestedDDMFormFields) {
+				ddmFormFieldsMap.putAll(
+					ddmFormField.getNestedDDMFormFieldsMap());
+			}
+		}
+
+		return ddmFormFieldsMap;
 	}
 
 	public DDMFormLayoutPage getDDMFormLayoutPage(int index) {
