@@ -852,6 +852,15 @@ public class DataDefinitionResourceImpl
 		return ddmStructure.getDDMForm();
 	}
 
+	private Map<String, DDMFormField> _getDDMFormFieldsMap(
+		DataDefinition dataDefinition) {
+
+		DDMForm ddmForm = DataDefinitionDDMFormUtil.toDDMForm(
+			dataDefinition, _ddmFormFieldTypeServicesTracker);
+
+		return ddmForm.getDDMFormFieldsMap(true);
+	}
+
 	private long _getDefaultDataLayoutId(long dataDefinitionId)
 		throws Exception {
 
@@ -950,27 +959,19 @@ public class DataDefinitionResourceImpl
 
 		List<String> removedFieldNames = new ArrayList<>();
 
-		DDMForm ddmForm = DataDefinitionDDMFormUtil.toDDMForm(
-			dataDefinition, _ddmFormFieldTypeServicesTracker);
-
-		Map<String, DDMFormField> ddmFormFieldsMap =
-			ddmForm.getDDMFormFieldsMap(true);
+		Map<String, DDMFormField> ddmFormFieldsMap = _getDDMFormFieldsMap(
+			dataDefinition);
 
 		String[] fieldNames = ArrayUtil.toStringArray(
 			ddmFormFieldsMap.keySet());
 
-		DataDefinition existingDataDefinition =
-			DataDefinitionUtil.toDataDefinition(
-				_dataDefinitionContentTypeTracker,
-				_ddmFormFieldTypeServicesTracker,
-				_ddmStructureLocalService.getStructure(dataDefinitionId),
-				_ddmStructureLayoutLocalService, _spiDDMFormRuleConverter);
-
-		DDMForm existingDDMForm = DataDefinitionDDMFormUtil.toDDMForm(
-			existingDataDefinition, _ddmFormFieldTypeServicesTracker);
-
 		Map<String, DDMFormField> existingDDMFormFieldsMap =
-			existingDDMForm.getDDMFormFieldsMap(true);
+			_getDDMFormFieldsMap(
+				DataDefinitionUtil.toDataDefinition(
+					_dataDefinitionContentTypeTracker,
+					_ddmFormFieldTypeServicesTracker,
+					_ddmStructureLocalService.getStructure(dataDefinitionId),
+					_ddmStructureLayoutLocalService, _spiDDMFormRuleConverter));
 
 		for (Map.Entry<String, DDMFormField> entry :
 				existingDDMFormFieldsMap.entrySet()) {
