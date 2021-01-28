@@ -22,10 +22,12 @@ import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
 import com.liferay.dynamic.data.mapping.model.DDMFormRule;
+import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.service.DDMDataProviderInstanceService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLayoutLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMStructureLocalService;
 import com.liferay.dynamic.data.mapping.util.DDM;
+import com.liferay.dynamic.data.mapping.util.SettingsDDMFormFieldsUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -35,6 +37,7 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleThreadLocal;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
@@ -84,6 +87,36 @@ public class DDMFormTemplateContextFactoryImpl
 			if (!ddmFormField.isRequired()) {
 				ddmFormField.setRequired(
 					ddmFormLayoutDDMFormField.isRequired());
+			}
+
+			Map<String, DDMFormField> settingsDDMFormFieldsMap =
+				SettingsDDMFormFieldsUtil.getSettingsDDMFormFields(
+					_ddmFormFieldTypeServicesTracker,
+					ddmFormLayoutDDMFormField.getType());
+
+			List<DDMFormField> visualProperties = ListUtil.filter(
+				new ArrayList<>(settingsDDMFormFieldsMap.values()),
+				DDMFormField::isVisualProperty);
+
+			for (DDMFormField visualProperty : visualProperties) {
+				Object value = ddmFormLayoutDDMFormField.getProperty(
+					visualProperty.getName());
+
+				if ((value == null) ||
+					StringUtil.equals(visualProperty.getName(), "required")) {
+
+					continue;
+				}
+
+				if (visualProperty.isLocalizable()) {
+					LocalizedValue localizedValue = (LocalizedValue)value;
+
+					if (MapUtil.isEmpty(localizedValue.getValues())) {
+						continue;
+					}
+				}
+
+				ddmFormField.setProperty(visualProperty.getName(), value);
 			}
 		}
 
