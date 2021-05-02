@@ -53,7 +53,7 @@ public class GoogleMapsDynamicInclude extends BaseDynamicInclude {
 
 		StringBundler sb = new StringBundler();
 
-		String apiKey = "AIzaSyB-2hqLS5zQkBPE4C48ZZDALciAhMGNryk";
+		String apiKey = "AIzaSyB4zMjGQhavlM2gTC6wrQK69APD0suTuG0";
 
 		if (Validator.isNotNull(apiKey)) {
 			sb.append("<script data-senna-track=\"permanent\" src=\"");

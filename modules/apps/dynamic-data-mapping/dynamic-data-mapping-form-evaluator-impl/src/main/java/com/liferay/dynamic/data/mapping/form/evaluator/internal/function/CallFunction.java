@@ -72,6 +72,13 @@ public class CallFunction
 			return false;
 		}
 
+		String ddmFormFieldValue =
+			getDDMFormFieldLocalizedValue(ddmDataProviderInstanceUUID);
+
+//		if(!Validator.isNull(ddmFormFieldValue)){
+//
+//		}
+
 		try {
 			DDMDataProviderRequest.Builder builder =
 				DDMDataProviderRequest.Builder.newBuilder();
@@ -202,6 +209,45 @@ public class CallFunction
 		GetFieldPropertyRequest.Builder builder =
 			GetFieldPropertyRequest.Builder.newBuilder(
 				ddmFormFieldName, "value");
+
+		GetFieldPropertyResponse getFieldPropertyResponse =
+			_ddmExpressionFieldAccessor.getFieldProperty(builder.build());
+
+		Object value = getFieldPropertyResponse.getValue();
+
+		if (Validator.isNull(value)) {
+			return StringPool.BLANK;
+		}
+
+		Class<?> clazz = value.getClass();
+
+		if (clazz.isArray()) {
+			Object[] valueArray = (Object[])value;
+
+			if (ArrayUtil.isNotEmpty(valueArray)) {
+				value = ((Object[])value)[0];
+			}
+		}
+
+		try {
+			JSONArray jsonArray = jsonFactory.createJSONArray(
+				String.valueOf(value));
+
+			return (String)jsonArray.get(0);
+		}
+		catch (JSONException jsonException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(jsonException, jsonException);
+			}
+
+			return String.valueOf(value);
+		}
+	}
+
+	protected String getDDMFormFieldLocalizedValue(String ddmFormFieldName) {
+		GetFieldPropertyRequest.Builder builder =
+			GetFieldPropertyRequest.Builder.newBuilder(
+				ddmFormFieldName, "localizedValue");
 
 		GetFieldPropertyResponse getFieldPropertyResponse =
 			_ddmExpressionFieldAccessor.getFieldProperty(builder.build());
