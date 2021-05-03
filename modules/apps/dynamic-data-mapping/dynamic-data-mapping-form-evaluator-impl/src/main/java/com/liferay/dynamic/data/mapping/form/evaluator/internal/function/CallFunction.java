@@ -25,11 +25,15 @@ import com.liferay.dynamic.data.mapping.expression.DDMExpressionObserverAware;
 import com.liferay.dynamic.data.mapping.expression.GetFieldPropertyRequest;
 import com.liferay.dynamic.data.mapping.expression.GetFieldPropertyResponse;
 import com.liferay.dynamic.data.mapping.expression.UpdateFieldPropertyRequest;
+import com.liferay.dynamic.data.mapping.model.LocalizedValue;
+import com.liferay.dynamic.data.mapping.util.LocalizedValueUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -75,9 +79,46 @@ public class CallFunction
 		String ddmFormFieldValue =
 			getDDMFormFieldLocalizedValue(ddmDataProviderInstanceUUID);
 
-//		if(!Validator.isNull(ddmFormFieldValue)){
-//
-//		}
+		if(!Validator.isNull(ddmFormFieldValue)){
+			try {
+				LocalizedValue  localizedValue = LocalizedValueUtil.toLocalizedValue(
+					JSONFactoryUtil.createJSONObject(ddmFormFieldValue));
+
+				String address =
+					localizedValue.getString(LocaleUtil.fromLanguageId("en_US"));
+
+				JSONObject addressJSON =
+					JSONFactoryUtil.createJSONObject(address);
+
+				Map<String, String> resultMap = extractResults(resultMapExpression);
+
+				for (Map.Entry<String, String> entry : resultMap.entrySet()) {
+					String ddmFormFieldName = entry.getKey();
+					String value = "";
+
+					switch (entry.getValue()){
+						case "City":
+							value = (String) addressJSON.get("administrative_area_level_2");
+							break;
+						case "State":
+							value = (String) addressJSON.get("administrative_area_level_1");
+							break;
+						case "PostalCode":
+							value = (String) addressJSON.get("postal_code");
+							break;
+						case "Country":
+							value = (String) addressJSON.get("country");
+							break;
+					}
+
+					setDDMFormFieldValue(ddmFormFieldName, value);
+
+				}
+			}
+			catch (JSONException ignored) {
+
+			}
+		}
 
 		try {
 			DDMDataProviderRequest.Builder builder =

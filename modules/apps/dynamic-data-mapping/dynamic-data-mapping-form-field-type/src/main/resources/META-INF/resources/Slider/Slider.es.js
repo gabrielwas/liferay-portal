@@ -41,27 +41,39 @@ const Slider = ({name, onChange, predefinedValue, value, id, onFocus, placeholde
 
                 const addressComponents = place.address_components;
 
-                const address = {
+                const addressTypes = {
                     formatted_address: place.formatted_address,
                     administrative_area_level_1: 'short_name',
+                    administrative_area_level_2: 'long_name',
                     country: 'long_name',
                     locality: 'long_name',
                     postal_code: 'short_name',
                     route: 'long_name',
-                    street_number: 'short_name',
+                    street_number: 'short_name'
+                };
+
+                const address = {
+                    formatted_address: place.formatted_address,
+                    administrative_area_level_1: '',
+                    administrative_area_level_2: '',
+                    country: '',
+                    locality: '',
+                    postal_code: '',
+                    route: '',
+                    street_number: ''
                 };
 
                 for (let i = 0; i < addressComponents.length; i++) {
                     const addressType = addressComponents[i].types[0];
 
-                    if (address[addressType]) {
-                        address[addressType] =
-                            addressComponents[i][address[addressType]];
-                    }
+                    address[addressType] =
+                            addressComponents[i][addressTypes[addressType]];
+
                 }
 
                 setCurrentValue(address)
 
+                onChange({target: {value: address}});
             }
 
         });
@@ -87,9 +99,12 @@ const Slider = ({name, onChange, predefinedValue, value, id, onFocus, placeholde
             <ClayInput
                 id={id}
                 name={name}
+                onChange={(event) => {
+                    onChange(event);
+                }}
                 placeholder={placeholder}
                 type="hidden"
-                value={currentValue}
+                value={getValue(currentValue)}
             />
         </>
     );
