@@ -3,12 +3,17 @@ package com.liferay.dynamic.data.mapping.form.web.internal;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderer;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderingContext;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
+import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceSettings;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion;
+import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.model.DDMStructureVersion;
+import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceVersionLocalService;
+import com.liferay.dynamic.data.mapping.util.DDMUtil;
 import com.liferay.fragment.renderer.FragmentRenderer;
 import com.liferay.fragment.renderer.FragmentRendererContext;
 import com.liferay.frontend.taglib.servlet.taglib.util.JSPRenderer;
@@ -30,6 +35,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -55,21 +61,12 @@ public class FragmentText implements FragmentRenderer {
 
 		try {
 
-			DDMFormInstance ddmFormInstance = _getDDMFormInstance();
-
-			DDMForm ddmForm = ddmFormInstance.getDDMForm();
-
-			DDMFormInstanceVersion latestDDMFormInstanceVersion = _ddmFormInstanceVersionLocalService.getLatestFormInstanceVersion(
-				ddmFormInstance.getFormInstanceId(), WorkflowConstants.STATUS_APPROVED);
-
-			DDMStructureVersion ddmStructureVersion =
-				latestDDMFormInstanceVersion.getStructureVersion();
+			DDMForm ddmForm = _createDDMForm(LocaleUtil.US);
 
 			httpServletRequest.setAttribute(
 				"fragmentRendererContext", fragmentRendererContext);
 
-			String ddmFormHTML = _ddmFormRenderer.render(
-				ddmForm, ddmStructureVersion.getDDMFormLayout(),
+			String ddmFormHTML = _ddmFormRenderer.render(ddmForm,
 				createDDMFormRenderingContext(ddmForm, httpServletRequest,
 					httpServletResponse));
 
@@ -84,6 +81,39 @@ public class FragmentText implements FragmentRenderer {
 		}
 	}
 
+	private DDMForm _createDDMForm(Locale locale) {
+		DDMForm ddmForm = new DDMForm();
+
+		ddmForm.setAvailableLocales(Collections.singleton(locale));
+		ddmForm.setDefaultLocale(locale);
+
+		DDMFormField ddmFormField = _createDDMFormField(
+			"Text1", "Text1", "text", "string", true, false, false);
+
+		ddmForm.addDDMFormField(ddmFormField);
+
+		return ddmForm;
+	}
+
+	private DDMFormField _createDDMFormField(
+		String name, String label, String type, String dataType,
+		boolean localizable, boolean repeatable, boolean required) {
+
+		DDMFormField ddmFormField = new DDMFormField(name, type);
+
+		ddmFormField.setDataType(dataType);
+		ddmFormField.setFieldReference(name);
+		ddmFormField.setLocalizable(localizable);
+		ddmFormField.setRepeatable(repeatable);
+		ddmFormField.setRequired(required);
+
+		LocalizedValue localizedValue = ddmFormField.getLabel();
+
+		localizedValue.addString(LocaleUtil.US, label);
+
+		return ddmFormField;
+	}
+
 	public void setNamespacedAttribute(
 		HttpServletRequest httpServletRequest, String key, Object value) {
 
@@ -95,26 +125,6 @@ public class FragmentText implements FragmentRenderer {
 		}
 
 		httpServletRequest.setAttribute(key, value);
-	}
-
-	protected String getRedirectURL() {
-		DDMFormInstance ddmFormInstance = _getDDMFormInstance();
-
-		if (ddmFormInstance == null) {
-			return StringPool.BLANK;
-		}
-
-		try {
-			DDMFormInstanceSettings ddmFormInstanceSettings =
-				ddmFormInstance.getSettingsModel();
-
-			return ddmFormInstanceSettings.redirectURL();
-		}
-		catch (PortalException ignored) {
-
-		}
-
-		return StringPool.BLANK;
 	}
 
 	protected DDMFormRenderingContext createDDMFormRenderingContext(
@@ -180,10 +190,6 @@ public class FragmentText implements FragmentRenderer {
 
 	@Reference
 	private DDMFormRenderer _ddmFormRenderer;
-
-	@Reference
-	private DDMFormInstanceVersionLocalService
-		_ddmFormInstanceVersionLocalService;
 
 	@Reference
 	private JSPRenderer _jspRenderer;
