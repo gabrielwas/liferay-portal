@@ -1,43 +1,34 @@
 package com.liferay.data.engine.taglib;
 
-import com.liferay.data.engine.renderer.DataLayoutRendererContext;
-import com.liferay.data.engine.rest.dto.v2_0.DataDefinition;
-import com.liferay.data.engine.rest.dto.v2_0.DataLayout;
-import com.liferay.data.engine.taglib.internal.servlet.taglib.util.DataLayoutTaglibUtil;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderer;
 import com.liferay.dynamic.data.mapping.form.renderer.DDMFormRenderingContext;
 import com.liferay.dynamic.data.mapping.model.DDMForm;
+import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
-import com.liferay.dynamic.data.mapping.model.DDMFormInstanceVersion;
-import com.liferay.dynamic.data.mapping.model.DDMStructureVersion;
+import com.liferay.dynamic.data.mapping.model.DDMFormLayout;
+import com.liferay.dynamic.data.mapping.model.DDMStructure;
+import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceLocalService;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceVersionLocalService;
+import com.liferay.dynamic.data.mapping.util.DDMUtil;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.renderer.FragmentRenderer;
 import com.liferay.fragment.renderer.FragmentRendererContext;
+import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.StringUtil;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
-import javax.portlet.PortletResponse;
-import javax.portlet.RenderResponse;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Set;
-
-import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.language.LanguageUtil;
-import com.liferay.portal.kernel.util.JavaConstants;
-import com.liferay.portal.kernel.util.LocaleUtil;
-import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.Validator;
-import com.liferay.portal.kernel.workflow.WorkflowConstants;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 @Component(service = FragmentRenderer.class)
 public class TextFieldFragment implements FragmentRenderer {
@@ -58,47 +49,86 @@ public class TextFieldFragment implements FragmentRenderer {
 		HttpServletRequest httpServletRequest,
 		HttpServletResponse httpServletResponse) throws IOException {
 
-		try {
+		/*			DDMFormInstance ddmFormInstance = _getDDMFormInstance();
 
-			DDMFormInstance ddmFormInstance = _getDDMFormInstance();
+					DDMForm ddmForm = ddmFormInstance.getDDMForm();
 
-			DDMForm ddmForm = ddmFormInstance.getDDMForm();
+					DDMFormInstanceVersion latestDDMFormInstanceVersion = _ddmFormInstanceVersionLocalService.getLatestFormInstanceVersion(
+						ddmFormInstance.getFormInstanceId(), WorkflowConstants.STATUS_APPROVED);
 
-			DDMFormInstanceVersion latestDDMFormInstanceVersion = _ddmFormInstanceVersionLocalService.getLatestFormInstanceVersion(
-				ddmFormInstance.getFormInstanceId(), WorkflowConstants.STATUS_APPROVED);
-
-			DDMStructureVersion ddmStructureVersion =
-				latestDDMFormInstanceVersion.getStructureVersion();
+					DDMStructureVersion ddmStructureVersion =
+						latestDDMFormInstanceVersion.getStructureVersion();*/
 
 //			String render = _ddmFormRenderer.render(
 //				ddmForm, ddmStructureVersion.getDDMFormLayout(),
 //				createDDMFormRenderingContext(ddmForm, httpServletRequest,
 //					httpServletResponse));
 
-			PrintWriter printWriter = httpServletResponse.getWriter();
+		DDMForm ddmForm = _createDDMForm(LocaleUtil.US);
 
-			printWriter.write("<h3>Context</h3>");
-			printWriter.write("<ul>");
+		//DDMStructure ddmStructure = _addStructure(ddmForm, StorageType.DEFAULT.toString());
 
-			FragmentEntryLink fragmentEntryLink =
-				fragmentRendererContext.getFragmentEntryLink();
+		PrintWriter printWriter = httpServletResponse.getWriter();
 
-			printWriter.write("<li>Added by: " + fragmentEntryLink.getUserName());
-			printWriter.write("<li>Added in: " + fragmentEntryLink.getCreateDate());
+		printWriter.write("<h3>Context</h3>");
+		printWriter.write("<ul>");
 
-			printWriter.write("<li>Locale: " + fragmentRendererContext.getLocale());
-			printWriter.write("<li>Mode: " + fragmentRendererContext.getMode());
-			printWriter.write("<li>PreviewClassPK: " + fragmentRendererContext.getPreviewClassPK());
-			printWriter.write("<li>PreviewType: " + fragmentRendererContext.getPreviewType());
-			printWriter.write("<li>Segment experiences: " + StringUtil.merge(fragmentRendererContext.getSegmentsExperienceIds(), ", "));
-			printWriter.write("</ul>");
+		FragmentEntryLink fragmentEntryLink =
+			fragmentRendererContext.getFragmentEntryLink();
 
-			// System.out.println(render);
+		printWriter.write("<li>Added by: " + fragmentEntryLink.getUserName());
+		printWriter.write("<li>Added in: " + fragmentEntryLink.getCreateDate());
 
-		}
-		catch (PortalException e) {
-			e.printStackTrace();
-		}
+		printWriter.write("<li>Locale: " + fragmentRendererContext.getLocale());
+		printWriter.write("<li>Mode: " + fragmentRendererContext.getMode());
+		printWriter.write("<li>PreviewClassPK: " + fragmentRendererContext.getPreviewClassPK());
+		printWriter.write("<li>PreviewType: " + fragmentRendererContext.getPreviewType());
+		printWriter.write("<li>Segment experiences: " + StringUtil.merge(fragmentRendererContext.getSegmentsExperienceIds(), ", "));
+		printWriter.write("</ul>");
+
+		// System.out.println(render);
+
+	}
+
+	private DDMForm _createDDMForm(Locale locale) {
+		DDMForm ddmForm = new DDMForm();
+
+		ddmForm.setAvailableLocales(Collections.singleton(locale));
+		ddmForm.setDefaultLocale(locale);
+
+		DDMFormField ddmFormField = _createDDMFormField(
+			"Text1", "Text1", "text", "string", true, false, false);
+
+		ddmForm.addDDMFormField(ddmFormField);
+
+		return ddmForm;
+	}
+
+	private DDMFormField _createDDMFormField(
+		String name, String label, String type, String dataType,
+		boolean localizable, boolean repeatable, boolean required) {
+
+		DDMFormField ddmFormField = new DDMFormField(name, type);
+
+		ddmFormField.setDataType(dataType);
+		ddmFormField.setFieldReference(name);
+		ddmFormField.setLocalizable(localizable);
+		ddmFormField.setRepeatable(repeatable);
+		ddmFormField.setRequired(required);
+
+		LocalizedValue localizedValue = ddmFormField.getLabel();
+
+		localizedValue.addString(LocaleUtil.US, label);
+
+		return ddmFormField;
+	}
+
+	private DDMStructure _addStructure(DDMForm ddmForm, String storageType)
+		throws Exception {
+
+		DDMFormLayout ddmFormLayout = DDMUtil.getDefaultDDMFormLayout(ddmForm);
+
+		return null;
 	}
 
 	protected DDMFormRenderingContext createDDMFormRenderingContext(
