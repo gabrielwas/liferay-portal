@@ -44,6 +44,8 @@ dependencies {
 	compileOnly project(":core:petra:petra-string")
 	compileOnly project(":core:registry-api")
 
+	compileOnly project(":apps:fragment:fragment-api")
+
 	testCompile group: "org.skyscreamer", name: "jsonassert", version: "1.2.3"
 	testCompile project(":apps:dynamic-data-mapping:dynamic-data-mapping-expression")
 	testCompile project(":apps:dynamic-data-mapping:dynamic-data-mapping-form-builder")
