@@ -12,7 +12,7 @@
  * details.
  */
 
-package com.liferay.dynamic.data.mapping.internal.storage;
+package com.liferay.object.forms.storage.internal.model.listener;
 
 import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
@@ -49,7 +49,6 @@ public class DDMStructureModelListener extends BaseModelListener<DDMStructure> {
 		}
 
 		DDMForm ddmForm = ddmStructure.getDDMForm();
-
 		List<ObjectField> objectFields = new ArrayList<>();
 
 		for (DDMFormField ddmFormField : ddmForm.getDDMFormFields()) {
@@ -68,8 +67,7 @@ public class DDMStructureModelListener extends BaseModelListener<DDMStructure> {
 				"Structure" + ddmStructure.getStructureId(), objectFields);
 		}
 		catch (PortalException portalException) {
-			_log.error(
-				"Unable to add object definition", portalException);
+			_log.error("Unable to add object definition", portalException);
 		}
 	}
 
@@ -92,13 +90,13 @@ public class DDMStructureModelListener extends BaseModelListener<DDMStructure> {
 		return _createObjectField(true, false, null, name, type);
 	}
 
+	private static final Log _log = LogFactoryUtil.getLog(
+		DDMStructureModelListener.class);
+
 	@Reference
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;
 
 	@Reference
 	private ObjectFieldLocalService _objectFieldLocalService;
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		DDMStructureModelListener.class);
 
 }
