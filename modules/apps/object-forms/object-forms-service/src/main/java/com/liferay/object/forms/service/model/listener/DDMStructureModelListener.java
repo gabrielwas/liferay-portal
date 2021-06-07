@@ -22,6 +22,8 @@ import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.ModelListener;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -65,8 +67,9 @@ public class DDMStructureModelListener extends BaseModelListener<DDMStructure> {
 				ddmStructure.getUserId(),
 				"Structure" + ddmStructure.getStructureId(), objectFields);
 		}
-		catch (PortalException e) {
-			e.printStackTrace();
+		catch (PortalException portalException) {
+			_log.error(
+				"Unable to add object definition", portalException);
 		}
 	}
 
@@ -94,5 +97,8 @@ public class DDMStructureModelListener extends BaseModelListener<DDMStructure> {
 
 	@Reference
 	private ObjectFieldLocalService _objectFieldLocalService;
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		DDMStructureModelListener.class);
 
 }
