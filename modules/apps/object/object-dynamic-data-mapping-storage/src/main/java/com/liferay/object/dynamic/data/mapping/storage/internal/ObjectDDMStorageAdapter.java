@@ -15,6 +15,13 @@
 package com.liferay.object.dynamic.data.mapping.storage.internal;
 
 import com.liferay.dynamic.data.mapping.exception.StorageException;
+import com.liferay.dynamic.data.mapping.model.DDMForm;
+import com.liferay.dynamic.data.mapping.model.DDMFormField;
+import com.liferay.dynamic.data.mapping.model.LocalizedValue;
+import com.liferay.dynamic.data.mapping.model.Value;
+import com.liferay.dynamic.data.mapping.service.DDMFieldLocalService;
+import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
+import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.storage.DDMStorageAdapter;
 import com.liferay.dynamic.data.mapping.storage.DDMStorageAdapterDeleteRequest;
 import com.liferay.dynamic.data.mapping.storage.DDMStorageAdapterDeleteResponse;
@@ -22,6 +29,28 @@ import com.liferay.dynamic.data.mapping.storage.DDMStorageAdapterGetRequest;
 import com.liferay.dynamic.data.mapping.storage.DDMStorageAdapterGetResponse;
 import com.liferay.dynamic.data.mapping.storage.DDMStorageAdapterSaveRequest;
 import com.liferay.dynamic.data.mapping.storage.DDMStorageAdapterSaveResponse;
+import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.model.ObjectEntry;
+import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
+import com.liferay.object.rest.resource.v1_0.ObjectEntryResource;
+import com.liferay.object.service.ObjectDefinitionLocalService;
+import com.liferay.object.service.ObjectEntryLocalService;
+import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
+
+import java.io.Serializable;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -40,6 +69,24 @@ public class ObjectDDMStorageAdapter implements DDMStorageAdapter {
 			DDMStorageAdapterDeleteRequest ddmStorageAdapterDeleteRequest)
 		throws StorageException {
 
+		ObjectEntry objectEntry;
+
+		try {
+			objectEntry = _objectEntryLocalService.getObjectEntry(
+				ddmStorageAdapterDeleteRequest.getPrimaryKey());
+
+			Map<String, Serializable> values = objectEntry.getValues();
+
+			_ddmFieldLocalService.deleteDDMFormValues(
+				(Long)values.get("ddmStorageId"));
+
+			_objectEntryLocalService.deleteObjectEntry(
+				objectEntry.getObjectEntryId());
+		}
+		catch (PortalException portalException) {
+			throw new StorageException(portalException);
+		}
+
 		return DDMStorageAdapterDeleteResponse.Builder.newBuilder(
 		).build();
 	}
@@ -49,8 +96,40 @@ public class ObjectDDMStorageAdapter implements DDMStorageAdapter {
 			DDMStorageAdapterGetRequest ddmStorageAdapterGetRequest)
 		throws StorageException {
 
+		ObjectEntry objectEntry;
+
+		try {
+			objectEntry = _objectEntryLocalService.getObjectEntry(
+				ddmStorageAdapterGetRequest.getPrimaryKey());
+		}
+		catch (PortalException portalException) {
+			throw new StorageException(portalException);
+		}
+
+		Map<String, Serializable> values = objectEntry.getValues();
+
+		DDMForm ddmForm = ddmStorageAdapterGetRequest.getDDMForm();
+
+		DDMFormValues ddmFormValues = _ddmFieldLocalService.getDDMFormValues(
+			ddmForm, (Long)values.get("ddmStorageId"));
+
+		for (DDMFormFieldValue ddmFormFieldValue :
+				ddmFormValues.getDDMFormFieldValues()) {
+
+			DDMFormField ddmFormField = ddmFormFieldValue.getDDMFormField();
+
+			Value value = new LocalizedValue(ddmForm.getDefaultLocale());
+
+			value.addString(
+				ddmForm.getDefaultLocale(),
+				(String)values.get(
+					StringUtil.toLowerCase(ddmFormField.getName())));
+
+			ddmFormFieldValue.setValue(value);
+		}
+
 		return DDMStorageAdapterGetResponse.Builder.newBuilder(
-			null
+			ddmFormValues
 		).build();
 	}
 
@@ -59,10 +138,120 @@ public class ObjectDDMStorageAdapter implements DDMStorageAdapter {
 			DDMStorageAdapterSaveRequest ddmStorageAdapterSaveRequest)
 		throws StorageException {
 
-		return _ddmStorageAdapter.save(ddmStorageAdapterSaveRequest);
+		DDMStorageAdapterSaveResponse ddmStorageAdapterSaveResponse =
+			_ddmStorageAdapter.save(ddmStorageAdapterSaveRequest);
+
+		ObjectDefinition objectDefinition = _getObjectDefinition(
+			ddmStorageAdapterSaveRequest.getStructureId());
+
+		DDMFormValues ddmFormValues =
+			ddmStorageAdapterSaveRequest.getDDMFormValues();
+
+		HashMap<String, Object> objectEntryValues = new HashMap<>();
+
+		for (DDMFormFieldValue ddmFormValue :
+				ddmFormValues.getDDMFormFieldValues()) {
+
+			Value value = ddmFormValue.getValue();
+
+			Map<Locale, String> values = value.getValues();
+
+			DDMFormField ddmFormField = ddmFormValue.getDDMFormField();
+
+			objectEntryValues.put(
+				StringUtil.toLowerCase(ddmFormField.getName()),
+				values.get(value.getDefaultLocale()));
+		}
+
+		objectEntryValues.put(
+			"ddmStorageId", ddmStorageAdapterSaveResponse.getPrimaryKey());
+
+		try {
+			com.liferay.object.rest.dto.v1_0.ObjectEntry objectEntry =
+				new com.liferay.object.rest.dto.v1_0.ObjectEntry() {
+					{
+						properties = objectEntryValues;
+					}
+				};
+
+			User user = _userLocalService.getUser(
+				ddmStorageAdapterSaveRequest.getUserId());
+
+			DDMForm ddmForm = ddmFormValues.getDDMForm();
+
+			DefaultDTOConverterContext defaultDTOConverterContext =
+				_getDTOConverterContext(null, user, ddmForm.getDefaultLocale());
+
+			com.liferay.object.rest.dto.v1_0.ObjectEntry postObjectEntry =
+				_objectEntryManager.addObjectEntry(
+					defaultDTOConverterContext, user.getUserId(),
+					objectDefinition.getObjectDefinitionId(), objectEntry);
+
+			return DDMStorageAdapterSaveResponse.Builder.newBuilder(
+				postObjectEntry.getId()
+			).build();
+		}
+		catch (Exception exception) {
+			throw new StorageException(exception);
+		}
 	}
+
+	private DefaultDTOConverterContext _getDTOConverterContext(
+		Long objectEntryId, User user, Locale locale) {
+
+		return new DefaultDTOConverterContext(
+			true,
+			Collections.singletonMap(
+				"delete", Collections.singletonMap("delete", "")),
+			null, null, objectEntryId, locale, null, user);
+	}
+
+	private ObjectDefinition _getObjectDefinition(Long ddmStructureId)
+		throws StorageException {
+
+		// This code to get the objectDefinition by name is temporary. It
+		// will be gone when we develop the UI association between Object
+		// and Form Field
+
+		List<ObjectDefinition> objectDefinitions =
+			_objectDefinitionLocalService.getObjectDefinitions(0, 1000);
+
+		Stream<ObjectDefinition> stream = objectDefinitions.stream();
+
+		Optional<ObjectDefinition> objectDefinitionOptional = stream.filter(
+			objectDefinition -> StringUtil.equals(
+				objectDefinition.getName(), "Structure" + ddmStructureId)
+		).findFirst();
+
+		if (objectDefinitionOptional.isPresent()) {
+			return objectDefinitionOptional.get();
+		}
+
+		throw new StorageException("Object does not exist");
+	}
+
+	@Reference
+	private DDMFieldLocalService _ddmFieldLocalService;
 
 	@Reference(target = "(ddm.storage.adapter.type=default)")
 	private DDMStorageAdapter _ddmStorageAdapter;
+
+	@Reference
+	private ObjectDefinitionLocalService _objectDefinitionLocalService;
+
+	@Reference
+	private ObjectEntryLocalService _objectEntryLocalService;
+
+	@Reference
+	private ObjectEntryManager _objectEntryManager;
+
+	@Reference
+	private ObjectEntryResource.Factory _objectEntryResourceFactory;
+
+	@Reference
+	private Portal _portal;
+
+	@Reference
+	private UserLocalService _userLocalService;
 
 }
