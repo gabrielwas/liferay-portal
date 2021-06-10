@@ -30,19 +30,14 @@ import com.liferay.dynamic.data.mapping.storage.DDMStorageAdapterGetResponse;
 import com.liferay.dynamic.data.mapping.storage.DDMStorageAdapterSaveRequest;
 import com.liferay.dynamic.data.mapping.storage.DDMStorageAdapterSaveResponse;
 import com.liferay.object.model.ObjectDefinition;
-import com.liferay.object.model.ObjectEntry;
+import com.liferay.object.rest.dto.v1_0.ObjectEntry;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
-import com.liferay.object.rest.resource.v1_0.ObjectEntryResource;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.UserLocalService;
-import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
-
-import java.io.Serializable;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -69,22 +64,23 @@ public class ObjectDDMStorageAdapter implements DDMStorageAdapter {
 			DDMStorageAdapterDeleteRequest ddmStorageAdapterDeleteRequest)
 		throws StorageException {
 
-		ObjectEntry objectEntry;
-
 		try {
-			objectEntry = _objectEntryLocalService.getObjectEntry(
+
+			ObjectEntry objectEntry;
+
+			objectEntry = _objectEntryManager.getObjectEntry(
+				_getDTOConverterContext(null, null, null),
 				ddmStorageAdapterDeleteRequest.getPrimaryKey());
 
-			Map<String, Serializable> values = objectEntry.getValues();
+			Map<String, Object> values = objectEntry.getProperties();
 
 			_ddmFieldLocalService.deleteDDMFormValues(
 				(Long)values.get("ddmStorageId"));
 
-			_objectEntryLocalService.deleteObjectEntry(
-				objectEntry.getObjectEntryId());
+			_objectEntryLocalService.deleteObjectEntry(objectEntry.getId());
 		}
-		catch (PortalException portalException) {
-			throw new StorageException(portalException);
+		catch (Exception exception) {
+			throw new StorageException(exception);
 		}
 
 		return DDMStorageAdapterDeleteResponse.Builder.newBuilder(
@@ -96,19 +92,20 @@ public class ObjectDDMStorageAdapter implements DDMStorageAdapter {
 			DDMStorageAdapterGetRequest ddmStorageAdapterGetRequest)
 		throws StorageException {
 
+		DDMForm ddmForm = ddmStorageAdapterGetRequest.getDDMForm();
+
 		ObjectEntry objectEntry;
 
 		try {
-			objectEntry = _objectEntryLocalService.getObjectEntry(
+			objectEntry = _objectEntryManager.getObjectEntry(
+				_getDTOConverterContext(null, null, ddmForm.getDefaultLocale()),
 				ddmStorageAdapterGetRequest.getPrimaryKey());
 		}
-		catch (PortalException portalException) {
-			throw new StorageException(portalException);
+		catch (Exception exception) {
+			throw new StorageException(exception);
 		}
 
-		Map<String, Serializable> values = objectEntry.getValues();
-
-		DDMForm ddmForm = ddmStorageAdapterGetRequest.getDDMForm();
+		Map<String, Object> values = objectEntry.getProperties();
 
 		DDMFormValues ddmFormValues = _ddmFieldLocalService.getDDMFormValues(
 			ddmForm, (Long)values.get("ddmStorageId"));
@@ -167,12 +164,11 @@ public class ObjectDDMStorageAdapter implements DDMStorageAdapter {
 			"ddmStorageId", ddmStorageAdapterSaveResponse.getPrimaryKey());
 
 		try {
-			com.liferay.object.rest.dto.v1_0.ObjectEntry objectEntry =
-				new com.liferay.object.rest.dto.v1_0.ObjectEntry() {
-					{
-						properties = objectEntryValues;
-					}
-				};
+			ObjectEntry objectEntry = new ObjectEntry() {
+				{
+					properties = objectEntryValues;
+				}
+			};
 
 			User user = _userLocalService.getUser(
 				ddmStorageAdapterSaveRequest.getUserId());
@@ -182,13 +178,12 @@ public class ObjectDDMStorageAdapter implements DDMStorageAdapter {
 			DefaultDTOConverterContext defaultDTOConverterContext =
 				_getDTOConverterContext(null, user, ddmForm.getDefaultLocale());
 
-			com.liferay.object.rest.dto.v1_0.ObjectEntry postObjectEntry =
-				_objectEntryManager.addObjectEntry(
-					defaultDTOConverterContext, user.getUserId(),
-					objectDefinition.getObjectDefinitionId(), objectEntry);
+			ObjectEntry addObjectEntry = _objectEntryManager.addObjectEntry(
+				defaultDTOConverterContext, user.getUserId(),
+				objectDefinition.getObjectDefinitionId(), objectEntry);
 
 			return DDMStorageAdapterSaveResponse.Builder.newBuilder(
-				postObjectEntry.getId()
+				addObjectEntry.getId()
 			).build();
 		}
 		catch (Exception exception) {
@@ -244,12 +239,6 @@ public class ObjectDDMStorageAdapter implements DDMStorageAdapter {
 
 	@Reference
 	private ObjectEntryManager _objectEntryManager;
-
-	@Reference
-	private ObjectEntryResource.Factory _objectEntryResourceFactory;
-
-	@Reference
-	private Portal _portal;
 
 	@Reference
 	private UserLocalService _userLocalService;
