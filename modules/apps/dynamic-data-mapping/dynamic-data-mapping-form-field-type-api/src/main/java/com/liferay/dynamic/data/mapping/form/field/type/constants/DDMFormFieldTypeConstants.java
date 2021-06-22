@@ -29,6 +29,8 @@ public class DDMFormFieldTypeConstants {
 
 	public static final String DATE = "date";
 
+	public static final String OBJECT_RELATION = "object_relation";
+
 	public static final String DOCUMENT_LIBRARY = "document_library";
 
 	public static final String FIELDSET = "fieldset";
