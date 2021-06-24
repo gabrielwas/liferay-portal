@@ -234,9 +234,6 @@ public interface TextDDMFormFieldTypeSettings
 	@Override
 	public String indexType();
 
-	@DDMFormField(label = "%character-options", type = "object_relation")
-	public String objectFieldName();
-
 	@DDMFormField(
 		dataType = "ddm-options", label = "%options",
 		properties = {"showLabel=false", "allowEmptyOptions=true"},

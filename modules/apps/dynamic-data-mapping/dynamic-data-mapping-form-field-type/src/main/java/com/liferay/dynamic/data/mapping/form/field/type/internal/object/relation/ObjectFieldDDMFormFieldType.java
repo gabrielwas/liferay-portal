@@ -26,22 +26,21 @@ import org.osgi.service.component.annotations.Component;
 @Component(
 	immediate = true,
 	property = {
-		"ddm.form.field.type.name=" + DDMFormFieldTypeConstants.OBJECT_RELATION,
+		"ddm.form.field.type.name=" + DDMFormFieldTypeConstants.OBJECT_FIELD,
 		"ddm.form.field.type.system=true"
 	},
 	service = DDMFormFieldType.class
 )
-public class ObjectRelationDDMFormFieldType extends BaseDDMFormFieldType {
+public class ObjectFieldDDMFormFieldType extends BaseDDMFormFieldType {
 
 	@Override
 	public String getModuleName() {
-		return "dynamic-data-mapping-form-field-type/ObjectRelation" +
-			"/ObjectRelation";
+		return "dynamic-data-mapping-form-field-type/ObjectField/ObjectField";
 	}
 
 	@Override
 	public String getName() {
-		return DDMFormFieldTypeConstants.OBJECT_RELATION;
+		return DDMFormFieldTypeConstants.OBJECT_FIELD;
 	}
 
 }

@@ -59,7 +59,7 @@ const getObjectDefinitionId = (settingsDDMFormRef) => {
 	);
 };
 
-const ObjectRelation = ({
+const ObjectField = ({
 	label,
 	onChange,
 	readOnly,
@@ -120,4 +120,4 @@ const ObjectRelation = ({
 	);
 };
 
-export default ObjectRelation;
+export default ObjectField;
