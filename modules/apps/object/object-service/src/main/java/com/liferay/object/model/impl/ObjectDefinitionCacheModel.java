@@ -106,10 +106,10 @@ public class ObjectDefinitionCacheModel
 		sb.append(pkObjectFieldName);
 		sb.append(", system=");
 		sb.append(system);
-		sb.append(", status=");
-		sb.append(status);
 		sb.append(", version=");
 		sb.append(version);
+		sb.append(", status=");
+		sb.append(status);
 		sb.append("}");
 
 		return sb.toString();
@@ -183,8 +183,8 @@ public class ObjectDefinitionCacheModel
 		}
 
 		objectDefinitionImpl.setSystem(system);
-		objectDefinitionImpl.setStatus(status);
 		objectDefinitionImpl.setVersion(version);
+		objectDefinitionImpl.setStatus(status);
 
 		objectDefinitionImpl.resetOriginalValues();
 
@@ -211,9 +211,9 @@ public class ObjectDefinitionCacheModel
 
 		system = objectInput.readBoolean();
 
-		status = objectInput.readInt();
-
 		version = objectInput.readInt();
+
+		status = objectInput.readInt();
 	}
 
 	@Override
@@ -273,9 +273,9 @@ public class ObjectDefinitionCacheModel
 
 		objectOutput.writeBoolean(system);
 
-		objectOutput.writeInt(status);
-
 		objectOutput.writeInt(version);
+
+		objectOutput.writeInt(status);
 	}
 
 	public long mvccVersion;
@@ -291,7 +291,7 @@ public class ObjectDefinitionCacheModel
 	public String pkObjectFieldDBColumnName;
 	public String pkObjectFieldName;
 	public boolean system;
-	public int status;
 	public int version;
+	public int status;
 
 }

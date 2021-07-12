@@ -812,6 +812,69 @@ public class ObjectDefinitionUtil {
 	}
 
 	/**
+	 * Returns the object definition where companyId = &#63; and name = &#63; or throws a <code>NoSuchObjectDefinitionException</code> if it could not be found.
+	 *
+	 * @param companyId the company ID
+	 * @param name the name
+	 * @return the matching object definition
+	 * @throws NoSuchObjectDefinitionException if a matching object definition could not be found
+	 */
+	public static ObjectDefinition findByC_N(long companyId, String name)
+		throws com.liferay.object.exception.NoSuchObjectDefinitionException {
+
+		return getPersistence().findByC_N(companyId, name);
+	}
+
+	/**
+	 * Returns the object definition where companyId = &#63; and name = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 *
+	 * @param companyId the company ID
+	 * @param name the name
+	 * @return the matching object definition, or <code>null</code> if a matching object definition could not be found
+	 */
+	public static ObjectDefinition fetchByC_N(long companyId, String name) {
+		return getPersistence().fetchByC_N(companyId, name);
+	}
+
+	/**
+	 * Returns the object definition where companyId = &#63; and name = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 *
+	 * @param companyId the company ID
+	 * @param name the name
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the matching object definition, or <code>null</code> if a matching object definition could not be found
+	 */
+	public static ObjectDefinition fetchByC_N(
+		long companyId, String name, boolean useFinderCache) {
+
+		return getPersistence().fetchByC_N(companyId, name, useFinderCache);
+	}
+
+	/**
+	 * Removes the object definition where companyId = &#63; and name = &#63; from the database.
+	 *
+	 * @param companyId the company ID
+	 * @param name the name
+	 * @return the object definition that was removed
+	 */
+	public static ObjectDefinition removeByC_N(long companyId, String name)
+		throws com.liferay.object.exception.NoSuchObjectDefinitionException {
+
+		return getPersistence().removeByC_N(companyId, name);
+	}
+
+	/**
+	 * Returns the number of object definitions where companyId = &#63; and name = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param name the name
+	 * @return the number of matching object definitions
+	 */
+	public static int countByC_N(long companyId, String name) {
+		return getPersistence().countByC_N(companyId, name);
+	}
+
+	/**
 	 * Returns all the object definitions where system = &#63; and status = &#63;.
 	 *
 	 * @param system the system
@@ -993,69 +1056,6 @@ public class ObjectDefinitionUtil {
 	 */
 	public static int countByS_S(boolean system, int status) {
 		return getPersistence().countByS_S(system, status);
-	}
-
-	/**
-	 * Returns the object definition where companyId = &#63; and name = &#63; or throws a <code>NoSuchObjectDefinitionException</code> if it could not be found.
-	 *
-	 * @param companyId the company ID
-	 * @param name the name
-	 * @return the matching object definition
-	 * @throws NoSuchObjectDefinitionException if a matching object definition could not be found
-	 */
-	public static ObjectDefinition findByC_N(long companyId, String name)
-		throws com.liferay.object.exception.NoSuchObjectDefinitionException {
-
-		return getPersistence().findByC_N(companyId, name);
-	}
-
-	/**
-	 * Returns the object definition where companyId = &#63; and name = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
-	 *
-	 * @param companyId the company ID
-	 * @param name the name
-	 * @return the matching object definition, or <code>null</code> if a matching object definition could not be found
-	 */
-	public static ObjectDefinition fetchByC_N(long companyId, String name) {
-		return getPersistence().fetchByC_N(companyId, name);
-	}
-
-	/**
-	 * Returns the object definition where companyId = &#63; and name = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
-	 *
-	 * @param companyId the company ID
-	 * @param name the name
-	 * @param useFinderCache whether to use the finder cache
-	 * @return the matching object definition, or <code>null</code> if a matching object definition could not be found
-	 */
-	public static ObjectDefinition fetchByC_N(
-		long companyId, String name, boolean useFinderCache) {
-
-		return getPersistence().fetchByC_N(companyId, name, useFinderCache);
-	}
-
-	/**
-	 * Removes the object definition where companyId = &#63; and name = &#63; from the database.
-	 *
-	 * @param companyId the company ID
-	 * @param name the name
-	 * @return the object definition that was removed
-	 */
-	public static ObjectDefinition removeByC_N(long companyId, String name)
-		throws com.liferay.object.exception.NoSuchObjectDefinitionException {
-
-		return getPersistence().removeByC_N(companyId, name);
-	}
-
-	/**
-	 * Returns the number of object definitions where companyId = &#63; and name = &#63;.
-	 *
-	 * @param companyId the company ID
-	 * @param name the name
-	 * @return the number of matching object definitions
-	 */
-	public static int countByC_N(long companyId, String name) {
-		return getPersistence().countByC_N(companyId, name);
 	}
 
 	/**

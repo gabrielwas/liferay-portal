@@ -286,20 +286,6 @@ public interface ObjectDefinitionModel
 	public void setSystem(boolean system);
 
 	/**
-	 * Returns the status of this object definition.
-	 *
-	 * @return the status of this object definition
-	 */
-	public int getStatus();
-
-	/**
-	 * Sets the status of this object definition.
-	 *
-	 * @param status the status of this object definition
-	 */
-	public void setStatus(int status);
-
-	/**
 	 * Returns the version of this object definition.
 	 *
 	 * @return the version of this object definition
@@ -312,5 +298,19 @@ public interface ObjectDefinitionModel
 	 * @param version the version of this object definition
 	 */
 	public void setVersion(int version);
+
+	/**
+	 * Returns the status of this object definition.
+	 *
+	 * @return the status of this object definition
+	 */
+	public int getStatus();
+
+	/**
+	 * Sets the status of this object definition.
+	 *
+	 * @param status the status of this object definition
+	 */
+	public void setStatus(int status);
 
 }

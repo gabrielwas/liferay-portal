@@ -12,8 +12,8 @@ create table ObjectDefinition (
 	pkObjectFieldDBColumnName VARCHAR(75) null,
 	pkObjectFieldName VARCHAR(75) null,
 	system_ BOOLEAN,
-	status INTEGER,
-	version INTEGER
+	version INTEGER,
+	status INTEGER
 );
 
 create table ObjectEntry (

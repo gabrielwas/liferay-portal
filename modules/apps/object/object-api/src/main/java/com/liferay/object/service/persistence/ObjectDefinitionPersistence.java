@@ -626,6 +626,56 @@ public interface ObjectDefinitionPersistence
 	public int countBySystem(boolean system);
 
 	/**
+	 * Returns the object definition where companyId = &#63; and name = &#63; or throws a <code>NoSuchObjectDefinitionException</code> if it could not be found.
+	 *
+	 * @param companyId the company ID
+	 * @param name the name
+	 * @return the matching object definition
+	 * @throws NoSuchObjectDefinitionException if a matching object definition could not be found
+	 */
+	public ObjectDefinition findByC_N(long companyId, String name)
+		throws NoSuchObjectDefinitionException;
+
+	/**
+	 * Returns the object definition where companyId = &#63; and name = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 *
+	 * @param companyId the company ID
+	 * @param name the name
+	 * @return the matching object definition, or <code>null</code> if a matching object definition could not be found
+	 */
+	public ObjectDefinition fetchByC_N(long companyId, String name);
+
+	/**
+	 * Returns the object definition where companyId = &#63; and name = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 *
+	 * @param companyId the company ID
+	 * @param name the name
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the matching object definition, or <code>null</code> if a matching object definition could not be found
+	 */
+	public ObjectDefinition fetchByC_N(
+		long companyId, String name, boolean useFinderCache);
+
+	/**
+	 * Removes the object definition where companyId = &#63; and name = &#63; from the database.
+	 *
+	 * @param companyId the company ID
+	 * @param name the name
+	 * @return the object definition that was removed
+	 */
+	public ObjectDefinition removeByC_N(long companyId, String name)
+		throws NoSuchObjectDefinitionException;
+
+	/**
+	 * Returns the number of object definitions where companyId = &#63; and name = &#63;.
+	 *
+	 * @param companyId the company ID
+	 * @param name the name
+	 * @return the number of matching object definitions
+	 */
+	public int countByC_N(long companyId, String name);
+
+	/**
 	 * Returns all the object definitions where system = &#63; and status = &#63;.
 	 *
 	 * @param system the system
@@ -779,56 +829,6 @@ public interface ObjectDefinitionPersistence
 	 * @return the number of matching object definitions
 	 */
 	public int countByS_S(boolean system, int status);
-
-	/**
-	 * Returns the object definition where companyId = &#63; and name = &#63; or throws a <code>NoSuchObjectDefinitionException</code> if it could not be found.
-	 *
-	 * @param companyId the company ID
-	 * @param name the name
-	 * @return the matching object definition
-	 * @throws NoSuchObjectDefinitionException if a matching object definition could not be found
-	 */
-	public ObjectDefinition findByC_N(long companyId, String name)
-		throws NoSuchObjectDefinitionException;
-
-	/**
-	 * Returns the object definition where companyId = &#63; and name = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
-	 *
-	 * @param companyId the company ID
-	 * @param name the name
-	 * @return the matching object definition, or <code>null</code> if a matching object definition could not be found
-	 */
-	public ObjectDefinition fetchByC_N(long companyId, String name);
-
-	/**
-	 * Returns the object definition where companyId = &#63; and name = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
-	 *
-	 * @param companyId the company ID
-	 * @param name the name
-	 * @param useFinderCache whether to use the finder cache
-	 * @return the matching object definition, or <code>null</code> if a matching object definition could not be found
-	 */
-	public ObjectDefinition fetchByC_N(
-		long companyId, String name, boolean useFinderCache);
-
-	/**
-	 * Removes the object definition where companyId = &#63; and name = &#63; from the database.
-	 *
-	 * @param companyId the company ID
-	 * @param name the name
-	 * @return the object definition that was removed
-	 */
-	public ObjectDefinition removeByC_N(long companyId, String name)
-		throws NoSuchObjectDefinitionException;
-
-	/**
-	 * Returns the number of object definitions where companyId = &#63; and name = &#63;.
-	 *
-	 * @param companyId the company ID
-	 * @param name the name
-	 * @return the number of matching object definitions
-	 */
-	public int countByC_N(long companyId, String name);
 
 	/**
 	 * Caches the object definition in the entity cache if it is enabled.

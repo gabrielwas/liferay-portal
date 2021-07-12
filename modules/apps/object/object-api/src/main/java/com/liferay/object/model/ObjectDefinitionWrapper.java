@@ -57,8 +57,8 @@ public class ObjectDefinitionWrapper
 			"pkObjectFieldDBColumnName", getPKObjectFieldDBColumnName());
 		attributes.put("pkObjectFieldName", getPKObjectFieldName());
 		attributes.put("system", isSystem());
-		attributes.put("status", getStatus());
 		attributes.put("version", getVersion());
+		attributes.put("status", getStatus());
 
 		return attributes;
 	}
@@ -144,16 +144,16 @@ public class ObjectDefinitionWrapper
 			setSystem(system);
 		}
 
-		Integer status = (Integer)attributes.get("status");
-
-		if (status != null) {
-			setStatus(status);
-		}
-
 		Integer version = (Integer)attributes.get("version");
 
 		if (version != null) {
 			setVersion(version);
+		}
+
+		Integer status = (Integer)attributes.get("status");
+
+		if (status != null) {
+			setStatus(status);
 		}
 	}
 

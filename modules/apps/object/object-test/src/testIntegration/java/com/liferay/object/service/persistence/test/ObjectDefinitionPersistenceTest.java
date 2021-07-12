@@ -149,9 +149,9 @@ public class ObjectDefinitionPersistenceTest {
 
 		newObjectDefinition.setSystem(RandomTestUtil.randomBoolean());
 
-		newObjectDefinition.setStatus(RandomTestUtil.nextInt());
-
 		newObjectDefinition.setVersion(RandomTestUtil.nextInt());
+
+		newObjectDefinition.setStatus(RandomTestUtil.nextInt());
 
 		_objectDefinitions.add(_persistence.update(newObjectDefinition));
 
@@ -196,11 +196,11 @@ public class ObjectDefinitionPersistenceTest {
 			existingObjectDefinition.isSystem(),
 			newObjectDefinition.isSystem());
 		Assert.assertEquals(
-			existingObjectDefinition.getStatus(),
-			newObjectDefinition.getStatus());
-		Assert.assertEquals(
 			existingObjectDefinition.getVersion(),
 			newObjectDefinition.getVersion());
+		Assert.assertEquals(
+			existingObjectDefinition.getStatus(),
+			newObjectDefinition.getStatus());
 	}
 
 	@Test
@@ -236,20 +236,20 @@ public class ObjectDefinitionPersistenceTest {
 	}
 
 	@Test
-	public void testCountByS_S() throws Exception {
-		_persistence.countByS_S(
-			RandomTestUtil.randomBoolean(), RandomTestUtil.nextInt());
-
-		_persistence.countByS_S(RandomTestUtil.randomBoolean(), 0);
-	}
-
-	@Test
 	public void testCountByC_N() throws Exception {
 		_persistence.countByC_N(RandomTestUtil.nextLong(), "");
 
 		_persistence.countByC_N(0L, "null");
 
 		_persistence.countByC_N(0L, (String)null);
+	}
+
+	@Test
+	public void testCountByS_S() throws Exception {
+		_persistence.countByS_S(
+			RandomTestUtil.randomBoolean(), RandomTestUtil.nextInt());
+
+		_persistence.countByS_S(RandomTestUtil.randomBoolean(), 0);
 	}
 
 	@Test
@@ -281,8 +281,8 @@ public class ObjectDefinitionPersistenceTest {
 			"objectDefinitionId", true, "companyId", true, "userId", true,
 			"userName", true, "createDate", true, "modifiedDate", true,
 			"dbTableName", true, "name", true, "pkObjectFieldDBColumnName",
-			true, "pkObjectFieldName", true, "system", true, "status", true,
-			"version", true);
+			true, "pkObjectFieldName", true, "system", true, "version", true,
+			"status", true);
 	}
 
 	@Test
@@ -596,9 +596,9 @@ public class ObjectDefinitionPersistenceTest {
 
 		objectDefinition.setSystem(RandomTestUtil.randomBoolean());
 
-		objectDefinition.setStatus(RandomTestUtil.nextInt());
-
 		objectDefinition.setVersion(RandomTestUtil.nextInt());
+
+		objectDefinition.setStatus(RandomTestUtil.nextInt());
 
 		_objectDefinitions.add(_persistence.update(objectDefinition));
 
