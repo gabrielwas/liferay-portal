@@ -23,9 +23,7 @@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %><%@
 taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
 taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 
-<%@ page import="com.liferay.object.web.internal.display.context.ObjectDefinitionDisplayContext" %><%@
-page import="com.liferay.object.web.internal.display.context.ObjectDefinitionsAdminDisplayContext" %><%@
-page import="com.liferay.portal.kernel.util.WebKeys" %>
+<%@page import="com.liferay.portal.kernel.util.WebKeys" %>
 
 <liferay-frontend:defineObjects />
 

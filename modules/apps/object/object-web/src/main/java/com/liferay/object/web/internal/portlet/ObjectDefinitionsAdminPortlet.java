@@ -15,7 +15,7 @@
 package com.liferay.object.web.internal.portlet;
 
 import com.liferay.object.constants.ObjectsPortletKeys;
-import com.liferay.object.web.internal.display.context.ObjectDefinitionsAdminDisplayContext;
+
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -65,10 +65,10 @@ public class ObjectDefinitionsAdminPortlet extends MVCPortlet {
 			RenderRequest renderRequest, RenderResponse renderResponse)
 		throws IOException, PortletException {
 
-		renderRequest.setAttribute(
-			WebKeys.PORTLET_DISPLAY_CONTEXT,
-			new ObjectDefinitionsAdminDisplayContext(
-				_portal.getHttpServletRequest(renderRequest)));
+//		renderRequest.setAttribute(
+//			WebKeys.PORTLET_DISPLAY_CONTEXT,
+//			new ObjectDefinitionsAdminDisplayContext(
+//				_portal.getHttpServletRequest(renderRequest)));
 
 		super.render(renderRequest, renderResponse);
 	}
