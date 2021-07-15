@@ -17,8 +17,11 @@ package com.liferay.object.internal.security.permission.resource;
 import com.liferay.exportimport.kernel.staging.permission.StagingPermission;
 import com.liferay.object.constants.ObjectsConstants;
 import com.liferay.object.constants.ObjectsPortletKeys;
+import com.liferay.portal.kernel.model.Group;
+import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermissionFactory;
+import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermissionLogic;
 import com.liferay.portal.kernel.security.permission.resource.StagedPortletPermissionLogic;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 
@@ -32,7 +35,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Gabriel Albuquerque
  */
-@Component(immediate = true, service = {})
+@Component(immediate = true, service = ObjectPortletResourcePermissionRegistrar.class)
 public class ObjectPortletResourcePermissionRegistrar {
 
 	@Activate
@@ -41,12 +44,27 @@ public class ObjectPortletResourcePermissionRegistrar {
 			PortletResourcePermission.class,
 			PortletResourcePermissionFactory.create(
 				ObjectsConstants.RESOURCE_NAME,
-				new StagedPortletPermissionLogic(
-					_stagingPermission,
-					ObjectsPortletKeys.OBJECT_DEFINITIONS_ADMIN)),
+				new ObjectDefinitionPortletResourcePermissionLogic()),
 			HashMapDictionaryBuilder.<String, Object>put(
 				"resource.name", ObjectsConstants.RESOURCE_NAME
 			).build());
+	}
+
+	private static class ObjectDefinitionPortletResourcePermissionLogic
+		implements PortletResourcePermissionLogic {
+
+		@Override
+		public Boolean contains(
+			PermissionChecker permissionChecker, String name, Group group,
+			String actionId) {
+
+			if (permissionChecker.hasPermission(group, name, 0, actionId)) {
+				return true;
+			}
+
+			return false;
+		}
+
 	}
 
 	@Deactivate
@@ -55,8 +73,5 @@ public class ObjectPortletResourcePermissionRegistrar {
 	}
 
 	private ServiceRegistration<PortletResourcePermission> _serviceRegistration;
-
-	@Reference
-	private StagingPermission _stagingPermission;
 
 }
