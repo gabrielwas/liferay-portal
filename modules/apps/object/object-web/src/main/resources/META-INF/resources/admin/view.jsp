@@ -20,6 +20,10 @@
 ObjectDefinitionsAdminDisplayContext objectDefinitionsAdminDisplayContext = (ObjectDefinitionsAdminDisplayContext)request.getAttribute(WebKeys.PORTLET_DISPLAY_CONTEXT);
 %>
 
+<div id="<portlet:namespace />addObjectDefinition" style="display: none;">
+	<aui:input name="name" required="<%= true %>" />
+</div>
+
 <clay:headless-data-set-display
 	apiURL="<%= objectDefinitionsAdminDisplayContext.getAPIURL() %>"
 	clayDataSetActionDropdownItems="<%= objectDefinitionsAdminDisplayContext.getClayDataSetActionDropdownItems() %>"
@@ -33,30 +37,61 @@ ObjectDefinitionsAdminDisplayContext objectDefinitionsAdminDisplayContext = (Obj
 	style="fluid"
 />
 
-<aui:script require="frontend-js-web/liferay/modal/commands/OpenSimpleInputModal.es as openSimpleInputModal">
+<script>
 	function handleCreateObjectDefinitionClick(event) {
 		event.preventDefault();
 
-		//TODO I am forced to create a portlet action to reuse this UI component, while in commerce we created a different approach to avoid it
-		//TODO and call directly the headless api, and avoid this code
+		const addObjectDefinition = document.querySelector('#<portlet:namespace />addObjectDefinition');
 
-		openSimpleInputModal.default({
-			dialogTitle: '<liferay-ui:message key="name" />',
-			formSubmitURL:
-				'<liferay-portlet:actionURL name="/object_definitions_admin/add_object_definition"><portlet:param name="redirect" value="<%= currentURL %>" /></liferay-portlet:actionURL>',
-			mainFieldLabel: '<liferay-ui:message key="name" />',
-			mainFieldName: 'name',
-			mainFieldPlaceholder: '<liferay-ui:message key="name" />',
-			namespace: '<%= liferayPortletResponse.getNamespace() %>',
-			spritemap: '<%= themeDisplay.getPathThemeImages() %>/clay/icons.svg',
+		Liferay.Util.openModal({
+			title: '<liferay-ui:message key="create-new-object" />',
+			bodyHTML: addObjectDefinition.innerHTML,
+			buttons: [
+				{
+					displayType: 'secondary',
+					label: '<liferay-ui:message key="cancel" />',
+					type: 'cancel',
+				},
+				{
+					label: '<liferay-ui:message key="save" />',
+					onClick: () => {
+						const name = document.querySelector('.modal-body #<portlet:namespace />name');
+
+						const formattedData = {
+							name: name.value
+						};
+
+						Liferay.Util.fetch('<%= objectDefinitionsAdminDisplayContext.getAPIURL() %>', {
+							headers: new Headers({
+								Accept: 'application/json',
+								'Content-Type': 'application/json',
+							}),
+							body: JSON.stringify(formattedData),
+							method: 'POST',
+						}).then((response) => {
+							if (response.ok) {
+								window.location.reload();
+							}
+							else {
+								return response.json();
+							}
+						}).then(({title}) => {
+							Liferay.Util.openToast({
+								message: title,
+								type: 'danger',
+							});
+						});
+					}
+				},
+			]
 		});
 	}
 
 	function handleDestroyPortlet() {
 		Liferay.detach('destroyPortlet', handleDestroyPortlet);
-		Liferay.detach('eventName', handleCreateObjectDefinitionClick);
+		Liferay.detach('addObjectDefinition', handleCreateObjectDefinitionClick);
 	}
 
 	Liferay.on('destroyPortlet', handleDestroyPortlet);
-	Liferay.on('eventName', handleCreateObjectDefinitionClick);
-</aui:script>
+	Liferay.on('addObjectDefinition', handleCreateObjectDefinitionClick);
+</script>

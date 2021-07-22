@@ -80,7 +80,7 @@ public class ObjectDefinitionsAdminDisplayContext {
 		//TODO Check permissions
 		creationMenu.addDropdownItem(
 			dropdownItem -> {
-				dropdownItem.setHref("eventName");
+				dropdownItem.setHref("addObjectDefinition");
 				dropdownItem.setLabel(
 					LanguageUtil.get(
 						_objectRequestHelper.getRequest(), "add-object"));
