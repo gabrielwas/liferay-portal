@@ -382,6 +382,35 @@ public abstract class BaseObjectDefinitionResourceTestCase {
 				"Object/code"));
 	}
 
+	@Test
+	public void testPublishObjectDefinition() throws Exception {
+		ObjectDefinition postObjectDefinition =
+			testPublishObjectDefinition_addObjectDefinition();
+
+		ObjectDefinition randomObjectDefinition = randomObjectDefinition();
+
+		ObjectDefinition putObjectDefinition =
+			objectDefinitionResource.publishObjectDefinition(
+				postObjectDefinition.getId());
+
+		assertEquals(randomObjectDefinition, putObjectDefinition);
+		assertValid(putObjectDefinition);
+
+		ObjectDefinition getObjectDefinition =
+			objectDefinitionResource.publishObjectDefinition(
+				putObjectDefinition.getId());
+
+		assertEquals(randomObjectDefinition, getObjectDefinition);
+		assertValid(getObjectDefinition);
+	}
+
+	protected ObjectDefinition testPublishObjectDefinition_addObjectDefinition()
+		throws Exception {
+
+		throw new UnsupportedOperationException(
+			"This method needs to be implemented");
+	}
+
 	protected ObjectDefinition testGraphQLObjectDefinition_addObjectDefinition()
 		throws Exception {
 
