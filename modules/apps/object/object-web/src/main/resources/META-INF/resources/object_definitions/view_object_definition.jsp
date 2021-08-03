@@ -28,13 +28,8 @@ renderResponse.setTitle(LanguageUtil.format(request, "edit-x", objectDefinition.
 %>
 
 <liferay-frontend:edit-form
-	action='<%=
-		PortletURLBuilder.createActionURL(
-			renderResponse
-		).setActionName(
-			"/object_definitions/edit_object_definition"
-		).buildPortletURL()
-	%>'
+	action="javascript:;"
+	onSubmit='<%= liferayPortletResponse.getNamespace() + "addDomains(event);" %>'
 >
 	<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= Constants.UPDATE %>" />
 	<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
@@ -70,8 +65,28 @@ renderResponse.setTitle(LanguageUtil.format(request, "edit-x", objectDefinition.
 	</liferay-frontend:edit-form-body>
 
 	<liferay-frontend:edit-form-footer>
-		<aui:button type="submit" />
+		<aui:button type="button" value="Save" onClick='<%= liferayPortletResponse.getNamespace() + "saveObject(event);" %>' data-actionname="save"/>
+
+		<aui:button name="publishButton" data-actionname="<%= Constants.PUBLISH %>" type="submit" value="Publish" />
 
 		<aui:button href="<%= backURL %>" type="cancel" />
 	</liferay-frontend:edit-form-footer>
 </liferay-frontend:edit-form>
+
+<aui:script>
+	function <portlet:namespace />addDomains(event) {
+
+		console.log(event)
+
+		var domainsInput = document.getElementById('<portlet:namespace />objectDefinitionId');
+		console.log(domainsInput.value)
+	}
+
+	function <portlet:namespace />saveObject(event) {
+
+		console.log(event)
+
+		var domainsInput = document.getElementById('<portlet:namespace />objectDefinitionId');
+		console.log(domainsInput.value)
+	}
+</aui:script>
