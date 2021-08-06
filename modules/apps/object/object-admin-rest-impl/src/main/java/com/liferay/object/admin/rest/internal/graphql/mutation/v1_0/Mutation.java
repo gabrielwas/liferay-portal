@@ -119,6 +119,19 @@ public class Mutation {
 	}
 
 	@GraphQLField
+	public ObjectDefinition publishObjectDefinition(
+			@GraphQLName("objectDefinitionId") Long objectDefinitionId)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_objectDefinitionResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			objectDefinitionResource ->
+				objectDefinitionResource.publishObjectDefinition(
+					objectDefinitionId));
+	}
+
+	@GraphQLField
 	public ObjectField createObjectField(
 			@GraphQLName("objectDefinitionId") Long objectDefinitionId,
 			@GraphQLName("objectField") ObjectField objectField)
