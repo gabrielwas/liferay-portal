@@ -17,6 +17,7 @@ package com.liferay.object.admin.rest.resource.v1_0.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.object.admin.rest.client.dto.v1_0.ObjectDefinition;
 import com.liferay.object.admin.rest.client.dto.v1_0.ObjectField;
+import com.liferay.object.admin.rest.client.dto.v1_0.Status;
 import com.liferay.object.admin.rest.client.pagination.Page;
 import com.liferay.object.admin.rest.client.pagination.Pagination;
 import com.liferay.object.service.ObjectDefinitionLocalService;
@@ -24,6 +25,7 @@ import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.Inject;
 
 import org.junit.After;
@@ -101,6 +103,32 @@ public class ObjectDefinitionResourceTest
 
 		Assert.assertEquals(
 			totalCount + 1, objectDefinitionsJSONObject.get("totalCount"));
+	}
+
+	@Override
+	@Test
+	public void testPublishObjectDefinition() throws Exception {
+		ObjectDefinition postObjectDefinition = _addObjectDefinition(
+			randomObjectDefinition());
+
+		Status status = postObjectDefinition.getStatus();
+
+		// Before publish, status
+
+		Assert.assertEquals(
+			status.getCode(), Integer.valueOf(WorkflowConstants.STATUS_DRAFT));
+
+		ObjectDefinition putObjectDefinition =
+			objectDefinitionResource.publishObjectDefinition(
+				postObjectDefinition.getId());
+
+		status = putObjectDefinition.getStatus();
+
+		// Publish
+
+		Assert.assertEquals(
+			status.getCode(),
+			Integer.valueOf(WorkflowConstants.STATUS_APPROVED));
 	}
 
 	@Override
