@@ -97,9 +97,8 @@ renderResponse.setTitle(LanguageUtil.format(request, "edit-x", objectDefinition.
 				}
 				else if (response.ok) {
 					Liferay.Util.openToast({
-						message: Liferay.Language.get(
-							'the-object-was-published-successfully'
-						),
+						message:
+							'<%= LanguageUtil.get(request, "the-object-was-published-successfully") %>',
 						type: 'success',
 					});
 
@@ -112,11 +111,13 @@ renderResponse.setTitle(LanguageUtil.format(request, "edit-x", objectDefinition.
 					return response.json();
 				}
 			})
-			.then(({title}) => {
-				Liferay.Util.openToast({
-					message: title,
-					type: 'danger',
-				});
+			.then((response) => {
+				if (response && response.title) {
+					Liferay.Util.openToast({
+						message: response.title,
+						type: 'danger',
+					});
+				}
 			});
 	}
 

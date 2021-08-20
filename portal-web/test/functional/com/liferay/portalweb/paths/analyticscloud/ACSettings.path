@@ -10,6 +10,17 @@
 </thead>
 
 <tbody>
+<!-- SETTINGS HEADER -->
+<tr>
+	<td>HEADER_DESCRIPTION</td>
+	<td>//div[contains(@class,'content-header')]//div[contains(@class,'description')]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>HEADER_TITLE</td>
+	<td>//div[contains(@class,'content-header')]//span[contains(@class,'title')][normalize-space(text())='${title}']</td>
+	<td></td>
+</tr>
 <!-- SETTINGS NAVIGATION -->
 <tr>
 	<td>SETTINGS_NAVIGATION</td>
@@ -84,16 +95,21 @@
 	<td>//h4[contains(@class,'section-title') and contains(.,'Choose Source')]/..//*[contains(@class,'data-source-item') and contains(.,'${key_sourceType}')]</td>
 	<td></td>
 </tr>
+<tr>
+	<td>FILE_UPLOAD_SUCCESS_ICON</td>
+	<td>//div[contains(@class,'uploaded-file')]//*[name()='svg'][contains(@class,'success')]</td>
+	<td></td>
+</tr>
 <!-- DELETE DATA SOURCE SCREEN -->
 <tr>
 	<td>DELETE_BUTTON_DATA_SOURCE</td>
-	<td>//button[contains(@class,'btn-secondary') and contains(text(),'Delete')]</td>
+	<td>//button[contains(@class,'btn-secondary') and contains(text(),'Delete')] | //a[contains(@class,'btn-secondary') and contains(text(),'Delete')]</td>
 	<td></td>
 </tr>
 <!-- PROPERTIES -->
 <tr>
 	<td>SEARCH_BAR</td>
-	<td>//div[@class='input-group-item']/input</td>
+	<td>//input[@type='text' and @placeholder='Search' and not(@disabled)]</td>
 	<td></td>
 </tr>
 <tr>
@@ -113,12 +129,12 @@
 </tr>
 <tr>
 	<td>DELETE_CONFIRMATION_MESSAGE</td>
-	<td>//span[contains(@class,'text-secondary')]</td>
+	<td>//span[contains(@class,'text-secondary') or contains(@class,'copy-text')]</td>
 	<td></td>
 </tr>
 <tr>
 	<td>DELETE_CONFIRMATION_INPUT</td>
-	<td>//input[@data-testid='delete-confirmation-input']</td>
+	<td>//input[contains(@data-testid,'confirmation-input')]</td>
 	<td></td>
 </tr>
 <tr>

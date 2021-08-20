@@ -58,7 +58,9 @@ public class DDMFormEvaluatorExpressionActionHandler
 		Optional<Integer> toOptional =
 			executeActionRequest.getParameterOptional("to");
 
-		if (fromOptional.isPresent() && toOptional.isPresent()) {
+		if (fromOptional.isPresent() && toOptional.isPresent() &&
+			!_hasIntervalOnPageFlow(fromOptional.get(), toOptional.get())) {
+
 			_pageFlow.put(fromOptional.get(), toOptional.get());
 		}
 
@@ -66,6 +68,25 @@ public class DDMFormEvaluatorExpressionActionHandler
 			ExecuteActionResponse.Builder.newBuilder(true);
 
 		return builder.build();
+	}
+
+	private boolean _hasIntervalOnPageFlow(
+		Integer fromPageIndex, Integer toPageIndex) {
+
+		for (Map.Entry<Integer, Integer> entry : _pageFlow.entrySet()) {
+			int fromPageFlowIndex = entry.getKey();
+			int toPageFlowIndex = entry.getValue();
+
+			if ((toPageIndex < fromPageFlowIndex) ||
+				(fromPageIndex > toPageFlowIndex)) {
+
+				continue;
+			}
+
+			return true;
+		}
+
+		return false;
 	}
 
 	private final Map<Integer, Integer> _pageFlow;

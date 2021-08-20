@@ -48,30 +48,137 @@ definition {
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8317 | Test Summary: 180 Days time period filter in Sites"
-	@ignore = "true"
 	@priority = "3"
 	test PeriodFilter180Days {
+		property portal.upstream = "quarantine";
 
-		// TODO LRAC-8317
+		// AC Refactor: the test needs data from a past date
+		// AC Refactor ticket: LRAC-8723
 
+		task ("Site and blogs creation and connection with AC") {
+			ACUtils.addSiteAndPage();
+
+			ACUtils.createBlogsAndAddToPage(entryTitle = "Test 2");
+
+			var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+		}
+
+		task ("Interation with pages") {
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+
+			BlogsNavigator.gotoPG(entryTitle = "Test 2");
+
+			ACUtils.closeAllSessions();
+		}
+
+		task ("AC launch") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Asset 180 Days time period filter") {
+
+			// It is not possible to perform the assert because this test needs data from the past
+
+			ACNavigation.switchTab(tabName = "Overview");
+
+			ACTimeFilter.clickTimeFilterButton(cardName = "${propertyName} Activities");
+
+			ACTimeFilter.setLast180Days();
+
+			ACUtils.assertXAxisTimedGraph(parentName = "${propertyName} Activities");
+
+			for (var cardTitle : list "Top Pages,Acquisitions,Visitors by Day and Time,Search Terms,Interests,Sessions by Location,Session Technology") {
+				ACCards.viewCards(cardTitle = "${cardTitle}");
+
+				ACTimeFilter.clickTimeFilterButton(cardName = "${cardTitle}");
+
+				ACTimeFilter.setLast180Days();
+			}
+		}
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8318 | Test Summary: Last Year time period filter in Sites"
-	@ignore = "true"
 	@priority = "3"
 	test PeriodFilterLastYear {
+		property portal.upstream = "quarantine";
 
-		// TODO LRAC-8318
+		// AC Refactor: the test needs data from a past date
+		// AC Refactor ticket: LRAC-8726
 
+		task ("Site and blogs creation and connection with AC") {
+			ACUtils.addSiteAndPage();
+
+			ACUtils.createBlogsAndAddToPage(entryTitle = "Test 2");
+
+			var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
+		}
+
+		task ("Interation with pages") {
+			Navigator.gotoSitePage(
+				pageName = "AC Page",
+				siteName = "Site Name");
+
+			BlogsNavigator.gotoPG(entryTitle = "Test 2");
+
+			ACUtils.closeAllSessions();
+		}
+
+		task ("AC launch") {
+			ACUtils.launchAC();
+
+			ACProperties.switchProperty(propertyName = "${propertyName}");
+		}
+
+		task ("Asset Last Year time period filter") {
+
+			// It is not possible to perform the assert because this test needs data from the past
+
+			ACNavigation.switchTab(tabName = "Overview");
+
+			ACTimeFilter.clickTimeFilterButton(cardName = "${propertyName} Activities");
+
+			ACTimeFilter.setLastYear();
+
+			ACUtils.assertXAxisTimedGraph(parentName = "${propertyName} Activities");
+
+			for (var cardTitle : list "Top Pages,Acquisitions,Visitors by Day and Time,Search Terms,Interests,Sessions by Location,Session Technology") {
+				ACCards.viewCards(cardTitle = "${cardTitle}");
+
+				ACTimeFilter.clickTimeFilterButton(cardName = "${cardTitle}");
+
+				ACTimeFilter.setLastYear();
+			}
+		}
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8320 | Test Summary: Property field is displayed in empty state when no property is available"
-	@ignore = "true"
 	@priority = "4"
 	test PropertyFieldWhenNoProperty {
+		task ("AC launch and delete all properties") {
+			ACUtils.launchAC();
 
-		// TODO LRAC-8320
+			ACSettings.deleteAllProperties();
+		}
 
+		task ("Asset that no longer properties exists") {
+			AssertElementPresent(locator1 = "ACDXPSettings#AVAILABLE_NO_PROPERTIES_FOUND");
+		}
+
+		task ("Asset that there are no more properties on the sites page") {
+			Navigator.gotoBack();
+
+			AssertTextEquals(
+				locator1 = "ACSidebar#PROPERTY_MENU_NO_PROPERTIES",
+				value1 = "No Properties");
+
+			AssertElementPresent(locator1 = "TextInput#NO_PROPERTIES_AVAILABLE_TEXT");
+
+			AssertElementNotPresent(locator1 = "ACSidebar#PROPERTY_MENU_ITEM_BY_NAME");
+		}
 	}
 
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8323 | Test Summary: A user lost access to a given property (because the admin removed the user's access or someone deleted the property of the system)"

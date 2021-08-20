@@ -31,7 +31,7 @@ definition {
 	macro createCombinedProperties {
 		var siteName = "${siteName}";
 
-		Click(locator1 = "ACDXPSettings#AC_GENERIC_ADD_OR_CONFIRMATION_BUTTON");
+		LexiconEntry.gotoAdd();
 
 		Click(locator1 = "ACDXPSettings#COMBINATED_PROPERTY_OPTION");
 
@@ -71,33 +71,17 @@ definition {
 	macro disconnectDXPFromAnalyticsCloud {
 		ACDXPSettings.goToInstanceSettingsAC();
 
-		ClickNoError(locator1 = "ACDXPSettings#CONNECT_DISCONNECT_BUTTON");
+		if (IsElementPresent(locator1 = "ACDXPSettings#AC_GENERIC_CANCEL_BUTTON")) {
+			ClickNoError(locator1 = "ACDXPSettings#CONNECT_DISCONNECT_BUTTON");
 
-		AssertConfirm.assertConfirmationNoError(value1 = "Are you sure you want to disconnect your Analytics Cloud workspace from this DXP instance?");
+			AssertConfirm.assertConfirmationNoError(value1 = "Are you sure you want to disconnect your Analytics Cloud workspace from this DXP instance?");
+		}
 	}
 
 	macro getAssignedPropertyName {
 		if (IsElementNotPresent(locator1 = "//*[@data-qa-id='headerTitle'][normalize-space(text())='Analytics Cloud']")) {
 			ACDXPSettings.goToInstanceSettingsAC();
 		}
-
-		ACDXPSettings.navToSyncedSitesMenu();
-
-		LexiconEntry.gotoAdd();
-
-		WaitForVisible(
-			key_tableEntry = "${siteName}",
-			locator1 = "LexiconTable#TABLE_ENTRY");
-
-		var assignedPropertyName = selenium.getText("//tr[@data-qa-id='row'][contains(.,'${siteName}')]//td[contains(@class,'assigned-property-column')]");
-
-		Click(locator1 = "ACDXPSettings#AC_GENERIC_CANCEL_BUTTON");
-
-		return "${assignedPropertyName}";
-	}
-
-	macro getSiteAssignedPropertyName {
-		ACDXPSettings.goToInstanceSettingsAC();
 
 		ACDXPSettings.navToSyncedSitesMenu();
 
