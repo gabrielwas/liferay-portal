@@ -106,14 +106,12 @@ public class ListTypeDefinitionResourceImpl
 						listTypeDefinition.getListTypeDefinitionId(),
 						QueryUtil.ALL_POS, QueryUtil.ALL_POS),
 					listTypeEntry -> ListTypeEntryUtil.toListTypeEntry(
-						contextAcceptLanguage.isAcceptAllLanguages(),
 						listTypeEntry,
 						contextAcceptLanguage.getPreferredLocale()),
 					ListTypeEntry.class);
 				name = listTypeDefinition.getName(
 					contextAcceptLanguage.getPreferredLocale());
 				name_i18n = LocalizedMapUtil.getI18nMap(
-					contextAcceptLanguage.isAcceptAllLanguages(),
 					listTypeDefinition.getNameMap());
 			}
 		};

@@ -25,7 +25,6 @@ import java.util.Locale;
 public class ListTypeEntryUtil {
 
 	public static ListTypeEntry toListTypeEntry(
-		boolean acceptAllLanguages,
 		com.liferay.list.type.model.ListTypeEntry listTypeEntry,
 		Locale locale) {
 
@@ -37,7 +36,7 @@ public class ListTypeEntryUtil {
 				key = listTypeEntry.getKey();
 				name = listTypeEntry.getName(locale);
 				name_i18n = LocalizedMapUtil.getI18nMap(
-					acceptAllLanguages, listTypeEntry.getNameMap());
+					listTypeEntry.getNameMap());
 				type = listTypeEntry.getType();
 			}
 		};
