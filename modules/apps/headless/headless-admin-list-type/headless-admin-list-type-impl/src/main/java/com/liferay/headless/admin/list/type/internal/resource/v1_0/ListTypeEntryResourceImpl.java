@@ -49,7 +49,9 @@ public class ListTypeEntryResourceImpl extends BaseListTypeEntryResourceImpl {
 				_listTypeEntryLocalService.getListTypeEntries(
 					listTypeDefinitionId, pagination.getStartPosition(),
 					pagination.getEndPosition()),
-				ListTypeEntryUtil::toListTypeEntry),
+				listTypeEntry -> ListTypeEntryUtil.toListTypeEntry(
+					contextAcceptLanguage.isAcceptAllLanguages(), listTypeEntry,
+					contextAcceptLanguage.getPreferredLocale())),
 			pagination,
 			_listTypeEntryLocalService.getListTypeEntriesCount(
 				listTypeDefinitionId));
@@ -61,10 +63,12 @@ public class ListTypeEntryResourceImpl extends BaseListTypeEntryResourceImpl {
 		throws Exception {
 
 		return ListTypeEntryUtil.toListTypeEntry(
+			contextAcceptLanguage.isAcceptAllLanguages(),
 			_listTypeEntryLocalService.addListTypeEntry(
 				contextUser.getUserId(), listTypeDefinitionId,
 				listTypeEntry.getKey(),
-				LocalizedMapUtil.getLocalizedMap(listTypeEntry.getName())));
+				LocalizedMapUtil.getLocalizedMap(listTypeEntry.getName_i18n())),
+			contextAcceptLanguage.getPreferredLocale());
 	}
 
 	@Reference

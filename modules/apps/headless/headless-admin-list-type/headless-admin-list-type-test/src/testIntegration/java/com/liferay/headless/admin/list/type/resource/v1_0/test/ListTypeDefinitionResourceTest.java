@@ -79,11 +79,12 @@ public class ListTypeDefinitionResourceTest
 		ListTypeDefinition listTypeDefinition =
 			super.randomListTypeDefinition();
 
-		listTypeDefinition.setName(Collections.singletonMap("en_US", "test"));
+		listTypeDefinition.setName_i18n(
+			Collections.singletonMap("en_US", "test"));
 
 		ListTypeEntry listTypeEntry = new ListTypeEntry();
 
-		listTypeEntry.setName(Collections.singletonMap("en_US", "test"));
+		listTypeEntry.setName_i18n(Collections.singletonMap("en_US", "test"));
 		listTypeEntry.setKey(RandomTestUtil.randomString());
 
 		listTypeDefinition.setListTypeEntries(

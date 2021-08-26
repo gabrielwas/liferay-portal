@@ -78,7 +78,7 @@ public class ListTypeDefinitionResourceImpl
 			_listTypeDefinitionLocalService.addListTypeDefinition(
 				contextUser.getUserId(),
 				LocalizedMapUtil.getLocalizedMap(
-					listTypeDefinition.getName())));
+					listTypeDefinition.getName_i18n())));
 	}
 
 	@Override
@@ -90,7 +90,7 @@ public class ListTypeDefinitionResourceImpl
 			_listTypeDefinitionLocalService.updateListTypeDefinition(
 				listTypeDefinitionId,
 				LocalizedMapUtil.getLocalizedMap(
-					listTypeDefinition.getName())));
+					listTypeDefinition.getName_i18n())));
 	}
 
 	private ListTypeDefinition _toListTypeDefinition(
@@ -105,8 +105,15 @@ public class ListTypeDefinitionResourceImpl
 					_listTypeEntryLocalService.getListTypeEntries(
 						listTypeDefinition.getListTypeDefinitionId(),
 						QueryUtil.ALL_POS, QueryUtil.ALL_POS),
-					ListTypeEntryUtil::toListTypeEntry, ListTypeEntry.class);
-				name = LocalizedMapUtil.getI18nMap(
+					listTypeEntry -> ListTypeEntryUtil.toListTypeEntry(
+						contextAcceptLanguage.isAcceptAllLanguages(),
+						listTypeEntry,
+						contextAcceptLanguage.getPreferredLocale()),
+					ListTypeEntry.class);
+				name = listTypeDefinition.getName(
+					contextAcceptLanguage.getPreferredLocale());
+				name_i18n = LocalizedMapUtil.getI18nMap(
+					contextAcceptLanguage.isAcceptAllLanguages(),
 					listTypeDefinition.getNameMap());
 			}
 		};
