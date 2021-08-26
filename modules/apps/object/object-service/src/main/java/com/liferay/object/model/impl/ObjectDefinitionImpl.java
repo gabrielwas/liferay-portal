@@ -14,9 +14,10 @@
 
 package com.liferay.object.model.impl;
 
-import com.liferay.object.constants.ObjectPortletKeys;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TextFormatter;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 
 /**
  * @author Marco Leo
@@ -46,6 +47,11 @@ public class ObjectDefinitionImpl extends ObjectDefinitionBaseImpl {
 
 	@Override
 	public String getExtensionDBTableName() {
+		if (isSystem()) {
+			return StringBundler.concat(
+				getDBTableName(), "_x_", getCompanyId());
+		}
+
 		return getDBTableName() + "_x";
 	}
 
@@ -55,7 +61,7 @@ public class ObjectDefinitionImpl extends ObjectDefinitionBaseImpl {
 			throw new UnsupportedOperationException();
 		}
 
-		return ObjectPortletKeys.OBJECT_ENTRIES + "#" + getObjectDefinitionId();
+		return "com_liferay_object_" + getShortName();
 	}
 
 	@Override
@@ -80,6 +86,15 @@ public class ObjectDefinitionImpl extends ObjectDefinitionBaseImpl {
 	@Override
 	public String getShortName() {
 		return getShortName(getName());
+	}
+
+	@Override
+	public boolean isApproved() {
+		if (getStatus() == WorkflowConstants.STATUS_APPROVED) {
+			return true;
+		}
+
+		return false;
 	}
 
 }

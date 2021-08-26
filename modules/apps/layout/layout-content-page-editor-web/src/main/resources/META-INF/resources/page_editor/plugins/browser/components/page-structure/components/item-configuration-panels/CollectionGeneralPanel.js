@@ -529,10 +529,9 @@ export const CollectionGeneralPanel = ({item}) => {
 				<CollectionFilterConfigurationModal
 					collectionConfiguration={collectionConfiguration}
 					handleConfigurationChanged={handleConfigurationChanged}
-					item={item}
+					itemConfig={item.config}
 					observer={filterConfigurationObserver}
 					onClose={onFilterConfigurationClose}
-					visible={filterConfigurationVisible}
 				/>
 			) : null}
 		</>

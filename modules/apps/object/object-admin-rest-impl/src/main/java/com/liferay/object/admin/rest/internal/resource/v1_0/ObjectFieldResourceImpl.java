@@ -19,12 +19,9 @@ import com.liferay.object.admin.rest.dto.v1_0.ObjectField;
 import com.liferay.object.admin.rest.internal.dto.v1_0.util.ObjectFieldUtil;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectFieldResource;
 import com.liferay.object.service.ObjectFieldLocalService;
-import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.vulcan.fields.NestedField;
 import com.liferay.portal.vulcan.pagination.Page;
-import com.liferay.portal.vulcan.pagination.Pagination;
-
-import java.util.Collections;
+import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -42,14 +39,12 @@ public class ObjectFieldResourceImpl extends BaseObjectFieldResourceImpl {
 	@NestedField(parentClass = ObjectDefinition.class, value = "objectFields")
 	@Override
 	public Page<ObjectField> getObjectDefinitionObjectFieldsPage(
-		Long objectDefinitionId, Pagination pagination) {
+		Long objectDefinitionId) {
 
 		return Page.of(
 			transform(
 				_objectFieldLocalService.getObjectFields(objectDefinitionId),
-				ObjectFieldUtil::toObjectField),
-			pagination,
-			_objectFieldLocalService.getObjectFieldsCount(objectDefinitionId));
+				ObjectFieldUtil::toObjectField));
 	}
 
 	@Override
@@ -65,11 +60,11 @@ public class ObjectFieldResourceImpl extends BaseObjectFieldResourceImpl {
 
 		return ObjectFieldUtil.toObjectField(
 			_objectFieldLocalService.addCustomObjectField(
-				contextUser.getUserId(), objectDefinitionId,
-				objectField.getIndexed(), objectField.getIndexedAsKeyword(),
+				contextUser.getUserId(), objectField.getListTypeDefinitionId(),
+				objectDefinitionId, objectField.getIndexed(),
+				objectField.getIndexedAsKeyword(),
 				objectField.getIndexedLanguageId(),
-				Collections.singletonMap(
-					LocaleUtil.getSiteDefault(), objectField.getName()),
+				LocalizedMapUtil.getLocalizedMap(objectField.getLabel()),
 				objectField.getName(), objectField.getRequired(),
 				objectField.getType()));
 	}
@@ -81,12 +76,13 @@ public class ObjectFieldResourceImpl extends BaseObjectFieldResourceImpl {
 
 		return ObjectFieldUtil.toObjectField(
 			_objectFieldLocalService.updateCustomObjectField(
-				objectFieldId, objectField.getIndexed(),
-				objectField.getIndexedAsKeyword(),
+				objectFieldId, objectField.getListTypeDefinitionId(),
+				objectField.getIndexed(), objectField.getIndexedAsKeyword(),
 				objectField.getIndexedLanguageId(),
-				Collections.singletonMap(
-					LocaleUtil.getSiteDefault(), objectField.getName()),
-				objectField.getRequired()));
+				com.liferay.object.util.LocalizedMapUtil.getLocalizedMap(
+					objectField.getName()),
+				objectField.getName(), objectField.getRequired(),
+				objectField.getType()));
 	}
 
 	@Reference

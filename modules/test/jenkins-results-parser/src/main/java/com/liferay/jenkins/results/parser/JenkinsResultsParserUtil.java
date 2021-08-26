@@ -322,10 +322,8 @@ public class JenkinsResultsParserUtil {
 		return jsonObject;
 	}
 
-	public static URL createURL(String urlString) throws Exception {
-		URL url = new URL(urlString);
-
-		return encode(url);
+	public static URL createURL(String url) throws Exception {
+		return encode(new URL(url));
 	}
 
 	public static String decode(String url)
@@ -554,41 +552,63 @@ public class JenkinsResultsParserUtil {
 		String jenkinsMasterName, String script) {
 
 		try {
-			URL urlObject = new URL(
-				fixURL(getLocalURL("http://" + jenkinsMasterName + "/script")));
-
-			HttpURLConnection httpURLConnection =
-				(HttpURLConnection)urlObject.openConnection();
-
-			httpURLConnection.setDoOutput(true);
-			httpURLConnection.setRequestMethod("POST");
-
 			Properties buildProperties = getBuildProperties(false);
 
-			HTTPAuthorization httpAuthorization = new BasicHTTPAuthorization(
-				buildProperties.getProperty("jenkins.admin.user.token"),
-				buildProperties.getProperty("jenkins.admin.user.name"));
+			String jenkinsAdminUserToken = buildProperties.getProperty(
+				"jenkins.admin.user.token");
+			String jenkinsAdminUserName = buildProperties.getProperty(
+				"jenkins.admin.user.name");
 
-			httpURLConnection.setRequestProperty(
-				"Authorization", httpAuthorization.toString());
+			String url = fixURL(
+				getLocalURL("http://" + jenkinsMasterName + "/script"));
 
-			try (OutputStream outputStream =
-					httpURLConnection.getOutputStream()) {
+			while (true) {
+				URL urlObject = new URL(url);
 
-				script = "script=" + URLEncoder.encode(script, "UTF-8");
+				HttpURLConnection httpURLConnection =
+					(HttpURLConnection)urlObject.openConnection();
 
-				outputStream.write(script.getBytes("UTF-8"));
+				httpURLConnection.setDoOutput(true);
+				httpURLConnection.setRequestMethod("POST");
 
-				outputStream.flush();
+				HTTPAuthorization httpAuthorization =
+					new BasicHTTPAuthorization(
+						jenkinsAdminUserToken, jenkinsAdminUserName);
+
+				httpURLConnection.setRequestProperty(
+					"Authorization", httpAuthorization.toString());
+
+				try (OutputStream outputStream =
+						httpURLConnection.getOutputStream()) {
+
+					String post =
+						"script=" + URLEncoder.encode(script, "UTF-8");
+
+					outputStream.write(post.getBytes("UTF-8"));
+
+					outputStream.flush();
+				}
+
+				httpURLConnection.connect();
+
+				int responseCode = httpURLConnection.getResponseCode();
+
+				if ((responseCode == 401) &&
+					!jenkinsAdminUserName.endsWith("@liferay.com")) {
+
+					jenkinsAdminUserName += "@liferay.com";
+
+					continue;
+				}
+
+				System.out.println(
+					combine(
+						"Response from ", urlObject.toString(), ": ",
+						String.valueOf(httpURLConnection.getResponseCode()),
+						" ", httpURLConnection.getResponseMessage()));
+
+				break;
 			}
-
-			httpURLConnection.connect();
-
-			System.out.println(
-				combine(
-					"Response from ", urlObject.toString(), ": ",
-					String.valueOf(httpURLConnection.getResponseCode()), " ",
-					httpURLConnection.getResponseMessage()));
 		}
 		catch (IOException ioException) {
 			System.out.println("Unable to execute Jenkins script");
@@ -887,16 +907,10 @@ public class JenkinsResultsParserUtil {
 			throw new RuntimeException("Unable to encode " + axisBuildURL);
 		}
 
-		String label = "AXIS_VARIABLE=";
+		Matcher matcher = _axisVariablePattern.matcher(url);
 
-		int x = url.indexOf(label);
-
-		if (x != -1) {
-			url = url.substring(x + label.length());
-
-			int y = url.indexOf(",");
-
-			return url.substring(0, y);
+		if (matcher.find()) {
+			return matcher.group("axisVariable");
 		}
 
 		return "";
@@ -4689,6 +4703,8 @@ public class JenkinsResultsParserUtil {
 	private static final Log _log = LogFactory.getLog(
 		JenkinsResultsParserUtil.class);
 
+	private static final Pattern _axisVariablePattern = Pattern.compile(
+		".*AXIS_VARIABLE=(?<axisVariable>\\d+).*");
 	private static final Pattern _buildIDPattern = Pattern.compile(
 		"(?<cohortNumber>[\\d]{1})(?<masterNumber>[\\d]{2})" +
 			"(?<jobID>[\\d]+)_(?<buildNumber>[\\d]+)");

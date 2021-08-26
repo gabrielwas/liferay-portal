@@ -555,6 +555,7 @@ export default ({
 	ctCollectionId,
 	currentUserId,
 	dataURL,
+	defaultLocale,
 	deleteCTCommentURL,
 	discardURL,
 	expired,
@@ -1040,76 +1041,6 @@ export default ({
 		[discardURL, setParameter]
 	);
 
-	const getDropdownItems = useCallback(
-		(node) => {
-			if (!activeCTCollection || !node.modelClassNameId) {
-				return null;
-			}
-
-			const dropdownItems = [];
-
-			const cache =
-				renderCache.current[
-					node.modelClassNameId.toString() +
-						'-' +
-						node.modelClassPK.toString()
-				];
-
-			if (cache && cache.editURL) {
-				dropdownItems.push({
-					href: cache.editURL,
-					label: Liferay.Language.get('edit'),
-					symbolLeft: 'pencil',
-				});
-			}
-
-			dropdownItems.push({
-				href: getDiscardURL(node),
-				label: Liferay.Language.get('discard'),
-				symbolLeft: 'times-circle',
-			});
-
-			for (let i = 0; i < dropdownItems.length; i++) {
-				const dropdownItem = dropdownItems[i];
-
-				const href = dropdownItem.href;
-
-				if (typeof href !== 'string') {
-					continue;
-				}
-
-				const index = href.indexOf('?');
-
-				if (index > 0) {
-					let redirectKey = null;
-
-					const params = new URLSearchParams(
-						href.substring(index + 1)
-					);
-
-					params.forEach((value, key) => {
-						if (key.endsWith('_redirect')) {
-							redirectKey = key;
-						}
-					});
-
-					if (redirectKey) {
-						params.set(
-							redirectKey,
-							window.location.pathname + window.location.search
-						);
-
-						dropdownItem.href =
-							href.substring(0, index) + '?' + params.toString();
-					}
-				}
-			}
-
-			return dropdownItems;
-		},
-		[activeCTCollection, getDiscardURL]
-	);
-
 	const getPath = useCallback(
 		(pathParam, showHideable) => {
 			return (
@@ -1196,7 +1127,6 @@ export default ({
 			initialNode.children,
 			initialShowHideable
 		),
-		dropdownItems: getDropdownItems(initialNode),
 		filterClass: initialFilterClass,
 		id: initialNodeId,
 		node: initialNode,
@@ -1234,7 +1164,6 @@ export default ({
 			) {
 				setRenderState({
 					children: renderState.children,
-					dropdownItems: renderState.dropdownItems,
 					filterClass: renderState.filterClass,
 					id: renderState.id,
 					node: renderState.node,
@@ -1261,7 +1190,6 @@ export default ({
 
 			setRenderState({
 				children: filterHideableNodes(node.children, showHideable),
-				dropdownItems: getDropdownItems(node),
 				filterClass,
 				id: nodeId,
 				node,
@@ -1272,7 +1200,7 @@ export default ({
 
 			window.scrollTo(0, 0);
 		},
-		[VIEW_TYPE_CONTEXT, getDropdownItems, getNode, getPath, renderState]
+		[VIEW_TYPE_CONTEXT, getNode, getPath, renderState]
 	);
 
 	const handlePopState = useCallback(
@@ -1321,7 +1249,6 @@ export default ({
 			) {
 				setRenderState({
 					children: renderState.children,
-					dropdownItems: renderState.dropdownItems,
 					filterClass: renderState.filterClass,
 					id: renderState.id,
 					node: renderState.node,
@@ -1344,7 +1271,6 @@ export default ({
 
 			setRenderState({
 				children: filterHideableNodes(node.children, showHideable),
-				dropdownItems: getDropdownItems(node),
 				filterClass,
 				id: nodeId,
 				node,
@@ -1356,7 +1282,6 @@ export default ({
 		[
 			PARAM_PATH,
 			VIEW_TYPE_CONTEXT,
-			getDropdownItems,
 			getNode,
 			getPathState,
 			isWithinApp,
@@ -2143,7 +2068,6 @@ export default ({
 				renderState.node.children,
 				showHideable
 			),
-			dropdownItems: renderState.dropdownItems,
 			filterClass: renderState.filterClass,
 			id: renderState.id,
 			node: renderState.node,
@@ -2159,70 +2083,46 @@ export default ({
 		}
 
 		return (
-			<div className="sheet">
-				<div className="autofit-row sheet-title">
-					<div className="autofit-col autofit-col-expand">
-						<h2>{renderState.node.title} </h2>
+			<ChangeTrackingRenderView
+				ctEntry={!!renderState.node.ctEntryId}
+				dataURL={getDataURL(renderState.node)}
+				defaultLocale={defaultLocale}
+				description={
+					renderState.node.description
+						? renderState.node.description
+						: renderState.node.typeName
+				}
+				discardURL={getDiscardURL(renderState.node)}
+				getCache={() =>
+					renderCache.current[
+						renderState.node.modelClassNameId.toString() +
+							'-' +
+							renderState.node.modelClassPK.toString()
+					]
+				}
+				showDropdown={
+					activeCTCollection && renderState.node.modelClassNameId
+				}
+				spritemap={spritemap}
+				title={renderState.node.title}
+				updateCache={(data) => {
+					renderCache.current[
+						renderState.node.modelClassNameId.toString() +
+							'-' +
+							renderState.node.modelClassPK.toString()
+					] = data;
 
-						<div className="entry-description">
-							{renderState.node.description
-								? renderState.node.description
-								: renderState.node.typeName}
-						</div>
-					</div>
-					{renderState.dropdownItems && (
-						<div className="autofit-col">
-							<ClayDropDownWithItems
-								alignmentPosition={Align.BottomLeft}
-								items={renderState.dropdownItems}
-								spritemap={spritemap}
-								trigger={
-									<ClayButtonWithIcon
-										displayType="unstyled"
-										small
-										spritemap={spritemap}
-										symbol="ellipsis-v"
-									/>
-								}
-							/>
-						</div>
-					)}
-				</div>
-				<div className="sheet-section">
-					<ChangeTrackingRenderView
-						ctEntry={!!renderState.node.ctEntryId}
-						dataURL={getDataURL(renderState.node)}
-						getCache={() =>
-							renderCache.current[
-								renderState.node.modelClassNameId.toString() +
-									'-' +
-									renderState.node.modelClassPK.toString()
-							]
-						}
-						spritemap={spritemap}
-						updateCache={(data) => {
-							renderCache.current[
-								renderState.node.modelClassNameId.toString() +
-									'-' +
-									renderState.node.modelClassPK.toString()
-							] = data;
-
-							setRenderState({
-								children: renderState.children,
-								dropdownItems: getDropdownItems(
-									renderState.node
-								),
-								filterClass: renderState.filterClass,
-								id: renderState.id,
-								node: renderState.node,
-								page: renderState.page,
-								showHideable: renderState.showHideable,
-								viewType: renderState.viewType,
-							});
-						}}
-					/>
-				</div>
-			</div>
+					setRenderState({
+						children: renderState.children,
+						filterClass: renderState.filterClass,
+						id: renderState.id,
+						node: renderState.node,
+						page: renderState.page,
+						showHideable: renderState.showHideable,
+						viewType: renderState.viewType,
+					});
+				}}
+			/>
 		);
 	};
 
@@ -2361,7 +2261,6 @@ export default ({
 					setDeltaState(delta);
 					setRenderState({
 						children: renderState.children,
-						dropdownItems: renderState.dropdownItems,
 						filterClass: renderState.filterClass,
 						id: renderState.id,
 						node: renderState.node,
@@ -2373,7 +2272,6 @@ export default ({
 				onPageChange={(page) =>
 					setRenderState({
 						children: renderState.children,
-						dropdownItems: renderState.dropdownItems,
 						filterClass: renderState.filterClass,
 						id: renderState.id,
 						node: renderState.node,
