@@ -16,7 +16,8 @@ package com.liferay.object.web.internal.object.definitions.portlet.action;
 
 import com.liferay.list.type.service.ListTypeDefinitionLocalService;
 import com.liferay.object.constants.ObjectPortletKeys;
-import com.liferay.object.web.internal.object.definitions.display.context.ViewListTypeDefinitionsDisplayContext;
+import com.liferay.object.web.internal.constants.ObjectWebKeys;
+import com.liferay.object.web.internal.object.definitions.display.context.ViewListTypeEntriesDisplayContext;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCRenderCommand;
 import com.liferay.portal.kernel.servlet.SessionErrors;
@@ -54,7 +55,7 @@ public class EditListTypeDefinitionMVCRenderCommand
 
 		try {
 			renderRequest.setAttribute(
-				"LIST_TYPE_DEFINITION",
+				ObjectWebKeys.LIST_TYPE_DEFINITION,
 				_listTypeDefinitionLocalService.getListTypeDefinition(
 					listTypeDefinitionId));
 		}
@@ -64,7 +65,7 @@ public class EditListTypeDefinitionMVCRenderCommand
 
 		renderRequest.setAttribute(
 			WebKeys.PORTLET_DISPLAY_CONTEXT,
-			new ViewListTypeDefinitionsDisplayContext(
+			new ViewListTypeEntriesDisplayContext(
 				_portal.getHttpServletRequest(renderRequest)));
 
 		return "/object_definitions/edit_list_type_definition.jsp";

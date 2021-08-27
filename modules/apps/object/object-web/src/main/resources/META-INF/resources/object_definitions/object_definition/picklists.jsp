@@ -32,7 +32,7 @@ renderResponse.setTitle("Picklist");
 	clayDataSetActionDropdownItems="<%= viewListTypeDefinitionsDisplayContext.getClayDataSetActionDropdownItems() %>"
 	creationMenu="<%= viewListTypeDefinitionsDisplayContext.getCreationMenu() %>"
 	formId="fm"
-	id="<%= ObjectDefinitionsClayDataSetDisplayNames.PICKLISTS %>"
+	id="<%= ObjectDefinitionsClayDataSetDisplayNames.LIST_TYPE_DEFINITION %>"
 	itemsPerPage="<%= 20 %>"
 	namespace="<%= liferayPortletResponse.getNamespace() %>"
 	pageNumber="<%= 1 %>"

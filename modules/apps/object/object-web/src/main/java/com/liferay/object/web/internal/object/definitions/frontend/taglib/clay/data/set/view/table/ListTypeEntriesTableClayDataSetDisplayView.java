@@ -29,7 +29,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Gabriel Albuquerque
  */
 @Component(
-	property = "clay.data.set.display.name=" + ObjectDefinitionsClayDataSetDisplayNames.ITEMS,
+	property = "clay.data.set.display.name=" + ObjectDefinitionsClayDataSetDisplayNames.LIST_TYPE_DEFINITION_ITEMS,
 	service = ClayDataSetDisplayView.class
 )
 public class ListTypeEntriesTableClayDataSetDisplayView

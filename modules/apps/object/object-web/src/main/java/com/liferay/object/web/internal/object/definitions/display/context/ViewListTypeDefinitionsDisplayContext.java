@@ -16,7 +16,6 @@ package com.liferay.object.web.internal.object.definitions.display.context;
 
 import com.liferay.frontend.taglib.clay.data.set.servlet.taglib.util.ClayDataSetActionDropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
-import com.liferay.list.type.model.ListTypeDefinition;
 import com.liferay.object.web.internal.display.context.util.ObjectRequestHelper;
 import com.liferay.petra.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -44,11 +43,6 @@ public class ViewListTypeDefinitionsDisplayContext {
 
 	public String getAPIURL() {
 		return "/o/headless-admin-list-type/v1.0/list-type-definitions";
-	}
-
-	public String getAPIURLListTypeEntries() {
-		return "/o/headless-admin-list-type/v1.0/list-type-definitions/" +
-			_getListTypeDefinitionId() + "/list-type-entries";
 	}
 
 	public List<ClayDataSetActionDropdownItem>
@@ -79,22 +73,7 @@ public class ViewListTypeDefinitionsDisplayContext {
 				dropdownItem.setHref("addListTypeDefinition");
 				dropdownItem.setLabel(
 					LanguageUtil.get(
-						_objectRequestHelper.getRequest(), "add-object"));
-				dropdownItem.setTarget("event");
-			});
-
-		return creationMenu;
-	}
-
-	public CreationMenu getCreationMenuListTypeEntries() {
-		CreationMenu creationMenu = new CreationMenu();
-
-		creationMenu.addDropdownItem(
-			dropdownItem -> {
-				dropdownItem.setHref("addListTypeEntry");
-				dropdownItem.setLabel(
-					LanguageUtil.get(
-						_objectRequestHelper.getRequest(), "add-object"));
+						_objectRequestHelper.getRequest(), "add-picklist"));
 				dropdownItem.setTarget("event");
 			});
 
@@ -107,17 +86,6 @@ public class ViewListTypeDefinitionsDisplayContext {
 				_objectRequestHelper.getLiferayPortletRequest(),
 				_objectRequestHelper.getLiferayPortletResponse()),
 			_objectRequestHelper.getLiferayPortletResponse());
-	}
-
-	private long _getListTypeDefinitionId() {
-		HttpServletRequest httpServletRequest =
-			_objectRequestHelper.getRequest();
-
-		ListTypeDefinition listTypeDefinition =
-			(ListTypeDefinition)httpServletRequest.getAttribute(
-				"LIST_TYPE_DEFINITION");
-
-		return listTypeDefinition.getListTypeDefinitionId();
 	}
 
 	private final ObjectRequestHelper _objectRequestHelper;

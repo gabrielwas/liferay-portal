@@ -19,13 +19,13 @@
 <%
 ListTypeDefinition listTypeDefinition = (ListTypeDefinition)request.getAttribute("LIST_TYPE_DEFINITION");
 
-ViewListTypeDefinitionsDisplayContext viewListTypeDefinitionsDisplayContext = (ViewListTypeDefinitionsDisplayContext)request.getAttribute(WebKeys.PORTLET_DISPLAY_CONTEXT);
+ViewListTypeEntriesDisplayContext viewListTypeEntriesDisplayContext = (ViewListTypeEntriesDisplayContext)request.getAttribute(WebKeys.PORTLET_DISPLAY_CONTEXT);
 %>
 
 <liferay-frontend:side-panel-content
 	title='<%= LanguageUtil.get(request, "picklist") %>'
 >
-	<form action="javascript:;" onSubmit="<%= liferayPortletResponse.getNamespace() + "saveObjectField();" %>">
+	<form action="javascript:;" onSubmit="<%= liferayPortletResponse.getNamespace() + "saveListTypeDefinition();" %>">
 		<div class="side-panel-content">
 			<div class="side-panel-content__body">
 				<div class="sheet">
@@ -42,10 +42,10 @@ ViewListTypeDefinitionsDisplayContext viewListTypeDefinitionsDisplayContext = (V
 					</h2>
 
 					<clay:headless-data-set-display
-						apiURL="<%= viewListTypeDefinitionsDisplayContext.getAPIURLListTypeEntries() %>"
-						creationMenu="<%= viewListTypeDefinitionsDisplayContext.getCreationMenuListTypeEntries() %>"
+						apiURL="<%= viewListTypeEntriesDisplayContext.getAPIURL() %>"
+						creationMenu="<%= viewListTypeEntriesDisplayContext.getCreationMenu() %>"
 						formId="fm"
-						id="<%= ObjectDefinitionsClayDataSetDisplayNames.ITEMS %>"
+						id="<%= ObjectDefinitionsClayDataSetDisplayNames.LIST_TYPE_DEFINITION_ITEMS %>"
 						itemsPerPage="<%= 20 %>"
 						namespace="<%= liferayPortletResponse.getNamespace() %>"
 						pageNumber="<%= 1 %>"
@@ -69,7 +69,7 @@ ViewListTypeDefinitionsDisplayContext viewListTypeDefinitionsDisplayContext = (V
 		module="js/components/ModalAddListTypeEntry"
 		props='<%=
 			HashMapBuilder.<String, Object>put(
-				"apiURL", viewListTypeDefinitionsDisplayContext.getAPIURLListTypeEntries()
+				"apiURL", viewListTypeEntriesDisplayContext.getAPIURL()
 			).put(
 				"spritemap", themeDisplay.getPathThemeImages() + "/clay/icons.svg"
 			).build()

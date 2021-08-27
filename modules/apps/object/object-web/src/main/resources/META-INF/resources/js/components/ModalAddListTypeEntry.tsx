@@ -110,7 +110,7 @@ const ModalAddListTypeEntry: React.FC<IProps> = ({apiURL, spritemap}) => {
 			{visibleModal && (
 				<ClayModal observer={observer}>
 					<ClayModal.Header>
-						{Liferay.Language.get('new-custom-object')}
+						{Liferay.Language.get('new-item')}
 					</ClayModal.Header>
 					<ClayModal.Body>
 						{error && (

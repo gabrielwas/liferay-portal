@@ -110,7 +110,7 @@ const ModalAddListTypeDefinition: React.FC<IProps> = ({apiURL, spritemap}) => {
 			{visibleModal && (
 				<ClayModal observer={observer}>
 					<ClayModal.Header>
-						{Liferay.Language.get('new-custom-object')}
+						{Liferay.Language.get('new-picklist')}
 					</ClayModal.Header>
 					<ClayModal.Body>
 						{error && (
@@ -123,14 +123,14 @@ const ModalAddListTypeDefinition: React.FC<IProps> = ({apiURL, spritemap}) => {
 						)}
 
 						<ClayForm.Group>
-							<label htmlFor="listTypeDefinitionLabel">
-								{Liferay.Language.get('label')}
+							<label htmlFor="listTypeDefinitionName">
+								{Liferay.Language.get('name')}
 
 								<RequiredMask />
 							</label>
 
 							<ClayInput
-								id="listTypeDefinitionLabel"
+								id="listTypeDefinitionName"
 								onChange={({target: {value}}) =>
 									handleChangeForm('name_i18n', {
 										[defaultLanguageId]: value,
