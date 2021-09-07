@@ -69,8 +69,16 @@ public class ObjectLayoutLocalServiceImpl
 	}
 
 	@Override
-	public List<ObjectLayout> getObjectLayouts(long objectDefinitionId) {
+	public List<ObjectLayout> getObjectLayouts(
+		long objectDefinitionId, int start, int end) {
+
 		return objectLayoutPersistence.findByObjectDefinitionId(
+			objectDefinitionId, start, end);
+	}
+
+	@Override
+	public int getObjectLayoutsCount(long objectDefinitionId) {
+		return objectLayoutPersistence.countByObjectDefinitionId(
 			objectDefinitionId);
 	}
 
