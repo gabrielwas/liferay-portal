@@ -268,7 +268,8 @@ public interface ObjectLayoutLocalService
 	public List<ObjectLayout> getObjectLayouts(int start, int end);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<ObjectLayout> getObjectLayouts(long objectDefinitionId);
+	public List<ObjectLayout> getObjectLayouts(
+		long objectDefinitionId, int start, int end);
 
 	/**
 	 * Returns the number of object layouts.
@@ -277,6 +278,9 @@ public interface ObjectLayoutLocalService
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public int getObjectLayoutsCount();
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public int getObjectLayoutsCount(long objectDefinitionId);
 
 	/**
 	 * Returns the OSGi service identifier.

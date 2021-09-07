@@ -296,8 +296,10 @@ public class ObjectLayoutLocalServiceUtil {
 		return getService().getObjectLayouts(start, end);
 	}
 
-	public static List<ObjectLayout> getObjectLayouts(long objectDefinitionId) {
-		return getService().getObjectLayouts(objectDefinitionId);
+	public static List<ObjectLayout> getObjectLayouts(
+		long objectDefinitionId, int start, int end) {
+
+		return getService().getObjectLayouts(objectDefinitionId, start, end);
 	}
 
 	/**
@@ -307,6 +309,10 @@ public class ObjectLayoutLocalServiceUtil {
 	 */
 	public static int getObjectLayoutsCount() {
 		return getService().getObjectLayoutsCount();
+	}
+
+	public static int getObjectLayoutsCount(long objectDefinitionId) {
+		return getService().getObjectLayoutsCount(objectDefinitionId);
 	}
 
 	/**
