@@ -84,6 +84,8 @@ public class OpenAPIResourceImpl {
 
 			add(ObjectFieldResourceImpl.class);
 
+			add(ObjectLayoutResourceImpl.class);
+
 			add(OpenAPIResourceImpl.class);
 		}
 	};

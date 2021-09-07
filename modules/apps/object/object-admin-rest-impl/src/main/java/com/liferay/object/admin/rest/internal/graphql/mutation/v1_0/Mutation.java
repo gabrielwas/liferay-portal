@@ -16,8 +16,10 @@ package com.liferay.object.admin.rest.internal.graphql.mutation.v1_0;
 
 import com.liferay.object.admin.rest.dto.v1_0.ObjectDefinition;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectField;
+import com.liferay.object.admin.rest.dto.v1_0.ObjectLayout;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectDefinitionResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectFieldResource;
+import com.liferay.object.admin.rest.resource.v1_0.ObjectLayoutResource;
 import com.liferay.petra.function.UnsafeConsumer;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.portal.kernel.search.Sort;
@@ -60,6 +62,14 @@ public class Mutation {
 
 		_objectFieldResourceComponentServiceObjects =
 			objectFieldResourceComponentServiceObjects;
+	}
+
+	public static void setObjectLayoutResourceComponentServiceObjects(
+		ComponentServiceObjects<ObjectLayoutResource>
+			objectLayoutResourceComponentServiceObjects) {
+
+		_objectLayoutResourceComponentServiceObjects =
+			objectLayoutResourceComponentServiceObjects;
 	}
 
 	@GraphQLField
@@ -243,6 +253,61 @@ public class Mutation {
 				callbackURL, object));
 	}
 
+	@GraphQLField
+	public ObjectLayout createObjectDefinitionObjectLayout(
+			@GraphQLName("objectDefinitionId") Long objectDefinitionId,
+			@GraphQLName("objectLayout") ObjectLayout objectLayout)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_objectLayoutResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			objectLayoutResource ->
+				objectLayoutResource.postObjectDefinitionObjectLayout(
+					objectDefinitionId, objectLayout));
+	}
+
+	@GraphQLField
+	public Response createObjectDefinitionObjectLayoutBatch(
+			@GraphQLName("objectDefinitionId") Long objectDefinitionId,
+			@GraphQLName("callbackURL") String callbackURL,
+			@GraphQLName("object") Object object)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_objectLayoutResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			objectLayoutResource ->
+				objectLayoutResource.postObjectDefinitionObjectLayoutBatch(
+					objectDefinitionId, callbackURL, object));
+	}
+
+	@GraphQLField
+	public ObjectLayout updateObjectLayout(
+			@GraphQLName("objectLayoutId") Long objectLayoutId,
+			@GraphQLName("objectLayout") ObjectLayout objectLayout)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_objectLayoutResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			objectLayoutResource -> objectLayoutResource.putObjectLayout(
+				objectLayoutId, objectLayout));
+	}
+
+	@GraphQLField
+	public Response updateObjectLayoutBatch(
+			@GraphQLName("callbackURL") String callbackURL,
+			@GraphQLName("object") Object object)
+		throws Exception {
+
+		return _applyComponentServiceObjects(
+			_objectLayoutResourceComponentServiceObjects,
+			this::_populateResourceContext,
+			objectLayoutResource -> objectLayoutResource.putObjectLayoutBatch(
+				callbackURL, object));
+	}
+
 	private <T, R, E1 extends Throwable, E2 extends Throwable> R
 			_applyComponentServiceObjects(
 				ComponentServiceObjects<T> componentServiceObjects,
@@ -311,10 +376,27 @@ public class Mutation {
 		objectFieldResource.setRoleLocalService(_roleLocalService);
 	}
 
+	private void _populateResourceContext(
+			ObjectLayoutResource objectLayoutResource)
+		throws Exception {
+
+		objectLayoutResource.setContextAcceptLanguage(_acceptLanguage);
+		objectLayoutResource.setContextCompany(_company);
+		objectLayoutResource.setContextHttpServletRequest(_httpServletRequest);
+		objectLayoutResource.setContextHttpServletResponse(
+			_httpServletResponse);
+		objectLayoutResource.setContextUriInfo(_uriInfo);
+		objectLayoutResource.setContextUser(_user);
+		objectLayoutResource.setGroupLocalService(_groupLocalService);
+		objectLayoutResource.setRoleLocalService(_roleLocalService);
+	}
+
 	private static ComponentServiceObjects<ObjectDefinitionResource>
 		_objectDefinitionResourceComponentServiceObjects;
 	private static ComponentServiceObjects<ObjectFieldResource>
 		_objectFieldResourceComponentServiceObjects;
+	private static ComponentServiceObjects<ObjectLayoutResource>
+		_objectLayoutResourceComponentServiceObjects;
 
 	private AcceptLanguage _acceptLanguage;
 	private com.liferay.portal.kernel.model.Company _company;
