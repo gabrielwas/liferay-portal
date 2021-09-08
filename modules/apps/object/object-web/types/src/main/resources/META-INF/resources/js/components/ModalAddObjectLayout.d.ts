@@ -12,22 +12,10 @@
  * details.
  */
 
-package com.liferay.object.web.internal.object.definitions.constants;
-
-/**
- * @author Gabriel Albuquerque
- */
-public class ObjectDefinitionsClayDataSetDisplayNames {
-
-	public static final String LIST_TYPE_DEFINITION_ITEMS =
-		"listTypeDefinitionItems";
-
-	public static final String LIST_TYPE_DEFINITIONS = "listTypeDefinitions";
-
-	public static final String OBJECT_DEFINITIONS = "objectDefinitions";
-
-	public static final String OBJECT_FIELDS = "objectFields";
-
-	public static final String OBJECT_LAYOUTS = "objectLayouts";
-
+import React from 'react';
+interface IProps extends React.HTMLAttributes<HTMLElement> {
+	apiURL: string;
+	spritemap: string;
 }
+declare const ModalWithProvider: React.FC<IProps>;
+export default ModalWithProvider;

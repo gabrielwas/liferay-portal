@@ -22,9 +22,9 @@ public class ObjectDefinitionsScreenNavigationEntryConstants {
 
 	public static final String CATEGORY_KEY_DETAILS = "details";
 
-	public static final String CATEGORY_KEY_LAYOUTS = "layouts";
-
 	public static final String CATEGORY_KEY_FIELDS = "fields";
+
+	public static final String CATEGORY_KEY_LAYOUTS = "layouts";
 
 	public static final String CATEGORY_KEY_OBJECTS = "objects";
 
@@ -32,9 +32,9 @@ public class ObjectDefinitionsScreenNavigationEntryConstants {
 
 	public static final String ENTRY_KEY_DETAILS = "details";
 
-	public static final String ENTRY_KEY_LAYOUTS = "layouts";
-
 	public static final String ENTRY_KEY_FIELDS = "fields";
+
+	public static final String ENTRY_KEY_LAYOUTS = "layouts";
 
 	public static final String ENTRY_KEY_OBJECTS = "objects";
 

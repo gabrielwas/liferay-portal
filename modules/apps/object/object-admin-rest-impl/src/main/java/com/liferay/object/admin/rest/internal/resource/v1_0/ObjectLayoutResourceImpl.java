@@ -17,6 +17,7 @@ package com.liferay.object.admin.rest.internal.resource.v1_0;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectLayout;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectLayoutResource;
 import com.liferay.object.service.ObjectLayoutLocalService;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
@@ -61,7 +62,7 @@ public class ObjectLayoutResourceImpl extends BaseObjectLayoutResourceImpl {
 		return _toObjectLayout(
 			_objectLayoutLocalService.addObjectLayout(
 				contextUser.getUserId(), objectDefinitionId,
-				objectLayout.getDefaultObjectLayout(),
+				GetterUtil.getBoolean(objectLayout.getDefaultObjectLayout()),
 				LocalizedMapUtil.getLocalizedMap(objectLayout.getName())));
 	}
 

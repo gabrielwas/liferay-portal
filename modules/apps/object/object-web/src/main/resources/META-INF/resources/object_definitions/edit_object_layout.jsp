@@ -1,3 +1,4 @@
+<%--
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
@@ -11,23 +12,12 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
+--%>
 
-package com.liferay.object.web.internal.object.definitions.constants;
+<%@ include file="/init.jsp" %>
 
-/**
- * @author Gabriel Albuquerque
- */
-public class ObjectDefinitionsClayDataSetDisplayNames {
+<liferay-frontend:side-panel-content
+	title='<%= LanguageUtil.get(request, "field") %>'
+>
 
-	public static final String LIST_TYPE_DEFINITION_ITEMS =
-		"listTypeDefinitionItems";
-
-	public static final String LIST_TYPE_DEFINITIONS = "listTypeDefinitions";
-
-	public static final String OBJECT_DEFINITIONS = "objectDefinitions";
-
-	public static final String OBJECT_FIELDS = "objectFields";
-
-	public static final String OBJECT_LAYOUTS = "objectLayouts";
-
-}
+</liferay-frontend:side-panel-content>
