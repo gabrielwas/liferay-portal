@@ -1,3 +1,4 @@
+<%--
 /**
  * Copyright (c) 2000-present Liferay, Inc. All rights reserved.
  *
@@ -11,24 +12,12 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
+--%>
 
-package com.liferay.object.web.internal.constants;
+<%@ include file="/init.jsp" %>
 
-/**
- * @author Jorge Ferrer
- */
-public class ObjectWebKeys {
+<liferay-frontend:side-panel-content
+	title='<%= LanguageUtil.get(request, "layout") %>'
+>
 
-	public static final String LIST_TYPE_DEFINITION = "LIST_TYPE_DEFINITION";
-
-	public static final String OBJECT_DEFINITION = "OBJECT_DEFINITION";
-
-	public static final String OBJECT_ENTRY = "OBJECT_ENTRY";
-
-	public static final String OBJECT_ENTRY_VALUES = "OBJECT_ENTRY_VALUES";
-
-	public static final String OBJECT_FIELD = "OBJECT_FIELD";
-
-	public static final String OBJECT_LAYOUT = "OBJECT_LAYOUT";
-
-}
+</liferay-frontend:side-panel-content>

@@ -18,6 +18,7 @@ import com.liferay.object.admin.rest.dto.v1_0.ObjectLayout;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectLayoutResource;
 import com.liferay.object.service.ObjectLayoutLocalService;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
@@ -25,6 +26,8 @@ import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
+
+import java.util.Collections;
 
 /**
  * @author Javier Gamarra
@@ -58,9 +61,9 @@ public class ObjectLayoutResourceImpl extends BaseObjectLayoutResourceImpl {
 		return _toObjectLayout(
 			_objectLayoutLocalService.addObjectLayout(
 				contextUser.getUserId(), objectDefinitionId,
-				objectLayout.getDefaultObjectLayout(),
+				GetterUtil.getBoolean(objectLayout.getDefaultObjectLayout()),
 				LocalizedMapUtil.getLocalizedMap(objectLayout.getName()),
-				JSONFactoryUtil.createJSONArray()));
+				Collections.emptyList()));
 	}
 
 	private ObjectLayout _toObjectLayout(
