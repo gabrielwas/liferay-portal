@@ -266,6 +266,11 @@ public class ObjectLayoutTabWrapper
 		return model.getNameMap();
 	}
 
+	@Override
+	public java.util.List<ObjectLayoutBox> getObjectLayoutBoxes() {
+		return model.getObjectLayoutBoxes();
+	}
+
 	/**
 	 * Returns the object layout ID of this object layout tab.
 	 *
@@ -472,6 +477,13 @@ public class ObjectLayoutTabWrapper
 		Map<java.util.Locale, String> nameMap, java.util.Locale defaultLocale) {
 
 		model.setNameMap(nameMap, defaultLocale);
+	}
+
+	@Override
+	public void setObjectLayoutBoxes(
+		java.util.List<ObjectLayoutBox> objectLayoutBoxes) {
+
+		model.setObjectLayoutBoxes(objectLayoutBoxes);
 	}
 
 	/**
