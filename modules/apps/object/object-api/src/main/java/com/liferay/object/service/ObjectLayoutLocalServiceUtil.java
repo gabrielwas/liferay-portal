@@ -48,12 +48,12 @@ public class ObjectLayoutLocalServiceUtil {
 	public static ObjectLayout addObjectLayout(
 			long userId, long objectDefinitionId, boolean defaultObjectLayout,
 			Map<java.util.Locale, String> nameMap,
-			com.liferay.portal.kernel.json.JSONArray objectLayoutTabsJSONArray)
+			List<com.liferay.object.model.ObjectLayoutTab> objectLayoutTabs)
 		throws PortalException {
 
 		return getService().addObjectLayout(
 			userId, objectDefinitionId, defaultObjectLayout, nameMap,
-			objectLayoutTabsJSONArray);
+			objectLayoutTabs);
 	}
 
 	/**

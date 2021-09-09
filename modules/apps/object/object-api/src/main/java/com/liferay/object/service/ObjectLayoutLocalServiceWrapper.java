@@ -37,12 +37,13 @@ public class ObjectLayoutLocalServiceWrapper
 	public com.liferay.object.model.ObjectLayout addObjectLayout(
 			long userId, long objectDefinitionId, boolean defaultObjectLayout,
 			java.util.Map<java.util.Locale, String> nameMap,
-			com.liferay.portal.kernel.json.JSONArray objectLayoutTabsJSONArray)
+			java.util.List<com.liferay.object.model.ObjectLayoutTab>
+				objectLayoutTabs)
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _objectLayoutLocalService.addObjectLayout(
 			userId, objectDefinitionId, defaultObjectLayout, nameMap,
-			objectLayoutTabsJSONArray);
+			objectLayoutTabs);
 	}
 
 	/**
