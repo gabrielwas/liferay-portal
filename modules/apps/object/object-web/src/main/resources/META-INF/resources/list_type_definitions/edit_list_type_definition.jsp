@@ -47,7 +47,7 @@ ViewListTypeEntriesDisplayContext viewListTypeEntriesDisplayContext = (ViewListT
 						apiURL="<%= viewListTypeEntriesDisplayContext.getAPIURL() %>"
 						creationMenu="<%= viewListTypeEntriesDisplayContext.getCreationMenu() %>"
 						formId="fm"
-						id="<%= ObjectDefinitionsClayDataSetDisplayNames.LIST_TYPE_DEFINITION_ITEMS %>"
+						id="<%= ListTypeDefinitionsClayDataSetDisplayNames.LIST_TYPE_DEFINITION_ITEMS %>"
 						itemsPerPage="<%= 20 %>"
 						namespace="<%= liferayPortletResponse.getNamespace() %>"
 						pageNumber="<%= 1 %>"
