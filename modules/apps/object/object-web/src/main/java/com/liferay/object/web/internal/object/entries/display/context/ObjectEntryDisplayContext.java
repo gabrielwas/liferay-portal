@@ -49,8 +49,10 @@ import com.liferay.object.service.ObjectLayoutLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.object.web.internal.constants.ObjectWebKeys;
 import com.liferay.object.web.internal.display.context.util.ObjectRequestHelper;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
@@ -267,64 +269,77 @@ public class ObjectEntryDisplayContext {
 		DDMForm ddmForm = new DDMForm();
 
 		ddmForm.addAvailableLocale(_objectRequestHelper.getLocale());
+		ddmForm.setDefaultLocale(_objectRequestHelper.getLocale());
 
 		List<ObjectField> objectFields =
 			_objectFieldLocalService.getObjectFields(
 				objectDefinition.getObjectDefinitionId());
 
+		if (objectLayoutTab == null) {
+			for (ObjectField objectField : objectFields) {
+				ddmForm.addDDMFormField(_getDDMFormField(objectField));
+			}
+
+			return ddmForm;
+		}
+
 		List<ObjectLayoutBox> objectLayoutBoxes =
 			objectLayoutTab.getObjectLayoutBoxes();
 
-		for(ObjectLayoutBox objectLayoutBox : objectLayoutBoxes){
-
+		for (ObjectLayoutBox objectLayoutBox : objectLayoutBoxes) {
 			List<DDMFormField> nestedDDMFormFields = new ArrayList<>();
 
 			List<ObjectLayoutRow> objectLayoutRows =
 				objectLayoutBox.getObjectLayoutRows();
 
-			for(ObjectLayoutRow objectLayoutRow : objectLayoutRows){
+			for (ObjectLayoutRow objectLayoutRow : objectLayoutRows) {
 				List<ObjectLayoutColumn> objectLayoutColumns =
 					objectLayoutRow.getObjectLayoutColumns();
 
-				for(ObjectLayoutColumn objectLayoutColumn : objectLayoutColumns){
+				for (ObjectLayoutColumn objectLayoutColumn :
+						objectLayoutColumns) {
 
 					Stream<ObjectField> stream = objectFields.stream();
 
 					Optional<ObjectField> objectFieldOptional = stream.filter(
-						objectField -> objectField.getObjectFieldId() ==
-									   objectLayoutColumn.getObjectFieldId()).findFirst();
+						objectField ->
+							objectField.getObjectFieldId() ==
+								objectLayoutColumn.getObjectFieldId()
+					).findFirst();
 
 					objectFieldOptional.ifPresent(
 						objectField -> nestedDDMFormFields.add(
 							_getDDMFormField(objectField)));
-
 				}
 			}
 
-			ddmForm.addDDMFormField(new DDMFormField(Long.toString(objectLayoutBox.getPrimaryKey()), "fieldset") {
-				{
-					setLabel(
-						new LocalizedValue() {
-							{
-								addString(_objectRequestHelper.getLocale(), objectLayoutBox.getName(_objectRequestHelper.getLocale()));
-							}
-						});
-					setLocalizable(false);
-					setNestedDDMFormFields(nestedDDMFormFields);
-					setProperty("collapsible", objectLayoutBox.getCollapsable());
-					setReadOnly(false);
-					setRepeatable(false);
-					setRequired(false);
-					setShowLabel(true);
-				}
-			});
-		}
-//
-//		for (ObjectField objectField : objectFields) {
-//			ddmForm.addDDMFormField(_getDDMFormField(objectField));
-//		}
+			ddmForm.addDDMFormField(
+				new DDMFormField(
+					String.valueOf(objectLayoutBox.getPrimaryKey()),
+					"fieldset") {
 
-		ddmForm.setDefaultLocale(_objectRequestHelper.getLocale());
+					{
+						setLabel(
+							new LocalizedValue() {
+								{
+									addString(
+										_objectRequestHelper.getLocale(),
+										objectLayoutBox.getName(
+											_objectRequestHelper.getLocale()));
+								}
+							});
+						setLocalizable(false);
+						setNestedDDMFormFields(nestedDDMFormFields);
+						setProperty(
+							"collapsible", objectLayoutBox.getCollapsable());
+						setReadOnly(false);
+						setRepeatable(false);
+						setRequired(false);
+						setShowLabel(true);
+						setProperty("rows", _getRows(nestedDDMFormFields));
+					}
+				});
+		}
 
 		return ddmForm;
 	}
@@ -382,20 +397,19 @@ public class ObjectEntryDisplayContext {
 		for (ObjectLayoutBox objectLayoutBox :
 				objectLayoutTab.getObjectLayoutBoxes()) {
 
-
 			DDMFormLayoutRow ddmFormLayoutRow = new DDMFormLayoutRow();
 
 			DDMFormLayoutColumn ddmFormLayoutColumn = new DDMFormLayoutColumn();
 
 			ddmFormLayoutColumn.setDDMFormFieldNames(
-				ListUtil.fromArray(Long.toString(objectLayoutBox.getPrimaryKey())));
+				ListUtil.fromArray(
+					String.valueOf(objectLayoutBox.getPrimaryKey())));
 
 			ddmFormLayoutColumn.setSize(12);
 
 			ddmFormLayoutRow.addDDMFormLayoutColumn(ddmFormLayoutColumn);
 
 			ddmFormLayoutPage.addDDMFormLayoutRow(ddmFormLayoutRow);
-
 		}
 
 		ddmFormLayout.addDDMFormLayoutPage(ddmFormLayoutPage);
@@ -475,6 +489,26 @@ public class ObjectEntryDisplayContext {
 		ddmFormValues.setDefaultLocale(_objectRequestHelper.getLocale());
 
 		return ddmFormValues;
+	}
+
+	private String _getRows(List<DDMFormField> nestedDDMFormFields) {
+		JSONArray rowsJSONArray = JSONFactoryUtil.createJSONArray();
+
+		for (DDMFormField nestedDDMFormField : nestedDDMFormFields) {
+			JSONArray columnsJSONArray = JSONFactoryUtil.createJSONArray();
+
+			rowsJSONArray.put(
+				JSONUtil.put(
+					"columns",
+					columnsJSONArray.put(
+						JSONUtil.put(
+							"fields", JSONUtil.put(nestedDDMFormField.getName())
+						).put(
+							"size", 12
+						))));
+		}
+
+		return rowsJSONArray.toString();
 	}
 
 	private void _setDDMFormFieldProperties(
