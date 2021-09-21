@@ -39,11 +39,13 @@ public class ObjectRelationshipsTableClayDataSetDisplayView
 		ClayTableSchemaBuilder clayTableSchemaBuilder =
 			_clayTableSchemaBuilderFactory.create();
 
+		clayTableSchemaBuilder.addClayTableSchemaField("label.LANG", "label");
+		clayTableSchemaBuilder.addClayTableSchemaField("name", "name");
 		clayTableSchemaBuilder.addClayTableSchemaField("type", "type");
 		clayTableSchemaBuilder.addClayTableSchemaField(
-			"objectDefinitionId1", "objectDefinitionId1");
+			"objectDefinitionId1", "Object 1");
 		clayTableSchemaBuilder.addClayTableSchemaField(
-			"objectDefinitionId2", "objectDefinitionId2");
+			"objectDefinitionId2", "Object 2");
 
 		return clayTableSchemaBuilder.build();
 	}
