@@ -20,6 +20,9 @@ import com.liferay.object.admin.rest.resource.v1_0.ObjectRelationshipResource;
 import com.liferay.object.service.ObjectRelationshipService;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.object.service.ObjectDefinitionLocalService;
+import com.liferay.object.service.ObjectRelationshipLocalService;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.vulcan.fields.NestedField;
 import com.liferay.portal.vulcan.fields.NestedFieldSupport;
 import com.liferay.portal.vulcan.pagination.Page;
@@ -81,7 +84,16 @@ public class ObjectRelationshipResourceImpl
 	}
 
 	private ObjectRelationship _toObjectRelationship(
-		com.liferay.object.model.ObjectRelationship objectRelationship) {
+		com.liferay.object.model.ObjectRelationship objectRelationship)
+		throws PortalException {
+
+		com.liferay.object.model.ObjectDefinition objectDefinition1 =
+			_objectDefinitionLocalService.getObjectDefinition(
+				objectRelationship.getObjectDefinitionId1());
+
+		com.liferay.object.model.ObjectDefinition objectDefinition2 =
+			_objectDefinitionLocalService.getObjectDefinition(
+				objectRelationship.getObjectDefinitionId2());
 
 		return new ObjectRelationship() {
 			{
@@ -101,6 +113,8 @@ public class ObjectRelationshipResourceImpl
 					objectRelationship.getObjectDefinitionId1();
 				objectDefinitionId2 =
 					objectRelationship.getObjectDefinitionId2();
+				objectDefinitionName1 = objectDefinition1.getShortName();
+				objectDefinitionName2 = objectDefinition2.getShortName();
 				type = ObjectRelationship.Type.create(
 					objectRelationship.getType());
 			}
@@ -109,5 +123,8 @@ public class ObjectRelationshipResourceImpl
 
 	@Reference
 	private ObjectRelationshipService _objectRelationshipService;
+
+	@Reference
+	private ObjectDefinitionLocalService _objectDefinitionLocalService;
 
 }

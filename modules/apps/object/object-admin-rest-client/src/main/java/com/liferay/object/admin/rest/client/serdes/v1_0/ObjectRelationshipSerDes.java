@@ -119,6 +119,34 @@ public class ObjectRelationshipSerDes {
 			sb.append(objectRelationship.getObjectDefinitionId2());
 		}
 
+		if (objectRelationship.getObjectDefinitionName1() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"objectDefinitionName1\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(objectRelationship.getObjectDefinitionName1()));
+
+			sb.append("\"");
+		}
+
+		if (objectRelationship.getObjectDefinitionName2() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"objectDefinitionName2\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(objectRelationship.getObjectDefinitionName2()));
+
+			sb.append("\"");
+		}
+
 		if (objectRelationship.getType() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -200,6 +228,24 @@ public class ObjectRelationshipSerDes {
 				String.valueOf(objectRelationship.getObjectDefinitionId2()));
 		}
 
+		if (objectRelationship.getObjectDefinitionName1() == null) {
+			map.put("objectDefinitionName1", null);
+		}
+		else {
+			map.put(
+				"objectDefinitionName1",
+				String.valueOf(objectRelationship.getObjectDefinitionName1()));
+		}
+
+		if (objectRelationship.getObjectDefinitionName2() == null) {
+			map.put("objectDefinitionName2", null);
+		}
+		else {
+			map.put(
+				"objectDefinitionName2",
+				String.valueOf(objectRelationship.getObjectDefinitionName2()));
+		}
+
 		if (objectRelationship.getType() == null) {
 			map.put("type", null);
 		}
@@ -267,6 +313,22 @@ public class ObjectRelationshipSerDes {
 				if (jsonParserFieldValue != null) {
 					objectRelationship.setObjectDefinitionId2(
 						Long.valueOf((String)jsonParserFieldValue));
+				}
+			}
+			else if (Objects.equals(
+						jsonParserFieldName, "objectDefinitionName1")) {
+
+				if (jsonParserFieldValue != null) {
+					objectRelationship.setObjectDefinitionName1(
+						(String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(
+						jsonParserFieldName, "objectDefinitionName2")) {
+
+				if (jsonParserFieldValue != null) {
+					objectRelationship.setObjectDefinitionName2(
+						(String)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "type")) {

@@ -26,6 +26,7 @@ import com.liferay.portal.kernel.portlet.PortletURLUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.portlet.ActionRequest;
@@ -54,6 +55,8 @@ public class ViewObjectEntriesDisplayContext {
 			getClayDataSetActionDropdownItems()
 		throws Exception {
 
+//		return Collections.emptyList();
+
 		return Arrays.asList(
 			new ClayDataSetActionDropdownItem(
 				PortletURLBuilder.create(
@@ -69,12 +72,7 @@ public class ViewObjectEntriesDisplayContext {
 			new ClayDataSetActionDropdownItem(
 				_apiURL + "/{id}", "trash", "delete",
 				LanguageUtil.get(_objectRequestHelper.getRequest(), "delete"),
-				"delete", "delete", "async"),
-			new ClayDataSetActionDropdownItem(
-				_getPermissionsURL(), null, "permissions",
-				LanguageUtil.get(
-					_objectRequestHelper.getRequest(), "permissions"),
-				"get", "permissions", "modal-permissions"));
+				"delete", "delete", "async"));
 	}
 
 	public String getClayHeadlessDataSetDisplayId() {

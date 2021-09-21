@@ -223,6 +223,62 @@ public class ObjectRelationship implements Serializable {
 	protected Long objectDefinitionId2;
 
 	@Schema
+	public String getObjectDefinitionName1() {
+		return objectDefinitionName1;
+	}
+
+	public void setObjectDefinitionName1(String objectDefinitionName1) {
+		this.objectDefinitionName1 = objectDefinitionName1;
+	}
+
+	@JsonIgnore
+	public void setObjectDefinitionName1(
+		UnsafeSupplier<String, Exception> objectDefinitionName1UnsafeSupplier) {
+
+		try {
+			objectDefinitionName1 = objectDefinitionName1UnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String objectDefinitionName1;
+
+	@Schema
+	public String getObjectDefinitionName2() {
+		return objectDefinitionName2;
+	}
+
+	public void setObjectDefinitionName2(String objectDefinitionName2) {
+		this.objectDefinitionName2 = objectDefinitionName2;
+	}
+
+	@JsonIgnore
+	public void setObjectDefinitionName2(
+		UnsafeSupplier<String, Exception> objectDefinitionName2UnsafeSupplier) {
+
+		try {
+			objectDefinitionName2 = objectDefinitionName2UnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String objectDefinitionName2;
+
+	@Schema
 	@Valid
 	public Type getType() {
 		return type;
@@ -347,6 +403,34 @@ public class ObjectRelationship implements Serializable {
 			sb.append("\"objectDefinitionId2\": ");
 
 			sb.append(objectDefinitionId2);
+		}
+
+		if (objectDefinitionName1 != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"objectDefinitionName1\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(objectDefinitionName1));
+
+			sb.append("\"");
+		}
+
+		if (objectDefinitionName2 != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"objectDefinitionName2\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(objectDefinitionName2));
+
+			sb.append("\"");
 		}
 
 		if (type != null) {

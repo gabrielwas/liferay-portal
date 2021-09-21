@@ -213,6 +213,10 @@ components:
                 objectDefinitionId2:
                     format: int64
                     type: integer
+                objectDefinitionName1:
+                    type: string
+                objectDefinitionName2:
+                    type: string
                 type:
                     enum: [one_to_many, one_to_one, many_to_many]
                     type: string
