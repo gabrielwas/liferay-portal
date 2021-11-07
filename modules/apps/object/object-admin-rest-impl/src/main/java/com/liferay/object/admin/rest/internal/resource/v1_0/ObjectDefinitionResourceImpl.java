@@ -222,6 +222,7 @@ public class ObjectDefinitionResourceImpl
 					objectField -> ObjectFieldUtil.toObjectField(
 						null, objectField),
 					ObjectField.class);
+				pluralLabel =  LocalizedMapUtil.getI18nMap(objectDefinition.getPluralLabelMap());
 				scope = objectDefinition.getScope();
 				status = new Status() {
 					{
