@@ -32,9 +32,12 @@ import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Time;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
@@ -84,23 +87,26 @@ public class ExportObjectDefinitionMVCResourceCommand
 		ObjectLayoutColumnJSONObjectUtil.modifyObjectLayoutColumnJSONObject(
 			objectDefinitionJSONObject,
 			objectLayoutColumnJSONObject -> {
-				for (ObjectField objectField :
-						objectDefinition.getObjectFields()) {
 
-					if (!Objects.equals(
-							objectField.getId(),
-							Long.valueOf(
-								(Integer)objectLayoutColumnJSONObject.get(
-									"objectFieldId")))) {
+				Stream<ObjectField> stream =
+					Arrays.stream(objectDefinition.getObjectFields());
 
-						continue;
-					}
+				ObjectField objectField =
+					stream.filter(objectField -> Objects.equals(
+						objectField.getId(),
+						Long.valueOf(
+							(Integer) objectLayoutColumnJSONObject.get(
+								"objectFieldId")))).findFirst().orElse(null);
 
-					objectLayoutColumnJSONObject.put(
-						"objectFieldName", objectField.getName());
+				if(objectField == null || Validator.isNotNull(
+					objectField.getRelationshipType())){
+					return null;
 				}
 
-				return null;
+				objectLayoutColumnJSONObject.put(
+					"objectFieldName", objectField.getName());
+
+				return objectLayoutColumnJSONObject;
 			});
 
 		_sanitizeJSON(
