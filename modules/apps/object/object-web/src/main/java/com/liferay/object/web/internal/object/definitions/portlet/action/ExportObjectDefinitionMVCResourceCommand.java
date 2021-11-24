@@ -15,25 +15,32 @@
 package com.liferay.object.web.internal.object.definitions.portlet.action;
 
 import com.liferay.object.admin.rest.dto.v1_0.ObjectDefinition;
+import com.liferay.object.admin.rest.dto.v1_0.ObjectField;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectDefinitionResource;
 import com.liferay.object.constants.ObjectPortletKeys;
+import com.liferay.object.web.internal.object.definitions.portlet.action.util.ObjectLayoutColumnJSONObjectUtil;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.json.JSONArray;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.portlet.PortletResponseUtil;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCResourceCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.WebKeys;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+
+import java.util.Objects;
 
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
-import java.util.Date;
-import java.util.Map;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Marco Leo
@@ -71,24 +78,77 @@ public class ExportObjectDefinitionMVCResourceCommand
 		ObjectDefinition objectDefinition =
 			objectDefinitionResource.getObjectDefinition(objectDefinitionId);
 
-		_sanitize(objectDefinition);
+		JSONObject objectDefinitionJSONObject =
+			JSONFactoryUtil.createJSONObject(String.valueOf(objectDefinition));
 
-		String dataDefinitionString = String.valueOf(objectDefinition);
+		ObjectLayoutColumnJSONObjectUtil.modifyObjectLayoutColumnJSONObject(
+			objectDefinitionJSONObject,
+			objectLayoutColumnJSONObject -> {
+				for (ObjectField objectField :
+						objectDefinition.getObjectFields()) {
+
+					if (!Objects.equals(
+							objectField.getId(),
+							Long.valueOf(
+								(Integer)objectLayoutColumnJSONObject.get(
+									"objectFieldId")))) {
+
+						continue;
+					}
+
+					objectLayoutColumnJSONObject.put(
+						"objectFieldName", objectField.getName());
+				}
+
+				return null;
+			});
+
+		_sanitizeJSON(
+			objectDefinitionJSONObject,
+			new String[] {
+				"dateCreated", "dateModified", "id", "listTypeDefinitionId",
+				"objectDefinitionId", "objectFieldId", "objectRelationshipId"
+			});
+
+		String dataDefinitionString = objectDefinitionJSONObject.toString();
 
 		PortletResponseUtil.sendFile(
 			resourceRequest, resourceResponse,
 			StringBundler.concat(
-				"Object_",objectDefinition.getName(),
-				StringPool.UNDERLINE, String.valueOf(objectDefinitionId),
-				StringPool.UNDERLINE, Time.getTimestamp(), ".json"),
+				"Object_", objectDefinition.getName(), StringPool.UNDERLINE,
+				String.valueOf(objectDefinitionId), StringPool.UNDERLINE,
+				Time.getTimestamp(), ".json"),
 			dataDefinitionString.getBytes(), ContentTypes.APPLICATION_JSON);
 	}
 
-	private void _sanitize(ObjectDefinition objectDefinition) {
+	private void _sanitizeJSON(Object object, String[] removedKeys) {
+		if (object instanceof JSONArray) {
+			JSONArray jsonArray = (JSONArray)object;
 
-		objectDefinition.setDateCreated((Date)null);
-		objectDefinition.setDateModified((Date)null);
-		objectDefinition.setId((Long)null);
+			for (int i = 0; i < jsonArray.length(); ++i) {
+				_sanitizeJSON(jsonArray.get(i), removedKeys);
+			}
+		}
+		else if (object instanceof JSONObject) {
+			JSONObject jsonObject = (JSONObject)object;
+
+			if (jsonObject.length() == 0) {
+				return;
+			}
+
+			JSONArray jsonArray = jsonObject.names();
+
+			for (int i = 0; i < jsonArray.length(); ++i) {
+				String key = jsonArray.getString(i);
+
+				if (ArrayUtil.contains(removedKeys, key)) {
+					jsonObject.remove(key);
+				}
+				else {
+					_sanitizeJSON(jsonObject.get(key), removedKeys);
+				}
+			}
+		}
 	}
 
 	@Reference

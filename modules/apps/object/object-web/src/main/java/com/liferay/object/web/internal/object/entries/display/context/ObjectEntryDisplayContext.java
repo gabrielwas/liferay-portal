@@ -117,6 +117,34 @@ public class ObjectEntryDisplayContext {
 		_objectRequestHelper = new ObjectRequestHelper(httpServletRequest);
 	}
 
+	public String getCurrentURL(Long objectEntryId) throws PortalException {
+		LiferayPortletResponse liferayPortletResponse =
+			_objectRequestHelper.getLiferayPortletResponse();
+
+		ObjectLayout objectLayout = getObjectLayout();
+
+		Long objectLayoutTabId = 0L;
+
+		if (objectLayout != null) {
+			List<ObjectLayoutTab> objectLayoutTabs =
+				objectLayout.getObjectLayoutTabs();
+
+			ObjectLayoutTab objectLayoutTab = objectLayoutTabs.get(0);
+
+			objectLayoutTabId = objectLayoutTab.getObjectLayoutTabId();
+		}
+
+		return PortletURLBuilder.create(
+			liferayPortletResponse.createRenderURL()
+		).setMVCRenderCommandName(
+			"/object_entries/edit_object_entry"
+		).setParameter(
+			"objectEntryId", objectEntryId
+		).setParameter(
+			"objectLayoutTabId", objectLayoutTabId
+		).buildString();
+	}
+
 	public List<NavigationItem> getNavigationItems() throws PortalException {
 		ObjectLayout objectLayout = getObjectLayout();
 

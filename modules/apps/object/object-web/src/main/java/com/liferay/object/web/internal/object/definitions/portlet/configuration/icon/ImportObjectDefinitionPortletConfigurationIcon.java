@@ -17,20 +17,20 @@ package com.liferay.object.web.internal.object.definitions.portlet.configuration
 import com.liferay.object.constants.ObjectPortletKeys;
 import com.liferay.portal.kernel.portlet.configuration.icon.BaseJSPPortletConfigurationIcon;
 import com.liferay.portal.kernel.portlet.configuration.icon.PortletConfigurationIcon;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.portlet.PortletRequest;
+
 import javax.servlet.ServletContext;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Marco Leo
  */
 @Component(
 	immediate = true,
-	property = {
-		"javax.portlet.name=" + ObjectPortletKeys.OBJECT_DEFINITIONS
-	},
+	property = "javax.portlet.name=" + ObjectPortletKeys.OBJECT_DEFINITIONS,
 	service = PortletConfigurationIcon.class
 )
 public class ImportObjectDefinitionPortletConfigurationIcon
@@ -38,7 +38,8 @@ public class ImportObjectDefinitionPortletConfigurationIcon
 
 	@Override
 	public String getJspPath() {
-		return "/object_definitions/configuration/icon/import_object_definition.jsp";
+		return "/object_definitions/configuration/icon" +
+			"/import_object_definition.jsp";
 	}
 
 	@Override
