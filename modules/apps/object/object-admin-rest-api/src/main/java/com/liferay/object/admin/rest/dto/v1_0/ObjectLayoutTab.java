@@ -138,6 +138,7 @@ public class ObjectLayoutTab implements Serializable {
 		}
 	}
 
+	@GraphQLField
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected ObjectLayoutBox[] objectLayoutBoxes;
 
