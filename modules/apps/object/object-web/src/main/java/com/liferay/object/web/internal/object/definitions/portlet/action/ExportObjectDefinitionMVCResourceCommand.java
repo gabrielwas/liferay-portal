@@ -29,14 +29,16 @@ import com.liferay.portal.kernel.portlet.bridges.mvc.MVCResourceCommand;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.StringBundler;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 
-import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import javax.portlet.ResourceRequest;
@@ -81,25 +83,44 @@ public class ExportObjectDefinitionMVCResourceCommand
 		ObjectDefinition objectDefinition =
 			objectDefinitionResource.getObjectDefinition(objectDefinitionId);
 
+		List<ObjectField> objectFields = ListUtil.fromArray(
+			objectDefinition.getObjectFields());
+
+		Supplier<Stream<ObjectField>> streamSupplier = objectFields::stream;
+
+		Stream<ObjectField> stream = streamSupplier.get();
+
+		objectDefinition.setObjectFields(
+			stream.filter(
+				objectField -> Validator.isNull(
+					objectField.getRelationshipType())
+			).toArray(
+				ObjectField[]::new
+			));
+
 		JSONObject objectDefinitionJSONObject =
 			JSONFactoryUtil.createJSONObject(String.valueOf(objectDefinition));
 
 		ObjectLayoutColumnJSONObjectUtil.modifyObjectLayoutColumnJSONObject(
 			objectDefinitionJSONObject,
 			objectLayoutColumnJSONObject -> {
+				Stream<ObjectField> objectFieldStream = streamSupplier.get(
+				);
 
-				Stream<ObjectField> stream =
-					Arrays.stream(objectDefinition.getObjectFields());
-
-				ObjectField objectField =
-					stream.filter(objectField -> Objects.equals(
-						objectField.getId(),
+				ObjectField objectField = objectFieldStream.filter(
+					filter -> Objects.equals(
+						filter.getId(),
 						Long.valueOf(
-							(Integer) objectLayoutColumnJSONObject.get(
-								"objectFieldId")))).findFirst().orElse(null);
+							(Integer)objectLayoutColumnJSONObject.get(
+								"objectFieldId")))
+				).findFirst(
+				).orElse(
+					null
+				);
 
-				if(objectField == null || Validator.isNotNull(
-					objectField.getRelationshipType())){
+				if ((objectField == null) ||
+					Validator.isNotNull(objectField.getRelationshipType())) {
+
 					return null;
 				}
 

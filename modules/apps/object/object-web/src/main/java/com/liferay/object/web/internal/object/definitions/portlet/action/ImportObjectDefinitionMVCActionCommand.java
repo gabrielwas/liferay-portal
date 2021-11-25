@@ -31,7 +31,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
-import com.liferay.portal.kernel.servlet.SessionErrors;
 import com.liferay.portal.kernel.servlet.SessionMessages;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.upload.UploadPortletRequest;
@@ -88,7 +87,7 @@ public class ImportObjectDefinitionMVCActionCommand
 				objectLayoutColumnJsonObject -> {
 					objectLayoutColumnJsonObject.remove("objectFieldName");
 
-					return null;
+					return objectLayoutColumnJsonObject;
 				});
 
 			ObjectDefinition objectDefinition = ObjectDefinition.toDTO(
@@ -146,7 +145,7 @@ public class ImportObjectDefinitionMVCActionCommand
 
 					objectLayoutColumnJsonObject.remove("objectFieldName");
 
-					return null;
+					return objectLayoutColumnJsonObject;
 				});
 
 			JSONArray objectLayoutsJSONArray =
@@ -181,14 +180,14 @@ public class ImportObjectDefinitionMVCActionCommand
 			hideDefaultSuccessMessage(actionRequest);
 		}
 		catch (Exception exception) {
-//			if (_log.isDebugEnabled()) {
-//				_log.debug(exception, exception);
-//			}
-//
-//			SessionErrors.add(
-//				actionRequest, "importObjectDefinitionErrorMessage");
-//
-//			hideDefaultErrorMessage(actionRequest);
+			//			if (_log.isDebugEnabled()) {
+			//				_log.debug(exception, exception);
+			//			}
+			//
+			//			SessionErrors.add(
+			//				actionRequest, "importObjectDefinitionErrorMessage");
+			//
+			//			hideDefaultErrorMessage(actionRequest);
 
 			throw exception;
 		}
