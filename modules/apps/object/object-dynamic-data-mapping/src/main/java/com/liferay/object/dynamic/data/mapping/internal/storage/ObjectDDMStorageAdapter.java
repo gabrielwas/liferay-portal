@@ -40,6 +40,7 @@ import com.liferay.object.scope.ObjectScopeProviderRegistry;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryService;
 import com.liferay.object.service.ObjectFieldLocalService;
+import com.liferay.object.util.ObjectFieldUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -299,21 +300,13 @@ public class ObjectDDMStorageAdapter implements DDMStorageAdapter {
 
 		Map<String, Object> properties = new HashMap<>();
 
-		Stream<ObjectField> objectFieldTypesStream = objectFields.stream();
+		Stream<ObjectField> stream = objectFields.stream();
 
-		Map<String, String> objectFieldTypes = objectFieldTypesStream.collect(
+		Map<String, String> objectFieldTypes = stream.collect(
 			Collectors.toMap(ObjectField::getName, ObjectField::getType));
 
-		Stream<ObjectField> objectFieldListTypeIdsStream =
-			objectFields.stream();
-
-		Map<String, Long> objectFieldListTypeIds =
-			objectFieldListTypeIdsStream.filter(
-				objectField -> objectField.getListTypeDefinitionId() > 0
-			).collect(
-				Collectors.toMap(
-					ObjectField::getName, ObjectField::getListTypeDefinitionId)
-			);
+		Map<String, ObjectField> objectFieldsMap =
+			ObjectFieldUtil.getObjectFieldsMap(objectFields);
 
 		for (DDMFormFieldValue ddmFormFieldValue : ddmFormFieldValues) {
 			if (StringUtil.equals(
@@ -332,7 +325,9 @@ public class ObjectDDMStorageAdapter implements DDMStorageAdapter {
 
 				Value value = ddmFormFieldValue.getValue();
 
-				if (objectFieldListTypeIds.containsKey(objectFieldName)) {
+				ObjectField objectField = objectFieldsMap.get(objectFieldName);
+
+				if(objectField.getListTypeDefinitionId() > 0){
 					properties.put(
 						objectFieldName,
 						HashMapBuilder.put(
