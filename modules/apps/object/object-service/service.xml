@@ -462,8 +462,15 @@
 
 		<!-- Finder methods -->
 
+		<finder name="ObjectFieldId" return-type="Collection">
+			<finder-column name="objectFieldId" />
+		</finder>
 		<finder name="ObjectViewId" return-type="Collection">
 			<finder-column name="objectViewId" />
+		</finder>
+		<finder name="OVI_OFN" return-type="Collection">
+			<finder-column name="objectViewId" />
+			<finder-column name="objectFieldName" />
 		</finder>
 	</entity>
 	<exceptions>
