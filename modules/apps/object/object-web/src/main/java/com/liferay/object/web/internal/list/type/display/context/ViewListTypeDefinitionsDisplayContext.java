@@ -15,7 +15,13 @@
 package com.liferay.object.web.internal.list.type.display.context;
 
 import com.liferay.frontend.data.set.model.FDSActionDropdownItem;
+import com.liferay.frontend.data.set.model.FDSSortItemBuilder;
+import com.liferay.frontend.data.set.model.FDSSortItemList;
+import com.liferay.frontend.data.set.model.FDSSortItemListBuilder;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.SortItemBuilder;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.SortItemList;
+import com.liferay.frontend.taglib.clay.servlet.taglib.util.SortItemListBuilder;
 import com.liferay.list.type.constants.ListTypeActionKeys;
 import com.liferay.list.type.model.ListTypeDefinition;
 import com.liferay.object.web.internal.display.context.helper.ObjectRequestHelper;
@@ -52,6 +58,16 @@ public class ViewListTypeDefinitionsDisplayContext {
 
 	public String getAPIURL() {
 		return "/o/headless-admin-list-type/v1.0/list-type-definitions";
+	}
+
+	public FDSSortItemList getFDSSortItemList() {
+		return FDSSortItemListBuilder.add(
+			FDSSortItemBuilder.setDirection(
+				"asc"
+			).setKey(
+				"name"
+			).build()
+		).build();
 	}
 
 	public CreationMenu getCreationMenu() {

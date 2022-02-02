@@ -30,6 +30,7 @@ ViewListTypeDefinitionsDisplayContext viewListTypeDefinitionsDisplayContext = (V
 	namespace="<%= liferayPortletResponse.getNamespace() %>"
 	pageNumber="<%= 1 %>"
 	portletURL="<%= liferayPortletResponse.createRenderURL() %>"
+	fdsSortItemList="<%= viewListTypeDefinitionsDisplayContext.getFDSSortItemList() %>"
 	style="fluid"
 />
 
