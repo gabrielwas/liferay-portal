@@ -18,6 +18,7 @@ import com.liferay.object.model.ObjectField;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
+import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.search.spi.model.index.contributor.ModelDocumentContributor;
 
 import org.osgi.service.component.annotations.Component;
@@ -40,6 +41,39 @@ public class ObjectFieldModelDocumentContributor
 		document.addKeyword(
 			"objectDefinitionId", objectField.getObjectDefinitionId());
 		document.remove(Field.USER_NAME);
+
+		String[] languageIds = _getLanguageIds(
+			objectField.getDefaultLanguageId(), objectField.getLabel());
+
+		for (String languageId : languageIds) {
+			document.addTextSortable(
+				LocalizationUtil.getLocalizedName("label", languageId),
+				objectField.getLabel(languageId));
+		}
+
+//		document.addLocalizedKeyword(
+//			"localized_label",
+//			LocalizationUtil.populateLocalizationMap(
+//				objectField.getLabelMap(),
+//				objectField.getDefaultLanguageId(),0),
+//			true, true);
+//
+//		document.addLocalizedText(
+//			"localized_label",
+//			LocalizationUtil.populateLocalizationMap(
+//				objectField.getLabelMap(),
+//				objectField.getDefaultLanguageId(),0));
+	}
+
+	private String[] _getLanguageIds(String defaultLanguageId, String content) {
+		String[] languageIds = LocalizationUtil.getAvailableLanguageIds(
+			content);
+
+		if (languageIds.length == 0) {
+			languageIds = new String[] {defaultLanguageId};
+		}
+
+		return languageIds;
 	}
 
 	@Reference
