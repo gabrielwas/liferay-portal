@@ -13,10 +13,9 @@
  */
 
 import React from 'react';
-interface ICustomViewWrapperProps extends React.HTMLAttributes<HTMLElement> {
-	isFFObjectViewSortColumnConfigurationEnabled: boolean;
+interface ICustonViewWrapperProps extends React.HTMLAttributes<HTMLElement> {
 	isViewOnly: boolean;
 	objectViewId: string;
 }
-declare const CustomViewWrapper: React.FC<ICustomViewWrapperProps>;
+declare const CustomViewWrapper: React.FC<ICustonViewWrapperProps>;
 export default CustomViewWrapper;

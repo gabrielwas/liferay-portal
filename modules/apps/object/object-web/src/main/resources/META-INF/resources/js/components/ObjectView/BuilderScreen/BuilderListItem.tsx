@@ -54,10 +54,7 @@ const BuilderListItem: React.FC<Iprops> = ({
 	onVisibleModal,
 	sortOrder,
 }) => {
-	const [
-		{isFFObjectViewSortColumnConfigurationEnabled},
-		dispatch,
-	] = useContext(ViewContext);
+	const [, dispatch] = useContext(ViewContext);
 
 	const ref = useRef<HTMLLIElement>(null);
 
@@ -130,12 +127,10 @@ const BuilderListItem: React.FC<Iprops> = ({
 				type: TYPES.DELETE_OBJECT_VIEW_COLUMN,
 			});
 
-			if (isFFObjectViewSortColumnConfigurationEnabled) {
-				dispatch({
-					payload: {objectFieldName},
-					type: TYPES.DELETE_OBJECT_VIEW_SORT_COLUMN,
-				});
-			}
+			dispatch({
+				payload: {objectFieldName},
+				type: TYPES.DELETE_OBJECT_VIEW_SORT_COLUMN,
+			});
 		}
 	};
 
