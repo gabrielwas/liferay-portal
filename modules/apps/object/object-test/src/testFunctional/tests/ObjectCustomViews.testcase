@@ -1,6 +1,7 @@
 @component-name = "portal-object"
 definition {
 
+	property portal.acceptance = "true";
 	property portal.release = "true";
 	property portal.upstream = "true";
 	property testray.main.component.name = "Object";
@@ -166,13 +167,42 @@ definition {
 	}
 
 	@description = "LPS-135394 - Verify it is possible to delete a column for the View through the delete button"
-	@ignore = "Test Stub"
 	@priority = "5"
 	test CanDeleteColumnThroughDeleteButton {
 		property portal.acceptance = "true";
 
-		// TODO LPS-147767 CanDeleteColumnThroughDeleteButton pending implementation
+		ObjectAdmin.addObjectViaAPI(
+			labelName = "Custom Object 147767",
+			objectName = "CustomObject147767",
+			pluralLabelName = "Custom Objects 147767");
 
+		ObjectAdmin.openObjectAdmin();
+
+		ObjectPortlet.selectCustomObject(label = "Custom Object 147767");
+
+		ObjectCustomViews.goToViewsTab();
+
+		ObjectCustomViews.addObjectViewViaUI(viewName = "Custom Views");
+
+		ObjectCustomViews.goToViewsDetails(label = "Custom Views");
+
+		ObjectCustomViews.markViewAsDefault();
+
+		ObjectCustomViews.goToViewsBuilderTab();
+
+		LexiconEntry.gotoAdd();
+
+		Click.clickAtNotVisible(
+			key_columnOption = "Author",
+			locator1 = "ObjectCustomViews#CHECKBOX_COLUMN_OPTION");
+
+		ObjectCustomViews.saveColumnsModal();
+
+		ObjectCustomViews.deleteSpecificColumn(columnName = "Author");
+
+		ObjectCustomViews.assertColumnNotPresent(colunmName = "Author");
+
+		ObjectCustomViews.assertEmptyStateTextOnViewBuilder(text = "No columns added yet.");
 	}
 
 	@description = "LPS-135394 - Verify it is possible to delete a View"
@@ -377,25 +407,25 @@ definition {
 	@priority = "4"
 	test CanSearchView {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 147753",
+			objectName = "CustomObject147753",
+			pluralLabelName = "Custom Objects 147753");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 147753");
 
 		ObjectCustomViews.goToViewsTab();
 
 		ObjectCustomViews.addObjectViewViaUI(viewName = "View A");
 
-		ObjectCustomViews.addObjectViewViaUI(viewName = "View B");
+		ObjectCustomViews.addObjectViewViaUI(viewName = "Custom B");
 
 		Search.searchCP(searchTerm = "View A");
 
 		ObjectCustomViews.assertObjectView(viewLabel = "View A");
 
-		ObjectCustomViews.assertObjectViewNotPresent(viewLabel = "View B");
+		ObjectCustomViews.assertObjectViewNotPresent(viewLabel = "Custom B");
 	}
 
 	@description = "LPS-135394 - Verify it is possible to update a View"
@@ -673,13 +703,13 @@ definition {
 	@priority = "3"
 	test EmptyStateViewTab {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 201",
+			objectName = "CustomObject201",
+			pluralLabelName = "Custom Objects 201");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 201");
 
 		ObjectCustomViews.goToViewsTab();
 
@@ -721,19 +751,19 @@ definition {
 	@priority = "3"
 	test NoResultMessageView {
 		ObjectAdmin.addObjectViaAPI(
-			labelName = "Custom Object",
-			objectName = "CustomObject",
-			pluralLabelName = "Custom Objects");
+			labelName = "Custom Object 202",
+			objectName = "CustomObject202",
+			pluralLabelName = "Custom Objects 202");
 
 		ObjectAdmin.openObjectAdmin();
 
-		ObjectPortlet.selectCustomObject(label = "Custom Object");
+		ObjectPortlet.selectCustomObject(label = "Custom Object 202");
 
 		ObjectCustomViews.goToViewsTab();
 
 		ObjectCustomViews.addObjectViewViaUI(labelName = "Custom View");
 
-		Search.searchCP(searchTerm = "ObjectTest");
+		Search.searchCP(searchTerm = "ObjectTest202");
 
 		AssertTextEquals(
 			locator1 = "Message#EMPTY_INFO",

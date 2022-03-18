@@ -13,7 +13,8 @@
  */
 
 import React from 'react';
-interface ICustonViewWrapperProps extends React.HTMLAttributes<HTMLElement> {
+interface ICustomViewWrapperProps extends React.HTMLAttributes<HTMLElement> {
+	isFFObjectViewColumnAliasEnabled: boolean;
 	isViewOnly: boolean;
 	objectViewId: string;
 }

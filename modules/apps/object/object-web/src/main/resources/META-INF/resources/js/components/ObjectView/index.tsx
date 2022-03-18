@@ -249,17 +249,26 @@ const CustomView: React.FC<React.HTMLAttributes<HTMLElement>> = () => {
 		</>
 	);
 };
-interface ICustonViewWrapperProps extends React.HTMLAttributes<HTMLElement> {
+
+interface ICustomViewWrapperProps extends React.HTMLAttributes<HTMLElement> {
+	isFFObjectViewColumnAliasEnabled: boolean;
 	isViewOnly: boolean;
 	objectViewId: string;
 }
 
-const CustomViewWrapper: React.FC<ICustonViewWrapperProps> = ({
+const CustomViewWrapper: React.FC<ICustomViewWrapperProps> = ({
+	isFFObjectViewColumnAliasEnabled,
 	isViewOnly,
 	objectViewId,
 }) => {
 	return (
-		<ViewContextProvider value={{isViewOnly, objectViewId}}>
+		<ViewContextProvider
+			value={{
+				isFFObjectViewColumnAliasEnabled,
+				isViewOnly,
+				objectViewId,
+			}}
+		>
 			<CustomView />
 		</ViewContextProvider>
 	);

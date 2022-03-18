@@ -206,7 +206,8 @@ const viewReducer = (state: TState, action: TAction) => {
 			const [label] = labels;
 
 			const newSortColumnItem: TObjectViewSortColumn = {
-				label: label[defaultLanguageId],
+				fieldLabel: label[defaultLanguageId],
+				label,
 				objectFieldName,
 				sortOrder: selectedObjetSort.value,
 			};
@@ -298,8 +299,9 @@ const viewReducer = (state: TState, action: TAction) => {
 					if (objectField.name === viewColumn.objectFieldName) {
 						newObjectViewColumns.push({
 							...viewColumn,
+							fieldLabel: objectField.label[defaultLanguageId],
 							isDefaultSort: false,
-							label: objectField.label[defaultLanguageId],
+							label: objectField.label,
 						});
 					}
 				});
@@ -310,7 +312,7 @@ const viewReducer = (state: TState, action: TAction) => {
 					if (objectField.name === sortColumn.objectFieldName) {
 						newObjectViewSortColumns.push({
 							...sortColumn,
-							label: objectField.label[defaultLanguageId],
+							fieldLabel: objectField.label[defaultLanguageId],
 						});
 					}
 				});
@@ -525,6 +527,7 @@ const viewReducer = (state: TState, action: TAction) => {
 
 interface IViewContextProviderProps extends React.HTMLAttributes<HTMLElement> {
 	value: {
+		isFFObjectViewColumnAliasEnabled: boolean;
 		isViewOnly: boolean;
 		objectViewId: string;
 	};

@@ -4268,6 +4268,18 @@
 				</licenses>
 			</library>
 			<library>
+				<file-name>com.liferay.portal.tika.jar!commons-exec.jar</file-name>
+				<version>1.3</version>
+				<project-name>Apache Commons Exec</project-name>
+				<project-url>http://commons.apache.org/proper/commons-exec/</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache License, Version 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
 				<file-name>com.liferay.portal.tika.jar!commons-lang3.jar</file-name>
 				<version>3.12.0</version>
 				<project-name>Apache Commons Lang</project-name>
@@ -4276,6 +4288,18 @@
 					<license>
 						<license-name>Apache License, Version 2.0</license-name>
 						<license-url>https://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>com.liferay.portal.tika.jar!commons-math3.jar</file-name>
+				<version>3.6.1</version>
+				<project-name>Apache Commons Math</project-name>
+				<project-url>http://commons.apache.org/proper/commons-math/</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache License, Version 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
 					</license>
 				</licenses>
 			</library>
@@ -5244,6 +5268,77 @@
 					<license>
 						<license-name>Apache License, Version 2.0</license-name>
 						<license-url>https://www.apache.org/licenses/LICENSE-2.0</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>com.liferay.shared.dependencies.pdfbox.jar!fontbox.jar</file-name>
+				<version>2.0.24</version>
+				<project-name>Apache FontBox</project-name>
+				<project-url>http://pdfbox.apache.org/</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache License, Version 2.0</license-name>
+						<license-url>https://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>com.liferay.shared.dependencies.pdfbox.jar!jai-imageio-core.jar</file-name>
+				<version>1.4.0</version>
+				<project-name>Java Advanced Imaging Image I/O Tools API core (standalone)</project-name>
+				<project-url>https://github.com/jai-imageio/jai-imageio-core</project-url>
+				<licenses>
+					<license>
+						<license-name>BSD 3-clause License w/nuclear disclaimer</license-name>
+						<license-url>LICENSE.txt</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>com.liferay.shared.dependencies.pdfbox.jar!jai-imageio-jpeg2000.jar</file-name>
+				<version>1.3.0</version>
+				<project-name>JPEG2000 support for Java Advanced Imaging Image I/O Tools API</project-name>
+				<project-url>https://github.com/jai-imageio/jai-imageio-jpeg2000</project-url>
+				<licenses>
+					<license>
+						<license-name>JJ2000</license-name>
+						<license-url>LICENSE-JJ2000.txt</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>com.liferay.shared.dependencies.pdfbox.jar!jbig2-imageio.jar</file-name>
+				<version>3.0.3</version>
+				<project-name>PDFBox JBIG2 ImageIO plugin</project-name>
+				<licenses>
+					<license>
+						<license-name>Apache License, Version 2.0</license-name>
+						<license-url>https://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>com.liferay.shared.dependencies.pdfbox.jar!jempbox.jar</file-name>
+				<version>1.8.16</version>
+				<project-name>Apache JempBox</project-name>
+				<project-url>http://pdfbox.apache.org</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache License, Version 2.0</license-name>
+						<license-url>http://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
+					</license>
+				</licenses>
+			</library>
+			<library>
+				<file-name>com.liferay.shared.dependencies.pdfbox.jar!pdfbox.jar</file-name>
+				<version>2.0.24</version>
+				<project-name>Apache PDFBox</project-name>
+				<project-url>http://pdfbox.apache.org</project-url>
+				<licenses>
+					<license>
+						<license-name>Apache License, Version 2.0</license-name>
+						<license-url>https://www.apache.org/licenses/LICENSE-2.0.txt</license-url>
 					</license>
 				</licenses>
 			</library>
@@ -6702,18 +6797,6 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>lib/portal/commons-exec.jar</file-name>
-				<version>1.3</version>
-				<project-name>Commons Exec</project-name>
-				<project-url>http://commons.apache.org/proper/commons-exec</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
 				<file-name>lib/portal/commons-fileupload.jar</file-name>
 				<version>1.3.3</version>
 				<project-name>Commons FileUpload</project-name>
@@ -6777,18 +6860,6 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>lib/portal/commons-math3.jar</file-name>
-				<version>3.6.1</version>
-				<project-name>Commons Math</project-name>
-				<project-url>http://commons.apache.org/math</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
 				<file-name>lib/portal/commons-pool.jar</file-name>
 				<version>1.5.7</version>
 				<project-name>Commons Pool</project-name>
@@ -6821,18 +6892,6 @@
 					<license>
 						<license-name>BSD Style License</license-name>
 						<license-url>http://en.wikipedia.org/wiki/BSD_licenses</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/fontbox.jar</file-name>
-				<version>2.0.24</version>
-				<project-name>PDFBox</project-name>
-				<project-url>http://pdfbox.apache.org</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
 					</license>
 				</licenses>
 			</library>
@@ -6935,30 +6994,6 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>lib/portal/jai-imageio-core.jar</file-name>
-				<version>1.4.0</version>
-				<project-name>Java Advanced Imaging Image I/O Tools API Core (standalone)</project-name>
-				<project-url>https://github.com/jai-imageio/jai-imageio-core</project-url>
-				<licenses>
-					<license>
-						<license-name>BSD Style License</license-name>
-						<license-url>http://en.wikipedia.org/wiki/BSD_licenses</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/jai-imageio-jpeg2000.jar</file-name>
-				<version>1.3.0</version>
-				<project-name>JPEG2000 support for Java Advanced Imaging Image I/O Tools API</project-name>
-				<project-url>https://github.com/jai-imageio/jai-imageio-jpeg2000</project-url>
-				<licenses>
-					<license>
-						<license-name>BSD Style License</license-name>
-						<license-url>http://en.wikipedia.org/wiki/BSD_licenses</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
 				<file-name>lib/portal/javassist.jar</file-name>
 				<version>3.18.2 GA</version>
 				<project-name>Javassist</project-name>
@@ -7056,18 +7091,6 @@
 				</licenses>
 			</library>
 			<library>
-				<file-name>lib/portal/jbig2-imageio.jar</file-name>
-				<version>3.0.3</version>
-				<project-name>PDFBox JBIG2 ImageIO Plugin</project-name>
-				<project-url>http://pdfbox.apache.org</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
 				<file-name>lib/portal/jcl-over-slf4j.jar</file-name>
 				<version>1.7.2</version>
 				<project-name>SLF4J</project-name>
@@ -7091,18 +7114,6 @@
 						<license-name>BSD Style License</license-name>
 						<license-url>http://en.wikipedia.org/wiki/BSD_licenses</license-url>
 						<copyright-notice>Copyright (c) 2000-2012 Jason Hunter &amp; Brett McLaughlin. All rights reserved.</copyright-notice>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/jempbox.jar</file-name>
-				<version>1.8.16</version>
-				<project-name>PDFBox</project-name>
-				<project-url>http://pdfbox.apache.org</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
 					</license>
 				</licenses>
 			</library>
@@ -7248,18 +7259,6 @@
 					<license>
 						<license-name>CDDL 1.1</license-name>
 						<license-url>https://glassfish.java.net/public/CDDL+GPL_1_1.html</license-url>
-					</license>
-				</licenses>
-			</library>
-			<library>
-				<file-name>lib/portal/pdfbox.jar</file-name>
-				<version>2.0.24</version>
-				<project-name>PDFBox</project-name>
-				<project-url>http://pdfbox.apache.org</project-url>
-				<licenses>
-					<license>
-						<license-name>Apache License 2.0</license-name>
-						<license-url>http://www.apache.org/licenses/LICENSE-2.0</license-url>
 					</license>
 				</licenses>
 			</library>

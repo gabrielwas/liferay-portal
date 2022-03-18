@@ -21,7 +21,7 @@ import {useState} from 'react';
 import Input from '../../components/Input';
 import Container from '../../components/Layout/Container';
 import Modal from '../../components/Modal';
-import {createUserAccount} from '../../graphql/mutations/LiferayUser';
+import {createUserAccount} from '../../graphql/mutations/liferayUser';
 import {FormModalOptions} from '../../hooks/useFormModal';
 import i18n from '../../i18n';
 import {Liferay} from '../../services/liferay/liferay';

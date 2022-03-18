@@ -14,6 +14,8 @@
 
 export default {
 	'add-case': 'Add Case',
+	'add-project': 'Add Project',
+	'add-requirement': 'Add Requirement',
 	'add-requirements': 'Add Requirements',
 	'add-routine': 'Add Routine',
 	'add-suite': 'Add Suite',
@@ -80,6 +82,7 @@ export default {
 	'description': 'Description',
 	'details': 'Details',
 	'edit': 'Edit',
+	'edit-case-type': 'Edit Case Type',
 	'edit-project': 'Edit Project',
 	'email-address': 'Email Address',
 	'enter-the-case-name': 'Enter the Case Name',
@@ -119,7 +122,9 @@ export default {
 	'metrics': 'Metrics',
 	'modified-date': 'Modified Date',
 	'name': 'Name',
+	'new-build': 'New Build',
 	'new-case': 'New Case',
+	'new-case-type': 'New Case Type',
 	'new-project': 'New Project',
 	'new-requirements': 'New Requirements',
 	'new-routine': 'New Routine',
@@ -183,7 +188,7 @@ export default {
 		'Testers carry permissions to analyze test results by workflowing results or collaborating on tasks',
 	'testflow': 'Testflow',
 	'testflow-archived': 'Testflow Archived',
-	'testray-user': 'Testray User',
+	'testray-user': ' User',
 	'tests': 'Tests',
 	'this-build-has-been-analyzed': 'This build has been analyzed.',
 	'this-build-is-currently-in-analysis':
