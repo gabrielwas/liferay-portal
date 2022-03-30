@@ -36,7 +36,7 @@ import com.liferay.portal.kernel.systemevent.SystemEvent;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.vulcan.util.TransformUtil;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -290,15 +290,8 @@ public class ObjectViewLocalServiceImpl extends ObjectViewLocalServiceBaseImpl {
 			List<ObjectViewSortColumn> objectViewSortColumns)
 		throws ObjectViewSortColumnException {
 
-		List<String> objectFieldNames = new ArrayList<String>() {
-			{
-				add("creator");
-				add("dateCreated");
-				add("dateModified");
-				add("id");
-				add("status");
-			}
-		};
+		List<String> objectFieldNames = Arrays.asList(
+			"creator", "dateCreated", "dateModified", "id", "status");
 
 		for (ObjectViewColumn objectViewColumn : objectViewColumns) {
 			objectFieldNames.add(objectViewColumn.getObjectFieldName());
