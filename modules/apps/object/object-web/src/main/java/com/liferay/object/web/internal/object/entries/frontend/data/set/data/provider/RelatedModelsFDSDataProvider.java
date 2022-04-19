@@ -22,6 +22,7 @@ import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.related.models.ObjectRelatedModelsProvider;
 import com.liferay.object.related.models.ObjectRelatedModelsProviderRegistry;
+import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
 import com.liferay.object.scope.ObjectScopeProvider;
 import com.liferay.object.scope.ObjectScopeProviderRegistry;
 import com.liferay.object.service.ObjectDefinitionLocalService;
@@ -29,8 +30,14 @@ import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.object.web.internal.object.entries.constants.ObjectEntriesFDSNames;
 import com.liferay.object.web.internal.object.entries.frontend.data.set.data.model.RelatedModel;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.WebKeys;
+import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
+import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
+import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.util.TransformUtil;
 
 import java.util.List;
@@ -78,6 +85,20 @@ public class RelatedModelsFDSDataProvider
 		long objectEntryId = ParamUtil.getLong(
 			httpServletRequest, "objectEntryId");
 
+		try {
+			Page<com.liferay.object.rest.dto.v1_0.ObjectEntry>
+				objectRelatedEntries = _objectEntryManager.getObjectRelatedEntries(
+				objectDefinition.getCompanyId(), objectRelationship, objectEntryId,
+				null, null,
+				_getDTOConverterContext(httpServletRequest),
+				null, null, null, null);
+
+			objectRelatedEntries.getItems();
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		return TransformUtil.transform(
 			objectRelatedModelsProvider.getRelatedModels(
 				objectScopeProvider.getGroupId(httpServletRequest),
@@ -86,6 +107,17 @@ public class RelatedModelsFDSDataProvider
 				fdsPagination.getEndPosition()),
 			objectEntry -> new RelatedModel(
 				objectEntry.getObjectEntryId(), objectEntry.getTitleValue()));
+
+	}
+
+	private DTOConverterContext _getDTOConverterContext(HttpServletRequest httpServletRequest) {
+
+		ThemeDisplay _themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
+			WebKeys.THEME_DISPLAY);
+
+		return new DefaultDTOConverterContext(
+			false, null, null, httpServletRequest, null,
+			_themeDisplay.getLocale(), null, _themeDisplay.getUser());
 	}
 
 	@Override
@@ -132,5 +164,8 @@ public class RelatedModelsFDSDataProvider
 
 	@Reference
 	private ObjectScopeProviderRegistry _objectScopeProviderRegistry;
+
+	@Reference
+	private ObjectEntryManager _objectEntryManager;
 
 }

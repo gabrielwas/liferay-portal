@@ -15,6 +15,7 @@
 package com.liferay.object.rest.manager.v1_0;
 
 import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.rest.dto.v1_0.ObjectEntry;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
@@ -39,6 +40,13 @@ public interface ObjectEntryManager {
 			String externalReferenceCode, ObjectDefinition objectDefinition,
 			ObjectEntry objectEntry, String scopeKey)
 		throws Exception;
+
+	public Page<ObjectEntry> getObjectRelatedEntries(
+		long companyId, ObjectRelationship objectRelationship, long entryClassPK, String scopeKey,
+		Aggregation aggregation, DTOConverterContext dtoConverterContext,
+		Filter filter, Pagination pagination, String search, Sort[] sorts)
+		throws Exception;
+
 
 	public void deleteObjectEntry(
 			ObjectDefinition objectDefinition, long objectEntryId)

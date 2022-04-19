@@ -15,15 +15,21 @@
 package com.liferay.object.internal.search.spi.model.index.contributor;
 
 import com.liferay.object.constants.ObjectFieldConstants;
+import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectField;
+import com.liferay.object.model.ObjectRelationship;
+import com.liferay.object.related.models.ObjectRelatedModelsProvider;
+import com.liferay.object.related.models.ObjectRelatedModelsProviderRegistry;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
+import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.object.util.ObjectEntryFieldValueUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.search.Document;
@@ -41,9 +47,11 @@ import java.math.BigDecimal;
 
 import java.text.Format;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Marco Leo
@@ -56,12 +64,17 @@ public class ObjectEntryModelDocumentContributor
 		String className,
 		ObjectDefinitionLocalService objectDefinitionLocalService,
 		ObjectEntryLocalService objectEntryLocalService,
-		ObjectFieldLocalService objectFieldLocalService) {
+		ObjectFieldLocalService objectFieldLocalService,
+		ObjectRelatedModelsProviderRegistry objectRelatedModelsProviderRegistry,
+		ObjectRelationshipLocalService objectRelationshipLocalService) {
 
 		_className = className;
 		_objectDefinitionLocalService = objectDefinitionLocalService;
 		_objectEntryLocalService = objectEntryLocalService;
 		_objectFieldLocalService = objectFieldLocalService;
+		_objectRelatedModelsProviderRegistry = objectRelatedModelsProviderRegistry;
+		_objectRelationshipLocalService = objectRelationshipLocalService;
+
 	}
 
 	@Override
@@ -123,12 +136,58 @@ public class ObjectEntryModelDocumentContributor
 			document.add(fieldArray);
 		}
 
-		document.addKeyword(
-			"objectDefinitionId", objectEntry.getObjectDefinitionId());
+		FieldArray relatedEntries = (FieldArray)document.getField(
+			"relatedEntries");
+
+		if (relatedEntries == null) {
+			relatedEntries = new FieldArray("relatedEntries");
+
+			document.add(relatedEntries);
+		}
+
+		List<ObjectRelationship> objectRelationships =
+			_objectRelationshipLocalService.getObjectRelationships(
+				objectEntry.getObjectDefinitionId());
 
 		ObjectDefinition objectDefinition =
 			_objectDefinitionLocalService.fetchObjectDefinition(
 				objectEntry.getObjectDefinitionId());
+		
+		for(ObjectRelationship objectRelationship : objectRelationships){
+//			if (!Objects.equals(
+//				objectRelationship.getType(),
+//				ObjectRelationshipConstants.TYPE_MANY_TO_MANY)) {
+//					continue;
+//			}
+
+			ObjectRelatedModelsProvider<ObjectEntry> objectRelatedModelsProvider =
+				_objectRelatedModelsProviderRegistry.getObjectRelatedModelsProvider(
+					objectDefinition.getClassName(), objectRelationship.getType());
+
+			List<ObjectEntry> objectEntries =
+				objectRelatedModelsProvider.getRelatedModels(0,
+					objectRelationship.getObjectRelationshipId(),
+					objectEntry.getPrimaryKey(),
+					-1, -1);
+
+
+			ObjectDefinition relatedObjectDefinition =
+				_objectDefinitionLocalService.fetchObjectDefinition(objectRelationship.getObjectDefinitionId2());
+
+			for(ObjectEntry relatedObjectEntry : objectEntries){
+				Field field = new Field("");
+
+				field.addField(new Field("entryClassPK", String.valueOf(relatedObjectEntry.getPrimaryKey())));
+				field.addField(new Field("relatedObjectClassName", relatedObjectDefinition.getClassName()));
+				field.addField(new Field("relationshipName", objectRelationship.getName()));
+
+				relatedEntries.addField(field);
+			}
+
+		}
+
+		document.addKeyword(
+			"objectDefinitionId", objectEntry.getObjectDefinitionId());
 
 		document.addKeyword(
 			"objectDefinitionName", objectDefinition.getShortName());
@@ -298,6 +357,8 @@ public class ObjectEntryModelDocumentContributor
 
 	private final String _className;
 	private final ObjectDefinitionLocalService _objectDefinitionLocalService;
+	private final ObjectRelationshipLocalService _objectRelationshipLocalService;
+	private final ObjectRelatedModelsProviderRegistry _objectRelatedModelsProviderRegistry;
 	private final ObjectEntryLocalService _objectEntryLocalService;
 	private final ObjectFieldLocalService _objectFieldLocalService;
 

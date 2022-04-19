@@ -34,10 +34,14 @@ import com.liferay.object.service.persistence.ObjectLayoutTabPersistence;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.model.SystemEventConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
+import com.liferay.portal.kernel.search.Indexer;
+import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.search.SearchException;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.systemevent.SystemEvent;
@@ -97,13 +101,13 @@ public class ObjectRelationshipLocalServiceImpl
 			_objectDefinitionPersistence.findByPrimaryKey(
 				objectRelationship.getObjectDefinitionId2());
 
+		ObjectDefinition objectDefinition1 =
+			_objectDefinitionPersistence.findByPrimaryKey(
+				objectRelationship.getObjectDefinitionId1());
+
 		if (Objects.equals(
 				objectRelationship.getType(),
 				ObjectRelationshipConstants.TYPE_MANY_TO_MANY)) {
-
-			ObjectDefinition objectDefinition1 =
-				_objectDefinitionPersistence.findByPrimaryKey(
-					objectRelationship.getObjectDefinitionId1());
 
 			runSQL(
 				StringBundler.concat(
@@ -111,6 +115,9 @@ public class ObjectRelationshipLocalServiceImpl
 					objectDefinition1.getPKObjectFieldDBColumnName(), " , ",
 					objectDefinition2.getPKObjectFieldDBColumnName(),
 					") values (", primaryKey1, ", ", primaryKey2, ")"));
+
+			reindex(objectDefinition1, primaryKey1);
+			reindex(objectDefinition2, primaryKey2);
 
 			return;
 		}
@@ -132,6 +139,26 @@ public class ObjectRelationshipLocalServiceImpl
 					objectField2.getName(), primaryKey1
 				).build(),
 				serviceContext);
+
+			reindex(objectDefinition1, primaryKey1);
+		}
+	}
+
+	private void reindex(
+		ObjectDefinition objectDefinition1, long primaryKey1) {
+		Indexer<Object> objectIndexer =
+			IndexerRegistryUtil.nullSafeGetIndexer(
+				objectDefinition1.getClassName());
+
+		try {
+			objectIndexer.reindex(_objectEntryLocalService.getObjectEntry(
+				primaryKey1));
+		}
+		catch (SearchException searchException) {
+			throw new SystemException(searchException);
+		}
+		catch (PortalException portalException) {
+			throw new SystemException(portalException);
 		}
 	}
 
@@ -245,6 +272,9 @@ public class ObjectRelationshipLocalServiceImpl
 					" = ", primaryKey1, " and ",
 					objectDefinition2.getPKObjectFieldDBColumnName(), " = ",
 					primaryKey2));
+
+			reindex(objectDefinition1, primaryKey1);
+			reindex(objectDefinition2, primaryKey2);
 		}
 	}
 

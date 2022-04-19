@@ -44,6 +44,21 @@ public class ObjectEntryModelPreFilterContributor
 		long objectDefinitionId = GetterUtil.getLong(
 			searchContext.getAttribute("objectDefinitionId"));
 
+		long entryClassPK = GetterUtil.getLong(
+			searchContext.getAttribute("entryClassPK"));
+
+		if (entryClassPK > 0) {
+			String relatedObjectClassName = (String)searchContext.getAttribute(
+				"relatedObjectClassName");
+			String relationshipName = (String)searchContext.getAttribute(
+				"relationshipName");
+
+			booleanFilter.addRequiredTerm("relatedEntries.entryClassPK", entryClassPK);
+			booleanFilter.addTerm("relatedEntries.relatedObjectClassName", relatedObjectClassName);
+			booleanFilter.addTerm("relatedEntries.relationshipName", relationshipName);
+
+		}
+
 		if (_log.isDebugEnabled()) {
 			_log.debug("Object definition ID " + objectDefinitionId);
 		}

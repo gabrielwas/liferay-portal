@@ -19,6 +19,7 @@ import com.liferay.object.constants.ObjectConstants;
 import com.liferay.object.exception.NoSuchObjectEntryException;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
+import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.rest.dto.v1_0.ObjectEntry;
 import com.liferay.object.rest.internal.dto.v1_0.converter.ObjectEntryDTOConverter;
 import com.liferay.object.rest.internal.odata.entity.v1_0.ObjectEntryEntityModel;
@@ -27,6 +28,7 @@ import com.liferay.object.rest.internal.search.aggregation.AggregationUtil;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
 import com.liferay.object.scope.ObjectScopeProvider;
 import com.liferay.object.scope.ObjectScopeProviderRegistry;
+import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.portal.kernel.log.Log;
@@ -223,7 +225,7 @@ public class ObjectEntryManagerImpl implements ObjectEntryManager {
 				searchContext.setAttribute(
 					"objectDefinitionId",
 					objectDefinition.getObjectDefinitionId());
-
+				
 				if (uriInfo != null) {
 					MultivaluedMap<String, String> queryParameters =
 						uriInfo.getQueryParameters();
@@ -249,6 +251,96 @@ public class ObjectEntryManagerImpl implements ObjectEntryManager {
 	}
 
 	@Override
+	public Page<ObjectEntry> getObjectRelatedEntries(
+		long companyId, ObjectRelationship objectRelationship, long entryClassPK, String scopeKey,
+		Aggregation aggregation, DTOConverterContext dtoConverterContext,
+		Filter filter, Pagination pagination, String search, Sort[] sorts)
+		throws Exception {
+
+		ObjectDefinition objectDefinition1 =
+			_objectDefinitionLocalService.getObjectDefinition(
+				objectRelationship.getObjectDefinitionId1());
+
+		ObjectDefinition objectDefinition2 =
+			_objectDefinitionLocalService.getObjectDefinition(
+				objectRelationship.getObjectDefinitionId2());
+
+		long groupId = _getGroupId(objectDefinition2, scopeKey);
+
+		Optional<UriInfo> uriInfoOptional =
+			dtoConverterContext.getUriInfoOptional();
+
+		UriInfo uriInfo = uriInfoOptional.orElse(null);
+
+		return SearchUtil.search(
+			HashMapBuilder.put(
+				"create",
+				ActionUtil.addAction(
+					"ADD_OBJECT_ENTRY", ObjectEntryResourceImpl.class, 0L,
+					"postObjectEntry", null, objectDefinition2.getUserId(),
+					_getObjectEntriesPermissionName(
+						objectDefinition2.getObjectDefinitionId()),
+					groupId, uriInfo)
+			).put(
+				"get",
+				ActionUtil.addAction(
+					ActionKeys.VIEW, ObjectEntryResourceImpl.class, 0L,
+					"getObjectEntriesPage", null, objectDefinition2.getUserId(),
+					_getObjectEntriesPermissionName(
+						objectDefinition2.getObjectDefinitionId()),
+					groupId, uriInfo)
+			).build(),
+			booleanQuery -> {
+				BooleanFilter booleanFilter =
+					booleanQuery.getPreBooleanFilter();
+
+				booleanFilter.add(
+					new TermFilter(
+						"objectDefinitionId",
+						String.valueOf(
+							objectDefinition2.getObjectDefinitionId())),
+					BooleanClauseOccur.MUST);
+			},
+			filter, objectDefinition2.getClassName(), search, pagination,
+			queryConfig -> queryConfig.setSelectedFieldNames(
+				Field.ENTRY_CLASS_PK),
+			searchContext -> {
+				searchContext.addVulcanAggregation(aggregation);
+				searchContext.setAttribute(
+					Field.STATUS, WorkflowConstants.STATUS_ANY);
+				searchContext.setAttribute(
+					"objectDefinitionId",
+					objectDefinition2.getObjectDefinitionId());
+
+				searchContext.setAttribute("entryClassPK", entryClassPK);
+				searchContext.setAttribute("relatedObjectClassName", objectDefinition1.getClassName());
+				searchContext.setAttribute("relationshipName", objectRelationship.getName());
+
+				if (uriInfo != null) {
+					MultivaluedMap<String, String> queryParameters =
+						uriInfo.getQueryParameters();
+
+					searchContext.setAttribute(
+						"searchByObjectView",
+						queryParameters.containsKey("searchByObjectView"));
+				}
+
+				searchContext.setCompanyId(companyId);
+				searchContext.setGroupIds(new long[] {groupId});
+
+				SearchRequestBuilder searchRequestBuilder =
+					_searchRequestBuilderFactory.builder(searchContext);
+
+				AggregationUtil.processVulcanAggregation(
+					_aggregations, _queries, searchRequestBuilder, aggregation);
+			},
+			sorts,
+			document -> getObjectEntry(
+				dtoConverterContext, objectDefinition2,
+				GetterUtil.getLong(document.get(Field.ENTRY_CLASS_PK))));
+	}
+
+	@Override
 	public Page<ObjectEntry> getObjectEntries(
 			long companyId, ObjectDefinition objectDefinition, String scopeKey,
 			Aggregation aggregation, DTOConverterContext dtoConverterContext,
@@ -256,12 +348,17 @@ public class ObjectEntryManagerImpl implements ObjectEntryManager {
 			Sort[] sorts)
 		throws Exception {
 
+		Filter filter = null;
+
+		if(!Validator.isBlank(filterString)){
+			filter = _toFilter(
+				filterString, dtoConverterContext.getLocale(),
+				objectDefinition.getObjectDefinitionId());
+		}
+
 		return getObjectEntries(
 			companyId, objectDefinition, scopeKey, aggregation,
-			dtoConverterContext,
-			_toFilter(
-				filterString, dtoConverterContext.getLocale(),
-				objectDefinition.getObjectDefinitionId()),
+			dtoConverterContext, filter,
 			pagination, search, sorts);
 	}
 
@@ -544,5 +641,8 @@ public class ObjectEntryManagerImpl implements ObjectEntryManager {
 
 	@Reference
 	private SearchRequestBuilderFactory _searchRequestBuilderFactory;
+
+	@Reference
+	private ObjectDefinitionLocalService _objectDefinitionLocalService;
 
 }

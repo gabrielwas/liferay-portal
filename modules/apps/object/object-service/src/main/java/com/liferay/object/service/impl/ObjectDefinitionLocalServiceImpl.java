@@ -37,6 +37,7 @@ import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.model.impl.ObjectDefinitionImpl;
+import com.liferay.object.related.models.ObjectRelatedModelsProviderRegistry;
 import com.liferay.object.scope.ObjectScopeProviderRegistry;
 import com.liferay.object.service.ObjectDefinitionLocalServiceUtil;
 import com.liferay.object.service.ObjectEntryLocalService;
@@ -485,7 +486,7 @@ public class ObjectDefinitionLocalServiceImpl
 				_bundleContext, _dynamicQueryBatchIndexingActionableFactory,
 				_listTypeEntryLocalService, _modelSearchRegistrarHelper, this,
 				_objectEntryLocalService, _objectFieldLocalService,
-				_objectRelationshipLocalService, _objectScopeProviderRegistry,
+				_objectRelationshipLocalService, _objectRelatedModelsProviderRegistry, _objectScopeProviderRegistry,
 				_objectViewLocalService, _persistedModelLocalServiceRegistry,
 				_resourceActions, _workflowStatusModelPreFilterContributor));
 
@@ -1268,5 +1269,9 @@ public class ObjectDefinitionLocalServiceImpl
 
 	@Reference(target = "(model.pre.filter.contributor.id=WorkflowStatus)")
 	private ModelPreFilterContributor _workflowStatusModelPreFilterContributor;
+
+	@Reference
+	private ObjectRelatedModelsProviderRegistry
+		_objectRelatedModelsProviderRegistry;
 
 }
