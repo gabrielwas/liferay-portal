@@ -737,6 +737,7 @@ public class ObjectEntryLocalServiceImpl
 			values, objectEntry.getObjectDefinitionId(), transientValues);
 
 		_reindex(objectEntry);
+		_reindexRelatedEntries(values, objectEntry.getObjectDefinitionId(), transientValues);
 
 		return objectEntry;
 	}
@@ -768,6 +769,39 @@ public class ObjectEntryLocalServiceImpl
 		_reindex(objectEntry);
 
 		return objectEntry;
+	}
+
+	private void _reindexRelatedEntries(
+		Map<String, Serializable> newValues, long objectDefinitionId,
+		Map<String, Serializable> oldValues) throws PortalException {
+
+		List<ObjectField> objectFields =
+			_objectFieldPersistence.findByObjectDefinitionId(
+				objectDefinitionId);
+
+		for (ObjectField objectField : objectFields) {
+			String objectFieldName = objectField.getName();
+
+			long newValue = GetterUtil.getLong(newValues.get(objectFieldName));
+			long oldValue = GetterUtil.getLong(oldValues.get(objectFieldName));
+
+			if (!Objects.equals(
+				objectField.getBusinessType(),
+				ObjectFieldConstants.BUSINESS_TYPE_RELATIONSHIP) ||
+				Objects.equals(newValue, oldValue)) {
+
+				continue;
+			}
+
+			if(newValue != 0){
+				_reindex(objectEntryPersistence.fetchByPrimaryKey(newValue));
+			}
+
+			if(oldValue != 0){
+				_reindex(objectEntryPersistence.fetchByPrimaryKey(oldValue));
+			}
+
+		}
 	}
 
 	private void _deleteFileEntries(
@@ -1407,6 +1441,11 @@ public class ObjectEntryLocalServiceImpl
 	}
 
 	private void _reindex(ObjectEntry objectEntry) throws PortalException {
+
+		if(objectEntry == null){
+			return;
+		}
+
 		ObjectDefinition objectDefinition =
 			_objectDefinitionPersistence.findByPrimaryKey(
 				objectEntry.getObjectDefinitionId());
