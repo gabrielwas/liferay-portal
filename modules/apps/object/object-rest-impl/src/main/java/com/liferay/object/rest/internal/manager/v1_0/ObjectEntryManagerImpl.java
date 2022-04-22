@@ -16,6 +16,7 @@ package com.liferay.object.rest.internal.manager.v1_0;
 
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.object.constants.ObjectConstants;
+import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.exception.NoSuchObjectEntryException;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
@@ -312,9 +313,13 @@ public class ObjectEntryManagerImpl implements ObjectEntryManager {
 					"objectDefinitionId",
 					objectDefinition2.getObjectDefinitionId());
 
+
 				searchContext.setAttribute("entryClassPK", entryClassPK);
-				searchContext.setAttribute("relatedObjectClassName", objectDefinition1.getClassName());
 				searchContext.setAttribute("relationshipName", objectRelationship.getName());
+				searchContext.setAttribute("relatedObjectClassName", objectDefinition1.getClassName());
+				searchContext.setAttribute("relationshipType", objectRelationship.getType());
+				searchContext.setAttribute("pkObjectFieldName", objectDefinition1.getPKObjectFieldName());
+
 
 				if (uriInfo != null) {
 					MultivaluedMap<String, String> queryParameters =
