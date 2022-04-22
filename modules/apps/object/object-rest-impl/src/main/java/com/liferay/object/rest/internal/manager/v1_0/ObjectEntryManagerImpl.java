@@ -32,14 +32,19 @@ import com.liferay.object.scope.ObjectScopeProviderRegistry;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryService;
 import com.liferay.object.service.ObjectFieldLocalService;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.search.BooleanClauseOccur;
+import com.liferay.portal.kernel.search.BooleanQuery;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.BooleanFilter;
 import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.search.filter.QueryFilter;
 import com.liferay.portal.kernel.search.filter.TermFilter;
+import com.liferay.portal.kernel.search.generic.BooleanQueryImpl;
+import com.liferay.portal.kernel.search.generic.NestedQuery;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -301,6 +306,31 @@ public class ObjectEntryManagerImpl implements ObjectEntryManager {
 						String.valueOf(
 							objectDefinition2.getObjectDefinitionId())),
 					BooleanClauseOccur.MUST);
+
+				BooleanQuery nestedBooleanQuery = new BooleanQueryImpl();
+
+				if (Objects.equals(objectRelationship.getType(),
+					ObjectRelationshipConstants.TYPE_MANY_TO_MANY)) {
+
+					booleanFilter.addRequiredTerm("relatedEntries.entryClassPK", entryClassPK);
+					booleanFilter.addTerm("relatedEntries.relatedObjectClassName", objectDefinition1.getClassName());
+					booleanFilter.addTerm("relatedEntries.relationshipName", objectRelationship.getName());
+
+//					nestedBooleanQuery.addRequiredTerm("relatedEntries.entryClassPK", entryClassPK);
+//					nestedBooleanQuery.addRequiredTerm("relatedEntries.relatedObjectClassName", objectDefinition1.getClassName());
+//					nestedBooleanQuery.addRequiredTerm("relatedEntries.relationshipName", objectRelationship.getName());
+//					booleanFilter.add(new QueryFilter(new NestedQuery("relatedEntries", nestedBooleanQuery)), BooleanClauseOccur.MUST);
+
+
+				}else{
+					nestedBooleanQuery.addRequiredTerm("nestedFieldArray.fieldName",
+						StringBundler.concat(
+							"r_", objectRelationship.getName(), "_", objectDefinition1.getPKObjectFieldName()) );
+					nestedBooleanQuery.addRequiredTerm("nestedFieldArray.value_long", entryClassPK );
+
+					booleanFilter.add(new QueryFilter(new NestedQuery("nestedFieldArray", nestedBooleanQuery)), BooleanClauseOccur.MUST);
+				}
+
 			},
 			filter, objectDefinition2.getClassName(), search, pagination,
 			queryConfig -> queryConfig.setSelectedFieldNames(
@@ -314,11 +344,11 @@ public class ObjectEntryManagerImpl implements ObjectEntryManager {
 					objectDefinition2.getObjectDefinitionId());
 
 
-				searchContext.setAttribute("entryClassPK", entryClassPK);
-				searchContext.setAttribute("relationshipName", objectRelationship.getName());
-				searchContext.setAttribute("relatedObjectClassName", objectDefinition1.getClassName());
-				searchContext.setAttribute("relationshipType", objectRelationship.getType());
-				searchContext.setAttribute("pkObjectFieldName", objectDefinition1.getPKObjectFieldName());
+//				searchContext.setAttribute("entryClassPK", entryClassPK);
+//				searchContext.setAttribute("relationshipName", objectRelationship.getName());
+//				searchContext.setAttribute("relatedObjectClassName", objectDefinition1.getClassName());
+//				searchContext.setAttribute("relationshipType", objectRelationship.getType());
+//				searchContext.setAttribute("pkObjectFieldName", objectDefinition1.getPKObjectFieldName());
 
 
 				if (uriInfo != null) {
