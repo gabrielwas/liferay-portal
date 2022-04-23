@@ -137,10 +137,10 @@ public class ObjectEntryModelDocumentContributor
 		}
 
 		FieldArray relatedEntries = (FieldArray)document.getField(
-			"relatedEntries");
+			"nestedRelatedEntriesArray");
 
 		if (relatedEntries == null) {
-			relatedEntries = new FieldArray("relatedEntries");
+			relatedEntries = new FieldArray("nestedRelatedEntriesArray");
 
 			document.add(relatedEntries);
 		}
@@ -154,11 +154,11 @@ public class ObjectEntryModelDocumentContributor
 				objectEntry.getObjectDefinitionId());
 		
 		for(ObjectRelationship objectRelationship : objectRelationships){
-//			if (!Objects.equals(
-//				objectRelationship.getType(),
-//				ObjectRelationshipConstants.TYPE_MANY_TO_MANY)) {
-//					continue;
-//			}
+			if (!Objects.equals(
+				objectRelationship.getType(),
+				ObjectRelationshipConstants.TYPE_MANY_TO_MANY)) {
+					continue;
+			}
 
 			ObjectRelatedModelsProvider<ObjectEntry> objectRelatedModelsProvider =
 				_objectRelatedModelsProviderRegistry.getObjectRelatedModelsProvider(
@@ -170,7 +170,6 @@ public class ObjectEntryModelDocumentContributor
 					objectEntry.getPrimaryKey(),
 					-1, -1);
 
-
 			ObjectDefinition relatedObjectDefinition =
 				_objectDefinitionLocalService.fetchObjectDefinition(objectRelationship.getObjectDefinitionId2());
 
@@ -178,7 +177,7 @@ public class ObjectEntryModelDocumentContributor
 				Field field = new Field("");
 
 				field.addField(new Field("entryClassPK", String.valueOf(relatedObjectEntry.getPrimaryKey())));
-				field.addField(new Field("relatedObjectClassName", relatedObjectDefinition.getClassName()));
+				field.addField(new Field("relatedObjectDefinitionId", String.valueOf(relatedObjectDefinition.getObjectDefinitionId())));
 				field.addField(new Field("relationshipName", objectRelationship.getName()));
 
 				relatedEntries.addField(field);
@@ -213,6 +212,10 @@ public class ObjectEntryModelDocumentContributor
 
 		document.add(
 			new Field("objectEntryTitle", objectEntry.getTitleValue()));
+
+		boolean nested = fieldArray.isNested();
+		boolean nested1 = relatedEntries.isNested();
+
 	}
 
 	private void _contribute(

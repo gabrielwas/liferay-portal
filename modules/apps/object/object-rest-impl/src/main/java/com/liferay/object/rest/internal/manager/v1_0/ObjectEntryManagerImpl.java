@@ -312,14 +312,14 @@ public class ObjectEntryManagerImpl implements ObjectEntryManager {
 				if (Objects.equals(objectRelationship.getType(),
 					ObjectRelationshipConstants.TYPE_MANY_TO_MANY)) {
 
-					booleanFilter.addRequiredTerm("relatedEntries.entryClassPK", entryClassPK);
-					booleanFilter.addTerm("relatedEntries.relatedObjectClassName", objectDefinition1.getClassName());
-					booleanFilter.addTerm("relatedEntries.relationshipName", objectRelationship.getName());
+//					booleanFilter.addRequiredTerm("relatedEntriesArray.entryClassPK", entryClassPK);
+//					booleanFilter.addTerm("relatedEntriesArray.relatedObjectClassName", objectDefinition1.getClassName());
+//					booleanFilter.addTerm("relatedEntriesArray.relationshipName", objectRelationship.getName());
 
-//					nestedBooleanQuery.addRequiredTerm("relatedEntries.entryClassPK", entryClassPK);
-//					nestedBooleanQuery.addRequiredTerm("relatedEntries.relatedObjectClassName", objectDefinition1.getClassName());
-//					nestedBooleanQuery.addRequiredTerm("relatedEntries.relationshipName", objectRelationship.getName());
-//					booleanFilter.add(new QueryFilter(new NestedQuery("relatedEntries", nestedBooleanQuery)), BooleanClauseOccur.MUST);
+					nestedBooleanQuery.addRequiredTerm("nestedRelatedEntriesArray.entryClassPK", entryClassPK);
+					//nestedBooleanQuery.addRequiredTerm("relatedEntriesArray.relatedObjectDefinitionId", objectDefinition1.getObjectDefinitionId());
+					nestedBooleanQuery.addRequiredTerm("nestedRelatedEntriesArray.relationshipName", objectRelationship.getName());
+					booleanFilter.add(new QueryFilter(new NestedQuery("nestedRelatedEntriesArray", nestedBooleanQuery)), BooleanClauseOccur.MUST);
 
 
 				}else{
@@ -342,14 +342,6 @@ public class ObjectEntryManagerImpl implements ObjectEntryManager {
 				searchContext.setAttribute(
 					"objectDefinitionId",
 					objectDefinition2.getObjectDefinitionId());
-
-
-//				searchContext.setAttribute("entryClassPK", entryClassPK);
-//				searchContext.setAttribute("relationshipName", objectRelationship.getName());
-//				searchContext.setAttribute("relatedObjectClassName", objectDefinition1.getClassName());
-//				searchContext.setAttribute("relationshipType", objectRelationship.getType());
-//				searchContext.setAttribute("pkObjectFieldName", objectDefinition1.getPKObjectFieldName());
-
 
 				if (uriInfo != null) {
 					MultivaluedMap<String, String> queryParameters =
