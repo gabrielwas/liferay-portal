@@ -11,6 +11,7 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
+
 package com.liferay.notification.admin.exception;
 
 import com.liferay.portal.kernel.exception.NoSuchModelException;
@@ -18,7 +19,8 @@ import com.liferay.portal.kernel.exception.NoSuchModelException;
 /**
  * @author Gabriel Albuquerque
  */
-public class NoSuchNotificationAdminTemplateException extends NoSuchModelException {
+public class NoSuchNotificationAdminTemplateException
+	extends NoSuchModelException {
 
 	public NoSuchNotificationAdminTemplateException() {
 	}
@@ -27,7 +29,9 @@ public class NoSuchNotificationAdminTemplateException extends NoSuchModelExcepti
 		super(msg);
 	}
 
-	public NoSuchNotificationAdminTemplateException(String msg, Throwable throwable) {
+	public NoSuchNotificationAdminTemplateException(
+		String msg, Throwable throwable) {
+
 		super(msg, throwable);
 	}
 

@@ -20,6 +20,7 @@ package com.liferay.notification.admin.constants;
 public class NotificationAdminPortletKeys {
 
 	public static final String NOTIFICATION_ADMIN_TEMPLATES =
-		"com_liferay_notification_admin_web_internal_notification_admin_templates_portlet_" +
-		"NotificationAdminTemplatesPortlet";
+		"com_liferay_notification_admin_web_internal_notification_admin_" +
+			"templates_portlet_NotificationAdminTemplatesPortlet";
+
 }
