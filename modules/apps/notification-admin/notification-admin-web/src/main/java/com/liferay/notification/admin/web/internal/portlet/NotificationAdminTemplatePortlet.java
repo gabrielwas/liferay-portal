@@ -28,7 +28,7 @@ import javax.portlet.Portlet;
 		"javax.portlet.expiration-cache=0",
 		"javax.portlet.init-param.portlet-title-based-navigation=true",
 		"javax.portlet.init-param.template-path=/META-INF/resources/",
-		"javax.portlet.init-param.view-template=/notification_admin/view.jsp",
+		"javax.portlet.init-param.view-template=/notification_templates/view.jsp",
 		"javax.portlet.name=" + NotificationAdminPortletKeys.NOTIFICATION_ADMIN_TEMPLATES,
 		"javax.portlet.resource-bundle=content.Language",
 		"javax.portlet.security-role-ref=administrator"

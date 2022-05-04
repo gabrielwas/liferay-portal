@@ -1,0 +1,1 @@
+create index IX_1CF2F6D8 on NotificationAdminTemplate (uuid_[$COLUMN_LENGTH:75$], companyId);

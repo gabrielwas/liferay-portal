@@ -5,7 +5,7 @@
 	<model-resource>
 		<model-name>com.liferay.notification.admin</model-name>
 		<portlet-ref>
-			<portlet-name>com_liferay_object_web_internal_notification_admin_portlet_portlet_NotificationTemplatePortlet</portlet-name>
+			<portlet-name>com_liferay_notification_admin_web_internal_notification_admin_templates_portlet_NotificationAdminTemplatesPortlet</portlet-name>
 		</portlet-ref>
 		<root>true</root>
 		<weight>1</weight>
@@ -21,7 +21,7 @@
 	<model-resource>
 		<model-name>com.liferay.notification.admin.model.NotificationTemplate</model-name>
 		<portlet-ref>
-			<portlet-name>com_liferay_object_web_internal_notification_admin_portlet_portlet_NotificationTemplatePortlet</portlet-name>
+			<portlet-name>com_liferay_notification_admin_web_internal_notification_admin_templates_portlet_NotificationAdminTemplatesPortlet</portlet-name>
 		</portlet-ref>
 		<weight>1</weight>
 		<permissions>
