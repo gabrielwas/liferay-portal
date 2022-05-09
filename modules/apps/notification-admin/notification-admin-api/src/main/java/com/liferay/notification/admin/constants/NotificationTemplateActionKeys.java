@@ -19,5 +19,7 @@ package com.liferay.notification.admin.constants;
  */
 public class NotificationTemplateActionKeys {
 
-	public static final String ADD_NOTIFICATION_TEMPLATE = "ADD_NOTIFICATION_TEMPLATE";
+	public static final String ADD_NOTIFICATION_TEMPLATE =
+		"ADD_NOTIFICATION_TEMPLATE";
+
 }
