@@ -127,12 +127,14 @@ public class NotificationTemplateLocalServiceWrapper
 	 *
 	 * @param notificationTemplate the notification template
 	 * @return the notification template that was removed
+	 * @throws PortalException
 	 */
 	@Override
 	public com.liferay.notification.admin.model.NotificationTemplate
-		deleteNotificationTemplate(
-			com.liferay.notification.admin.model.NotificationTemplate
-				notificationTemplate) {
+			deleteNotificationTemplate(
+				com.liferay.notification.admin.model.NotificationTemplate
+					notificationTemplate)
+		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _notificationTemplateLocalService.deleteNotificationTemplate(
 			notificationTemplate);
