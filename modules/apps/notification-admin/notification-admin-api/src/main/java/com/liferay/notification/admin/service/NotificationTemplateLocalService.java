@@ -133,7 +133,7 @@ public interface NotificationTemplateLocalService
 	@Indexable(type = IndexableType.DELETE)
 	@SystemEvent(type = SystemEventConstants.TYPE_DELETE)
 	public NotificationTemplate deleteNotificationTemplate(
-		NotificationTemplate notificationTemplate);
+		NotificationTemplate notificationTemplate) throws PortalException;
 
 	/**
 	 * @throws PortalException
