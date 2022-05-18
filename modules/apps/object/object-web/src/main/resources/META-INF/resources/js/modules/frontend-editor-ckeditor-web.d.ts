@@ -12,13 +12,4 @@
  * details.
  */
 
-declare module 'data-engine-js-components-web' {
-	export * from 'data-engine-js-components-web/src/main/resources/META-INF/resources/js/index';
-}
-interface FDSAction {
-	href: string;
-	id: string;
-	target: 'event' | 'async';
-}
-
-type Flags = '';
+declare module 'frontend-editor-ckeditor-web';

@@ -12,13 +12,13 @@
  * details.
  */
 
-declare module 'data-engine-js-components-web' {
-	export * from 'data-engine-js-components-web/src/main/resources/META-INF/resources/js/index';
-}
-interface FDSAction {
-	href: string;
-	id: string;
-	target: 'event' | 'async';
-}
+/// <reference types="react" />
 
-type Flags = '';
+import './EditNotificationTemplate.scss';
+export default function EditNotificationTemplate({
+	editingNotificationTemplateId,
+}: IProps): JSX.Element;
+interface IProps {
+	editingNotificationTemplateId: number;
+}
+export {};

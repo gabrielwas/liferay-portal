@@ -13,3 +13,4 @@
  */
 
 export {FieldFeedback} from './core/components/FieldFeedback';
+export {onActionDropdownItemClick} from './utils/fdsUtil';
