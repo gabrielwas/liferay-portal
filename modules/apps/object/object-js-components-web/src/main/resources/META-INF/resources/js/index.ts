@@ -30,6 +30,7 @@ export {RichTextLocalized} from './components/RichTextLocalized';
 export {Select} from './components/Select';
 export {onActionDropdownItemClick} from './utils/fdsUtil';
 export {useForm, invalidateRequired, FormError} from './hooks/useForm';
+export {onActionDropdownItemClick} from './utils/fdsUtil';
 export {
 	closeSidePanel,
 	openToast,

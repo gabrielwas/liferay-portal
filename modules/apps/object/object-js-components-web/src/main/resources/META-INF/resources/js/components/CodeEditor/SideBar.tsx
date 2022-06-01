@@ -60,3 +60,14 @@ interface SideBarElement {
 	label: string;
 	tooltip: string;
 }
+
+interface ObjectValidationRuleElement {
+	items: ObjectValidationRuleElementItem[];
+	label: string;
+}
+
+interface ObjectValidationRuleElementItem {
+	content: string;
+	label: string;
+	tooltip: string;
+}
