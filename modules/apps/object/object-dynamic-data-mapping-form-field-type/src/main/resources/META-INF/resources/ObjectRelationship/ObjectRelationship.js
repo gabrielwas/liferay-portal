@@ -94,6 +94,19 @@ export function ObjectRelationship({
 		},
 	});
 
+	const getLabel = (item, labelKey) => {
+		const objectLabel = item[labelKey];
+
+		const currentLanguage = Liferay.ThemeDisplay.getDefaultLanguageId();
+
+		if (typeof objectLabel === 'object') {
+			return objectLabel[currentLanguage];
+		}
+		else {
+			return objectLabel;
+		}
+	};
+
 	const loading = networkStatus < NETWORK_STATUS_UNUSED;
 
 	return (
@@ -124,7 +137,8 @@ export function ObjectRelationship({
 						else {
 							const searchedItem = resource?.items?.find(
 								(item) =>
-									String(item[labelKey]) === currentSearch
+									String(getLabel(item, labelKey)) ===
+									currentSearch
 							);
 
 							onChange({
@@ -178,10 +192,17 @@ export function ObjectRelationship({
 													);
 													setActive(false);
 													setSearch(
-														String(item[labelKey])
+														String(
+															getLabel(
+																item,
+																labelKey
+															)
+														)
 													);
 												}}
-												value={String(item[labelKey])}
+												value={String(
+													getLabel(item, labelKey)
+												)}
 											/>
 										))}
 									</>

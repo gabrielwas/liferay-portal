@@ -35,17 +35,19 @@ import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
-import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalServiceRegistry;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.LocalizationUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
+import java.util.Locale;
 import java.util.Map;
 
 import org.osgi.service.component.annotations.Component;
@@ -75,7 +77,8 @@ public class ObjectRelationshipDDMFormFieldTemplateContextContributor
 		).put(
 			"initialLabel",
 			_getInitialLabel(
-				ddmFormField, ddmFormFieldRenderingContext.getValue())
+				ddmFormField, ddmFormFieldRenderingContext.getValue(),
+				ddmFormFieldRenderingContext.getLocale())
 		).put(
 			"inputName", ddmFormField.getName()
 		).put(
@@ -179,7 +182,9 @@ public class ObjectRelationshipDDMFormFieldTemplateContextContributor
 		}
 	}
 
-	private String _getInitialLabel(DDMFormField ddmFormField, String value) {
+	private String _getInitialLabel(
+		DDMFormField ddmFormField, String value, Locale locale) {
+
 		String initialLabel = GetterUtil.getString(
 			ddmFormField.getProperty("initialLabel"));
 
@@ -194,7 +199,7 @@ public class ObjectRelationshipDDMFormFieldTemplateContextContributor
 		ObjectDefinition objectDefinition = _getObjectDefinition(ddmFormField);
 
 		if ((objectDefinition != null) && objectDefinition.isSystem()) {
-			return _getPersistedModelValue(objectDefinition, value);
+			return _getPersistedModelValue(objectDefinition, value, locale);
 		}
 
 		return _getObjectEntryTitleValue(value);
@@ -264,7 +269,7 @@ public class ObjectRelationshipDDMFormFieldTemplateContextContributor
 	}
 
 	private String _getPersistedModelValue(
-		ObjectDefinition objectDefinition, String value) {
+		ObjectDefinition objectDefinition, String value, Locale locale) {
 
 		try {
 			PersistedModelLocalService persistedModelLocalService =
@@ -272,13 +277,24 @@ public class ObjectRelationshipDDMFormFieldTemplateContextContributor
 					getPersistedModelLocalService(
 						objectDefinition.getClassName());
 
-			JSONObject jsonObject = _jsonFactory.createJSONObject(
-				_jsonFactory.looseSerialize(
-					persistedModelLocalService.getPersistedModel(
-						GetterUtil.getLong(value))));
+			BaseModel<?> baseModel =
+				(BaseModel<?>)persistedModelLocalService.getPersistedModel(
+					GetterUtil.getLong(value));
 
-			return jsonObject.getString(
+			Map<String, Object> modelAttributes =
+				baseModel.getModelAttributes();
+
+			Object attribute = modelAttributes.get(
 				_getObjectFieldDBColumnName(objectDefinition));
+
+			if ((attribute instanceof String) &&
+				Validator.isXml((String)attribute)) {
+
+				return LocalizationUtil.getLocalization(
+					(String)attribute, locale.getLanguage());
+			}
+
+			return attribute.toString();
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
