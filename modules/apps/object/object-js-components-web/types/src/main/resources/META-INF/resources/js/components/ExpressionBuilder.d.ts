@@ -48,7 +48,7 @@ interface IProps extends React.InputHTMLAttributes<HTMLInputElement> {
 	name?: string;
 	onOpenModal: () => void;
 	required?: boolean;
-	type?: 'number' | 'textarea' | 'text';
+	type?: 'number' | 'text';
 	value?: string | number | string[];
 }
 export {};

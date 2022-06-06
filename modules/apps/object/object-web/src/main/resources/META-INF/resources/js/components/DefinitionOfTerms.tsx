@@ -21,12 +21,11 @@ import {FrontendDataSet} from '@liferay/frontend-data-set-web';
 // @ts-ignore
 
 import {render} from '@liferay/frontend-js-react-web';
-import {onActionDropdownItemClick} from 'data-engine-js-components-web';
 import {fetch} from 'frontend-js-web';
 import React, {useEffect, useState} from 'react';
 
 import {defaultLanguageId} from '../utils/locale';
-import {AutoComplete} from '@liferay/object-js-components-web';
+import {AutoComplete, onActionDropdownItemClick} from '@liferay/object-js-components-web';
 
 const HEADERS = new Headers({
 	'Accept': 'application/json',
