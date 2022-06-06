@@ -11,11 +11,8 @@ dependencies {
 	compileOnly group: "org.osgi", name: "osgi.core", version: "6.0.0"
 	compileOnly project(":apps:application-list:application-list-api")
 	compileOnly project(":apps:asset:asset-display-page-api")
-<<<<<<< HEAD
 	compileOnly project(":apps:asset:asset-taglib")
-=======
 	compileOnly project(":apps:commerce:commerce-frontend-taglib")
->>>>>>> 92997df (notificationsTemplate WIP)
 	compileOnly project(":apps:document-library:document-library-api")
 	compileOnly project(":apps:dynamic-data-mapping:dynamic-data-mapping-api")
 	compileOnly project(":apps:dynamic-data-mapping:dynamic-data-mapping-form-field-type-api")
