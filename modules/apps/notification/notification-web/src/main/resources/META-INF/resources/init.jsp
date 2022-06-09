@@ -13,6 +13,9 @@
  * details.
  */
 --%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+<%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet" %>
 
 <%@ taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
 taglib uri="http://liferay.com/tld/frontend-data-set" prefix="frontend-data-set" %><%@
@@ -24,6 +27,7 @@ taglib uri="http://liferay.com/tld/portlet" prefix="liferay-portlet" %>
 page import="com.liferay.notification.web.internal.constants.NotificationFDSNames" %><%@
 page import="com.liferay.notification.web.internal.display.context.ViewNotificationTemplatesDisplayContext" %><%@
 page import="com.liferay.portal.kernel.util.WebKeys" %><%@
+	page import="com.liferay.petra.portlet.url.builder.PortletURLBuilder" %><%@
 page import="com.liferay.portal.kernel.util.HashMapBuilder" %>
 <%@ page import="com.liferay.portal.kernel.util.ParamUtil" %>
 
