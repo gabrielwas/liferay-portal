@@ -138,10 +138,13 @@ public class ObjectServiceUpgradeStepRegistrator
 			new com.liferay.object.internal.upgrade.v3_14_0.
 				ObjectFieldUpgradeProcess());
 
+		ObjectFieldLocalService objectFieldLocalService =
+			_objectFieldLocalService;
+
 		registry.register(
 			"3.14.0", "3.15.0",
 			new com.liferay.object.internal.upgrade.v3_15_0.
-				ObjectFieldUpgradeProcess(_objectFieldLocalService));
+				ObjectFieldUpgradeProcess(objectFieldLocalService));
 	}
 
 	@Reference
