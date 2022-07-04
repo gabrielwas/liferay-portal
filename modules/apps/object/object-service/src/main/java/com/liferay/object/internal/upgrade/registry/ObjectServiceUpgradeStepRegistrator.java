@@ -148,10 +148,13 @@ public class ObjectServiceUpgradeStepRegistrator
 			"3.15.0", "3.16.0",
 			UpgradeStepFactory.addColumns("ObjectField", "state_ BOOLEAN"));
 
+		ObjectFieldLocalService objectFieldLocalService =
+			_objectFieldLocalService;
+
 		registry.register(
 			"3.16.0", "3.17.0",
 			new com.liferay.object.internal.upgrade.v3_17_0.
-				ObjectFieldUpgradeProcess(_objectFieldLocalService));
+				ObjectFieldUpgradeProcess(objectFieldLocalService));
 	}
 
 	@Reference
