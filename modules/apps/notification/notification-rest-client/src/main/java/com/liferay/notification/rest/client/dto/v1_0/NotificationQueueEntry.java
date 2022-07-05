@@ -338,6 +338,27 @@ public class NotificationQueueEntry implements Cloneable, Serializable {
 
 	protected String toName;
 
+	public String getTriggerBy() {
+		return triggerBy;
+	}
+
+	public void setTriggerBy(String triggerBy) {
+		this.triggerBy = triggerBy;
+	}
+
+	public void setTriggerBy(
+		UnsafeSupplier<String, Exception> triggerByUnsafeSupplier) {
+
+		try {
+			triggerBy = triggerByUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected String triggerBy;
+
 	@Override
 	public NotificationQueueEntry clone() throws CloneNotSupportedException {
 		return (NotificationQueueEntry)super.clone();

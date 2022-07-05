@@ -202,6 +202,7 @@ public abstract class BaseNotificationQueueEntryResourceTestCase {
 		notificationQueueEntry.setSubject(regex);
 		notificationQueueEntry.setTo(regex);
 		notificationQueueEntry.setToName(regex);
+		notificationQueueEntry.setTriggerBy(regex);
 
 		String json = NotificationQueueEntrySerDes.toJSON(
 			notificationQueueEntry);
@@ -219,6 +220,7 @@ public abstract class BaseNotificationQueueEntryResourceTestCase {
 		Assert.assertEquals(regex, notificationQueueEntry.getSubject());
 		Assert.assertEquals(regex, notificationQueueEntry.getTo());
 		Assert.assertEquals(regex, notificationQueueEntry.getToName());
+		Assert.assertEquals(regex, notificationQueueEntry.getTriggerBy());
 	}
 
 	@Test
@@ -970,6 +972,14 @@ public abstract class BaseNotificationQueueEntryResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("triggerBy", additionalAssertFieldName)) {
+				if (notificationQueueEntry.getTriggerBy() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			throw new IllegalArgumentException(
 				"Invalid additional assert field name " +
 					additionalAssertFieldName);
@@ -1232,6 +1242,17 @@ public abstract class BaseNotificationQueueEntryResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("triggerBy", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						notificationQueueEntry1.getTriggerBy(),
+						notificationQueueEntry2.getTriggerBy())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
 			throw new IllegalArgumentException(
 				"Invalid additional assert field name " +
 					additionalAssertFieldName);
@@ -1462,6 +1483,14 @@ public abstract class BaseNotificationQueueEntryResourceTestCase {
 			return sb.toString();
 		}
 
+		if (entityFieldName.equals("triggerBy")) {
+			sb.append("'");
+			sb.append(String.valueOf(notificationQueueEntry.getTriggerBy()));
+			sb.append("'");
+
+			return sb.toString();
+		}
+
 		throw new IllegalArgumentException(
 			"Invalid entity field " + entityFieldName);
 	}
@@ -1524,6 +1553,8 @@ public abstract class BaseNotificationQueueEntryResourceTestCase {
 				subject = StringUtil.toLowerCase(RandomTestUtil.randomString());
 				to = StringUtil.toLowerCase(RandomTestUtil.randomString());
 				toName = StringUtil.toLowerCase(RandomTestUtil.randomString());
+				triggerBy = StringUtil.toLowerCase(
+					RandomTestUtil.randomString());
 			}
 		};
 	}

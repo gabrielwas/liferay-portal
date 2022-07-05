@@ -473,6 +473,34 @@ public class NotificationQueueEntry implements Serializable {
 	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
 	protected String toName;
 
+	@Schema
+	public String getTriggerBy() {
+		return triggerBy;
+	}
+
+	public void setTriggerBy(String triggerBy) {
+		this.triggerBy = triggerBy;
+	}
+
+	@JsonIgnore
+	public void setTriggerBy(
+		UnsafeSupplier<String, Exception> triggerByUnsafeSupplier) {
+
+		try {
+			triggerBy = triggerByUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField
+	@JsonProperty(access = JsonProperty.Access.READ_WRITE)
+	protected String triggerBy;
+
 	@Override
 	public boolean equals(Object object) {
 		if (this == object) {
@@ -690,6 +718,20 @@ public class NotificationQueueEntry implements Serializable {
 			sb.append("\"");
 
 			sb.append(_escape(toName));
+
+			sb.append("\"");
+		}
+
+		if (triggerBy != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"triggerBy\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(triggerBy));
 
 			sb.append("\"");
 		}

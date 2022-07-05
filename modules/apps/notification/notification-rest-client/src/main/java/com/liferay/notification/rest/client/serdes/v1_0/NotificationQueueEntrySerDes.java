@@ -253,6 +253,20 @@ public class NotificationQueueEntrySerDes {
 			sb.append("\"");
 		}
 
+		if (notificationQueueEntry.getTriggerBy() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"triggerBy\": ");
+
+			sb.append("\"");
+
+			sb.append(_escape(notificationQueueEntry.getTriggerBy()));
+
+			sb.append("\"");
+		}
+
 		sb.append("}");
 
 		return sb.toString();
@@ -397,6 +411,15 @@ public class NotificationQueueEntrySerDes {
 				"toName", String.valueOf(notificationQueueEntry.getToName()));
 		}
 
+		if (notificationQueueEntry.getTriggerBy() == null) {
+			map.put("triggerBy", null);
+		}
+		else {
+			map.put(
+				"triggerBy",
+				String.valueOf(notificationQueueEntry.getTriggerBy()));
+		}
+
 		return map;
 	}
 
@@ -505,6 +528,12 @@ public class NotificationQueueEntrySerDes {
 			else if (Objects.equals(jsonParserFieldName, "toName")) {
 				if (jsonParserFieldValue != null) {
 					notificationQueueEntry.setToName(
+						(String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "triggerBy")) {
+				if (jsonParserFieldValue != null) {
+					notificationQueueEntry.setTriggerBy(
 						(String)jsonParserFieldValue);
 				}
 			}
