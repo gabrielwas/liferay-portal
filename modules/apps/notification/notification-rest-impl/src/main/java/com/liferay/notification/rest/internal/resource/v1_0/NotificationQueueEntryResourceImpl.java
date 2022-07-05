@@ -18,6 +18,7 @@ import com.liferay.notification.constants.NotificationConstants;
 import com.liferay.notification.rest.dto.v1_0.NotificationQueueEntry;
 import com.liferay.notification.rest.resource.v1_0.NotificationQueueEntryResource;
 import com.liferay.notification.service.NotificationQueueEntryService;
+import com.liferay.notification.type.NotificationType;
 import com.liferay.notification.util.NotificationTypeRegistry;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.search.Field;
@@ -171,6 +172,15 @@ public class NotificationQueueEntryResourceImpl
 				subject = serviceBuilderNotificationQueueEntry.getSubject();
 				to = serviceBuilderNotificationQueueEntry.getTo();
 				toName = serviceBuilderNotificationQueueEntry.getToName();
+
+				NotificationType notificationType =
+					_notificationTypeRegistry.getNotificationType(
+						_portal.getClassName(
+							serviceBuilderNotificationQueueEntry.
+								getClassNameId()));
+
+				triggerBy = notificationType.getLabel(
+					contextAcceptLanguage.getPreferredLocale());
 			}
 		};
 	}
