@@ -45,6 +45,8 @@ components:
                     type: string
                 toName:
                     type: string
+                triggerBy:
+                    type: string
             type: object
         NotificationTemplate:
             properties:
