@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.vulcan.util.ObjectMapperUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,21 +78,32 @@ public class ObjectFieldSettingUtil {
 
 			List<ObjectFilter> objectFilters = new ArrayList<>();
 
-			for (Map<String, Object> value :
-					(List<Map<String, Object>>)objectFieldSetting.getValue()) {
+			List<Object> values;
+
+			if (objectFieldSetting.getValue() instanceof Object[]) {
+				values = ListUtil.fromArray(
+					(Object[])objectFieldSetting.getValue());
+			}
+			else {
+				values = (List<Object>)objectFieldSetting.getValue();
+			}
+
+			for (Object value : values) {
+				Map<String, Object> valueMap = (Map<String, Object>)value;
 
 				ObjectFilter objectFilter =
 					objectFilterLocalService.createObjectFilter(0L);
 
 				objectFilter.setFilterBy(
-					String.valueOf(value.get(ObjectFilterConstants.FILTER_BY)));
+					String.valueOf(
+						valueMap.get(ObjectFilterConstants.FILTER_BY)));
 				objectFilter.setFilterType(
 					String.valueOf(
-						value.get(ObjectFilterConstants.FILTER_TYPE)));
+						valueMap.get(ObjectFilterConstants.FILTER_TYPE)));
 				objectFilter.setJson(
 					String.valueOf(
 						JSONFactoryUtil.createJSONObject(
-							(Map)value.get(ObjectFilterConstants.JSON))));
+							(Map)valueMap.get(ObjectFilterConstants.JSON))));
 
 				objectFilters.add(objectFilter);
 			}
