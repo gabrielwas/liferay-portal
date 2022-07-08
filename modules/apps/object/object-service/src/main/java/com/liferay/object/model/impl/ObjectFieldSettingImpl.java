@@ -14,8 +14,8 @@
 
 package com.liferay.object.model.impl;
 
-import com.liferay.object.model.ObjectStateFlow;
 import com.liferay.object.model.ObjectFilter;
+import com.liferay.object.model.ObjectStateFlow;
 
 import java.util.List;
 
@@ -28,12 +28,12 @@ public class ObjectFieldSettingImpl extends ObjectFieldSettingBaseImpl {
 		return _objectFilters;
 	}
 
-	public void setObjectFilters(List<ObjectFilter> objectFilters) {
-		_objectFilters = objectFilters;
-	}
-
 	public ObjectStateFlow getObjectStateFlow() {
 		return _objectStateFlow;
+	}
+
+	public void setObjectFilters(List<ObjectFilter> objectFilters) {
+		_objectFilters = objectFilters;
 	}
 
 	public void setObjectStateFlow(ObjectStateFlow objectStateFlow) {
