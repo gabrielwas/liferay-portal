@@ -18,7 +18,6 @@ import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectFilterConstants;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectFieldSetting;
-import com.liferay.object.model.ObjectFilter;
 import com.liferay.object.model.impl.ObjectFieldSettingImpl;
 import com.liferay.object.service.ObjectFilterLocalService;
 import com.liferay.object.service.base.ObjectFieldSettingLocalServiceBaseImpl;
@@ -45,21 +44,6 @@ import org.osgi.service.component.annotations.Reference;
 )
 public class ObjectFieldSettingLocalServiceImpl
 	extends ObjectFieldSettingLocalServiceBaseImpl {
-
-	@Override
-	public void addObjectFieldSetting(
-			long userId, long objectFieldId, List<ObjectFilter> objectFilters)
-		throws PortalException {
-
-		_objectFilterLocalService.deleteObjectFilterByObjectFieldId(
-			objectFieldId);
-
-		for (ObjectFilter objectFilter : objectFilters) {
-			_objectFilterLocalService.addObjectFilter(
-				userId, objectFieldId, objectFilter.getFilterBy(),
-				objectFilter.getFilterType(), objectFilter.getJson());
-		}
-	}
 
 	@Override
 	public ObjectFieldSetting addObjectFieldSetting(
