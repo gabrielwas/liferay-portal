@@ -18,7 +18,6 @@ import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.list.type.model.ListTypeEntry;
 import com.liferay.list.type.service.ListTypeEntryLocalService;
 import com.liferay.object.constants.ObjectFieldConstants;
-import com.liferay.object.constants.ObjectFilterConstants;
 import com.liferay.object.exception.DuplicateObjectFieldExternalReferenceCodeException;
 import com.liferay.object.exception.ObjectDefinitionStatusException;
 import com.liferay.object.exception.ObjectFieldBusinessTypeException;
@@ -642,22 +641,9 @@ public class ObjectFieldLocalServiceImpl
 						newObjectFieldSetting.getName());
 
 			if (oldObjectFieldSetting == null) {
-				if (Objects.equals(
-						objectField.getBusinessType(),
-						ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION) &&
-					Objects.equals(
-						newObjectFieldSetting.getName(),
-						ObjectFilterConstants.FILTERS)) {
-
-					_objectFieldSettingLocalService.addObjectFieldSetting(
-						objectField.getUserId(), objectField.getObjectFieldId(),
-						newObjectFieldSetting.getObjectFilters());
-				}
-				else {
-					objectFieldSettingContributor.addObjectFieldSetting(
-						objectField.getUserId(), objectField.getObjectFieldId(),
-						newObjectFieldSetting);
-				}
+				objectFieldSettingContributor.addObjectFieldSetting(
+					objectField.getUserId(), objectField.getObjectFieldId(),
+					newObjectFieldSetting);
 			}
 			else {
 				objectFieldSettingContributor.updateObjectFieldSetting(
