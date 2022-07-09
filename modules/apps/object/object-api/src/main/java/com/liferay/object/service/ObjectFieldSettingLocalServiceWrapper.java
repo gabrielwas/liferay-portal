@@ -38,16 +38,6 @@ public class ObjectFieldSettingLocalServiceWrapper
 	}
 
 	@Override
-	public void addObjectFieldSetting(
-			long userId, long objectFieldId,
-			java.util.List<com.liferay.object.model.ObjectFilter> objectFilters)
-		throws com.liferay.portal.kernel.exception.PortalException {
-
-		_objectFieldSettingLocalService.addObjectFieldSetting(
-			userId, objectFieldId, objectFilters);
-	}
-
-	@Override
 	public com.liferay.object.model.ObjectFieldSetting addObjectFieldSetting(
 			long userId, long objectFieldId, String name, String value)
 		throws com.liferay.portal.kernel.exception.PortalException {
