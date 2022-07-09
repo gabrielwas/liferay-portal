@@ -15,7 +15,7 @@
 package com.liferay.object.admin.rest.dto.v1_0.util;
 
 import com.liferay.object.constants.ObjectFieldConstants;
-import com.liferay.object.constants.ObjectFilterConstants;
+import com.liferay.object.constants.ObjectFieldSettingConstants;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectFieldSetting;
 import com.liferay.object.service.ObjectStateFlowLocalServiceUtil;
@@ -55,12 +55,15 @@ public class ObjectFieldSettingUtil {
 		String businessType, ObjectFieldSetting objectFieldSetting) {
 
 		if (Objects.equals(
-				ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION, businessType) &&
-			Objects.equals(
-				objectFieldSetting.getName(), ObjectFilterConstants.FILTERS)) {
+				ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION, businessType)) {
 
-			return ObjectFilterUtil.getObjectFiltersJSONArray(
-				objectFieldSetting.getObjectFilters());
+			if (Objects.equals(
+					objectFieldSetting.getName(),
+					ObjectFieldSettingConstants.FILTERS)) {
+
+				return ObjectFilterUtil.getObjectFiltersJSONArray(
+					objectFieldSetting.getObjectFilters());
+			}
 		}
 		else if (Objects.equals(
 					ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT,
@@ -97,7 +100,10 @@ public class ObjectFieldSettingUtil {
 					ObjectFieldConstants.BUSINESS_TYPE_PICKLIST,
 					businessType)) {
 
-			if (Objects.equals(objectFieldSetting.getName(), "stateFlow")) {
+			if (Objects.equals(
+					objectFieldSetting.getName(),
+					ObjectFieldSettingConstants.NAME_STATE_FLOW)) {
+
 				return ObjectStateFlowUtil.toObjectStateFlow(
 					ObjectStateFlowLocalServiceUtil.fetchObjectStateFlow(
 						GetterUtil.getLong(objectFieldSetting.getValue())));

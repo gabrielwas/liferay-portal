@@ -15,7 +15,7 @@
 package com.liferay.object.service.impl;
 
 import com.liferay.object.constants.ObjectFieldConstants;
-import com.liferay.object.constants.ObjectFilterConstants;
+import com.liferay.object.constants.ObjectFieldSettingConstants;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectFieldSetting;
 import com.liferay.object.model.impl.ObjectFieldSettingImpl;
@@ -128,7 +128,7 @@ public class ObjectFieldSettingLocalServiceImpl
 
 		ObjectFieldSetting objectFieldSetting = new ObjectFieldSettingImpl();
 
-		objectFieldSetting.setName(ObjectFilterConstants.FILTERS);
+		objectFieldSetting.setName(ObjectFieldSettingConstants.FILTERS);
 		objectFieldSetting.setObjectFilters(
 			_objectFilterLocalService.getObjectFiltersByObjectFieldId(
 				objectFieldId));

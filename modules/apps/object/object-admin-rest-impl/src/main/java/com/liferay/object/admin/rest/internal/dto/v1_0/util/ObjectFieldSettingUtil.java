@@ -17,7 +17,6 @@ package com.liferay.object.admin.rest.internal.dto.v1_0.util;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectFieldSetting;
 import com.liferay.object.admin.rest.dto.v1_0.ObjectStateFlow;
 import com.liferay.object.admin.rest.dto.v1_0.util.ObjectStateFlowUtil;
-import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectFieldSettingConstants;
 import com.liferay.object.constants.ObjectFilterConstants;
 import com.liferay.object.model.ObjectFilter;
@@ -71,9 +70,8 @@ public class ObjectFieldSettingUtil {
 			String.valueOf(objectFieldSetting.getValue()));
 
 		if (Objects.equals(
-				businessType, ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION) &&
-			Objects.equals(
-				objectFieldSetting.getName(), ObjectFilterConstants.FILTERS)) {
+				objectFieldSetting.getName(),
+				ObjectFieldSettingConstants.FILTERS)) {
 
 			List<ObjectFilter> objectFilters = new ArrayList<>();
 
@@ -131,11 +129,7 @@ public class ObjectFieldSettingUtil {
 
 				value = serviceBuilderObjectFieldSetting.getValue();
 
-				if (Objects.equals(
-						businessType,
-						ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION) &&
-					Objects.equals(name, ObjectFilterConstants.FILTERS)) {
-
+				if (Objects.equals(name, ObjectFieldSettingConstants.FILTERS)) {
 					value = ObjectFilterUtil.getObjectFiltersJSONArray(
 						serviceBuilderObjectFieldSetting.getObjectFilters());
 				}

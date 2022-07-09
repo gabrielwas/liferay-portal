@@ -23,8 +23,6 @@ public class ObjectFilterConstants {
 
 	public static final String FILTER_TYPE = "filterType";
 
-	public static final String FILTERS = "filters";
-
 	public static final String JSON = "json";
 
 }
