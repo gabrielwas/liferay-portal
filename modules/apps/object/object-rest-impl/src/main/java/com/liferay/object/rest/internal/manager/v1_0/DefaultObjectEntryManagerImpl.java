@@ -28,10 +28,10 @@ import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.rest.dto.v1_0.ObjectEntry;
 import com.liferay.object.rest.internal.dto.v1_0.converter.ObjectEntryDTOConverter;
 import com.liferay.object.rest.internal.petra.sql.dsl.expression.OrderByExpressionUtil;
-import com.liferay.object.rest.internal.petra.sql.dsl.expression.PredicateUtil;
 import com.liferay.object.rest.internal.resource.v1_0.ObjectEntryResourceImpl;
 import com.liferay.object.rest.manager.v1_0.BaseObjectEntryManager;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
+import com.liferay.object.rest.petra.sql.dsl.expression.PredicateFactory;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectEntryService;
@@ -393,10 +393,8 @@ public class DefaultObjectEntryManagerImpl
 					OrderByExpressionUtil.getOrderByExpressions(
 						objectDefinition.getObjectDefinitionId(),
 						_objectFieldLocalService, sorts)),
-				values -> getObjectEntry(
-					dtoConverterContext, objectDefinition,
-					GetterUtil.getLong(
-						values.get(objectDefinition.getPKObjectFieldName())))),
+				values -> _getObjectEntry(
+					dtoConverterContext, objectDefinition, values)),
 			pagination,
 			_objectEntryLocalService.getValuesListCount(
 				objectDefinition.getObjectDefinitionId(), groupId,
@@ -414,7 +412,7 @@ public class DefaultObjectEntryManagerImpl
 		return getObjectEntries(
 			companyId, objectDefinition, scopeKey, aggregation,
 			dtoConverterContext, pagination,
-			PredicateUtil.toPredicate(
+			_predicateFactory.createPredicate(
 				_filterParserProvider, filterString,
 				objectDefinition.getObjectDefinitionId(),
 				_objectFieldLocalService),
@@ -585,6 +583,24 @@ public class DefaultObjectEntryManagerImpl
 
 	private String _getObjectEntriesPermissionName(long objectDefinitionId) {
 		return ObjectConstants.RESOURCE_NAME + "#" + objectDefinitionId;
+	}
+
+	private ObjectEntry _getObjectEntry(
+			DTOConverterContext dtoConverterContext,
+			ObjectDefinition objectDefinition, Map<String, Serializable> values)
+		throws Exception {
+
+		com.liferay.object.model.ObjectEntry objectEntry =
+			_objectEntryService.getObjectEntry(
+				GetterUtil.getLong(
+					values.get(objectDefinition.getPKObjectFieldName())));
+
+		objectEntry.setValues(values);
+
+		_checkObjectEntryObjectDefinitionId(objectDefinition, objectEntry);
+
+		return _toObjectEntry(
+			dtoConverterContext, objectDefinition, objectEntry);
 	}
 
 	private String _getObjectEntryPermissionName(long objectDefinitionId) {
@@ -806,6 +822,9 @@ public class DefaultObjectEntryManagerImpl
 
 	@Reference
 	private ObjectRelationshipService _objectRelationshipService;
+
+	@Reference
+	private PredicateFactory _predicateFactory;
 
 	@Reference
 	private Queries _queries;

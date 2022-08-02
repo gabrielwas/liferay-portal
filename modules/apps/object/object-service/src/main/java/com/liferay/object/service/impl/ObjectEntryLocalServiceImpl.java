@@ -35,6 +35,7 @@ import com.liferay.object.exception.NoSuchObjectFieldException;
 import com.liferay.object.exception.ObjectDefinitionScopeException;
 import com.liferay.object.exception.ObjectEntryValuesException;
 import com.liferay.object.internal.petra.sql.dsl.DynamicObjectDefinitionTable;
+import com.liferay.object.internal.petra.sql.dsl.DynamicObjectDefinitionTableFactory;
 import com.liferay.object.internal.petra.sql.dsl.DynamicObjectRelationshipMappingTable;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
@@ -1271,11 +1272,12 @@ public class ObjectEntryLocalServiceImpl
 		ObjectDefinition objectDefinition =
 			_objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId);
 
-		return new DynamicObjectDefinitionTable(
-			objectDefinition,
-			_objectFieldPersistence.findByODI_DTN(
-				objectDefinitionId, objectDefinition.getDBTableName()),
-			objectDefinition.getDBTableName());
+		return DynamicObjectDefinitionTableFactory.
+			createDynamicObjectDefinitionTable(
+				objectDefinition,
+				_objectFieldPersistence.findByODI_DTN(
+					objectDefinitionId, objectDefinition.getDBTableName()),
+				objectDefinition.getDBTableName());
 	}
 
 	private DynamicObjectDefinitionTable
@@ -1288,11 +1290,13 @@ public class ObjectEntryLocalServiceImpl
 		ObjectDefinition objectDefinition =
 			_objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId);
 
-		return new DynamicObjectDefinitionTable(
-			objectDefinition,
-			_objectFieldPersistence.findByODI_DTN(
-				objectDefinitionId, objectDefinition.getExtensionDBTableName()),
-			objectDefinition.getExtensionDBTableName());
+		return DynamicObjectDefinitionTableFactory.
+			createDynamicObjectDefinitionTable(
+				objectDefinition,
+				_objectFieldPersistence.findByODI_DTN(
+					objectDefinitionId,
+					objectDefinition.getExtensionDBTableName()),
+				objectDefinition.getExtensionDBTableName());
 	}
 
 	private GroupByStep _getManyToManyRelatedObjectEntriesGroupByStep(
@@ -1623,21 +1627,18 @@ public class ObjectEntryLocalServiceImpl
 		Map<String, Serializable> values = new HashMap<>();
 
 		for (int i = 0; i < selectExpressions.length; i++) {
-
 			Expression<?> selectExpression = selectExpressions[i];
 
 			String columnName = null;
 			Class<?> javaType = null;
 
-			if(selectExpression instanceof Column) {
-				Column<?, ?> column =
-					(Column<?, ?>)selectExpressions[i];
+			if (selectExpression instanceof Column) {
+				Column<?, ?> column = (Column<?, ?>)selectExpressions[i];
 
 				columnName = column.getName();
 				javaType = column.getJavaType();
 			}
-			else if(selectExpression instanceof ScalarDSLQueryAlias) {
-
+			else if (selectExpression instanceof ScalarDSLQueryAlias) {
 				ScalarDSLQueryAlias scalar =
 					(ScalarDSLQueryAlias)selectExpressions[i];
 
@@ -1785,10 +1786,9 @@ public class ObjectEntryLocalServiceImpl
 					Object[] result = new Object[selectExpressions.length];
 
 					for (int i = 0; i < selectExpressions.length; i++) {
-
 						Expression<?> selectExpression = selectExpressions[i];
 
-						if(selectExpression instanceof Column) {
+						if (selectExpression instanceof Column) {
 							Column<?, ?> column =
 								(Column<?, ?>)selectExpressions[i];
 
@@ -1797,7 +1797,8 @@ public class ObjectEntryLocalServiceImpl
 							result[i] = _getValue(
 								resultSet, columnName, column.getSQLType());
 						}
-						else if(selectExpression instanceof ScalarDSLQueryAlias) {
+						else if (selectExpression instanceof
+									ScalarDSLQueryAlias) {
 
 							ScalarDSLQueryAlias scalar =
 								(ScalarDSLQueryAlias)selectExpressions[i];
@@ -1807,9 +1808,10 @@ public class ObjectEntryLocalServiceImpl
 							result[i] = _getValue(
 								resultSet, columnName, scalar.getSQLType());
 
+							if (result[i] == null) {
+								result[i] = "0";
+							}
 						}
-
-
 					}
 
 					results.add(result);
@@ -1826,7 +1828,7 @@ public class ObjectEntryLocalServiceImpl
 		Session session = objectEntryPersistence.openSession();
 
 		try {
-  			session.apply(
+			session.apply(
 				connection -> _list(
 					connection, dslQuery, results, selectExpressions));
 		}
