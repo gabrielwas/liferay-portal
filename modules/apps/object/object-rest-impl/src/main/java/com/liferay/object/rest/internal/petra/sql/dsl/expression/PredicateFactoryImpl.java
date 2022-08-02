@@ -16,6 +16,7 @@ package com.liferay.object.rest.internal.petra.sql.dsl.expression;
 
 import com.liferay.object.rest.internal.odata.entity.v1_0.ObjectEntryEntityModel;
 import com.liferay.object.rest.internal.odata.filter.expression.PredicateExpressionVisitorImpl;
+import com.liferay.object.rest.petra.sql.dsl.expression.PredicateFactory;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.petra.sql.dsl.expression.Predicate;
 import com.liferay.portal.kernel.log.Log;
@@ -26,13 +27,17 @@ import com.liferay.portal.odata.filter.FilterParser;
 import com.liferay.portal.odata.filter.FilterParserProvider;
 import com.liferay.portal.odata.filter.expression.Expression;
 
+import org.osgi.service.component.annotations.Component;
+
 /**
  * @author Marco Leo
  * @author Brian Wing Shun Chan
  */
-public class PredicateUtil {
+@Component(immediate = true, service = PredicateFactory.class)
+public class PredicateFactoryImpl implements PredicateFactory {
 
-	public static Predicate toPredicate(
+	@Override
+	public Predicate createPredicate(
 		FilterParserProvider filterParserProvider, String filterString,
 		long objectDefinitionId,
 		ObjectFieldLocalService objectFieldLocalService) {
@@ -62,6 +67,7 @@ public class PredicateUtil {
 		return null;
 	}
 
-	private static final Log _log = LogFactoryUtil.getLog(PredicateUtil.class);
+	private static final Log _log = LogFactoryUtil.getLog(
+		PredicateFactoryImpl.class);
 
 }

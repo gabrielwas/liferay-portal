@@ -18,9 +18,9 @@ import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.rest.dto.v1_0.ObjectEntry;
 import com.liferay.object.rest.internal.odata.entity.v1_0.ObjectEntryEntityModel;
-import com.liferay.object.rest.internal.petra.sql.dsl.expression.PredicateUtil;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManagerTracker;
+import com.liferay.object.rest.petra.sql.dsl.expression.PredicateFactory;
 import com.liferay.object.rest.resource.v1_0.ObjectEntryResource;
 import com.liferay.object.scope.ObjectScopeProvider;
 import com.liferay.object.scope.ObjectScopeProviderRegistry;
@@ -222,7 +222,7 @@ public class ObjectEntryResourceImpl extends BaseObjectEntryResourceImpl {
 		return objectEntryManager.getObjectEntries(
 			contextCompany.getCompanyId(), _objectDefinition, null, aggregation,
 			_getDTOConverterContext(null), pagination,
-			PredicateUtil.toPredicate(
+			_predicateFactory.createPredicate(
 				_filterParserProvider,
 				ParamUtil.getString(contextHttpServletRequest, "filter"),
 				_objectDefinition.getObjectDefinitionId(),
@@ -269,7 +269,7 @@ public class ObjectEntryResourceImpl extends BaseObjectEntryResourceImpl {
 		return objectEntryManager.getObjectEntries(
 			contextCompany.getCompanyId(), _objectDefinition, scopeKey,
 			aggregation, _getDTOConverterContext(null), pagination,
-			PredicateUtil.toPredicate(
+			_predicateFactory.createPredicate(
 				_filterParserProvider,
 				ParamUtil.getString(contextHttpServletRequest, "filter"),
 				_objectDefinition.getObjectDefinitionId(),
@@ -497,5 +497,8 @@ public class ObjectEntryResourceImpl extends BaseObjectEntryResourceImpl {
 
 	@Reference
 	private ObjectScopeProviderRegistry _objectScopeProviderRegistry;
+
+	@Reference
+	private PredicateFactory _predicateFactory;
 
 }
