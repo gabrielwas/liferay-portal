@@ -42,6 +42,7 @@ import com.liferay.petra.sql.dsl.spi.expression.DSLFunctionType;
 import com.liferay.petra.sql.dsl.spi.expression.DefaultAlias;
 import com.liferay.petra.sql.dsl.spi.expression.DefaultColumnAlias;
 import com.liferay.petra.sql.dsl.spi.expression.DefaultPredicate;
+import com.liferay.petra.sql.dsl.spi.expression.DefaultScalarDSLQueryAlias;
 import com.liferay.petra.sql.dsl.spi.expression.NullExpression;
 import com.liferay.petra.sql.dsl.spi.expression.Operand;
 import com.liferay.petra.sql.dsl.spi.expression.Scalar;
@@ -109,6 +110,7 @@ public class SQLDSLTest {
 					assertClasses.add(DefaultColumnAlias.class);
 					assertClasses.add(DefaultOrderByExpression.class);
 					assertClasses.add(DefaultPredicate.class);
+					assertClasses.add(DefaultScalarDSLQueryAlias.class);
 
 					Collections.addAll(
 						assertClasses,
@@ -1072,6 +1074,24 @@ public class SQLDSLTest {
 		Assert.assertSame(table4, column.getTable());
 		Assert.assertEquals(
 			MainExampleTable.INSTANCE.nameColumn.getName(), column.getName());
+	}
+
+	@Test
+	public void testScalarDSLQueryAlias() {
+		Expression<Long> scalarSubdSLQuery =
+			DSLQueryFactoryUtil.scalarSubdSLQuery(
+				DSLQueryFactoryUtil.select(
+					DSLFunctionFactoryUtil.count(
+						MainExampleTable.INSTANCE.mainExampleIdColumn)
+				).from(
+					MainExampleTable.INSTANCE
+				),
+				Long.class, "mainExampleField", Types.VARCHAR);
+
+		Assert.assertEquals(
+			"(select count(MainExample.mainExampleId) from MainExample" +
+				") as mainExampleField",
+			scalarSubdSLQuery.toString());
 	}
 
 	@Test
