@@ -39,6 +39,7 @@ import com.liferay.object.exception.ObjectDefinitionAccountEntryRestrictedExcept
 import com.liferay.object.exception.ObjectDefinitionScopeException;
 import com.liferay.object.exception.ObjectEntryValuesException;
 import com.liferay.object.internal.petra.sql.dsl.DynamicObjectDefinitionTable;
+import com.liferay.object.internal.petra.sql.dsl.DynamicObjectDefinitionTableFactory;
 import com.liferay.object.internal.petra.sql.dsl.DynamicObjectRelationshipMappingTable;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
@@ -1278,11 +1279,12 @@ public class ObjectEntryLocalServiceImpl
 		ObjectDefinition objectDefinition =
 			_objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId);
 
-		return new DynamicObjectDefinitionTable(
-			objectDefinition,
-			_objectFieldPersistence.findByODI_DTN(
-				objectDefinitionId, objectDefinition.getDBTableName()),
-			objectDefinition.getDBTableName());
+		return DynamicObjectDefinitionTableFactory.
+			createDynamicObjectDefinitionTable(
+				objectDefinition,
+				_objectFieldPersistence.findByODI_DTN(
+					objectDefinitionId, objectDefinition.getDBTableName()),
+				objectDefinition.getDBTableName());
 	}
 
 	private DynamicObjectDefinitionTable
@@ -1295,11 +1297,13 @@ public class ObjectEntryLocalServiceImpl
 		ObjectDefinition objectDefinition =
 			_objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId);
 
-		return new DynamicObjectDefinitionTable(
-			objectDefinition,
-			_objectFieldPersistence.findByODI_DTN(
-				objectDefinitionId, objectDefinition.getExtensionDBTableName()),
-			objectDefinition.getExtensionDBTableName());
+		return DynamicObjectDefinitionTableFactory.
+			createDynamicObjectDefinitionTable(
+				objectDefinition,
+				_objectFieldPersistence.findByODI_DTN(
+					objectDefinitionId,
+					objectDefinition.getExtensionDBTableName()),
+				objectDefinition.getExtensionDBTableName());
 	}
 
 	private GroupByStep _getManyToManyRelatedObjectEntriesGroupByStep(
