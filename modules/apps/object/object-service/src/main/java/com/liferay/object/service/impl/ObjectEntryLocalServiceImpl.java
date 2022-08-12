@@ -646,7 +646,7 @@ public class ObjectEntryLocalServiceImpl
 			dynamicObjectDefinitionTable.getSelectExpressions(),
 			extensionDynamicObjectDefinitionTable.getSelectExpressions());
 
-		List<Object[]> rows = _list(
+		List<Object[]> rows = _listNoSession(
 			DSLQueryFactoryUtil.selectDistinct(
 				selectExpressions
 			).from(
@@ -685,7 +685,7 @@ public class ObjectEntryLocalServiceImpl
 			extensionDynamicObjectDefinitionTable.getSelectExpressions(),
 			_EXPRESSIONS);
 
-		List<Object[]> rows = _list(
+		List<Object[]> rows = _listNoSession(
 			DSLQueryFactoryUtil.selectDistinct(
 				selectExpressions
 			).from(
@@ -1557,9 +1557,6 @@ public class ObjectEntryLocalServiceImpl
 		return storageDLFolderId;
 	}
 
-	/**
-	 * @see com.liferay.portal.upgrade.util.Table#getValue
-	 */
 	private Object _getValue(ResultSet resultSet, String name, int sqlType)
 		throws SQLException {
 
@@ -1619,6 +1616,44 @@ public class ObjectEntryLocalServiceImpl
 		}
 
 		return GetterUtil.getString(valueString);
+	}
+
+	/**
+	 * @see com.liferay.portal.upgrade.util.Table#getValue
+	 */
+	private Object _getValueNoSession(Object object, int sqlType)
+		throws SQLException {
+
+		ResultSet resultSet;
+
+		if (sqlType == Types.BIGINT) {
+			return GetterUtil.getLong(object);
+		}
+		else if (sqlType == Types.BOOLEAN) {
+			return GetterUtil.getBoolean(object);
+		}
+		else if (sqlType == Types.CLOB) {
+			return GetterUtil.getString(object);
+		}
+		else if ((sqlType == Types.DATE) || (sqlType == Types.TIMESTAMP)) {
+			return object;
+		}
+		else if (sqlType == Types.DECIMAL) {
+			return object;
+		}
+		else if (sqlType == Types.DOUBLE) {
+			return GetterUtil.getDouble(object);
+		}
+		else if (sqlType == Types.INTEGER) {
+			return GetterUtil.getInteger(object);
+		}
+		else if (sqlType == Types.VARCHAR) {
+			return GetterUtil.getString(object);
+		}
+		else {
+			throw new IllegalArgumentException(
+				"Unable to get value with SQL type " + sqlType);
+		}
 	}
 
 	private Map<String, Serializable> _getValues(
@@ -1800,6 +1835,35 @@ public class ObjectEntryLocalServiceImpl
 		}
 		finally {
 			objectEntryPersistence.closeSession(session);
+		}
+
+		return results;
+	}
+
+	private List<Object[]> _listNoSession(
+		DSLQuery dslQuery, Expression<?>[] selectExpressions) {
+
+		List<Object[]> results = new ArrayList<>();
+
+		List<Object[]> entriesValues = objectEntryPersistence.dslQuery(
+			dslQuery);
+
+		for (Object[] entryValues : entriesValues) {
+			Object[] result = new Object[selectExpressions.length];
+
+			for (int i = 0; i < selectExpressions.length; i++) {
+				Column<?, ?> column = (Column<?, ?>)selectExpressions[i];
+
+				try {
+					result[i] = _getValueNoSession(
+						entryValues[i], column.getSQLType());
+				}
+				catch (SQLException e) {
+					throw new RuntimeException(e);
+				}
+			}
+
+			results.add(result);
 		}
 
 		return results;
