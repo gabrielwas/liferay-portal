@@ -2527,6 +2527,9 @@ public class ObjectEntryLocalServiceImpl
 			_setColumn(preparedStatement, index++, Types.BIGINT, objectEntryId);
 
 			preparedStatement.executeUpdate();
+
+			FinderCacheUtil.clearDSLQueryCache(
+				dynamicObjectDefinitionTable.getTableName());
 		}
 		catch (Exception exception) {
 			throw new SystemException(exception);
