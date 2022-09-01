@@ -2445,6 +2445,14 @@ public class ObjectEntryLocalServiceImpl
 			dynamicObjectDefinitionTable.getObjectFields();
 
 		for (ObjectField objectField : objectFields) {
+
+			if (Objects.equals(
+					objectField.getBusinessType(),
+					ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION)) {
+
+				continue;
+			}
+
 			Object value = values.get(objectField.getName());
 
 			if (value == null) {
@@ -2510,6 +2518,14 @@ public class ObjectEntryLocalServiceImpl
 			int index = 1;
 
 			for (ObjectField objectField : objectFields) {
+
+				if (Objects.equals(
+					objectField.getBusinessType(),
+					ObjectFieldConstants.BUSINESS_TYPE_AGGREGATION)) {
+
+					continue;
+				}
+
 				Object value = values.get(objectField.getName());
 
 				if (value == null) {
