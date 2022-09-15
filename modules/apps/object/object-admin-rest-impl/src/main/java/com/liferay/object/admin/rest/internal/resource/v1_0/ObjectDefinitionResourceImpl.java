@@ -184,9 +184,10 @@ public class ObjectDefinitionResourceImpl
 							_objectFilterLocalService)));
 
 		if (!Validator.isBlank(objectDefinition.getExternalReferenceCode())) {
-			_objectDefinitionService.updateExternalReferenceCode(
-				serviceBuilderObjectDefinition.getObjectDefinitionId(),
-				objectDefinition.getExternalReferenceCode());
+			serviceBuilderObjectDefinition =
+				_objectDefinitionService.updateExternalReferenceCode(
+					serviceBuilderObjectDefinition.getObjectDefinitionId(),
+					objectDefinition.getExternalReferenceCode());
 		}
 
 		return _toObjectDefinition(serviceBuilderObjectDefinition);
