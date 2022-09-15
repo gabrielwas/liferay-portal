@@ -58,6 +58,13 @@ public class ObjectDefinitionLocalServiceUtil {
 			pluralLabelMap, scope, storageType, objectFields);
 	}
 
+	public static ObjectDefinition addObjectDefinition(
+			long userId, String externalReferenceCode)
+		throws PortalException {
+
+		return getService().addObjectDefinition(userId, externalReferenceCode);
+	}
+
 	/**
 	 * Adds the object definition to the database. Also notifies the appropriate model listeners.
 	 *
@@ -497,6 +504,14 @@ public class ObjectDefinitionLocalServiceUtil {
 			titleObjectFieldId, accountEntryRestricted, active,
 			enableCategorization, enableComments, labelMap, name, panelAppOrder,
 			panelCategoryKey, portlet, pluralLabelMap, scope);
+	}
+
+	public static ObjectDefinition updateExternalReferenceCode(
+			long objectDefinitionId, String externalReferenceCode)
+		throws PortalException {
+
+		return getService().updateExternalReferenceCode(
+			objectDefinitionId, externalReferenceCode);
 	}
 
 	/**
