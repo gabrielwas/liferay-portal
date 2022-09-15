@@ -51,6 +51,15 @@ public class ObjectDefinitionLocalServiceWrapper
 			pluralLabelMap, scope, storageType, objectFields);
 	}
 
+	@Override
+	public com.liferay.object.model.ObjectDefinition addObjectDefinition(
+			long userId, String externalReferenceCode)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _objectDefinitionLocalService.addObjectDefinition(
+			userId, externalReferenceCode);
+	}
+
 	/**
 	 * Adds the object definition to the database. Also notifies the appropriate model listeners.
 	 *
@@ -571,6 +580,16 @@ public class ObjectDefinitionLocalServiceWrapper
 			titleObjectFieldId, accountEntryRestricted, active,
 			enableCategorization, enableComments, labelMap, name, panelAppOrder,
 			panelCategoryKey, portlet, pluralLabelMap, scope);
+	}
+
+	@Override
+	public com.liferay.object.model.ObjectDefinition
+			updateExternalReferenceCode(
+				long objectDefinitionId, String externalReferenceCode)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _objectDefinitionLocalService.updateExternalReferenceCode(
+			objectDefinitionId, externalReferenceCode);
 	}
 
 	/**

@@ -77,6 +77,11 @@ public interface ObjectDefinitionLocalService
 			String storageType, List<ObjectField> objectFields)
 		throws PortalException;
 
+	@Indexable(type = IndexableType.REINDEX)
+	public ObjectDefinition addObjectDefinition(
+			long userId, String externalReferenceCode)
+		throws PortalException;
+
 	/**
 	 * Adds the object definition to the database. Also notifies the appropriate model listeners.
 	 *
@@ -398,6 +403,10 @@ public interface ObjectDefinitionLocalService
 			Map<Locale, String> labelMap, String name, String panelAppOrder,
 			String panelCategoryKey, boolean portlet,
 			Map<Locale, String> pluralLabelMap, String scope)
+		throws PortalException;
+
+	public ObjectDefinition updateExternalReferenceCode(
+			long objectDefinitionId, String externalReferenceCode)
 		throws PortalException;
 
 	/**
