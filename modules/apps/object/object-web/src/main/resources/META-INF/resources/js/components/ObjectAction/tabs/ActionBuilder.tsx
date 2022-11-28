@@ -227,7 +227,6 @@ export default function ActionBuilder({
 	const isValidField = ({businessType, system}: ObjectField) =>
 		businessType !== 'Aggregation' &&
 		businessType !== 'Formula' &&
-		businessType !== 'Relationship' &&
 		!system;
 
 	const fetchObjectDefinitionFields = async () => {
@@ -258,7 +257,7 @@ export default function ActionBuilder({
 
 		const newPredefinedValues: PredefinedValue[] = [];
 
-		validFields.forEach(({name, required}) => {
+		validFields.forEach(({label, name, required}) => {
 			if (predefinedValuesMap.has(name)) {
 				const field = predefinedValuesMap.get(name);
 
@@ -270,6 +269,7 @@ export default function ActionBuilder({
 			) {
 				newPredefinedValues.push({
 					inputAsValue: false,
+					label,
 					name,
 					value: '',
 				});
@@ -309,6 +309,7 @@ export default function ActionBuilder({
 				) {
 					(parameters.predefinedValues as PredefinedValue[]).push({
 						inputAsValue: false,
+						label: field.label,
 						name: field.name,
 						value: '',
 					});
