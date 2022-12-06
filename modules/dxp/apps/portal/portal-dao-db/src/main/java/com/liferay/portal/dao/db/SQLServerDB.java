@@ -87,7 +87,28 @@ public class SQLServerDB extends BaseDB {
 
 		dropIndexes(connection, tableName, columnName);
 
+		_dropDefaultConstraint(connection, tableName, columnName);
+
 		super.alterTableDropColumn(connection, tableName, columnName);
+	}
+
+	private void _dropDefaultConstraint(Connection connection, String tableName, String columnName)
+		throws Exception {
+
+		try (PreparedStatement preparedStatement = connection.prepareStatement(
+			StringBundler.concat(
+				"SELECT name FROM SYS.DEFAULT_CONSTRAINTS WHERE PARENT_OBJECT_ID = OBJECT_ID('", tableName,
+				"') AND PARENT_COLUMN_ID = (SELECT column_id FROM sys.columns WHERE NAME = '", columnName, "' AND object_id = OBJECT_ID('", tableName ,"'))"
+			));
+			 ResultSet resultSet = preparedStatement.executeQuery()) {
+
+			while (resultSet.next()) {
+				String name = resultSet.getString("name");
+
+				runSQL(StringBundler.concat( "alter table ", tableName, " drop constraint ", name));
+
+			}
+		}
 	}
 
 	@Override
