@@ -83,6 +83,11 @@ public class NotificationUpgradeStepRegistrator
 				"NotificationRecipient", "className"),
 			UpgradeProcessFactory.addColumns(
 				"NotificationRecipient", "classNameId LONG"));
+
+		registry.register(
+			"3.3.0", "3.4.0",
+			new com.liferay.notification.internal.upgrade.v3_3_0.
+				NotificationRecipientUpgradeProcess());
 	}
 
 }
