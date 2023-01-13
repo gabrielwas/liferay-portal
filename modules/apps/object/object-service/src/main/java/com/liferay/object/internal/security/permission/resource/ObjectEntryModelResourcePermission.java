@@ -176,71 +176,69 @@ public class ObjectEntryModelResourcePermission
 				QueryUtil.ALL_POS),
 			AccountEntry::getAccountEntryId);
 
-		if (!ArrayUtil.contains(accountEntryIds, accountEntryId)) {
-			return false;
-		}
+		return ArrayUtil.contains(accountEntryIds, accountEntryId);
 
-		Set<Long> rolesIds = new HashSet<>();
-
-		rolesIds.addAll(
-			TransformUtil.transform(
-				_userGroupRoleLocalService.getUserGroupRoles(
-					permissionChecker.getUserId(),
-					accountEntry.getAccountEntryGroupId()),
-				UserGroupRole::getRoleId));
-
-		List<AccountEntryOrganizationRel> accountEntryOrganizationRels =
-			_accountEntryOrganizationRelLocalService.
-				getAccountEntryOrganizationRels(accountEntryId);
-
-		for (AccountEntryOrganizationRel accountEntryOrganizationRel :
-				accountEntryOrganizationRels) {
-
-			Organization organization =
-				accountEntryOrganizationRel.getOrganization();
-
-			Group group = _groupLocalService.getOrganizationGroup(
-				objectDefinition.getCompanyId(),
-				organization.getOrganizationId());
-
-			rolesIds.addAll(
-				TransformUtil.transform(
-					_userGroupRoleLocalService.getUserGroupRoles(
-						permissionChecker.getUserId(), group.getGroupId()),
-					UserGroupRole::getRoleId));
-
-			for (Organization ancestorOrganization :
-					organization.getAncestors()) {
-
-				group = _groupLocalService.getOrganizationGroup(
-					objectDefinition.getCompanyId(),
-					ancestorOrganization.getOrganizationId());
-
-				rolesIds.addAll(
-					TransformUtil.transform(
-						_userGroupRoleLocalService.getUserGroupRoles(
-							permissionChecker.getUserId(), group.getGroupId()),
-						UserGroupRole::getRoleId));
-			}
-		}
-
-		for (Long roleId : rolesIds) {
-			ResourcePermission resourcePermission =
-				_resourcePermissionLocalService.fetchResourcePermission(
-					objectDefinition.getCompanyId(),
-					objectDefinition.getClassName(),
-					ResourceConstants.SCOPE_GROUP_TEMPLATE, "0", roleId);
-
-			if (resourcePermission == null) {
-				continue;
-			}
-
-			if (resourcePermission.hasActionId(actionId)) {
-				return true;
-			}
-		}
-
-		return false;
+//		Set<Long> rolesIds = new HashSet<>();
+//
+//		rolesIds.addAll(
+//			TransformUtil.transform(
+//				_userGroupRoleLocalService.getUserGroupRoles(
+//					permissionChecker.getUserId(),
+//					accountEntry.getAccountEntryGroupId()),
+//				UserGroupRole::getRoleId));
+//
+//		List<AccountEntryOrganizationRel> accountEntryOrganizationRels =
+//			_accountEntryOrganizationRelLocalService.
+//				getAccountEntryOrganizationRels(accountEntryId);
+//
+//		for (AccountEntryOrganizationRel accountEntryOrganizationRel :
+//				accountEntryOrganizationRels) {
+//
+//			Organization organization =
+//				accountEntryOrganizationRel.getOrganization();
+//
+//			Group group = _groupLocalService.getOrganizationGroup(
+//				objectDefinition.getCompanyId(),
+//				organization.getOrganizationId());
+//
+//			rolesIds.addAll(
+//				TransformUtil.transform(
+//					_userGroupRoleLocalService.getUserGroupRoles(
+//						permissionChecker.getUserId(), group.getGroupId()),
+//					UserGroupRole::getRoleId));
+//
+//			for (Organization ancestorOrganization :
+//					organization.getAncestors()) {
+//
+//				group = _groupLocalService.getOrganizationGroup(
+//					objectDefinition.getCompanyId(),
+//					ancestorOrganization.getOrganizationId());
+//
+//				rolesIds.addAll(
+//					TransformUtil.transform(
+//						_userGroupRoleLocalService.getUserGroupRoles(
+//							permissionChecker.getUserId(), group.getGroupId()),
+//						UserGroupRole::getRoleId));
+//			}
+//		}
+//
+//		for (Long roleId : rolesIds) {
+//			ResourcePermission resourcePermission =
+//				_resourcePermissionLocalService.fetchResourcePermission(
+//					objectDefinition.getCompanyId(),
+//					objectDefinition.getClassName(),
+//					ResourceConstants.SCOPE_GROUP_TEMPLATE, "0", roleId);
+//
+//			if (resourcePermission == null) {
+//				continue;
+//			}
+//
+//			if (resourcePermission.hasActionId(actionId)) {
+//				return true;
+//			}
+//		}
+//
+//		return false;
 	}
 
 	@Override

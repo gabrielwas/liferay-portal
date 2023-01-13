@@ -2172,99 +2172,73 @@ public class ObjectEntryLocalServiceImpl
 		Column<?, Long> column = (Column<?, Long>)table.getColumn(
 			objectField.getDBColumnName());
 
-		Table<?> tempOrganizationTable = DSLQueryFactoryUtil.select(
-			AccountEntryOrganizationRelTable.INSTANCE.accountEntryId,
-			OrganizationTable.INSTANCE.treePath
-		).from(
-			OrganizationTable.INSTANCE
-		).innerJoinON(
-			AccountEntryOrganizationRelTable.INSTANCE,
-			AccountEntryOrganizationRelTable.INSTANCE.organizationId.eq(
-				OrganizationTable.INSTANCE.organizationId)
-		).as(
-			"tempOrganizationTable",
-			Arrays.asList(
-				AccountEntryOrganizationRelTable.INSTANCE.accountEntryId,
-				OrganizationTable.INSTANCE.treePath)
-		);
+//		Table<?> tempOrganizationTable = DSLQueryFactoryUtil.select(
+//			AccountEntryOrganizationRelTable.INSTANCE.accountEntryId,
+//			OrganizationTable.INSTANCE.treePath
+//		).from(
+//			OrganizationTable.INSTANCE
+//		).innerJoinON(
+//			AccountEntryOrganizationRelTable.INSTANCE,
+//			AccountEntryOrganizationRelTable.INSTANCE.organizationId.eq(
+//				OrganizationTable.INSTANCE.organizationId)
+//		).as(
+//			"tempOrganizationTable",
+//			Arrays.asList(
+//				AccountEntryOrganizationRelTable.INSTANCE.accountEntryId,
+//				OrganizationTable.INSTANCE.treePath)
+//		);
 
-		DSLQuery dslQuery = DSLQueryFactoryUtil.selectDistinct(
-			RoleTable.INSTANCE.roleId
-		).from(
-			UserGroupRoleTable.INSTANCE
-		).innerJoinON(
-			GroupTable.INSTANCE,
-			GroupTable.INSTANCE.groupId.eq(UserGroupRoleTable.INSTANCE.groupId)
-		).innerJoinON(
-			RoleTable.INSTANCE,
-			RoleTable.INSTANCE.roleId.eq(UserGroupRoleTable.INSTANCE.roleId)
-		).where(
-			UserGroupRoleTable.INSTANCE.userId.eq(
-				permissionChecker.getUserId()
-			).and(
-				UserGroupRoleTable.INSTANCE.companyId.eq(
-					permissionChecker.getCompanyId())
-			).and(
-				GroupTable.INSTANCE.classPK.eq(
-					column
-				).or(
-					GroupTable.INSTANCE.classPK.in(
-						DSLQueryFactoryUtil.selectDistinct(
-							OrganizationTable.INSTANCE.organizationId
-						).from(
-							OrganizationTable.INSTANCE
-						).innerJoinON(
-							tempOrganizationTable,
-							tempOrganizationTable.getColumn(
-								"treePath", String.class
-							).like(
-								DSLFunctionFactoryUtil.concat(
-									new Scalar<>("%"),
-									OrganizationTable.INSTANCE.treePath,
-									new Scalar<>("%"))
-							)
-						).where(
-							tempOrganizationTable.getColumn(
-								"accountEntryId", Long.class
-							).eq(
-								column
-							)
-						))
-				).withParentheses()
-			)
-		);
+//		DSLQuery dslQuery = DSLQueryFactoryUtil.selectDistinct(
+//			RoleTable.INSTANCE.roleId
+//		).from(
+//			UserGroupRoleTable.INSTANCE
+//		).innerJoinON(
+//			GroupTable.INSTANCE,
+//			GroupTable.INSTANCE.groupId.eq(UserGroupRoleTable.INSTANCE.groupId)
+//		).innerJoinON(
+//			RoleTable.INSTANCE,
+//			RoleTable.INSTANCE.roleId.eq(UserGroupRoleTable.INSTANCE.roleId)
+//		).where(
+//			UserGroupRoleTable.INSTANCE.userId.eq(
+//				permissionChecker.getUserId()
+//			).and(
+//				UserGroupRoleTable.INSTANCE.companyId.eq(
+//					permissionChecker.getCompanyId())
+//			).and(
+//				GroupTable.INSTANCE.classPK.eq(
+//					column
+//				).or(
+//					GroupTable.INSTANCE.classPK.in(
+//						DSLQueryFactoryUtil.selectDistinct(
+//							OrganizationTable.INSTANCE.organizationId
+//						).from(
+//							OrganizationTable.INSTANCE
+//						).innerJoinON(
+//							tempOrganizationTable,
+//							tempOrganizationTable.getColumn(
+//								"treePath", String.class
+//							).like(
+//								DSLFunctionFactoryUtil.concat(
+//									new Scalar<>("%"),
+//									OrganizationTable.INSTANCE.treePath,
+//									new Scalar<>("%"))
+//							)
+//						).where(
+//							tempOrganizationTable.getColumn(
+//								"accountEntryId", Long.class
+//							).eq(
+//								column
+//							)
+//						))
+//				).withParentheses()
+//			)
+//		);
 
 		return individualScopePredicate.or(
 			column.in(
 				_getAccountEntriesDSLQuery(
 					objectDefinition.getCompanyId(),
 					permissionChecker.getUserId())
-			).and(
-				new DefaultPredicate(
-					new QueryExpression<>(
-						DSLQueryFactoryUtil.count(
-						).from(
-							ResourcePermissionTable.INSTANCE
-						).where(
-							ResourcePermissionTable.INSTANCE.companyId.eq(
-								permissionChecker.getCompanyId()
-							).and(
-								ResourcePermissionTable.INSTANCE.name.eq(
-									objectDefinition.getClassName())
-							).and(
-								ResourcePermissionTable.INSTANCE.scope.eq(
-									ResourceConstants.SCOPE_GROUP_TEMPLATE)
-							).and(
-								ResourcePermissionTable.INSTANCE.primKey.eq("0")
-							).and(
-								ResourcePermissionTable.INSTANCE.roleId.in(
-									dslQuery)
-							).and(
-								ResourcePermissionTable.INSTANCE.viewActionId.
-									eq(true)
-							)
-						)),
-					Operand.GREATER_THAN, new Scalar<>(0))
 			).withParentheses()
 		).withParentheses();
 	}
