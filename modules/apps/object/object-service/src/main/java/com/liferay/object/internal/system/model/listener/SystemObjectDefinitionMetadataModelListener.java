@@ -20,28 +20,20 @@ import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectValidationRuleLocalService;
-import com.liferay.object.system.JaxRsApplicationDescriptor;
 import com.liferay.object.system.SystemObjectDefinitionMetadata;
+import com.liferay.object.system.util.SystemObjectDefinitionPayloadSerializer;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
-import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.json.JSONUtil;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.BaseModelListener;
-import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.vulcan.dto.converter.DTOConverter;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterRegistry;
-import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
 import com.liferay.portal.vulcan.extension.EntityExtensionThreadLocal;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -58,6 +50,7 @@ public class SystemObjectDefinitionMetadataModelListener<T extends BaseModel<T>>
 		ObjectEntryLocalService objectEntryLocalService,
 		ObjectValidationRuleLocalService objectValidationRuleLocalService,
 		SystemObjectDefinitionMetadata systemObjectDefinitionMetadata,
+		SystemObjectDefinitionPayloadSerializer systemObjectDefinitionPayloadSerializer,
 		UserLocalService userLocalService) {
 
 		_dtoConverterRegistry = dtoConverterRegistry;
@@ -68,6 +61,8 @@ public class SystemObjectDefinitionMetadataModelListener<T extends BaseModel<T>>
 		_objectEntryLocalService = objectEntryLocalService;
 		_objectValidationRuleLocalService = objectValidationRuleLocalService;
 		_systemObjectDefinitionMetadata = systemObjectDefinitionMetadata;
+		_systemObjectDefinitionPayloadSerializer =
+			systemObjectDefinitionPayloadSerializer;
 		_userLocalService = userLocalService;
 	}
 
@@ -164,9 +159,9 @@ public class SystemObjectDefinitionMetadataModelListener<T extends BaseModel<T>>
 			_objectActionEngine.executeObjectActions(
 				_modelClass.getName(), _getCompanyId(baseModel),
 				objectActionTriggerKey,
-				_getPayloadJSONObject(
-					objectActionTriggerKey, objectDefinition, originalBaseModel,
-					baseModel, userId),
+				_systemObjectDefinitionPayloadSerializer.serialize(
+					_modelClass, objectActionTriggerKey, objectDefinition,
+					originalBaseModel, baseModel, userId),
 				userId);
 		}
 		catch (PortalException portalException) {
@@ -189,72 +184,6 @@ public class SystemObjectDefinitionMetadataModelListener<T extends BaseModel<T>>
 		return (Long)function.apply(baseModel);
 	}
 
-	private DTOConverter<T, ?> _getDTOConverter() {
-		JaxRsApplicationDescriptor jaxRsApplicationDescriptor =
-			_systemObjectDefinitionMetadata.getJaxRsApplicationDescriptor();
-
-		return (DTOConverter<T, ?>)_dtoConverterRegistry.getDTOConverter(
-			jaxRsApplicationDescriptor.getApplicationName(),
-			_modelClass.getName(), jaxRsApplicationDescriptor.getVersion());
-	}
-
-	private String _getDTOConverterType() {
-		DTOConverter<T, ?> dtoConverter = _getDTOConverter();
-
-		if (dtoConverter == null) {
-			return _modelClass.getSimpleName();
-		}
-
-		return dtoConverter.getContentType();
-	}
-
-	private JSONObject _getPayloadJSONObject(
-			String objectActionTriggerKey, ObjectDefinition objectDefinition,
-			T originalBaseModel, T baseModel, long userId)
-		throws PortalException {
-
-		String dtoConverterType = _getDTOConverterType();
-
-		return JSONUtil.put(
-			"classPK", baseModel.getPrimaryKeyObj()
-		).put(
-			"extendedProperties",
-			HashMapBuilder.<String, Object>putAll(
-				_objectEntryLocalService.
-					getExtensionDynamicObjectDefinitionTableValues(
-						objectDefinition,
-						GetterUtil.getLong(baseModel.getPrimaryKeyObj()))
-			).putAll(
-				EntityExtensionThreadLocal.getExtendedProperties()
-			).build()
-		).put(
-			"model" + _modelClass.getSimpleName(),
-			baseModel.getModelAttributes()
-		).put(
-			"modelDTO" + dtoConverterType, _toDTO(baseModel, userId)
-		).put(
-			"objectActionTriggerKey", objectActionTriggerKey
-		).put(
-			"original" + _modelClass.getSimpleName(),
-			() -> {
-				if (originalBaseModel == null) {
-					return null;
-				}
-
-				return originalBaseModel.getModelAttributes();
-			}
-		).put(
-			"originalDTO" + dtoConverterType,
-			() -> {
-				if (originalBaseModel == null) {
-					return null;
-				}
-
-				return _toDTO(originalBaseModel, userId);
-			}
-		);
-	}
-
 	private long _getUserId(T baseModel) {
 		Map<String, Function<Object, Object>> functions =
 			(Map<String, Function<Object, Object>>)
@@ -268,66 +197,6 @@ public class SystemObjectDefinitionMetadataModelListener<T extends BaseModel<T>>
 		}
 
 		return (Long)function.apply(baseModel);
-	}
-
-	private Map<String, Object> _toDTO(T baseModel, long userId) {
-		DTOConverter<T, ?> dtoConverter = _getDTOConverter();
-
-		Map<String, Object> modelAttributes = baseModel.getModelAttributes();
-
-		if (dtoConverter == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(
-					"No DTO converter found for " + _modelClass.getName());
-			}
-
-			return modelAttributes;
-		}
-
-		User user = _userLocalService.fetchUser(userId);
-
-		if (user == null) {
-			if (_log.isWarnEnabled()) {
-				_log.warn("No user found with user ID " + userId);
-			}
-
-			return modelAttributes;
-		}
-
-		DefaultDTOConverterContext defaultDTOConverterContext =
-			new DefaultDTOConverterContext(
-				false, Collections.emptyMap(), _dtoConverterRegistry,
-				baseModel.getPrimaryKeyObj(), user.getLocale(), null, user);
-
-		try {
-			Object object = dtoConverter.toDTO(defaultDTOConverterContext);
-
-			if (object == null) {
-				return modelAttributes;
-			}
-
-			JSONObject jsonObject = _jsonFactory.createJSONObject(
-				_jsonFactory.looseSerializeDeep(object));
-
-			return jsonObject.put(
-				"createDate", modelAttributes.get("createDate")
-			).put(
-				"modifiedDate", modelAttributes.get("modifiedDate")
-			).put(
-				"status", modelAttributes.get("status")
-			).put(
-				"userName", user.getFullName()
-			).put(
-				"uuid", modelAttributes.get("uuid")
-			).toMap();
-		}
-		catch (Exception exception) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(exception);
-			}
-		}
-
-		return baseModel.getModelAttributes();
 	}
 
 	private void _validateSystemObject(T originalModel, T model)
@@ -350,17 +219,15 @@ public class SystemObjectDefinitionMetadataModelListener<T extends BaseModel<T>>
 
 			_objectValidationRuleLocalService.validate(
 				model, objectDefinition.getObjectDefinitionId(),
-				_getPayloadJSONObject(
-					null, objectDefinition, originalModel, model, userId),
+				_systemObjectDefinitionPayloadSerializer.serialize(
+					_modelClass, null, objectDefinition, originalModel, model,
+					userId),
 				userId);
 		}
 		catch (PortalException portalException) {
 			throw new ModelListenerException(portalException);
 		}
 	}
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		SystemObjectDefinitionMetadataModelListener.class);
 
 	private final DTOConverterRegistry _dtoConverterRegistry;
 	private final JSONFactory _jsonFactory;
@@ -372,6 +239,8 @@ public class SystemObjectDefinitionMetadataModelListener<T extends BaseModel<T>>
 		_objectValidationRuleLocalService;
 	private final SystemObjectDefinitionMetadata
 		_systemObjectDefinitionMetadata;
+	private final SystemObjectDefinitionPayloadSerializer
+		_systemObjectDefinitionPayloadSerializer;
 	private final UserLocalService _userLocalService;
 
 }

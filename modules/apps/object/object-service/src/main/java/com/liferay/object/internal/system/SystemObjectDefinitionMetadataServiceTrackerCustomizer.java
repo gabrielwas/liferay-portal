@@ -20,6 +20,7 @@ import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectValidationRuleLocalService;
 import com.liferay.object.system.SystemObjectDefinitionMetadata;
+import com.liferay.object.system.util.SystemObjectDefinitionPayloadSerializer;
 import com.liferay.osgi.util.ServiceTrackerFactory;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.model.ModelListener;
@@ -108,7 +109,8 @@ public class SystemObjectDefinitionMetadataServiceTrackerCustomizer
 						_objectActionEngine, _objectDefinitionLocalService,
 						_objectEntryLocalService,
 						_objectValidationRuleLocalService,
-						systemObjectDefinitionMetadata, _userLocalService),
+						systemObjectDefinitionMetadata,
+						_systemObjectDefinitionPayloadSerializer, _userLocalService),
 					null)));
 	}
 
@@ -151,6 +153,10 @@ public class SystemObjectDefinitionMetadataServiceTrackerCustomizer
 	private ServiceTracker
 		<SystemObjectDefinitionMetadata, SystemObjectDefinitionMetadata>
 			_serviceTracker;
+
+	@Reference
+	private SystemObjectDefinitionPayloadSerializer
+		_systemObjectDefinitionPayloadSerializer;
 
 	@Reference
 	private UserLocalService _userLocalService;
