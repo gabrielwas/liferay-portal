@@ -118,14 +118,17 @@ public class UserSystemObjectDefinitionMetadata
 			createObjectField(
 				"Text", "String", "email-address", "emailAddress", true, true),
 			createObjectField(
-				"Date", "lastLoginDate", "Date", "last-login-date",
-				"lastLoginDate", false, true),
-			createObjectField(
 				"Text", "lastName", "String", "last-name", "familyName", true,
 				true),
 			createObjectField(
 				"Text", "firstName", "String", "first-name", "givenName", true,
 				true),
+			createObjectField(
+				"Date", "lastLoginDate", "Date", "last-login-date",
+				"lastLoginDate", false, true),
+			createObjectField(
+				"Boolean", "passwordReset", "Boolean", "require-password-reset",
+				"passwordReset", false, true),
 			createObjectField(
 				"Text", "uuid_", "String", "uuid", "uuid", false, true));
 	}
