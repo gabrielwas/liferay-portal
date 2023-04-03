@@ -162,6 +162,7 @@ public class UserResourceDTOConverter
 					organization -> _toOrganizationBrief(
 						dtoConverterContext, organization, user),
 					OrganizationBrief.class);
+				passwordReset = user.getPasswordReset();
 				siteBriefs = TransformUtil.transformToArray(
 					_groupLocalService.getGroups(
 						user.getCompanyId(),
