@@ -750,6 +750,38 @@ public class UserAccount implements Serializable {
 	@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
 	protected String password;
 
+	@Schema(
+		description = "A flag that identifies whether the user reset password."
+	)
+	public Boolean getPasswordReset() {
+		return passwordReset;
+	}
+
+	public void setPasswordReset(Boolean passwordReset) {
+		this.passwordReset = passwordReset;
+	}
+
+	@JsonIgnore
+	public void setPasswordReset(
+		UnsafeSupplier<Boolean, Exception> passwordResetUnsafeSupplier) {
+
+		try {
+			passwordReset = passwordResetUnsafeSupplier.get();
+		}
+		catch (RuntimeException re) {
+			throw re;
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@GraphQLField(
+		description = "A flag that identifies whether the user reset password."
+	)
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
+	protected Boolean passwordReset;
+
 	@Schema(description = "A relative URL to the user's profile.")
 	public String getProfileURL() {
 		return profileURL;
@@ -1283,6 +1315,16 @@ public class UserAccount implements Serializable {
 			sb.append(_escape(password));
 
 			sb.append("\"");
+		}
+
+		if (passwordReset != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"passwordReset\": ");
+
+			sb.append(passwordReset);
 		}
 
 		if (profileURL != null) {

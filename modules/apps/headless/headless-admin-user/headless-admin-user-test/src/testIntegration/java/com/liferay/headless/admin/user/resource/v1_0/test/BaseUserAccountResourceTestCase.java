@@ -3102,6 +3102,14 @@ public abstract class BaseUserAccountResourceTestCase {
 				continue;
 			}
 
+			if (Objects.equals("passwordReset", additionalAssertFieldName)) {
+				if (userAccount.getPasswordReset() == null) {
+					valid = false;
+				}
+
+				continue;
+			}
+
 			if (Objects.equals("profileURL", additionalAssertFieldName)) {
 				if (userAccount.getProfileURL() == null) {
 					valid = false;
@@ -3517,6 +3525,17 @@ public abstract class BaseUserAccountResourceTestCase {
 				if (!Objects.deepEquals(
 						userAccount1.getPassword(),
 						userAccount2.getPassword())) {
+
+					return false;
+				}
+
+				continue;
+			}
+
+			if (Objects.equals("passwordReset", additionalAssertFieldName)) {
+				if (!Objects.deepEquals(
+						userAccount1.getPasswordReset(),
+						userAccount2.getPasswordReset())) {
 
 					return false;
 				}
@@ -3956,6 +3975,11 @@ public abstract class BaseUserAccountResourceTestCase {
 			return sb.toString();
 		}
 
+		if (entityFieldName.equals("passwordReset")) {
+			throw new IllegalArgumentException(
+				"Invalid entity field " + entityFieldName);
+		}
+
 		if (entityFieldName.equals("profileURL")) {
 			sb.append("'");
 			sb.append(String.valueOf(userAccount.getProfileURL()));
@@ -4060,6 +4084,7 @@ public abstract class BaseUserAccountResourceTestCase {
 				name = StringUtil.toLowerCase(RandomTestUtil.randomString());
 				password = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
+				passwordReset = RandomTestUtil.randomBoolean();
 				profileURL = StringUtil.toLowerCase(
 					RandomTestUtil.randomString());
 			}

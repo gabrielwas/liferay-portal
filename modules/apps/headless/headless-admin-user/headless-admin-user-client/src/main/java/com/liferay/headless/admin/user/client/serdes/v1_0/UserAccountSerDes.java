@@ -430,6 +430,16 @@ public class UserAccountSerDes {
 			sb.append("\"");
 		}
 
+		if (userAccount.getPasswordReset() != null) {
+			if (sb.length() > 1) {
+				sb.append(", ");
+			}
+
+			sb.append("\"passwordReset\": ");
+
+			sb.append(userAccount.getPasswordReset());
+		}
+
 		if (userAccount.getProfileURL() != null) {
 			if (sb.length() > 1) {
 				sb.append(", ");
@@ -732,6 +742,15 @@ public class UserAccountSerDes {
 			map.put("password", String.valueOf(userAccount.getPassword()));
 		}
 
+		if (userAccount.getPasswordReset() == null) {
+			map.put("passwordReset", null);
+		}
+		else {
+			map.put(
+				"passwordReset",
+				String.valueOf(userAccount.getPasswordReset()));
+		}
+
 		if (userAccount.getProfileURL() == null) {
 			map.put("profileURL", null);
 		}
@@ -960,6 +979,11 @@ public class UserAccountSerDes {
 			else if (Objects.equals(jsonParserFieldName, "password")) {
 				if (jsonParserFieldValue != null) {
 					userAccount.setPassword((String)jsonParserFieldValue);
+				}
+			}
+			else if (Objects.equals(jsonParserFieldName, "passwordReset")) {
+				if (jsonParserFieldValue != null) {
+					userAccount.setPasswordReset((Boolean)jsonParserFieldValue);
 				}
 			}
 			else if (Objects.equals(jsonParserFieldName, "profileURL")) {
