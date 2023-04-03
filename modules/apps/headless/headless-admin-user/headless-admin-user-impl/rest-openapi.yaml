@@ -957,6 +957,11 @@ components:
                         The user's password.
                     type: string
                     writeOnly: true
+                passwordReset:
+                    description:
+                        A flag that identifies whether the user needs to reset the password.
+                    readOnly: true
+                    type: boolean
                 profileURL:
                     description:
                         A relative URL to the user's profile.
