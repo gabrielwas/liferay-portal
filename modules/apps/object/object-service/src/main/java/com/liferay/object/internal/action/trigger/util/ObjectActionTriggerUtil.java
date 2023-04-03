@@ -16,6 +16,7 @@ package com.liferay.object.internal.action.trigger.util;
 
 import com.liferay.object.action.trigger.ObjectActionTrigger;
 import com.liferay.object.constants.ObjectActionTriggerConstants;
+import com.liferay.object.internal.action.trigger.ObjectActionTriggerImpl;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,16 +51,16 @@ public class ObjectActionTriggerUtil {
 		_defaultObjectActionTriggers = Collections.unmodifiableList(
 			sort(
 				Arrays.asList(
-					new ObjectActionTrigger(
+					new ObjectActionTriggerImpl(
 						ObjectActionTriggerConstants.KEY_ON_AFTER_ADD),
-					new ObjectActionTrigger(
+					new ObjectActionTriggerImpl(
 						ObjectActionTriggerConstants.
 							KEY_ON_AFTER_ATTACHMENT_DOWNLOAD),
-					new ObjectActionTrigger(
+					new ObjectActionTriggerImpl(
 						ObjectActionTriggerConstants.KEY_ON_AFTER_DELETE),
-					new ObjectActionTrigger(
+					new ObjectActionTriggerImpl(
 						ObjectActionTriggerConstants.KEY_ON_AFTER_UPDATE),
-					new ObjectActionTrigger(
+					new ObjectActionTriggerImpl(
 						ObjectActionTriggerConstants.KEY_STANDALONE))));
 
 }

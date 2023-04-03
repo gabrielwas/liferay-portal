@@ -118,6 +118,9 @@ public class UserSystemObjectDefinitionMetadata
 			createObjectField(
 				"Text", "String", "email-address", "emailAddress", true, true),
 			createObjectField(
+				"Date", "lastLoginDate", "Date", "last-login-date",
+				"lastLoginDate", false, true),
+			createObjectField(
 				"Text", "lastName", "String", "last-name", "familyName", true,
 				true),
 			createObjectField(

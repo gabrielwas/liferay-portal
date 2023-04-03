@@ -12,13 +12,27 @@
  * details.
  */
 
-package com.liferay.object.action.trigger;
+package com.liferay.object.internal.action.trigger;
+
+import com.liferay.object.action.trigger.ObjectActionTrigger;
+
+import org.osgi.service.component.annotations.Component;
 
 /**
- * @author Marco Leo
+ * @author Gabriel Albuquerque
  */
-public interface ObjectActionTrigger {
+@Component(
+	property = {
+		"object.action.trigger.class.name=com.liferay.portal.kernel.model.User",
+		"object.action.trigger.key=OnAfterLogin"
+	},
+	service = ObjectActionTrigger.class
+)
+public class OnAfterLoginObjectActionTrigger implements ObjectActionTrigger {
 
-	public String getKey();
+	@Override
+	public String getKey() {
+		return "onAfterLogin";
+	}
 
 }

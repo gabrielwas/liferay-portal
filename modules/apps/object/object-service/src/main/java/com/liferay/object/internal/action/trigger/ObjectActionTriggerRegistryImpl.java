@@ -100,7 +100,7 @@ public class ObjectActionTriggerRegistryImpl
 							).build()),
 						bundleContext.registerService(
 							ObjectActionTrigger.class,
-							new ObjectActionTrigger(destination.getName()),
+							new ObjectActionTriggerImpl(destination.getName()),
 							HashMapDictionaryBuilder.<String, Object>put(
 								"object.action.trigger.class.name", className
 							).put(

@@ -12,13 +12,23 @@
  * details.
  */
 
-package com.liferay.object.action.trigger;
+package com.liferay.object.internal.action.trigger;
+
+import com.liferay.object.action.trigger.ObjectActionTrigger;
 
 /**
- * @author Marco Leo
+ * @author Gabriel Albuquerque
  */
-public interface ObjectActionTrigger {
+public class ObjectActionTriggerImpl implements ObjectActionTrigger {
 
-	public String getKey();
+	public ObjectActionTriggerImpl(String key) {
+		_key = key;
+	}
+
+	public String getKey() {
+		return _key;
+	}
+
+	private final String _key;
 
 }

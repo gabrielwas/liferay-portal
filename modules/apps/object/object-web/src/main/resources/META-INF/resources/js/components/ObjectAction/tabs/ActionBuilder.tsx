@@ -53,6 +53,7 @@ const triggerKeys = [
 	'onAfterAdd',
 	'onAfterAttachmentDownload',
 	'onAfterDelete',
+	'onAfterLogin',
 	'onAfterUpdate',
 ];
 

@@ -473,6 +473,11 @@ public class ObjectActionLocalServiceImpl
 				objectActionTrigger -> StringUtil.equals(
 					objectActionTrigger.getKey(), objectActionTriggerKey))) {
 
+			if(StringUtil.equals(
+				objectActionTriggerKey, "onAfterLogin")){
+				return;
+			}
+
 			if (_messageBus.getDestination(objectActionTriggerKey) == null) {
 				throw new ObjectActionTriggerKeyException();
 			}
