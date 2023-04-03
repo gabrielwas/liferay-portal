@@ -538,6 +538,27 @@ public class UserAccount implements Cloneable, Serializable {
 
 	protected String password;
 
+	public Boolean getPasswordReset() {
+		return passwordReset;
+	}
+
+	public void setPasswordReset(Boolean passwordReset) {
+		this.passwordReset = passwordReset;
+	}
+
+	public void setPasswordReset(
+		UnsafeSupplier<Boolean, Exception> passwordResetUnsafeSupplier) {
+
+		try {
+			passwordReset = passwordResetUnsafeSupplier.get();
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	protected Boolean passwordReset;
+
 	public String getProfileURL() {
 		return profileURL;
 	}

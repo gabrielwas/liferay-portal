@@ -1635,6 +1635,11 @@ public abstract class BaseUserAccountResourceImpl
 			existingUserAccount.setPassword(userAccount.getPassword());
 		}
 
+		if (userAccount.getPasswordReset() != null) {
+			existingUserAccount.setPasswordReset(
+				userAccount.getPasswordReset());
+		}
+
 		if (userAccount.getProfileURL() != null) {
 			existingUserAccount.setProfileURL(userAccount.getProfileURL());
 		}
