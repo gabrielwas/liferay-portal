@@ -124,6 +124,9 @@ public class UserSystemObjectDefinitionMetadata
 				"Text", "firstName", "String", "first-name", "givenName", true,
 				true),
 			createObjectField(
+				"Date", "lastLoginDate", "Date", "last-login-date",
+				"lastLoginDate", false, true),
+			createObjectField(
 				"Text", "uuid_", "String", "uuid", "uuid", false, true));
 	}
 
