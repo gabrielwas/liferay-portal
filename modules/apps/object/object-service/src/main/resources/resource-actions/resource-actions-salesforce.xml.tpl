@@ -27,14 +27,11 @@
 			<supports>
 				<action-key>ADD_OBJECT_ENTRY</action-key>
 				<action-key>DELETE</action-key>
-				<action-key>PERMISSIONS</action-key>
 				<action-key>UPDATE</action-key>
 				<action-key>VIEW</action-key>
 			</supports>
 			<guest-defaults />
-			<guest-unsupported>
-				<action-key>PERMISSIONS</action-key>
-			</guest-unsupported>
+			<guest-unsupported />
 		</permissions>
 	</model-resource>
 </resource-action-mapping>
