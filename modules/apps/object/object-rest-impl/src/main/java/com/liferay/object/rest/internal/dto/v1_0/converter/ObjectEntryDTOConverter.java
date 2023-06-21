@@ -216,7 +216,7 @@ public class ObjectEntryDTOConverter
 									systemObjectDefinitionManager.
 										getBaseModelByExternalReferenceCode(
 											systemObjectDefinitionManager.
-												getExternalReferenceCode(
+												getBaseModelExternalReferenceCode(
 													primaryKey),
 											objectDefinition.getCompanyId()),
 									dtoConverterContext.
