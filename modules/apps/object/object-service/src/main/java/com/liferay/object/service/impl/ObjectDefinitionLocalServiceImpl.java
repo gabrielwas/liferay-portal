@@ -49,6 +49,7 @@ import com.liferay.object.field.setting.util.ObjectFieldSettingUtil;
 import com.liferay.object.internal.definition.util.ObjectDefinitionUtil;
 import com.liferay.object.internal.deployer.ObjectDefinitionDeployerImpl;
 import com.liferay.object.internal.petra.sql.dsl.DynamicObjectDefinitionLocalizationTableFactory;
+import com.liferay.object.model.ObjectAction;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectEntryTable;
@@ -128,6 +129,7 @@ import com.liferay.portal.kernel.util.PortalRunMode;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.TextFormatter;
+import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.kernel.workflow.WorkflowInstanceManager;
@@ -313,6 +315,28 @@ public class ObjectDefinitionLocalServiceImpl
 					_objectFieldPersistence.update(oldObjectField);
 				}
 			}
+		}
+
+		for (ObjectAction objectAction :
+				systemObjectDefinitionManager.getObjectActions()) {
+
+			UnicodeProperties parametersUnicodeProperties =
+				objectAction.getParametersUnicodeProperties();
+
+			parametersUnicodeProperties.setProperty(
+				"objectDefinitionId",
+				String.valueOf(objectDefinition.getObjectDefinitionId()));
+
+			_objectActionLocalService.addOrUpdateObjectAction(
+				objectAction.getExternalReferenceCode(), 0, userId,
+				objectDefinition.getObjectDefinitionId(),
+				objectAction.getActive(), objectAction.getConditionExpression(),
+				objectAction.getDescription(),
+				objectAction.getErrorMessageMap(), objectAction.getLabelMap(),
+				objectAction.getName(),
+				objectAction.getObjectActionExecutorKey(),
+				objectAction.getObjectActionTriggerKey(),
+				parametersUnicodeProperties);
 		}
 
 		return objectDefinition;
