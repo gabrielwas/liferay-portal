@@ -303,6 +303,13 @@ public class ObjectServiceUpgradeStepRegistrator
 			new com.liferay.object.internal.upgrade.v6_0_0.
 				ObjectValidationRuleUpgradeProcess(),
 			ObjectValidationRuleSettingTable.create());
+
+		registry.register(
+			"6.0.0", "6.1.0",
+			UpgradeProcessFactory.addColumns(
+				"ObjectDefinition", "rootObjectDefinitionId LONG"),
+			UpgradeProcessFactory.addColumns(
+				"ObjectRelationship", "edge BOOLEAN"));
 	}
 
 	@Reference
