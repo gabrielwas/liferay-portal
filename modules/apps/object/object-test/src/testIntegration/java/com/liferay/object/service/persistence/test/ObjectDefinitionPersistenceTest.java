@@ -139,6 +139,9 @@ public class ObjectDefinitionPersistenceTest {
 		newObjectDefinition.setDescriptionObjectFieldId(
 			RandomTestUtil.nextLong());
 
+		newObjectDefinition.setRootObjectDefinitionId(
+			RandomTestUtil.nextLong());
+
 		newObjectDefinition.setTitleObjectFieldId(RandomTestUtil.nextLong());
 
 		newObjectDefinition.setAccountEntryRestricted(
@@ -227,6 +230,9 @@ public class ObjectDefinitionPersistenceTest {
 		Assert.assertEquals(
 			existingObjectDefinition.getDescriptionObjectFieldId(),
 			newObjectDefinition.getDescriptionObjectFieldId());
+		Assert.assertEquals(
+			existingObjectDefinition.getRootObjectDefinitionId(),
+			newObjectDefinition.getRootObjectDefinitionId());
 		Assert.assertEquals(
 			existingObjectDefinition.getTitleObjectFieldId(),
 			newObjectDefinition.getTitleObjectFieldId());
@@ -446,15 +452,16 @@ public class ObjectDefinitionPersistenceTest {
 			"externalReferenceCode", true, "objectDefinitionId", true,
 			"companyId", true, "userId", true, "userName", true, "createDate",
 			true, "modifiedDate", true, "accountEntryRestrictedObjectFieldId",
-			true, "descriptionObjectFieldId", true, "titleObjectFieldId", true,
-			"accountEntryRestricted", true, "active", true, "dbTableName", true,
-			"label", true, "className", true, "enableCategorization", true,
-			"enableComments", true, "enableLocalization", true,
-			"enableObjectEntryHistory", true, "modifiable", true, "name", true,
-			"panelAppOrder", true, "panelCategoryKey", true,
-			"pkObjectFieldDBColumnName", true, "pkObjectFieldName", true,
-			"pluralLabel", true, "portlet", true, "scope", true, "storageType",
-			true, "system", true, "version", true, "status", true);
+			true, "descriptionObjectFieldId", true, "rootObjectDefinitionId",
+			true, "titleObjectFieldId", true, "accountEntryRestricted", true,
+			"active", true, "dbTableName", true, "label", true, "className",
+			true, "enableCategorization", true, "enableComments", true,
+			"enableLocalization", true, "enableObjectEntryHistory", true,
+			"modifiable", true, "name", true, "panelAppOrder", true,
+			"panelCategoryKey", true, "pkObjectFieldDBColumnName", true,
+			"pkObjectFieldName", true, "pluralLabel", true, "portlet", true,
+			"scope", true, "storageType", true, "system", true, "version", true,
+			"status", true);
 	}
 
 	@Test
@@ -786,6 +793,8 @@ public class ObjectDefinitionPersistenceTest {
 			RandomTestUtil.nextLong());
 
 		objectDefinition.setDescriptionObjectFieldId(RandomTestUtil.nextLong());
+
+		objectDefinition.setRootObjectDefinitionId(RandomTestUtil.nextLong());
 
 		objectDefinition.setTitleObjectFieldId(RandomTestUtil.nextLong());
 

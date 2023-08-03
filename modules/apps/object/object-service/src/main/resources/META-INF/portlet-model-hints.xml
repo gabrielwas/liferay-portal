@@ -39,6 +39,7 @@
 		<field name="modifiedDate" type="Date" />
 		<field name="accountEntryRestrictedObjectFieldId" type="long" />
 		<field name="descriptionObjectFieldId" type="long" />
+		<field name="rootObjectDefinitionId" type="long" />
 		<field name="titleObjectFieldId" type="long" />
 		<field name="accountEntryRestricted" type="boolean" />
 		<field name="active" type="boolean" />
@@ -232,6 +233,7 @@
 		<field name="parameterObjectFieldId" type="long" />
 		<field name="deletionType" type="String" />
 		<field name="DBTableName" type="String" />
+		<field name="edge" type="boolean" />
 		<field localized="true" name="label" type="String" />
 		<field name="name" type="String" />
 		<field name="reverse" type="boolean" />
