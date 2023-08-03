@@ -80,6 +80,7 @@
 
 		<column db-name="accountERObjectFieldId" name="accountEntryRestrictedObjectFieldId" type="long" />
 		<column name="descriptionObjectFieldId" type="long" />
+		<column name="rootObjectDefinitionId" type="long" />
 		<column name="titleObjectFieldId" type="long" />
 		<column name="accountEntryRestricted" type="boolean" />
 		<column name="active" type="boolean" />
@@ -528,6 +529,7 @@
 		<column name="parameterObjectFieldId" type="long" />
 		<column name="deletionType" type="String" />
 		<column method-name="DBTableName" name="dbTableName" type="String" />
+		<column name="edge" type="boolean" />
 		<column localized="true" name="label" type="String" />
 		<column name="name" type="String" />
 		<column name="reverse" type="boolean" />
