@@ -922,6 +922,7 @@
 		<exception>ObjectLayoutBoxCategorizationType</exception>
 		<exception>ObjectLayoutColumnSize</exception>
 		<exception>ObjectRelationshipDeletionType</exception>
+		<exception>ObjectRelationshipEdge</exception>
 		<exception>ObjectRelationshipName</exception>
 		<exception>ObjectRelationshipParameterObjectFieldId</exception>
 		<exception>ObjectRelationshipReverse</exception>
