@@ -11,6 +11,7 @@ import com.liferay.object.constants.ObjectFieldSettingConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.exception.DuplicateObjectRelationshipException;
 import com.liferay.object.exception.NoSuchObjectRelationshipException;
+import com.liferay.object.exception.ObjectRelationshipEdgeException;
 import com.liferay.object.exception.ObjectRelationshipNameException;
 import com.liferay.object.exception.ObjectRelationshipParameterObjectFieldIdException;
 import com.liferay.object.exception.ObjectRelationshipReverseException;
@@ -683,7 +684,7 @@ public class ObjectRelationshipLocalServiceImpl
 	@Override
 	public ObjectRelationship updateObjectRelationship(
 			long objectRelationshipId, long parameterObjectFieldId,
-			String deletionType, Map<Locale, String> labelMap)
+			String deletionType, boolean edge, Map<Locale, String> labelMap)
 		throws PortalException {
 
 		if (Validator.isNull(deletionType)) {
@@ -699,6 +700,7 @@ public class ObjectRelationshipLocalServiceImpl
 				"Reverse object relationships cannot be updated");
 		}
 
+		_validateEdge(edge, objectRelationship);
 		_validateParameterObjectFieldId(
 			_objectDefinitionLocalService.getObjectDefinition(
 				objectRelationship.getObjectDefinitionId1()),
@@ -714,7 +716,7 @@ public class ObjectRelationshipLocalServiceImpl
 				fetchReverseObjectRelationship(objectRelationship, true);
 
 			_updateObjectRelationship(
-				parameterObjectFieldId, deletionType, labelMap,
+				parameterObjectFieldId, deletionType, false, labelMap,
 				reverseObjectRelationship);
 
 			Indexer<ObjectRelationship> indexer =
@@ -725,7 +727,8 @@ public class ObjectRelationshipLocalServiceImpl
 		}
 
 		objectRelationship = _updateObjectRelationship(
-			parameterObjectFieldId, deletionType, labelMap, objectRelationship);
+			parameterObjectFieldId, deletionType, edge, labelMap,
+			objectRelationship);
 
 		if ((objectRelationship.getObjectFieldId2() != 0) &&
 			StringUtil.equals(
@@ -980,14 +983,55 @@ public class ObjectRelationshipLocalServiceImpl
 	}
 
 	private ObjectRelationship _updateObjectRelationship(
-		long parameterObjectFieldId, String deletionType,
+		long parameterObjectFieldId, String deletionType, boolean edge,
 		Map<Locale, String> labelMap, ObjectRelationship objectRelationship) {
 
 		objectRelationship.setParameterObjectFieldId(parameterObjectFieldId);
 		objectRelationship.setDeletionType(deletionType);
+		objectRelationship.setEdge(edge);
 		objectRelationship.setLabelMap(labelMap);
 
 		return objectRelationshipPersistence.update(objectRelationship);
+	}
+
+	private void _validateEdge(
+			boolean edge, ObjectRelationship objectRelationship)
+		throws PortalException {
+
+		if (!edge) {
+			return;
+		}
+
+		ObjectDefinition objectDefinition1 =
+			_objectDefinitionLocalService.getObjectDefinition(
+				objectRelationship.getObjectDefinitionId1());
+
+		ObjectDefinition objectDefinition2 =
+			_objectDefinitionLocalService.getObjectDefinition(
+				objectRelationship.getObjectDefinitionId2());
+
+		if (objectDefinition1.isUnmodifiableSystemObject() ||
+			objectDefinition2.isUnmodifiableSystemObject()) {
+
+			throw new ObjectRelationshipEdgeException(
+				"Object relationship must be between modifiable object " +
+					"definitions to be an edge of a root context");
+		}
+
+		if (!Objects.equals(
+				objectRelationship.getType(),
+				ObjectRelationshipConstants.TYPE_ONE_TO_MANY)) {
+
+			throw new ObjectRelationshipEdgeException(
+				"Object relationship must be one to many to be an edge of a " +
+					"root context");
+		}
+
+		if (objectRelationship.isSelf()) {
+			throw new ObjectRelationshipEdgeException(
+				"Object relationship must not be a self-relationship to be " +
+					"an edge of a root context");
+		}
 	}
 
 	private void _validateName(long objectDefinitionId1, String name)
