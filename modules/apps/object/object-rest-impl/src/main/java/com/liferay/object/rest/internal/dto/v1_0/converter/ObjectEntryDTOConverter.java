@@ -64,6 +64,7 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.language.LanguageResources;
@@ -89,6 +90,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
 import javax.ws.rs.core.UriInfo;
@@ -604,6 +606,9 @@ public class ObjectEntryDTOConverter
 		return ExtendedEntity.extend(dto, nestedFieldsRelatedProperties, null);
 	}
 
+	private final Set<String> _metadataObjectFieldNames = SetUtil.fromArray(
+		"createDate", "creator", "id", "modifiedDate", "status", "externalReferenceCode");
+
 	private Map<String, Object> _toProperties(
 			DTOConverterContext dtoConverterContext,
 			ObjectDefinition objectDefinition,
@@ -615,10 +620,14 @@ public class ObjectEntryDTOConverter
 		Map<String, Serializable> values = objectEntry.getValues();
 
 		List<ObjectField> objectFields =
-			_objectFieldLocalService.getObjectFields(
-				objectDefinition.getObjectDefinitionId(), false);
+			_objectFieldLocalService.getObjectFields(objectDefinition.getObjectDefinitionId());
 
 		for (ObjectField objectField : objectFields) {
+
+			if(_metadataObjectFieldNames.contains(objectField.getName())){
+				continue;
+			}
+
 			if (FeatureFlagManagerUtil.isEnabled("LPS-172017") &&
 				objectField.isLocalized()) {
 

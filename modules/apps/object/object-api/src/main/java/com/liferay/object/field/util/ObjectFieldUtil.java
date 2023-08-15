@@ -27,6 +27,7 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 
@@ -44,6 +45,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Guilherme Camacho
@@ -209,6 +211,9 @@ public class ObjectFieldUtil {
 		return objectFieldsMap;
 	}
 
+	private static final Set<String> _metadataObjectFieldNames = SetUtil.fromArray(
+		"createDate", "creator", "id", "modifiedDate", "status", "externalReferenceCode");
+
 	public static void validateReadOnlyObjectFields(
 			DDMExpressionFactory ddmExpressionFactory,
 			Map<String, Object> existingValues, List<ObjectField> objectFields,
@@ -261,7 +266,7 @@ public class ObjectFieldUtil {
 
 			ObjectField objectField = objectFieldsMap.get(entry.getKey());
 
-			if ((objectField == null) ||
+			if ((objectField == null) || _metadataObjectFieldNames.contains(objectField.getName()) ||
 				Objects.equals(
 					objectField.getReadOnly(),
 					ObjectFieldConstants.READ_ONLY_FALSE)) {

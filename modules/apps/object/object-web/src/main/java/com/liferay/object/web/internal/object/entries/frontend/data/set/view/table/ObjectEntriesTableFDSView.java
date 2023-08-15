@@ -38,6 +38,7 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
@@ -47,6 +48,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Marco Leo
@@ -71,6 +73,9 @@ public class ObjectEntriesTableFDSView extends BaseTableFDSView {
 		_objectViewLocalService = objectViewLocalService;
 		_userLocalService = userLocalService;
 	}
+
+	private final Set<String> _metadataObjectFieldNames = SetUtil.fromArray(
+		"createDate", "creator", "id", "modifiedDate", "status", "externalReferenceCode");
 
 	@Override
 	public FDSTableSchema getFDSTableSchema(Locale locale) {
@@ -110,8 +115,8 @@ public class ObjectEntriesTableFDSView extends BaseTableFDSView {
 				objectViewColumn.getLabel(locale, false),
 				objectField.getLabel(locale, false));
 
-			if ((objectField == null) || objectField.isSystem()) {
-				_addSystemObjectField(
+			if ((objectField == null) || _metadataObjectFieldNames.contains(objectField.getName())) {
+				_addMetadataObjectField(
 					fdsTableSchemaBuilder, label,
 					objectViewColumn.getObjectFieldName());
 			}
@@ -147,11 +152,11 @@ public class ObjectEntriesTableFDSView extends BaseTableFDSView {
 		}
 
 		if (_objectDefinition.isDefaultStorageType()) {
-			_addSystemObjectField(
+			_addMetadataObjectField(
 				fdsTableSchemaBuilder, systemObjectFieldLabels.get("id"), "id");
 		}
 		else {
-			_addSystemObjectField(
+			_addMetadataObjectField(
 				fdsTableSchemaBuilder,
 				systemObjectFieldLabels.get("externalReferenceCode"),
 				"externalReferenceCode");
@@ -166,10 +171,10 @@ public class ObjectEntriesTableFDSView extends BaseTableFDSView {
 				customObjectField);
 		}
 
-		_addSystemObjectField(
+		_addMetadataObjectField(
 			fdsTableSchemaBuilder, systemObjectFieldLabels.get("status"),
 			"status");
-		_addSystemObjectField(
+		_addMetadataObjectField(
 			fdsTableSchemaBuilder, systemObjectFieldLabels.get("creator"),
 			"creator");
 	}
@@ -177,10 +182,6 @@ public class ObjectEntriesTableFDSView extends BaseTableFDSView {
 	private void _addCustomObjectField(
 		FDSTableSchemaBuilder fdsTableSchemaBuilder, String label,
 		ObjectField objectField) {
-
-		if (objectField.isSystem()) {
-			return;
-		}
 
 		if (Validator.isNull(objectField.getRelationshipType())) {
 			_addFDSTableSchemaField(
@@ -353,7 +354,7 @@ public class ObjectEntriesTableFDSView extends BaseTableFDSView {
 		fdsTableSchemaBuilder.add(fdsTableSchemaField);
 	}
 
-	private void _addSystemObjectField(
+	private void _addMetadataObjectField(
 		FDSTableSchemaBuilder fdsTableSchemaBuilder, String fieldLabel,
 		String fieldName) {
 

@@ -93,6 +93,7 @@ import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
@@ -107,6 +108,7 @@ import com.liferay.portal.vulcan.dto.converter.DTOConverterContext;
 import com.liferay.portal.vulcan.dto.converter.DefaultDTOConverterContext;
 import com.liferay.taglib.servlet.PipingServletResponseFactory;
 
+import java.sql.Timestamp;
 import java.text.DecimalFormat;
 
 import java.util.ArrayList;
@@ -664,9 +666,7 @@ public class ObjectEntryDisplayContextImpl
 						ActionKeys.UPDATE);
 		}
 
-		List<ObjectField> objectFields =
-			_objectFieldLocalService.getCustomObjectFields(
-				objectDefinition.getObjectDefinitionId());
+		List<ObjectField> objectFields = _objectFieldLocalService.getObjectFields(objectDefinition.getObjectDefinitionId());
 
 		if (objectLayoutTab == null) {
 			for (ObjectField objectField : objectFields) {
@@ -892,10 +892,25 @@ public class ObjectEntryDisplayContextImpl
 		return ddmFormLayout;
 	}
 
+	private Map<String, Object> _getObjectFieldValues(ObjectEntry objectEntry){
+
+		Map<String, Object> values = objectEntry.getProperties();
+
+		values.put("createDate", new Timestamp(objectEntry.getDateCreated().getTime()));
+		values.put("creator", objectEntry.getCreator().getName());
+		values.put("externalReferenceCode", objectEntry.getExternalReferenceCode());
+		values.put("id", objectEntry.getId());
+		values.put("modifiedDate", new Timestamp(objectEntry.getDateCreated().getTime()));
+		values.put("status", objectEntry.getStatus().getLabel());
+
+		return values;
+
+	}
+
 	private DDMFormValues _getDDMFormValues(
 		DDMForm ddmForm, ObjectEntry objectEntry) {
 
-		Map<String, Object> values = objectEntry.getProperties();
+		Map<String, Object> values = _getObjectFieldValues(objectEntry);
 
 		if (values.isEmpty()) {
 			return null;

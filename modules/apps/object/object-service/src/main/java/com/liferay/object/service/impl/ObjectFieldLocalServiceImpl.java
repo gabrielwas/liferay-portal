@@ -967,7 +967,7 @@ public class ObjectFieldLocalServiceImpl
 				objectField.getObjectDefinitionId(), false);
 
 		if (objectDefinition.isApproved() &&
-			!objectDefinition.isUnmodifiableSystemObject() &&
+			!objectDefinition.isSystem() &&
 			(customObjectFieldsCount == 1)) {
 
 			throw new RequiredObjectFieldException();
