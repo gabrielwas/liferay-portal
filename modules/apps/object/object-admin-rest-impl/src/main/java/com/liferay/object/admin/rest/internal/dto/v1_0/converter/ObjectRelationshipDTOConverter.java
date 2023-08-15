@@ -60,6 +60,7 @@ public class ObjectRelationshipDTOConverter
 				actions = dtoConverterContext.getActions();
 				deletionType = ObjectRelationship.DeletionType.create(
 					serviceBuilderObjectRelationship.getDeletionType());
+				edge = serviceBuilderObjectRelationship.isEdge();
 				id = serviceBuilderObjectRelationship.getObjectRelationshipId();
 				label = LocalizedMapUtil.getLanguageIdMap(
 					serviceBuilderObjectRelationship.getLabelMap());

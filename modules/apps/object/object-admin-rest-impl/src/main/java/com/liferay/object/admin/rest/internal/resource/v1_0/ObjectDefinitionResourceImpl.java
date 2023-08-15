@@ -1091,6 +1091,23 @@ public class ObjectDefinitionResourceImpl
 						});
 				}
 
+				setRootObjectDefinitionExternalReferenceCode(
+					() -> {
+						com.liferay.object.model.ObjectDefinition
+							serviceBuilderObjectDefinition =
+								_objectDefinitionLocalService.
+									fetchObjectDefinition(
+										objectDefinition.
+											getRootObjectDefinitionId());
+
+						if (serviceBuilderObjectDefinition == null) {
+							return null;
+						}
+
+						return serviceBuilderObjectDefinition.
+							getExternalReferenceCode();
+					});
+
 				setTitleObjectFieldName(
 					() -> {
 						com.liferay.object.model.ObjectField
