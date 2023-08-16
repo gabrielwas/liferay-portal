@@ -569,18 +569,22 @@ public class ObjectDefinitionResourceImpl
 			}
 		}
 
-		for (com.liferay.object.model.ObjectField serviceBuilderObjectField :
-				serviceBuilderObjectFields) {
+		if (serviceBuilderObjectDefinition.isModifiable() &&
+			!serviceBuilderObjectDefinition.isSystem()) {
 
-			if (Objects.equals(
-					serviceBuilderObjectField.getBusinessType(),
-					ObjectFieldConstants.BUSINESS_TYPE_RELATIONSHIP)) {
+			for (com.liferay.object.model.ObjectField
+					serviceBuilderObjectField : serviceBuilderObjectFields) {
 
-				continue;
+				if (Objects.equals(
+						serviceBuilderObjectField.getBusinessType(),
+						ObjectFieldConstants.BUSINESS_TYPE_RELATIONSHIP)) {
+
+					continue;
+				}
+
+				_objectFieldLocalService.deleteObjectField(
+					serviceBuilderObjectField);
 			}
-
-			_objectFieldLocalService.deleteObjectField(
-				serviceBuilderObjectField);
 		}
 
 		ObjectAction[] objectActions = objectDefinition.getObjectActions();
