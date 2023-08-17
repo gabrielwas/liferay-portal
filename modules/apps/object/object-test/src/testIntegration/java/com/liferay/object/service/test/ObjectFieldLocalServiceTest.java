@@ -1384,7 +1384,7 @@ public class ObjectFieldLocalServiceTest {
 			relatedObjectDefinition.getObjectDefinitionId(), 0,
 			ObjectRelationshipConstants.DELETION_TYPE_PREVENT,
 			LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
-			"oneToManyRelationshipName",
+			"oneToManyRelationshipName", false,
 			ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
 
 		_assertReadOnly(
@@ -1408,7 +1408,8 @@ public class ObjectFieldLocalServiceTest {
 				relatedObjectDefinition.getObjectDefinitionId(), 0,
 				ObjectRelationshipConstants.DELETION_TYPE_PREVENT,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
-				"relationship", ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
+				"relationship", false,
+				ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
 
 		ObjectField relationshipObjectField =
 			_objectFieldLocalService.fetchObjectField(
@@ -1475,7 +1476,7 @@ public class ObjectFieldLocalServiceTest {
 				objectDefinition2.getObjectDefinitionId(), 0,
 				ObjectRelationshipConstants.DELETION_TYPE_CASCADE,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
-				StringUtil.randomId(),
+				StringUtil.randomId(), false,
 				ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
 
 		ObjectField objectField = _objectFieldLocalService.updateRequired(
@@ -1958,7 +1959,7 @@ public class ObjectFieldLocalServiceTest {
 			objectDefinition2.getObjectDefinitionId(), 0,
 			ObjectRelationshipConstants.DELETION_TYPE_CASCADE,
 			LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
-			"oneToManyRelationshipName",
+			"oneToManyRelationshipName", false,
 			ObjectRelationshipConstants.TYPE_ONE_TO_MANY);
 
 		_assertReadOnlyTrue(
