@@ -100,12 +100,14 @@ public class ObjectRelationshipLocalServiceImpl
 	public ObjectRelationship addObjectRelationship(
 			long userId, long objectDefinitionId1, long objectDefinitionId2,
 			long parameterObjectFieldId, String deletionType,
-			Map<Locale, String> labelMap, String name, String type)
+			Map<Locale, String> labelMap, String name, boolean system,
+			String type)
 		throws PortalException {
 
 		return _addObjectRelationship(
 			userId, objectDefinitionId1, objectDefinitionId2,
-			parameterObjectFieldId, deletionType, labelMap, name, false, type);
+			parameterObjectFieldId, deletionType, labelMap, name, false, system,
+			type);
 	}
 
 	@Override
@@ -839,7 +841,7 @@ public class ObjectRelationshipLocalServiceImpl
 			long userId, long objectDefinitionId1, long objectDefinitionId2,
 			long parameterObjectFieldId, String deletionType,
 			Map<Locale, String> labelMap, String name, boolean reverse,
-			String type)
+			boolean system, String type)
 		throws PortalException {
 
 		_validateName(objectDefinitionId1, name);
@@ -873,6 +875,7 @@ public class ObjectRelationshipLocalServiceImpl
 		objectRelationship.setLabelMap(labelMap);
 		objectRelationship.setName(name);
 		objectRelationship.setReverse(reverse);
+		objectRelationship.setSystem(system);
 		objectRelationship.setType(type);
 
 		if (Objects.equals(type, ObjectRelationshipConstants.TYPE_ONE_TO_ONE) ||
@@ -896,7 +899,7 @@ public class ObjectRelationshipLocalServiceImpl
 			_addObjectRelationship(
 				userId, objectDefinitionId2, objectDefinitionId1,
 				parameterObjectFieldId, deletionType, labelMap, name, true,
-				type);
+				system, type);
 
 			return objectRelationshipLocalService.
 				createManyToManyObjectRelationshipTable(
