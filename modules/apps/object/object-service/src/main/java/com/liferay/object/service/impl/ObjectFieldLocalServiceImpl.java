@@ -25,6 +25,7 @@ import com.liferay.object.exception.ObjectFieldReadOnlyException;
 import com.liferay.object.exception.ObjectFieldRelationshipTypeException;
 import com.liferay.object.exception.ObjectFieldSettingValueException;
 import com.liferay.object.exception.ObjectFieldStateException;
+import com.liferay.object.exception.ObjectFieldSystemException;
 import com.liferay.object.exception.RequiredObjectFieldException;
 import com.liferay.object.field.business.type.ObjectFieldBusinessType;
 import com.liferay.object.field.business.type.ObjectFieldBusinessTypeRegistry;
@@ -53,6 +54,7 @@ import com.liferay.object.service.persistence.ObjectLayoutColumnPersistence;
 import com.liferay.object.service.persistence.ObjectRelationshipPersistence;
 import com.liferay.object.system.SystemObjectDefinitionManager;
 import com.liferay.object.system.SystemObjectDefinitionManagerRegistry;
+import com.liferay.object.system.util.SystemUtil;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.Table;
@@ -830,6 +832,14 @@ public class ObjectFieldLocalServiceImpl
 		objectField.setState(state);
 		objectField.setSystem(system);
 
+		if (system && !objectField.isMetadata() &&
+			objectDefinition.isModifiable() &&
+			!SystemUtil.allowManageSystemEntities()) {
+
+			throw new ObjectFieldSystemException(
+				"Only allowed bundles can create system fields");
+		}
+
 		return objectFieldPersistence.update(objectField);
 	}
 
@@ -967,16 +977,14 @@ public class ObjectFieldLocalServiceImpl
 			objectFieldLocalService.getObjectFieldsCount(
 				objectField.getObjectDefinitionId(), false);
 
-		if (objectDefinition.isApproved() &&
-			!objectDefinition.isUnmodifiableSystemObject() &&
+		if (objectDefinition.isApproved() && !objectDefinition.isSystem() &&
 			(customObjectFieldsCount == 1)) {
 
 			throw new RequiredObjectFieldException();
 		}
 
-		if (FeatureFlagManagerUtil.isEnabled("LPS-190890") &&
-			objectDefinition.isApproved() && objectDefinition.isModifiable() &&
-			objectDefinition.isSystem()) {
+		if (objectField.isSystem() && objectDefinition.isModifiable() &&
+			!SystemUtil.allowManageSystemEntities()) {
 
 			throw new UnsupportedOperationException();
 		}
