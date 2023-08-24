@@ -61,7 +61,10 @@ export default function EditRelationship({
 		parameterRequired,
 	});
 
-	const readOnly = !hasUpdateObjectDefinitionPermission || values.reverse;
+	const readOnly =
+		!hasUpdateObjectDefinitionPermission ||
+		values.reverse ||
+		initialValues.system;
 
 	return (
 		<SidePanelForm

@@ -15,6 +15,7 @@ import com.liferay.object.exception.ObjectRelationshipEdgeException;
 import com.liferay.object.exception.ObjectRelationshipNameException;
 import com.liferay.object.exception.ObjectRelationshipParameterObjectFieldIdException;
 import com.liferay.object.exception.ObjectRelationshipReverseException;
+import com.liferay.object.exception.ObjectRelationshipSystemException;
 import com.liferay.object.exception.ObjectRelationshipTypeException;
 import com.liferay.object.internal.dao.db.ObjectDBManagerUtil;
 import com.liferay.object.internal.info.collection.provider.RelatedInfoCollectionProviderFactory;
@@ -37,6 +38,7 @@ import com.liferay.object.service.persistence.ObjectLayoutTabPersistence;
 import com.liferay.object.system.JaxRsApplicationDescriptor;
 import com.liferay.object.system.SystemObjectDefinitionManager;
 import com.liferay.object.system.SystemObjectDefinitionManagerRegistry;
+import com.liferay.object.system.util.SystemUtil;
 import com.liferay.osgi.util.service.Snapshot;
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.DSLQueryFactoryUtil;
@@ -100,12 +102,14 @@ public class ObjectRelationshipLocalServiceImpl
 	public ObjectRelationship addObjectRelationship(
 			long userId, long objectDefinitionId1, long objectDefinitionId2,
 			long parameterObjectFieldId, String deletionType,
-			Map<Locale, String> labelMap, String name, String type)
+			Map<Locale, String> labelMap, String name, boolean system,
+			String type)
 		throws PortalException {
 
 		return _addObjectRelationship(
 			userId, objectDefinitionId1, objectDefinitionId2,
-			parameterObjectFieldId, deletionType, labelMap, name, false, type);
+			parameterObjectFieldId, deletionType, labelMap, name, false, system,
+			type);
 	}
 
 	@Override
@@ -282,6 +286,13 @@ public class ObjectRelationshipLocalServiceImpl
 		if (objectRelationship.isReverse()) {
 			throw new ObjectRelationshipReverseException(
 				"Reverse object relationships cannot be deleted");
+		}
+
+		if (objectRelationship.isSystem() &&
+			!SystemUtil.allowManageSystemEntities()) {
+
+			throw new ObjectRelationshipSystemException(
+				"Only allowed bundles can delete system relationships");
 		}
 
 		objectRelationship = objectRelationshipPersistence.remove(
@@ -707,6 +718,13 @@ public class ObjectRelationshipLocalServiceImpl
 			objectRelationshipPersistence.findByPrimaryKey(
 				objectRelationshipId);
 
+		if (objectRelationship.isSystem() &&
+			!SystemUtil.allowManageSystemEntities()) {
+
+			throw new ObjectRelationshipSystemException(
+				"Only allowed bundles can update system relationships");
+		}
+
 		if (objectRelationship.isReverse()) {
 			throw new ObjectRelationshipReverseException(
 				"Reverse object relationships cannot be updated");
@@ -847,8 +865,13 @@ public class ObjectRelationshipLocalServiceImpl
 			long userId, long objectDefinitionId1, long objectDefinitionId2,
 			long parameterObjectFieldId, String deletionType,
 			Map<Locale, String> labelMap, String name, boolean reverse,
-			String type)
+			boolean system, String type)
 		throws PortalException {
+
+		if (system && !SystemUtil.allowManageSystemEntities()) {
+			throw new ObjectRelationshipSystemException(
+				"Only allowed bundles can create system relationships");
+		}
 
 		_validateName(objectDefinitionId1, name);
 
@@ -881,6 +904,7 @@ public class ObjectRelationshipLocalServiceImpl
 		objectRelationship.setLabelMap(labelMap);
 		objectRelationship.setName(name);
 		objectRelationship.setReverse(reverse);
+		objectRelationship.setSystem(system);
 		objectRelationship.setType(type);
 
 		if (Objects.equals(type, ObjectRelationshipConstants.TYPE_ONE_TO_ONE) ||
@@ -904,7 +928,7 @@ public class ObjectRelationshipLocalServiceImpl
 			_addObjectRelationship(
 				userId, objectDefinitionId2, objectDefinitionId1,
 				parameterObjectFieldId, deletionType, labelMap, name, true,
-				type);
+				system, type);
 
 			return objectRelationshipLocalService.
 				createManyToManyObjectRelationshipTable(
