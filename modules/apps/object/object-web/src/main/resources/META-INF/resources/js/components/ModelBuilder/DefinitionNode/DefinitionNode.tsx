@@ -20,9 +20,11 @@ import {
 	API,
 	ModalEditExternalReferenceCode,
 	getLocalizableLabel,
+	openToast,
 } from '@liferay/object-js-components-web';
 
 import {formatActionURL} from '../../../utils/fds';
+import {ModalAddObjectField} from '../../ObjectField/ModalAddObjectField';
 import {ModalDeleteObjectDefinition} from '../../ViewObjectDefinitions/ModalDeleteObjectDefinition';
 import {DeletedObjectDefinition} from '../../ViewObjectDefinitions/ViewObjectDefinitions';
 import {getDefinitionNodeActions} from '../../ViewObjectDefinitions/objectDefinitionUtil';
@@ -157,6 +159,7 @@ export function DefinitionNode({
 				<NodeFooter
 					isLinkedObjectDefinition={linked}
 					setShowAllFields={setShowAllFields}
+					setShowModal={setShowModal}
 					showAllFields={showAllFields}
 				/>
 
@@ -202,6 +205,50 @@ export function DefinitionNode({
 					</>
 				)}
 			</div>
+
+			{showModal.addObjectField && (
+				<ModalAddObjectField
+					creationLanguageId={defaultLanguageId}
+					objectDefinitionExternalReferenceCode={
+						externalReferenceCode
+					}
+					objectFieldTypes={[]}
+					objectName={name}
+					onAfterSubmit={(newObjectField) => {
+						const {edges, nodes} = store.getState();
+
+						dispatch({
+							payload: {
+								edges,
+								newObjectField,
+								nodes,
+								objectDefinitionExternalReferenceCode: externalReferenceCode,
+							},
+							type: TYPES.ADD_NEW_OBJECT_FIELD,
+						});
+
+						openToast({
+							message: Liferay.Language.get(
+								'field-successfully-added'
+							),
+							type: 'success',
+						});
+
+						setShowModal((prevState) => ({
+							...prevState,
+							addObjectField: false,
+						}));
+
+						setShowAllFields(true);
+					}}
+					setVisibility={() =>
+						setShowModal((prevState) => ({
+							...prevState,
+							addObjectField: false,
+						}))
+					}
+				/>
+			)}
 
 			{showModal.deleteObjectDefinition && (
 				<ModalDeleteObjectDefinition
