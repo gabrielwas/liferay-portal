@@ -121,6 +121,7 @@ export declare type TState = {
 };
 export declare type LeftSidebarItemType = {
 	hiddenObjectFolderNodes: boolean;
+	id?: string;
 	name: string;
 	objectDefinitions?: LeftSidebarObjectDefinitionItemType[];
 	objectFolderName: string;
