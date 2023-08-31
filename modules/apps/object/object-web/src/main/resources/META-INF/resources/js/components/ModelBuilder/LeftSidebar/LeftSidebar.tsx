@@ -7,6 +7,7 @@ import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
 import {Text, TreeView} from '@clayui/core';
 import {ClayDropDownWithItems} from '@clayui/drop-down';
 import Icon from '@clayui/icon';
+import ClayLoadingIndicator from '@clayui/loading-indicator';
 import ClayPanel from '@clayui/panel';
 import {
 	API,
@@ -27,6 +28,7 @@ import {
 	LeftSidebarItemType,
 	LeftSidebarObjectDefinitionItemType,
 } from '../types';
+import {LeftSidebarEmptySearch} from './LeftSidebarEmptySearch';
 
 const TYPES_TO_SYMBOLS = {
 	objectDefinition: 'catalog',
@@ -43,6 +45,8 @@ export default function LeftSidebar({
 	selectedObjectFolderName,
 	setShowModal,
 }: LeftSidebarProps) {
+	const [emptySearch, setEmptySearch] = useState(false);
+	const [loading, setLoading] = useState(true);
 	const [query, setQuery] = useState('');
 	const [
 		{leftSidebarItems, selectedObjectFolder},
@@ -68,6 +72,8 @@ export default function LeftSidebar({
 	);
 
 	const filteredItems = useMemo(() => {
+		setEmptySearch(false);
+
 		return leftSidebarItems.map((sidebarItem) => {
 			if (!sidebarItem.objectDefinitions) {
 				return sidebarItem;
@@ -156,7 +162,17 @@ export default function LeftSidebar({
 
 	const TreeViewComponent = ({showActions}: {showActions?: boolean}) => {
 		const otherObjectFolders = filteredItems.filter(
-			(item) => item.objectFolderName !== selectedObjectFolderName
+			(item) =>
+				item.objectFolderName !== selectedObjectFolderName &&
+				item.objectDefinitions?.length !== 0
+		);
+
+		otherObjectFolders.sort((a, b) =>
+			a.objectFolderName > b.objectFolderName
+				? 1
+				: b.objectFolderName > a.objectFolderName
+				? -1
+				: 0
 		);
 
 		const selectedObjectFolder = filteredItems.find(
@@ -191,160 +207,187 @@ export default function LeftSidebar({
 			};
 		});
 
+		setLoading(false);
+
+		setEmptySearch(
+			!newOtherObjectFolders.length &&
+				selectedObjectFolder.objectDefinitions?.length === 0
+		);
+
 		return (
-			<TreeView<LeftSidebarItemType | LeftSidebarObjectDefinitionItemType>
-				items={
-					showActions ? newOtherObjectFolders : [selectedObjectFolder]
-				}
-				nestedKey="objectDefinitions"
-				onSelect={(item) => {
-					if (
-						selectedObjectFolder.objectDefinitions?.find(
-							(objectDefinition) =>
-								objectDefinition.id ===
-								(item as LeftSidebarObjectDefinitionItemType).id
-						)
-					) {
-						const {edges, nodes} = store.getState();
-
-						dispatch({
-							payload: {
-								edges,
-								nodes,
-								selectedObjectDefinitionId: (item as LeftSidebarObjectDefinitionItemType).id.toString(),
-							},
-							type: TYPES.SET_SELECTED_NODE,
-						});
-
-						const selectedNode = (nodes as Node<
-							ObjectDefinitionNodeData
-						>[]).find(
-							(objectDefinitionNode) =>
-								objectDefinitionNode.data?.name ===
-								(item as LeftSidebarObjectDefinitionItemType)
-									.name
-						);
-
-						if (selectedNode) {
-							const x =
-								selectedNode.__rf.position.x +
-								selectedNode.__rf.width / 2;
-							const y =
-								selectedNode.__rf.position.y +
-								selectedNode.__rf.height / 2;
-							setCenter(x, y, 1.2);
+			<>
+				{loading ? (
+					<ClayLoadingIndicator displayType="secondary" size="sm" />
+				) : (
+					<TreeView<
+						| LeftSidebarItemType
+						| LeftSidebarObjectDefinitionItemType
+					>
+						items={
+							showActions
+								? newOtherObjectFolders
+								: [selectedObjectFolder]
 						}
-					}
-				}}
-				showExpanderOnHover={false}
-			>
-				{(item: LeftSidebarItemType) => (
-					<TreeView.Item>
-						<TreeView.ItemStack>
-							<div className="lfr-objects__model-builder-left-sidebar-current-object-folder-container">
-								<div className="lfr-objects__model-builder-left-sidebar-current-object-folder-content">
-									<Icon
-										symbol={TYPES_TO_SYMBOLS[item.type]}
-									/>
+						nestedKey="objectDefinitions"
+						onSelect={(item) => {
+							if (
+								selectedObjectFolder.objectDefinitions?.find(
+									(objectDefinition) =>
+										objectDefinition.id ===
+										(item as LeftSidebarObjectDefinitionItemType)
+											.id
+								)
+							) {
+								const {edges, nodes} = store.getState();
 
-									<Text weight="semi-bold">{item.name}</Text>
-								</div>
+								dispatch({
+									payload: {
+										edges,
+										nodes,
+										selectedObjectDefinitionId: (item as LeftSidebarObjectDefinitionItemType).id.toString(),
+									},
+									type: TYPES.SET_SELECTED_NODE,
+								});
 
-								{!showActions &&
-									changeNodeViewButton(
-										item.hiddenObjectFolderNodes,
-										() =>
-											dispatch({
-												payload: {
-													hiddenObjectFolderNodes:
-														item.hiddenObjectFolderNodes,
-													leftSidebarItem: item,
-												},
-												type:
-													TYPES.BULK_CHANGE_NODE_VIEW,
-											})
-									)}
-							</div>
-						</TreeView.ItemStack>
+								const selectedNode = (nodes as Node<
+									ObjectDefinitionNodeData
+								>[]).find(
+									(definitionNode) =>
+										definitionNode.data?.name ===
+										(item as LeftSidebarObjectDefinitionItemType)
+											.name
+								);
 
-						<TreeView.Group items={item.objectDefinitions}>
-							{({
-								hiddenNode,
-								id,
-								label,
-								linked,
-								name,
-								selected,
-								type,
-							}) => (
-								<TreeView.Item
-									actions={
-										showActions ? (
-											type === 'objectLink' ? (
-												<></>
-											) : (
-												<>
-													<ClayDropDownWithItems
-														items={[
-															{
-																label: Liferay.Language.get(
-																	'move-to-current-folder'
-																),
-																onClick: () =>
-																	handleMove({
-																		objectDefinitionId: id,
-																		objectFolderName:
-																			item.objectFolderName,
-																	}),
-																symbolLeft:
-																	'move-folder',
-															},
-														]}
-														trigger={
-															<ClayButton
-																displayType={
-																	null
-																}
-																monospaced
-															>
-																<Icon symbol="ellipsis-v" />
-															</ClayButton>
-														}
-													/>
-												</>
-											)
-										) : (
+								if (selectedNode) {
+									const x =
+										selectedNode.__rf.position.x +
+										selectedNode.__rf.width / 2;
+									const y =
+										selectedNode.__rf.position.y +
+										selectedNode.__rf.height / 2;
+									setCenter(x, y, 1.2);
+								}
+							}
+						}}
+						showExpanderOnHover={false}
+					>
+						{(item: LeftSidebarItemType) => (
+							<TreeView.Item>
+								<TreeView.ItemStack>
+									<div className="lfr-objects__model-builder-left-sidebar-current-folder-container">
+										<div className="lfr-objects__model-builder-left-sidebar-current-folder-content">
+											<Icon
+												symbol={
+													TYPES_TO_SYMBOLS[item.type]
+												}
+											/>
+
+											<Text weight="semi-bold">
+												{item.name}
+											</Text>
+										</div>
+
+										{!showActions &&
 											changeNodeViewButton(
-												hiddenNode,
+												item.hiddenObjectFolderNodes,
 												() =>
 													dispatch({
 														payload: {
-															hiddenNode,
+															hiddenObjectFolderNodes:
+																item.hiddenObjectFolderNodes,
 															leftSidebarItem: item,
-															objectDefinitionId: id,
-															objectDefinitionName: name,
 														},
 														type:
-															TYPES.CHANGE_NODE_VIEW,
+															TYPES.BULK_CHANGE_NODE_VIEW,
 													})
-											)
-										)
-									}
-									active={selected}
-									className={classNames({
-										'lfr-objects__model-builder-left-sidebar-item': selected,
-										'lfr-objects__model-builder-left-sidebar-item-linked': linked,
-									})}
-								>
-									<Icon symbol={TYPES_TO_SYMBOLS[type]} />
+											)}
+									</div>
+								</TreeView.ItemStack>
 
-									{label}
-								</TreeView.Item>
-							)}
-						</TreeView.Group>
-					</TreeView.Item>
+								<TreeView.Group items={item.objectDefinitions}>
+									{({
+										hiddenNode,
+										id,
+										label,
+										linked,
+										name,
+										selected,
+										type,
+									}) => (
+										<TreeView.Item
+											actions={
+												showActions ? (
+													type === 'objectLink' ? (
+														<></>
+													) : (
+														<>
+															<ClayDropDownWithItems
+																items={[
+																	{
+																		label: Liferay.Language.get(
+																			'move-to-current-folder'
+																		),
+																		onClick: () =>
+																			handleMove(
+																				{
+																					objectDefinitionId: id,
+																					objectFolderName:
+																						item.name,
+																				}
+																			),
+																		symbolLeft:
+																			'move-folder',
+																	},
+																]}
+																trigger={
+																	<ClayButton
+																		displayType={
+																			null
+																		}
+																		monospaced
+																	>
+																		<Icon symbol="ellipsis-v" />
+																	</ClayButton>
+																}
+															/>
+														</>
+													)
+												) : (
+													changeNodeViewButton(
+														hiddenNode,
+														() =>
+															dispatch({
+																payload: {
+																	hiddenNode,
+																	leftSidebarItem: item,
+																	objectDefinitionId: id,
+																	objectDefinitionName: name,
+																},
+																type:
+																	TYPES.CHANGE_NODE_VIEW,
+															})
+													)
+												)
+											}
+											active={selected}
+											className={classNames({
+												'lfr-objects__model-builder-left-sidebar-item': selected,
+												'lfr-objects__model-builder-left-sidebar-item-linked': linked,
+											})}
+										>
+											<Icon
+												symbol={TYPES_TO_SYMBOLS[type]}
+											/>
+
+											{label}
+										</TreeView.Item>
+									)}
+								</TreeView.Group>
+							</TreeView.Item>
+						)}
+					</TreeView>
 				)}
-			</TreeView>
+			</>
 		);
 	};
 
@@ -379,24 +422,30 @@ export default function LeftSidebar({
 					setQuery={(searchTerm) => setQuery(searchTerm)}
 				/>
 
-				{!!leftSidebarItems.length && (
-					<>
-						<TreeViewComponent></TreeViewComponent>
-						<ClayPanel
-							className="lfr-objects__model-builder-left-sidebar-body-panel"
-							collapsable
-							defaultExpanded
-							displayTitle={Liferay.Language.get('other-folders')}
-							displayType="unstyled"
-							showCollapseIcon={true}
-						>
-							<ClayPanel.Body>
-								<TreeViewComponent
-									showActions
-								></TreeViewComponent>
-							</ClayPanel.Body>
-						</ClayPanel>
-					</>
+				{emptySearch ? (
+					<LeftSidebarEmptySearch />
+				) : (
+					!!leftSidebarItems.length && (
+						<>
+							<TreeViewComponent></TreeViewComponent>
+							<ClayPanel
+								className="lfr-objects__model-builder-left-sidebar-body-panel"
+								collapsable
+								defaultExpanded
+								displayTitle={Liferay.Language.get(
+									'other-folders'
+								)}
+								displayType="unstyled"
+								showCollapseIcon={true}
+							>
+								<ClayPanel.Body>
+									<TreeViewComponent
+										showActions
+									></TreeViewComponent>
+								</ClayPanel.Body>
+							</ClayPanel>
+						</>
+					)
 				)}
 			</div>
 		</CustomVerticalBar>
