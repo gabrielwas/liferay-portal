@@ -124,7 +124,7 @@ export type TState = {
 	objectDefinitions: ObjectDefinition[];
 	objectFolders: ObjectFolder[];
 	rightSidebarType: RightSidebarType;
-	selectedObjectDefinitionNode: Node<ObjectDefinitionNodeData>;
+	selectedObjectDefinitionNode: Node<ObjectDefinitionNodeData> | null;
 	selectedObjectFolder: ObjectFolder;
 	selectedObjectRelationship: ObjectRelationship;
 	showChangesSaved: boolean;

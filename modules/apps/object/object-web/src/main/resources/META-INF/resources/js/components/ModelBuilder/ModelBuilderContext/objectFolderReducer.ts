@@ -672,16 +672,35 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 
 			const {leftSidebarItems} = state;
 
+			let selectedObjectDefinitionNode: Node<
+				ObjectDefinitionNodeData
+			> | null = null;
+
 			const newObjectDefinitionNodes = nodes.map(
-				(objectDefinitionNode) => ({
-					...objectDefinitionNode,
-					data: {
-						...objectDefinitionNode.data,
-						nodeSelected:
-							objectDefinitionNode.id ===
-							selectedObjectDefinitionId,
-					},
-				})
+				(objectDefinitionNode) => {
+					if (
+						objectDefinitionNode.id ===
+						selectedObjectDefinitionId.toString()
+					) {
+						selectedObjectDefinitionNode = {
+							...objectDefinitionNode,
+							data: {
+								...objectDefinitionNode.data,
+								nodeSelected: true,
+							},
+						} as Node<ObjectDefinitionNodeData>;
+
+						return selectedObjectDefinitionNode;
+					}
+
+					return {
+						...objectDefinitionNode,
+						data: {
+							...objectDefinitionNode.data,
+							nodeSelected: false,
+						},
+					};
+				}
 			) as Node<ObjectDefinitionNodeData>[];
 
 			const newLeftSidebarItems = leftSidebarItems.map((sidebarItem) => {
@@ -725,6 +744,7 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 				],
 				leftSidebarItems: newLeftSidebarItems,
 				rightSidebarType: 'objectDefinitionDetails' as RightSidebarType,
+				selectedObjectDefinitionNode,
 			};
 		}
 
