@@ -10,6 +10,7 @@ import com.liferay.dynamic.data.mapping.expression.DDMExpressionFactory;
 import com.liferay.object.constants.ObjectValidationRuleConstants;
 import com.liferay.object.constants.ObjectValidationRuleSettingConstants;
 import com.liferay.object.definition.util.ObjectDefinitionUtil;
+import com.liferay.object.exception.DuplicateObjectValidationRuleExternalReferenceCodeException;
 import com.liferay.object.exception.ObjectValidationRuleEngineException;
 import com.liferay.object.exception.ObjectValidationRuleNameException;
 import com.liferay.object.exception.ObjectValidationRuleOutputTypeException;
@@ -81,15 +82,23 @@ public class ObjectValidationRuleLocalServiceImpl
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public ObjectValidationRule addObjectValidationRule(
-			long userId, long objectDefinitionId, boolean active, String engine,
-			Map<Locale, String> errorLabelMap, Map<Locale, String> nameMap,
-			String outputType, String script, boolean system,
+			String externalReferenceCode, long userId, long objectDefinitionId,
+			boolean active, String engine, Map<Locale, String> errorLabelMap,
+			Map<Locale, String> nameMap, String outputType, String script,
+			boolean system,
 			List<ObjectValidationRuleSetting> objectValidationRuleSettings)
 		throws PortalException {
 
 		_validateInvokerBundle(
 			"Only allowed bundles can create system object validation rules",
 			system);
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId);
+
+		_validateExternalReferenceCode(
+			externalReferenceCode, 0, objectDefinition.getCompanyId(),
+			objectDefinitionId);
 
 		User user = _userLocalService.getUser(userId);
 
@@ -100,6 +109,8 @@ public class ObjectValidationRuleLocalServiceImpl
 		ObjectValidationRule objectValidationRule =
 			objectValidationRulePersistence.create(
 				counterLocalService.increment());
+
+		objectValidationRule.setExternalReferenceCode(externalReferenceCode);
 
 		objectValidationRule.setCompanyId(user.getCompanyId());
 		objectValidationRule.setUserId(user.getUserId());
@@ -251,9 +262,9 @@ public class ObjectValidationRuleLocalServiceImpl
 	@Indexable(type = IndexableType.REINDEX)
 	@Override
 	public ObjectValidationRule updateObjectValidationRule(
-			long objectValidationRuleId, boolean active, String engine,
-			Map<Locale, String> errorLabelMap, Map<Locale, String> nameMap,
-			String outputType, String script,
+			String externalReferenceCode, long objectValidationRuleId,
+			boolean active, String engine, Map<Locale, String> errorLabelMap,
+			Map<Locale, String> nameMap, String outputType, String script,
 			List<ObjectValidationRuleSetting> objectValidationRuleSettings)
 		throws PortalException {
 
@@ -265,10 +276,17 @@ public class ObjectValidationRuleLocalServiceImpl
 			"Only allowed bundles can edit system object validation rules",
 			objectValidationRule.isSystem());
 
+		_validateExternalReferenceCode(
+			externalReferenceCode,
+			objectValidationRule.getObjectValidationRuleId(),
+			objectValidationRule.getCompanyId(),
+			objectValidationRule.getObjectDefinitionId());
+
 		_validate(
 			objectValidationRule.getCompanyId(), engine, nameMap, outputType,
 			script, objectValidationRuleSettings);
 
+		objectValidationRule.setExternalReferenceCode(externalReferenceCode);
 		objectValidationRule.setActive(active);
 		objectValidationRule.setEngine(engine);
 		objectValidationRule.setErrorLabelMap(errorLabelMap);
@@ -588,6 +606,27 @@ public class ObjectValidationRuleLocalServiceImpl
 						objectValidationRuleSetting.getName(),
 						objectValidationRuleSetting.getValue());
 			}
+		}
+	}
+
+	private void _validateExternalReferenceCode(
+			String externalReferenceCode, long objectValidationRuleId,
+			long companyId, long objectDefinitionId)
+		throws PortalException {
+
+		if (Validator.isNull(externalReferenceCode)) {
+			return;
+		}
+
+		ObjectValidationRule objectValidationRule =
+			objectValidationRulePersistence.fetchByERC_C_ODI(
+				externalReferenceCode, companyId, objectDefinitionId);
+
+		if ((objectValidationRule != null) &&
+			(objectValidationRule.getObjectValidationRuleId() !=
+				objectValidationRuleId)) {
+
+			throw new DuplicateObjectValidationRuleExternalReferenceCodeException();
 		}
 	}
 
