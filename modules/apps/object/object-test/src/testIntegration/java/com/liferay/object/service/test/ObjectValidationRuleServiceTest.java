@@ -170,7 +170,8 @@ public class ObjectValidationRuleServiceTest {
 		throws Exception {
 
 		return _objectValidationRuleLocalService.addObjectValidationRule(
-			user.getUserId(), _objectDefinition.getObjectDefinitionId(), true,
+			RandomTestUtil.randomString(), user.getUserId(),
+			_objectDefinition.getObjectDefinitionId(), true,
 			ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
 			LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 			LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
@@ -196,7 +197,7 @@ public class ObjectValidationRuleServiceTest {
 
 			objectValidationRule =
 				_objectValidationRuleService.addObjectValidationRule(
-					objectDefinitionId, true,
+					RandomTestUtil.randomString(), objectDefinitionId, true,
 					ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
 					LocalizedMapUtil.getLocalizedMap(
 						RandomTestUtil.randomString()),
@@ -264,6 +265,7 @@ public class ObjectValidationRuleServiceTest {
 
 			objectValidationRule =
 				_objectValidationRuleService.updateObjectValidationRule(
+					RandomTestUtil.randomString(),
 					objectValidationRule.getObjectValidationRuleId(), false,
 					ObjectValidationRuleConstants.ENGINE_TYPE_DDM,
 					LocalizedMapUtil.getLocalizedMap(
