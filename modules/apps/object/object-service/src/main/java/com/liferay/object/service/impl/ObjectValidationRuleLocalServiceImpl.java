@@ -135,6 +135,51 @@ public class ObjectValidationRuleLocalServiceImpl
 		return objectValidationRule;
 	}
 
+	@Indexable(type = IndexableType.REINDEX)
+	@Override
+	public ObjectValidationRule addOrUpdateObjectValidationRule(
+			String externalReferenceCode, long objectValidationRuleId,
+			long userId, long objectDefinitionId, boolean active, String engine,
+			Map<Locale, String> errorLabelMap, Map<Locale, String> nameMap,
+			String outputType, String script, boolean system,
+			List<ObjectValidationRuleSetting> objectValidationRuleSettings)
+		throws PortalException {
+
+		ObjectValidationRule existingObjectValidationRule = null;
+
+		if (objectValidationRuleId > 0) {
+			existingObjectValidationRule =
+				objectValidationRulePersistence.fetchByPrimaryKey(
+					objectValidationRuleId);
+		}
+
+		if ((existingObjectValidationRule == null) &&
+			Validator.isNotNull(externalReferenceCode)) {
+
+			ObjectDefinition objectDefinition =
+				_objectDefinitionPersistence.findByPrimaryKey(
+					objectDefinitionId);
+
+			existingObjectValidationRule =
+				objectValidationRulePersistence.fetchByERC_C_ODI(
+					externalReferenceCode, objectDefinition.getCompanyId(),
+					objectDefinitionId);
+		}
+
+		if (existingObjectValidationRule != null) {
+			return updateObjectValidationRule(
+				externalReferenceCode,
+				existingObjectValidationRule.getObjectValidationRuleId(),
+				active, engine, errorLabelMap, nameMap, outputType, script,
+				objectValidationRuleSettings);
+		}
+
+		return addObjectValidationRule(
+			externalReferenceCode, userId, objectDefinitionId, active, engine,
+			errorLabelMap, nameMap, outputType, script, system,
+			objectValidationRuleSettings);
+	}
+
 	@Indexable(type = IndexableType.DELETE)
 	@Override
 	public ObjectValidationRule deleteObjectValidationRule(
