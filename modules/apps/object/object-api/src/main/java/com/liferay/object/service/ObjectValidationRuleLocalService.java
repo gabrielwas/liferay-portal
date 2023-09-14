@@ -86,6 +86,15 @@ public interface ObjectValidationRuleLocalService
 			List<ObjectValidationRuleSetting> objectValidationRuleSettings)
 		throws PortalException;
 
+	@Indexable(type = IndexableType.REINDEX)
+	public ObjectValidationRule addOrUpdateObjectValidationRule(
+			String externalReferenceCode, long objectValidationRuleId,
+			long userId, long objectDefinitionId, boolean active, String engine,
+			Map<Locale, String> errorLabelMap, Map<Locale, String> nameMap,
+			String outputType, String script, boolean system,
+			List<ObjectValidationRuleSetting> objectValidationRuleSettings)
+		throws PortalException;
+
 	/**
 	 * Creates a new object validation rule with the primary key. Does not add the object validation rule to the database.
 	 *

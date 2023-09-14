@@ -68,6 +68,27 @@ public class ObjectValidationRuleLocalServiceWrapper
 			objectValidationRuleSettings);
 	}
 
+	@Override
+	public com.liferay.object.model.ObjectValidationRule
+			addOrUpdateObjectValidationRule(
+				String externalReferenceCode, long objectValidationRuleId,
+				long userId, long objectDefinitionId, boolean active,
+				String engine,
+				java.util.Map<java.util.Locale, String> errorLabelMap,
+				java.util.Map<java.util.Locale, String> nameMap,
+				String outputType, String script, boolean system,
+				java.util.List
+					<com.liferay.object.model.ObjectValidationRuleSetting>
+						objectValidationRuleSettings)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _objectValidationRuleLocalService.
+			addOrUpdateObjectValidationRule(
+				externalReferenceCode, objectValidationRuleId, userId,
+				objectDefinitionId, active, engine, errorLabelMap, nameMap,
+				outputType, script, system, objectValidationRuleSettings);
+	}
+
 	/**
 	 * Creates a new object validation rule with the primary key. Does not add the object validation rule to the database.
 	 *
