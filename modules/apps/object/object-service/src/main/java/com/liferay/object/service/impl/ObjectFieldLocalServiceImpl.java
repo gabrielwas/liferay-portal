@@ -281,10 +281,10 @@ public class ObjectFieldLocalServiceImpl
 			_objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId);
 
 		if (objectDefinition.isModifiable() && objectDefinition.isSystem() &&
-			!ObjectDefinitionUtil.isInvokerBundleAllowed()) {
+			!ObjectDefinitionUtil.isBatchEngineUnitDataFileNameAllowed()) {
 
 			throw new ObjectFieldSystemException(
-				"Only allowed bundles can add system object fields");
+				"Only allowed batch engine files can add system object fields");
 		}
 
 		return _addObjectField(
@@ -1012,10 +1012,11 @@ public class ObjectFieldLocalServiceImpl
 				objectField.getObjectDefinitionId());
 
 		if (objectDefinition.isSystem() && objectField.isSystem() &&
-			!ObjectDefinitionUtil.isInvokerBundleAllowed()) {
+			!ObjectDefinitionUtil.isBatchEngineUnitDataFileNameAllowed()) {
 
 			throw new ObjectFieldSystemException(
-				"Only allowed bundles can delete system object fields");
+				"Only allowed batch engine files can delete system object " +
+					"fields");
 		}
 
 		List<ObjectField> objectFields = ListUtil.filter(

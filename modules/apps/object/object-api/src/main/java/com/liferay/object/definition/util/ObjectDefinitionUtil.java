@@ -6,6 +6,7 @@
 package com.liferay.object.definition.util;
 
 import com.liferay.batch.engine.unit.BatchEngineUnitThreadLocal;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.PortalRunMode;
 import com.liferay.portal.kernel.util.StringUtil;
@@ -51,22 +52,23 @@ public class ObjectDefinitionUtil {
 			externalReferenceCode);
 	}
 
-	public static boolean isInvokerBundleAllowed() {
+	public static boolean isBatchEngineUnitDataFileNameAllowed() {
 		if (PortalRunMode.isTestMode()) {
 			return true;
 		}
 
-		String fileName = BatchEngineUnitThreadLocal.getDataFileName();
-
-		if (StringUtil.startsWith(
-				fileName, "com.liferay.headless.builder.impl") ||
-			StringUtil.startsWith(fileName, "com.liferay.object.service")) {
-
-			return true;
-		}
-
-		return false;
+		return ArrayUtil.exists(
+			_ALLOWED_BATCH_ENGINE_UNIT_DATA_FILE_NAMES,
+			allowedBatchEngineUnitDataFileName -> StringUtil.equals(
+				BatchEngineUnitThreadLocal.getDataFileName(),
+				allowedBatchEngineUnitDataFileName));
 	}
+
+	private static final String[] _ALLOWED_BATCH_ENGINE_UNIT_DATA_FILE_NAMES = {
+		"/com/liferay/headless/builder/internal/batch" +
+			"/headless-builder.batch-engine-data.json",
+		"/com/liferay/object/internal/batch/bookmarks.batch-engine-data.json"
+	};
 
 	private static final Map<String, String>
 		_allowedModifiableSystemObjectDefinitionNames = HashMapBuilder.put(

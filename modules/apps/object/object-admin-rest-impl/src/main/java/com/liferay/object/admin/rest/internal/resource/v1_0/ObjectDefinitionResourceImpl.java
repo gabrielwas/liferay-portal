@@ -560,7 +560,7 @@ public class ObjectDefinitionResourceImpl
 
 		if (serviceBuilderObjectDefinition.isModifiable() &&
 			serviceBuilderObjectDefinition.isSystem() &&
-			ObjectDefinitionUtil.isInvokerBundleAllowed()) {
+			ObjectDefinitionUtil.isBatchEngineUnitDataFileNameAllowed()) {
 
 			objectFields.removeIf(
 				objectField -> !GetterUtil.getBoolean(objectField.getSystem()));
