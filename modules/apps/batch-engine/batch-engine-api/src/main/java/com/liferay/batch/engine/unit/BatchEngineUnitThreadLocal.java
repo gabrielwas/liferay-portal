@@ -13,12 +13,12 @@ import com.liferay.petra.string.StringPool;
  */
 public class BatchEngineUnitThreadLocal {
 
-	public static String getFileName() {
+	public static String getDataFileName() {
 		return _batchEngineUnitThreadLocal.get();
 	}
 
-	public static void setFileName(String fileName) {
-		_batchEngineUnitThreadLocal.set(fileName);
+	public static void setDataFileName(String dataFileName) {
+		_batchEngineUnitThreadLocal.set(dataFileName);
 	}
 
 	private static final ThreadLocal<String> _batchEngineUnitThreadLocal =

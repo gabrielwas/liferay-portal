@@ -195,15 +195,15 @@ public class BatchEngineUnitProcessorImpl implements BatchEngineUnitProcessor {
 				batchEngineTaskItemDelegate);
 
 		try {
-			BatchEngineUnitThreadLocal.setFileName(
-				batchEngineUnit.getFileName());
+			BatchEngineUnitThreadLocal.setDataFileName(
+				batchEngineUnit.getDataFileName());
 
 			_batchEngineImportTaskExecutor.execute(
 				batchEngineImportTask, batchEngineTaskItemDelegate,
 				batchEngineUnitConfiguration.isCheckPermissions());
 		}
 		finally {
-			BatchEngineUnitThreadLocal.setFileName(StringPool.BLANK);
+			BatchEngineUnitThreadLocal.setDataFileName(StringPool.BLANK);
 		}
 
 		if (_log.isInfoEnabled()) {
