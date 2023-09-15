@@ -309,6 +309,7 @@ export function ModalPublishObjectDefinitions({
 						/>
 
 						<ClayButton
+							aria-label={Liferay.Language.get('select-all')}
 							className="c-px-sm-0 text-3 text-weight-semi-bold"
 							displayType="link"
 							onClick={() => handleSelectAll('check-all')}
@@ -419,7 +420,11 @@ export function ModalPublishObjectDefinitions({
 					publishStatus === STATUS.APPROVED ||
 					publishStatus === STATUS.REJECTED ? (
 						<ClayButton.Group key={1} spaced>
-							<ClayButton displayType="primary" onClick={onClose}>
+							<ClayButton
+								aria-label={Liferay.Language.get('close')}
+								displayType="primary"
+								onClick={onClose}
+							>
 								{Liferay.Language.get('close')}
 							</ClayButton>
 						</ClayButton.Group>
@@ -427,6 +432,7 @@ export function ModalPublishObjectDefinitions({
 						<ClayButton.Group key={2} spaced>
 							<>
 								<ClayButton
+									aria-label={Liferay.Language.get('cancel')}
 									className="c-mr-sm-2"
 									displayType="secondary"
 									onClick={onClose}
@@ -435,6 +441,9 @@ export function ModalPublishObjectDefinitions({
 								</ClayButton>
 
 								<ClayButton
+									aria-label={Liferay.Language.get(
+										'publish-objects'
+									)}
 									disabled={
 										!selectedItems.length ||
 										publishStatus === STATUS.PENDING

@@ -25,8 +25,9 @@ import {firstLetterUppercase} from '../../../utils/string';
 import {TDeletionType} from '../../ObjectRelationship/EditRelationship';
 import {ModalDeleteObjectRelationship} from '../../ObjectRelationship/ModalDeleteObjectRelationship';
 import {useObjectRelationshipForm} from '../../ObjectRelationship/ObjectRelationshipFormBase';
-import {useObjectFolderContext} from '../ModelBuilderContext/objectFolderContext';
 import SelectRelationship from '../../ObjectRelationship/SelectRelationship';
+import {getUpdateModelBuilderStructurePayload} from '../../ViewObjectDefinitions/objectDefinitionUtil';
+import {useObjectFolderContext} from '../ModelBuilderContext/objectFolderContext';
 import {ObjectRelationshipEdgeData} from '../types';
 
 interface RightSidebarObjectRelationshipDetailsProps {
@@ -36,7 +37,10 @@ interface RightSidebarObjectRelationshipDetailsProps {
 export function RightSidebarObjectRelationshipDetails({
 	deletionTypes,
 }: RightSidebarObjectRelationshipDetailsProps) {
-	const [{baseResourceURL, elements}, dispatch] = useObjectFolderContext();
+	const [
+		{baseResourceURL, elements, selectedObjectFolder},
+		dispatch,
+	] = useObjectFolderContext();
 	const [objectDefinition1, setObjectDefinition1] = useState<
 		Partial<ObjectDefinition>
 	>();
@@ -194,6 +198,17 @@ export function RightSidebarObjectRelationshipDetails({
 		}
 	};
 
+	const updateModelBuilderStructure = async () => {
+		const payload = await getUpdateModelBuilderStructurePayload(
+			selectedObjectFolder.name
+		);
+
+		dispatch({
+			payload,
+			type: TYPES.UPDATE_MODEL_BUILDER_STRUCTURE,
+		});
+	};
+
 	return (
 		<>
 			<div className="lfr-objects__model-builder-right-sidebar-relationship-title-container">
@@ -304,6 +319,8 @@ export function RightSidebarObjectRelationshipDetails({
 				<ModalDeleteObjectRelationship
 					handleOnClose={() => setShowModal(false)}
 					objectRelationship={values as ObjectRelationship}
+					onAfterSubmit={() => updateModelBuilderStructure()}
+					reload={false}
 				/>
 			)}
 		</>

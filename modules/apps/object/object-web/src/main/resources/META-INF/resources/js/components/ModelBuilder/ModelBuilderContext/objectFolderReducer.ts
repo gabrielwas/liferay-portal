@@ -24,6 +24,43 @@ import {
 } from './objectFolderReducerUtil';
 import {TYPES} from './typesEnum';
 
+const updateModelBuilderLeftSidebar = (objectFolders: ObjectFolder[]) => {
+	const newLeftSidebar = objectFolders.map((objectFolder) => {
+		const objectDefinitions = objectFolder.objectDefinitions?.map(
+			(objectDefinition) => {
+				return {
+					hiddenNode: false,
+					id: objectDefinition.id,
+					label: getLocalizableLabel(
+						objectDefinition.defaultLanguageId,
+						objectDefinition.label,
+						objectDefinition.name
+					),
+					name: objectDefinition.name,
+					selected: false,
+					type: objectDefinition.linked
+						? 'objectLink'
+						: 'objectDefinition',
+				} as LeftSidebarObjectDefinitionItemType;
+			}
+		);
+
+		return {
+			hiddenObjectFolderNodes: false,
+			name: getLocalizableLabel(
+				defaultLanguageId,
+				objectFolder.label,
+				objectFolder.name
+			),
+			objectDefinitions,
+			objectFolderName: objectFolder.name,
+			type: 'objectFolder',
+		} as LeftSidebarItemType;
+	});
+
+	return newLeftSidebar;
+}
+
 export function ObjectFolderReducer(state: TState, action: TAction): TState {
 	const store = useStore();
 
@@ -414,38 +451,7 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 		case TYPES.UPDATE_MODEL_BUILDER_STRUCTURE: {
 			const {objectFolders, selectedObjectFolder} = action.payload;
 
-			const newLeftSidebar = objectFolders.map((objectFolder) => {
-				const objectDefinitions = objectFolder.objectDefinitions?.map(
-					(objectDefinition) => {
-						return {
-							hiddenNode: false,
-							id: objectDefinition.id,
-							label: getLocalizableLabel(
-								objectDefinition.defaultLanguageId,
-								objectDefinition.label,
-								objectDefinition.name
-							),
-							name: objectDefinition.name,
-							selected: false,
-							type: objectDefinition.linked
-								? 'objectLink'
-								: 'objectDefinition',
-						} as LeftSidebarObjectDefinitionItemType;
-					}
-				);
-
-				return {
-					hiddenObjectFolderNodes: false,
-					name: getLocalizableLabel(
-						defaultLanguageId,
-						objectFolder.label,
-						objectFolder.name
-					),
-					objectDefinitions,
-					objectFolderName: objectFolder.name,
-					type: 'objectFolder',
-				} as LeftSidebarItemType;
-			});
+			const newLeftSidebar = updateModelBuilderLeftSidebar(objectFolders);
 
 			const currentObjectFolder = objectFolders.find(
 				(objectFolder) =>
@@ -579,6 +585,7 @@ export function ObjectFolderReducer(state: TState, action: TAction): TState {
 				...state,
 				elements: [...newObjectDefinitionNodes, ...newEdges],
 				leftSidebarItems: newLeftSidebar,
+				rightSidebarType: 'empty' as RightSidebarType,
 				selectedObjectFolder,
 			};
 		}

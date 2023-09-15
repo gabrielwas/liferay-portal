@@ -131,18 +131,28 @@ export default function ({
 						title={Liferay.Language.get('toggle-sidebars')}
 					/>
 
-					<ClayButton displayType="secondary">
+					<ClayButton
+						aria-label={sub(
+							Liferay.Language.get('x-folder'),
+							Liferay.Language.get('create-new')
+						)}
+						displayType="secondary"
+					>
 						{sub(
 							Liferay.Language.get('x-folder'),
 							Liferay.Language.get('create-new')
 						)}
 					</ClayButton>
 
-					<ClayButton displayType="secondary">
+					<ClayButton
+						aria-label={Liferay.Language.get('export')}
+						displayType="secondary"
+					>
 						{Liferay.Language.get('export')}
 					</ClayButton>
 
 					<ClayButton
+						aria-label={Liferay.Language.get('publish')}
 						disabled={!hasDraftObjectDefinitions}
 						displayType="primary"
 						onClick={() => {

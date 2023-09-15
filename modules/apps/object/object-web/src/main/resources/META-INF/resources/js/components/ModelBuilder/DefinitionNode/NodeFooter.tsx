@@ -32,6 +32,11 @@ export default function NodeFooter({
 						alignmentPosition={4}
 						trigger={
 							<ClayButton
+								aria-label={sub(
+									Liferay.Language.get('x-or-x'),
+									Liferay.Language.get('add-field'),
+									Liferay.Language.get('relationship')
+								)}
 								displayType="secondary"
 								onClick={(event) => event.stopPropagation()}
 							>
@@ -93,6 +98,7 @@ export default function NodeFooter({
 
 			<div className="lfr-objects__model-builder-node-show-all-fields-container">
 				<ClayButton
+					aria-label="show or hide fields" // mudar depois
 					className="lfr-objects__model-builder-node-show-all-fields-button"
 					displayType="unstyled"
 					onClick={() => {

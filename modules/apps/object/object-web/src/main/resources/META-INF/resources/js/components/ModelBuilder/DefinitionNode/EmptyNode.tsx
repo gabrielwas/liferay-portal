@@ -32,6 +32,7 @@ export function EmptyNode({data: {setShowModal}}: NodeProps<EmptyNodeProps>) {
 				</div>
 
 				<ClayButton
+					aria-label={Liferay.Language.get('create-new-object')}
 					displayType="primary"
 					onClick={() =>
 						setShowModal((previousState: ModelBuilderModals) => ({

@@ -12,6 +12,7 @@ import {
 	Position,
 	isNode,
 	useStore,
+	useStoreState,
 } from 'react-flow-renderer';
 
 import './DefinitionNode.scss';
@@ -29,7 +30,10 @@ import {ModalAddObjectField} from '../../ObjectField/ModalAddObjectField';
 import {ModalAddObjectRelationship} from '../../ObjectRelationship/ModalAddObjectRelationship';
 import {ModalDeleteObjectDefinition} from '../../ViewObjectDefinitions/ModalDeleteObjectDefinition';
 import {DeletedObjectDefinition} from '../../ViewObjectDefinitions/ViewObjectDefinitions';
-import {getDefinitionNodeActions} from '../../ViewObjectDefinitions/objectDefinitionUtil';
+import {
+	getDefinitionNodeActions,
+	getUpdateModelBuilderStructurePayload,
+} from '../../ViewObjectDefinitions/objectDefinitionUtil';
 import {useObjectFolderContext} from '../ModelBuilderContext/objectFolderContext';
 import {TYPES} from '../ModelBuilderContext/typesEnum';
 import NodeFields from './NodeFields';
@@ -68,10 +72,12 @@ export function DefinitionNode({
 			elements,
 			objectDefinitionPermissionsURL,
 			selectedObjectDefinitionNode,
+			selectedObjectFolder,
 		},
 		dispatch,
 	] = useObjectFolderContext();
 	const store = useStore();
+	const {edges, nodes} = useStoreState((state) => state);
 
 	const [showModal, setShowModal] = useState<Partial<ModelBuilderModals>>({
 		addObjectRelationship: false,
@@ -107,6 +113,28 @@ export function DefinitionNode({
 	};
 
 	const viewDetailsURL = formatActionURL(editObjectDefinitionURL, id);
+
+	const updateModelBuilderStructure = async (
+		objectRelationshipId: string
+	) => {
+		const payload = await getUpdateModelBuilderStructurePayload(
+			selectedObjectFolder.name
+		);
+
+		dispatch({
+			payload,
+			type: TYPES.UPDATE_MODEL_BUILDER_STRUCTURE,
+		});
+
+		dispatch({
+			payload: {
+				edges,
+				nodes,
+				selectedObjectRelationshipId: objectRelationshipId,
+			},
+			type: TYPES.SET_SELECTED_EDGE,
+		});
+	};
 
 	useEffect(() => {
 		const makeFetch = async () => {
@@ -291,7 +319,11 @@ export function DefinitionNode({
 						selectedObjectDefinitionNode?.data
 							?.externalReferenceCode as string
 					}
+					onAfterSubmit={(objectRelationshipId: string) =>
+						updateModelBuilderStructure(objectRelationshipId)
+					}
 					parameterRequired={parameterRequired}
+					reload={false}
 				/>
 			)}
 

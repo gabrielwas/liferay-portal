@@ -355,6 +355,7 @@ export default function LeftSidebar({
 																]}
 																trigger={
 																	<ClayButton
+																		aria-label="kebab-menu" // mudar depois
 																		displayType={
 																			null
 																		}
@@ -420,6 +421,7 @@ export default function LeftSidebar({
 		>
 			<div className="lfr-objects__model-builder-left-sidebar">
 				<ClayButton
+					aria-label={Liferay.Language.get('create-new-object')}
 					className="lfr-objects__model-builder-left-sidebar-body-create-new-object-button"
 					onClick={() =>
 						setShowModal((previousState: ModelBuilderModals) => ({
