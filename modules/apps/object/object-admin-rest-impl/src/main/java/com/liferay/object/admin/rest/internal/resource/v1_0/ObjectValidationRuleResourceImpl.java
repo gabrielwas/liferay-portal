@@ -6,20 +6,17 @@
 package com.liferay.object.admin.rest.internal.resource.v1_0;
 
 import com.liferay.object.admin.rest.dto.v1_0.ObjectValidationRule;
-import com.liferay.object.admin.rest.dto.v1_0.ObjectValidationRuleSetting;
 import com.liferay.object.admin.rest.internal.dto.v1_0.converter.constants.DTOConverterConstants;
+import com.liferay.object.admin.rest.internal.dto.v1_0.util.ObjectValidationRuleUtil;
 import com.liferay.object.admin.rest.internal.odata.entity.v1_0.ObjectValidationRuleEntityModel;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectValidationRuleResource;
 import com.liferay.object.constants.ObjectValidationRuleConstants;
-import com.liferay.object.constants.ObjectValidationRuleSettingConstants;
 import com.liferay.object.model.ObjectDefinition;
-import com.liferay.object.model.ObjectField;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.object.service.ObjectValidationRuleLocalService;
 import com.liferay.object.service.ObjectValidationRuleService;
 import com.liferay.object.service.ObjectValidationRuleSettingLocalService;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
@@ -27,7 +24,6 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.odata.entity.EntityModel;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
@@ -37,8 +33,6 @@ import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 import com.liferay.portal.vulcan.util.SearchUtil;
-
-import java.util.List;
 
 import javax.ws.rs.core.MultivaluedMap;
 
@@ -206,7 +200,7 @@ public class ObjectValidationRuleResourceImpl
 					objectValidationRule.getOutputTypeAsString(),
 					ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION),
 				objectValidationRule.getScript(), system,
-				_toObjectValidationRuleSettings(
+				ObjectValidationRuleUtil.toObjectValidationRuleSettings(
 					objectDefinitionId, _objectFieldLocalService,
 					_objectValidationRuleSettingLocalService,
 					objectValidationRule.getObjectValidationRuleSettings())));
@@ -245,7 +239,7 @@ public class ObjectValidationRuleResourceImpl
 					objectValidationRule.getOutputTypeAsString(),
 					ObjectValidationRuleConstants.OUTPUT_TYPE_FULL_VALIDATION),
 				objectValidationRule.getScript(),
-				_toObjectValidationRuleSettings(
+				ObjectValidationRuleUtil.toObjectValidationRuleSettings(
 					serviceBuilderObjectValidationRule.getObjectDefinitionId(),
 					_objectFieldLocalService,
 					_objectValidationRuleSettingLocalService,
@@ -268,28 +262,6 @@ public class ObjectValidationRuleResourceImpl
 				objectValidationRule.getObjectValidationRuleSettings(),
 				existingObjectValidationRule.
 					getObjectValidationRuleSettings()));
-	}
-
-	private com.liferay.object.model.ObjectValidationRuleSetting
-			_setObjectValidationRuleSettingProperties(
-				String nameObjectFieldId,
-				ObjectFieldLocalService objectFieldLocalService,
-				ObjectValidationRuleSetting objectValidationRuleSetting,
-				long objectDefinitionId,
-				com.liferay.object.model.ObjectValidationRuleSetting
-					serviceBuilderObjectValidationRuleSetting)
-		throws PortalException {
-
-		serviceBuilderObjectValidationRuleSetting.setName(nameObjectFieldId);
-
-		ObjectField objectField = objectFieldLocalService.getObjectField(
-			String.valueOf(objectValidationRuleSetting.getValue()),
-			objectDefinitionId);
-
-		serviceBuilderObjectValidationRuleSetting.setValue(
-			String.valueOf(objectField.getObjectFieldId()));
-
-		return serviceBuilderObjectValidationRuleSetting;
 	}
 
 	private ObjectValidationRule _toObjectValidationRule(
@@ -331,57 +303,6 @@ public class ObjectValidationRuleResourceImpl
 				null, null, contextAcceptLanguage.getPreferredLocale(), null,
 				null),
 			serviceBuilderObjectValidationRule);
-	}
-
-	private List<com.liferay.object.model.ObjectValidationRuleSetting>
-		_toObjectValidationRuleSettings(
-			long objectDefinitionId,
-			ObjectFieldLocalService objectFieldLocalService,
-			ObjectValidationRuleSettingLocalService
-				objectValidationRuleSettingLocalService,
-			ObjectValidationRuleSetting[] objectValidationRuleSettings) {
-
-		return transformToList(
-			objectValidationRuleSettings,
-			objectValidationRuleSetting -> {
-				com.liferay.object.model.ObjectValidationRuleSetting
-					serviceBuilderObjectValidationRuleSetting =
-						objectValidationRuleSettingLocalService.
-							createObjectValidationRuleSetting(0L);
-
-				if (StringUtil.equals(
-						objectValidationRuleSetting.getName(),
-						ObjectValidationRuleSettingConstants.
-							NAME_KEY_OBJECT_FIELD_EXTERNAL_REFERENCE_CODE)) {
-
-					return _setObjectValidationRuleSettingProperties(
-						ObjectValidationRuleSettingConstants.
-							NAME_KEY_OBJECT_FIELD_ID,
-						objectFieldLocalService, objectValidationRuleSetting,
-						objectDefinitionId,
-						serviceBuilderObjectValidationRuleSetting);
-				}
-
-				if (StringUtil.equals(
-						objectValidationRuleSetting.getName(),
-						ObjectValidationRuleSettingConstants.
-							NAME_OUTPUT_OBJECT_FIELD_EXTERNAL_REFERENCE_CODE)) {
-
-					return _setObjectValidationRuleSettingProperties(
-						ObjectValidationRuleSettingConstants.
-							NAME_OUTPUT_OBJECT_FIELD_ID,
-						objectFieldLocalService, objectValidationRuleSetting,
-						objectDefinitionId,
-						serviceBuilderObjectValidationRuleSetting);
-				}
-
-				serviceBuilderObjectValidationRuleSetting.setName(
-					objectValidationRuleSetting.getName());
-				serviceBuilderObjectValidationRuleSetting.setValue(
-					String.valueOf(objectValidationRuleSetting.getValue()));
-
-				return serviceBuilderObjectValidationRuleSetting;
-			});
 	}
 
 	private static final EntityModel _entityModel =
