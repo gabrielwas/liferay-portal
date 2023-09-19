@@ -22,6 +22,7 @@ import com.liferay.object.admin.rest.internal.dto.v1_0.converter.constants.DTOCo
 import com.liferay.object.admin.rest.internal.dto.v1_0.util.ObjectFieldSettingUtil;
 import com.liferay.object.admin.rest.internal.dto.v1_0.util.ObjectFieldUtil;
 import com.liferay.object.admin.rest.internal.dto.v1_0.util.ObjectLayoutUtil;
+import com.liferay.object.admin.rest.internal.dto.v1_0.util.ObjectValidationRuleUtil;
 import com.liferay.object.admin.rest.internal.odata.entity.v1_0.ObjectDefinitionEntityModel;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectActionResource;
 import com.liferay.object.admin.rest.resource.v1_0.ObjectDefinitionResource;
@@ -33,6 +34,7 @@ import com.liferay.object.constants.ObjectActionKeys;
 import com.liferay.object.constants.ObjectConstants;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
+import com.liferay.object.constants.ObjectValidationRuleConstants;
 import com.liferay.object.definition.util.ObjectDefinitionUtil;
 import com.liferay.object.exception.ObjectDefinitionEnableLocalizationException;
 import com.liferay.object.exception.ObjectDefinitionStorageTypeException;
@@ -50,6 +52,7 @@ import com.liferay.object.service.ObjectFolderLocalService;
 import com.liferay.object.service.ObjectLayoutLocalService;
 import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.object.service.ObjectValidationRuleLocalService;
+import com.liferay.object.service.ObjectValidationRuleSettingLocalService;
 import com.liferay.object.service.ObjectViewLocalService;
 import com.liferay.object.service.ObjectViewService;
 import com.liferay.object.system.JaxRsApplicationDescriptor;
@@ -359,7 +362,7 @@ public class ObjectDefinitionResourceImpl
 			serviceBuilderObjectDefinition.getObjectDefinitionId(),
 			objectDefinition.getObjectLayouts(),
 			objectDefinition.getObjectRelationships(),
-			objectDefinition.getObjectValidationRules(),
+			ListUtil.fromArray(objectDefinition.getObjectValidationRules()),
 			objectDefinition.getObjectViews());
 
 		for (com.liferay.object.model.ObjectField
@@ -554,12 +557,14 @@ public class ObjectDefinitionResourceImpl
 
 		List<ObjectField> objectFields = ListUtil.fromArray(
 			objectDefinition.getObjectFields());
+		List<ObjectValidationRule> objectValidationRules = ListUtil.fromArray(
+			objectDefinition.getObjectValidationRules());
 
 		List<com.liferay.object.model.ObjectField> serviceBuilderObjectFields =
 			new ArrayList<>(
 				_objectFieldLocalService.getObjectFields(objectDefinitionId));
 		List<com.liferay.object.model.ObjectValidationRule>
-			serviceBuilderObjectValidationRules = new ArrayList<>(
+			serviceBuilderobjectValidationRules = new ArrayList<>(
 				_objectValidationRuleLocalService.getObjectValidationRules(
 					objectDefinitionId));
 
@@ -569,21 +574,27 @@ public class ObjectDefinitionResourceImpl
 
 			objectFields.removeIf(
 				objectField -> !GetterUtil.getBoolean(objectField.getSystem()));
+			objectValidationRules.removeIf(
+				objectValidationRule -> !GetterUtil.getBoolean(
+					objectValidationRule.getSystem()));
 
 			serviceBuilderObjectFields.removeIf(
 				serviceBuilderObjectField ->
 					serviceBuilderObjectField.isMetadata() ||
 					!serviceBuilderObjectField.isSystem());
-			serviceBuilderObjectValidationRules.removeIf(
-				serviceBuilderObjectValidationRule ->
-					!serviceBuilderObjectValidationRule.isSystem());
+			serviceBuilderobjectValidationRules.removeIf(
+				serviceBuilderobjectValidationRule ->
+					!serviceBuilderobjectValidationRule.isSystem());
 		}
 		else {
 			objectFields.removeIf(
 				objectField -> GetterUtil.getBoolean(objectField.getSystem()));
+			objectValidationRules.removeIf(
+				objectValidationRule -> GetterUtil.getBoolean(
+					objectValidationRule.getSystem()));
 
 			serviceBuilderObjectFields.removeIf(ObjectFieldModel::isSystem);
-			serviceBuilderObjectValidationRules.removeIf(
+			serviceBuilderobjectValidationRules.removeIf(
 				ObjectValidationRuleModel::isSystem);
 		}
 
@@ -651,17 +662,22 @@ public class ObjectDefinitionResourceImpl
 			_getAccountEntryRestrictedObjectRelationshipsNames(
 				serviceBuilderObjectDefinition, objectRelationships);
 
-		ObjectValidationRule[] objectValidationRules =
-			objectDefinition.getObjectValidationRules();
+		for (ObjectValidationRule objectValidationRule :
+				objectValidationRules) {
 
-		if (objectValidationRules != null) {
-			for (com.liferay.object.model.ObjectValidationRule
-					serviceBuilderObjectValidationRule :
-						serviceBuilderObjectValidationRules) {
+			serviceBuilderobjectValidationRules.removeIf(
+				serviceBuilderobjectValidationRule -> Objects.equals(
+					serviceBuilderobjectValidationRule.
+						getExternalReferenceCode(),
+					objectValidationRule.getExternalReferenceCode()));
+		}
 
-				_objectValidationRuleLocalService.deleteObjectValidationRule(
-					serviceBuilderObjectValidationRule);
-			}
+		for (com.liferay.object.model.ObjectValidationRule
+				serviceBuilderobjectValidationRule :
+					serviceBuilderobjectValidationRules) {
+
+			_objectValidationRuleLocalService.deleteObjectValidationRule(
+				serviceBuilderobjectValidationRule);
 		}
 
 		ObjectView[] objectViews = objectDefinition.getObjectViews();
@@ -721,7 +737,7 @@ public class ObjectDefinitionResourceImpl
 			ObjectAction[] objectActions, long objectDefinitionId,
 			ObjectLayout[] objectLayouts,
 			ObjectRelationship[] objectRelationships,
-			ObjectValidationRule[] objectValidationRules,
+			List<ObjectValidationRule> objectValidationRules,
 			ObjectView[] objectViews)
 		throws Exception {
 
@@ -817,21 +833,32 @@ public class ObjectDefinitionResourceImpl
 			}
 		}
 
-		if (objectValidationRules != null) {
-			ObjectValidationRuleResource.Builder builder =
-				_objectValidationRuleResourceFactory.create();
-
-			ObjectValidationRuleResource objectValidationRuleResource =
-				builder.user(
-					contextUser
-				).build();
-
+		if (!objectValidationRules.isEmpty()) {
 			for (ObjectValidationRule objectValidationRule :
 					objectValidationRules) {
 
-				objectValidationRuleResource.
-					postObjectDefinitionObjectValidationRule(
-						objectDefinitionId, objectValidationRule);
+				_objectValidationRuleLocalService.
+					addOrUpdateObjectValidationRule(
+						objectValidationRule.getExternalReferenceCode(),
+						GetterUtil.getLong(objectValidationRule.getId()),
+						contextUser.getUserId(), objectDefinitionId,
+						GetterUtil.getBoolean(objectValidationRule.getActive()),
+						GetterUtil.getString(objectValidationRule.getEngine()),
+						LocalizedMapUtil.getLocalizedMap(
+							objectValidationRule.getErrorLabel()),
+						LocalizedMapUtil.getLocalizedMap(
+							objectValidationRule.getName()),
+						GetterUtil.getString(
+							objectValidationRule.getOutputTypeAsString(),
+							ObjectValidationRuleConstants.
+								OUTPUT_TYPE_FULL_VALIDATION),
+						objectValidationRule.getScript(),
+						GetterUtil.getBoolean(objectValidationRule.getSystem()),
+						ObjectValidationRuleUtil.toObjectValidationRuleSettings(
+							objectDefinitionId, _objectFieldLocalService,
+							_objectValidationRuleSettingLocalService,
+							objectValidationRule.
+								getObjectValidationRuleSettings()));
 			}
 		}
 
@@ -1297,6 +1324,10 @@ public class ObjectDefinitionResourceImpl
 	@Reference
 	private ObjectValidationRuleResource.Factory
 		_objectValidationRuleResourceFactory;
+
+	@Reference
+	private ObjectValidationRuleSettingLocalService
+		_objectValidationRuleSettingLocalService;
 
 	@Reference(target = DTOConverterConstants.OBJECT_VIEW_DTO_CONVERTER)
 	private DTOConverter<com.liferay.object.model.ObjectView, ObjectView>
