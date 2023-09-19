@@ -179,6 +179,7 @@
 					"errorLabel": {
 						"en_US": "Please enter a valid URL."
 					},
+					"externalReferenceCode": "VALIDURL",
 					"name": {
 						"en_US": "Valid URL"
 					},
