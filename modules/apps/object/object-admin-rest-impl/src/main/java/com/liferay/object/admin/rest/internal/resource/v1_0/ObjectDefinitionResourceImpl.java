@@ -662,22 +662,22 @@ public class ObjectDefinitionResourceImpl
 			_getAccountEntryRestrictedObjectRelationshipsNames(
 				serviceBuilderObjectDefinition, objectRelationships);
 
-		for (ObjectValidationRule objectValidationRule :
-				objectValidationRules) {
+		Set<String> deleteObjectValidationRulesERCs =
+			SetUtil.asymmetricDifference(
+				transform(
+					serviceBuilderobjectValidationRules,
+					com.liferay.object.model.ObjectValidationRule::
+						getExternalReferenceCode),
+				transform(
+					objectValidationRules,
+					ObjectValidationRule::getExternalReferenceCode));
 
-			serviceBuilderobjectValidationRules.removeIf(
-				serviceBuilderobjectValidationRule -> Objects.equals(
-					serviceBuilderobjectValidationRule.
-						getExternalReferenceCode(),
-					objectValidationRule.getExternalReferenceCode()));
-		}
-
-		for (com.liferay.object.model.ObjectValidationRule
-				serviceBuilderobjectValidationRule :
-					serviceBuilderobjectValidationRules) {
+		for (String deleteObjectValidationRulesERC :
+				deleteObjectValidationRulesERCs) {
 
 			_objectValidationRuleLocalService.deleteObjectValidationRule(
-				serviceBuilderobjectValidationRule);
+				_objectValidationRuleLocalService.fetchObjectValidationRule(
+					deleteObjectValidationRulesERC, objectDefinitionId));
 		}
 
 		ObjectView[] objectViews = objectDefinition.getObjectViews();
