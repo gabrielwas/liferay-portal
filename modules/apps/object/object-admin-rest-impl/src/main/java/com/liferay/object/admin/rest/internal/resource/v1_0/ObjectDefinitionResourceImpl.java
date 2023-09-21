@@ -578,7 +578,8 @@ public class ObjectDefinitionResourceImpl
 					serviceBuilderObjectField.isMetadata() ||
 					!serviceBuilderObjectField.isSystem());
 			serviceBuilderObjectRelationships.removeIf(
-				ObjectRelationshipModel::isSystem);
+				serviceBuilderObjectRelationship ->
+					!serviceBuilderObjectRelationship.isSystem());
 		}
 		else {
 			objectFields.removeIf(
