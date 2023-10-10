@@ -1,0 +1,480 @@
+{
+	"configuration": {
+		"className": "com.liferay.object.admin.rest.dto.v1_0.ObjectDefinition",
+		"multiCompany": true,
+		"parameters": {
+			"containsHeaders": "true",
+			"createStrategy": "UPSERT",
+			"importStrategy": "ON_ERROR_FAIL",
+			"taskItemDelegateName": "DEFAULT",
+			"updateStrategy": "UPDATE"
+		},
+		"userId": 0,
+		"version": "v1.0"
+	},
+	"items": [
+		{
+			"accountEntryRestricted": false,
+			"accountEntryRestrictedObjectFieldName": "",
+			"actions": {
+				"delete": {
+				},
+				"get": {
+				},
+				"permissions": {
+				},
+				"update": {
+				}
+			},
+			"active": true,
+			"defaultLanguageId": "en_US",
+			"enableCategorization": false,
+			"enableComments": false,
+			"enableLocalization": true,
+			"enableObjectEntryHistory": false,
+			"externalReferenceCode": "CURRENCY",
+			"label": {
+				"en_US": "Currency"
+			},
+			"name": "Currency",
+			"objectActions": [
+				{
+					"active": true,
+					"conditionExpression": "",
+					"description": "",
+					"errorMessage": {
+						"en_US": "Error setting currency to primary"
+					},
+					"externalReferenceCode": "5a9c330c-ab1f-d91a-1e9a-fcdfc6a5119a",
+					"label": {
+						"en_US": "Set Primary"
+					},
+					"name": "setPrimary",
+					"objectActionExecutorKey": "set-primary",
+					"objectActionTriggerKey": "standalone",
+					"parameters": {
+					},
+					"status": {
+						"code": 1,
+						"label": "success",
+						"label_i18n": "Success"
+					},
+					"system": false
+				},
+				{
+					"active": true,
+					"conditionExpression": "",
+					"description": "",
+					"errorMessage": {
+						"en_US": "Error updating currency"
+					},
+					"externalReferenceCode": "a980a054-0eb0-7933-0e5a-141c282b2db5",
+					"label": {
+						"en_US": "Activate Deactivate"
+					},
+					"name": "activateDeactivate",
+					"objectActionExecutorKey": "update-object-entry",
+					"objectActionTriggerKey": "standalone",
+					"parameters": {
+						"objectDefinitionExternalReferenceCode": "CURRENCY",
+						"predefinedValues": [
+							{
+								"businessType": "Boolean",
+								"inputAsValue": false,
+								"label": {
+									"en_US": "Active"
+								},
+								"name": "active",
+								"value": "condition(active, false, true)"
+							}
+						]
+					},
+					"status": {
+						"code": 0,
+						"label": "never-ran",
+						"label_i18n": "Never Ran"
+					},
+					"system": false
+				}
+			],
+			"objectFields": [
+				{
+					"DBType": "String",
+					"businessType": "Text",
+					"externalReferenceCode": "CODE",
+					"indexed": true,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "en_US",
+					"label": {
+						"en_US": "Code"
+					},
+					"localized": false,
+					"name": "code",
+					"objectFieldSettings": [
+						{
+							"name": "uniqueValues",
+							"value": true
+						},
+						{
+							"name": "maxLength",
+							"value": 3
+						},
+						{
+							"name": "showCounter",
+							"value": true
+						}
+					],
+					"readOnly": "false",
+					"readOnlyConditionExpression": "",
+					"required": true,
+					"state": false,
+					"system": false,
+					"type": "String"
+				},
+				{
+					"DBType": "String",
+					"businessType": "Text",
+					"externalReferenceCode": "NAME",
+					"indexed": true,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "en_US",
+					"label": {
+						"en_US": "Name"
+					},
+					"localized": true,
+					"name": "name",
+					"objectFieldSettings": [
+					],
+					"readOnly": "false",
+					"readOnlyConditionExpression": "",
+					"required": false,
+					"state": false,
+					"system": false,
+					"type": "String"
+				},
+				{
+					"DBType": "String",
+					"businessType": "Text",
+					"externalReferenceCode": "SYMBOL",
+					"indexed": true,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "en_US",
+					"label": {
+						"en_US": "Symbol"
+					},
+					"localized": false,
+					"name": "symbol",
+					"objectFieldSettings": [
+					],
+					"readOnly": "false",
+					"readOnlyConditionExpression": "",
+					"required": false,
+					"state": false,
+					"system": false,
+					"type": "String"
+				},
+				{
+					"DBType": "String",
+					"businessType": "Text",
+					"externalReferenceCode": "FORMAT_PATTERN",
+					"indexed": true,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "en_US",
+					"label": {
+						"en_US": "Format Pattern"
+					},
+					"localized": true,
+					"name": "formatPattern",
+					"objectFieldSettings": [
+					],
+					"readOnly": "false",
+					"readOnlyConditionExpression": "",
+					"required": false,
+					"state": false,
+					"system": false,
+					"type": "String"
+				},
+				{
+					"DBType": "Integer",
+					"businessType": "Integer",
+					"externalReferenceCode": "MAXIMUM_DECIMAL_PLACES",
+					"indexed": true,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "",
+					"label": {
+						"en_US": "Maximum Decimal Places"
+					},
+					"localized": false,
+					"name": "maximumDecimalPlaces",
+					"objectFieldSettings": [
+					],
+					"readOnly": "false",
+					"readOnlyConditionExpression": "",
+					"required": false,
+					"state": false,
+					"system": false,
+					"type": "Integer"
+				},
+				{
+					"DBType": "Integer",
+					"businessType": "Integer",
+					"externalReferenceCode": "MINIMUM_DECIMAL_PLACES",
+					"indexed": true,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "",
+					"label": {
+						"en_US": "Minimum Decimal Places"
+					},
+					"localized": false,
+					"name": "minimumDecimalPlaces",
+					"objectFieldSettings": [
+					],
+					"readOnly": "false",
+					"readOnlyConditionExpression": "",
+					"required": false,
+					"state": false,
+					"system": false,
+					"type": "Integer"
+				},
+				{
+					"DBType": "String",
+					"businessType": "Picklist",
+					"externalReferenceCode": "ROUNDING_MODE",
+					"indexed": true,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "en_US",
+					"label": {
+						"en_US": "Rounding Mode"
+					},
+					"listTypeDefinitionExternalReferenceCode": "ROUNDING_MODE_PICKLIST",
+					"localized": false,
+					"name": "roundingMode",
+					"objectFieldSettings": [
+						{
+							"name": "stateFlow",
+							"value": {
+								"objectStates": [
+									{
+										"key": "UP",
+										"objectStateTransitions": [
+										]
+									},
+									{
+										"key": "DOWN",
+										"objectStateTransitions": [
+										]
+									},
+									{
+										"key": "CEILING",
+										"objectStateTransitions": [
+										]
+									},
+									{
+										"key": "FLOOR",
+										"objectStateTransitions": [
+										]
+									},
+									{
+										"key": "HALF_EVEN",
+										"objectStateTransitions": [
+										]
+									},
+									{
+										"key": "HALF_UP",
+										"objectStateTransitions": [
+										]
+									},
+									{
+										"key": "HALF_DOWN",
+										"objectStateTransitions": [
+										]
+									},
+									{
+										"key": "UNNECESSARY",
+										"objectStateTransitions": [
+										]
+									}
+								]
+							}
+						}
+					],
+					"readOnly": "false",
+					"readOnlyConditionExpression": "",
+					"required": true,
+					"state": false,
+					"system": false,
+					"type": "String"
+				},
+				{
+					"DBType": "Boolean",
+					"businessType": "Boolean",
+					"externalReferenceCode": "PRIMARY",
+					"indexed": true,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "",
+					"label": {
+						"en_US": "Primary"
+					},
+					"localized": false,
+					"name": "primary",
+					"objectFieldSettings": [
+					],
+					"readOnly": "false",
+					"readOnlyConditionExpression": "",
+					"required": false,
+					"state": false,
+					"system": false,
+					"type": "Boolean"
+				},
+				{
+					"DBType": "Double",
+					"businessType": "Decimal",
+					"externalReferenceCode": "PRIORITY",
+					"indexed": true,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "",
+					"label": {
+						"en_US": "Priority"
+					},
+					"localized": false,
+					"name": "priority",
+					"objectFieldSettings": [
+					],
+					"readOnly": "false",
+					"readOnlyConditionExpression": "",
+					"required": false,
+					"state": false,
+					"system": false,
+					"type": "Double"
+				},
+				{
+					"DBType": "Boolean",
+					"businessType": "Boolean",
+					"externalReferenceCode": "ACTIVE",
+					"indexed": true,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "",
+					"label": {
+						"en_US": "Active"
+					},
+					"localized": false,
+					"name": "active",
+					"objectFieldSettings": [
+					],
+					"readOnly": "false",
+					"readOnlyConditionExpression": "",
+					"required": false,
+					"state": false,
+					"system": false,
+					"type": "Boolean"
+				},
+				{
+					"DBType": "BigDecimal",
+					"businessType": "PrecisionDecimal",
+					"externalReferenceCode": "EXCHANGE_RATE",
+					"indexed": true,
+					"indexedAsKeyword": false,
+					"indexedLanguageId": "",
+					"label": {
+						"en_US": "Exchange Rate"
+					},
+					"localized": false,
+					"name": "exchangeRate",
+					"objectFieldSettings": [
+					],
+					"readOnly": "false",
+					"readOnlyConditionExpression": "",
+					"required": false,
+					"state": false,
+					"system": false,
+					"type": "BigDecimal"
+				}
+			],
+			"objectLayouts": [
+			],
+			"objectRelationships": [
+			],
+			"objectValidationRules": [
+			],
+			"objectViews": [
+				{
+					"defaultObjectView": true,
+					"name": {
+						"en_US": "Default View"
+					},
+					"objectDefinitionExternalReferenceCode": "478f2245-12a8-c8d0-3fdb-3cb6882ca3ef",
+					"objectViewColumns": [
+						{
+							"label": {
+								"en_US": "ID"
+							},
+							"objectFieldName": "id",
+							"priority": 0
+						},
+						{
+							"label": {
+								"en_US": "Code"
+							},
+							"objectFieldName": "code",
+							"priority": 1
+						},
+						{
+							"label": {
+								"en_US": "Name"
+							},
+							"objectFieldName": "name",
+							"priority": 2
+						},
+						{
+							"label": {
+								"en_US": "Exchange Rate"
+							},
+							"objectFieldName": "exchangeRate",
+							"priority": 3
+						},
+						{
+							"label": {
+								"en_US": "Primary"
+							},
+							"objectFieldName": "primary",
+							"priority": 4
+						},
+						{
+							"label": {
+								"en_US": "Priority"
+							},
+							"objectFieldName": "priority",
+							"priority": 5
+						},
+						{
+							"label": {
+								"en_US": "Active"
+							},
+							"objectFieldName": "active",
+							"priority": 6
+						}
+					],
+					"objectViewFilterColumns": [
+					],
+					"objectViewSortColumns": [
+					]
+				}
+			],
+			"panelCategoryKey": "commerce.store_management",
+			"parameterRequired": false,
+			"pluralLabel": {
+				"en_US": "Currencies"
+			},
+			"portlet": true,
+			"restContextPath": "/o/c/currencies",
+			"scope": "company",
+			"status": {
+				"code": 0,
+				"label": "approved",
+				"label_i18n": "Approved"
+			},
+			"system": false,
+			"titleObjectFieldName": "id"
+		}
+	]
+}
