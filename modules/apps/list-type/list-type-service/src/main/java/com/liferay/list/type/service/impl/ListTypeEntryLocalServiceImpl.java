@@ -248,7 +248,7 @@ public class ListTypeEntryLocalServiceImpl
 		char[] keyCharArray = key.toCharArray();
 
 		for (char c : keyCharArray) {
-			if (!Validator.isChar(c) && !Validator.isDigit(c)) {
+			if (!Validator.isChar(c) && !Validator.isDigit(c) && (c != '_')) {
 				throw new ListTypeEntryKeyException(
 					"Key must only contain letters and digits");
 			}
