@@ -162,10 +162,6 @@ public class ObjectDefinitionsDetailsDisplayContext
 		for (String panelCategoryKey :
 				objectScopeProvider.getRootPanelCategoryKeys()) {
 
-			if (panelCategoryKey.equals(PanelCategoryKeys.COMMERCE)) {
-				continue;
-			}
-
 			PanelCategory panelCategory =
 				_panelCategoryRegistry.getPanelCategory(panelCategoryKey);
 
