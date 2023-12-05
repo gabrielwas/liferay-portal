@@ -7,19 +7,18 @@ const {defineConfig, devices} = require('@playwright/test');
 
 module.exports = defineConfig({
 	forbidOnly: !!process.env.CI,
-	fullyParallel: true,
 	projects: [
 		{
 			name: 'chromium',
-			use: {...devices['Desktop Chrome']},
+			use: {
+				...devices['Desktop Chrome'],
+				storageState: 'tmp/.auth/user.json',
+			},
+			dependencies: ['setup'],
 		},
 		{
-			name: 'firefox',
-			use: {...devices['Desktop Firefox']},
-		},
-		{
-			name: 'webkit',
-			use: {...devices['Desktop Safari']},
+			name: 'setup',
+			testMatch: /global.setup\.js/,
 		},
 	],
 	reporter: [
