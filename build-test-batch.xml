@@ -7223,6 +7223,14 @@ ${output.content}</echo>
 
 						<antcall inheritall="false" target="start-app-server" />
 
+						<prepare-custom-properties custom.properties="terms.of.use.required=false" />
+						<prepare-custom-properties custom.properties="passwords.default.policy.change.required=false" />
+						<prepare-custom-properties custom.properties="admin.email.from.address=test@liferay.com" />
+						<prepare-custom-properties custom.properties="admin.email.from.name=Test Test" />
+						<prepare-custom-properties custom.properties="setup.wizard.enabled=false" />
+
+						<apply-portal-ext-properties />
+
 						<waitfor maxwait="${timeout.app.server.wait}" maxwaitunit="second">
 							<http url="http://localhost:8080/web/guest" />
 						</waitfor>
