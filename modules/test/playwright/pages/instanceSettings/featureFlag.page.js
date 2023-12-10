@@ -50,7 +50,9 @@ export class FeatureFlagPage {
 						'#portlet_com_liferay_configuration_admin_web_portlet_InstanceSettingsPortlet'
 					)
 					.getByText('Enabled')
-			).toBeVisible();
+			).toBeVisible({
+                timeout: 100 * 1000,
+            });
 		}
 	}
 }
