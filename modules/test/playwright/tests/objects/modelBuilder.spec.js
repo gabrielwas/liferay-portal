@@ -8,14 +8,31 @@ import {expect, mergeTests} from '@playwright/test';
 import {test as apiHelpersTest} from '../../fixtures/apiHelpers.fixture';
 import {test as homePageTest} from '../../fixtures/homePage.fixture';
 import {test as objectsPagesTest} from '../../fixtures/objectsPages.fixture';
+import {test as instanceSettingsTest} from '../../fixtures/instanceSettings.fixture';
 import {getRandomInt} from '../../utils/util';
+import { FeatureFlagPage } from '../../pages/instanceSettings/featureFlag.page';
 
-export const test = mergeTests(apiHelpersTest, homePageTest, objectsPagesTest);
+const { chromium } = require('playwright');
+
+export const test = mergeTests(apiHelpersTest, homePageTest, objectsPagesTest, instanceSettingsTest);
+
+test.beforeAll(async () => {
+	const browser = await chromium.launch();
+	const page = await browser.newPage();
+	const featureFlagPage = new FeatureFlagPage(page);
+
+	await featureFlagPage.toggleFeatureFlag('LPS-148856');
+});
+
 
 test('created object folders are on the left side bar', async ({
 	_api,
 	_objectDefinitionsPage,
+	_featureFlagPage,
 }) => {
+
+	//await _featureFlagPage.toggleFeatureFlag('LPS-148856');
+
 	await _objectDefinitionsPage.goto();
 
 	const objectFolderExternalReferenceCode = 'objectFolder' + getRandomInt();
@@ -37,7 +54,11 @@ test('created object folders are on the left side bar', async ({
 
 test('uncategorized folder does not contains delete and edit options', async ({
 	_objectDefinitionsPage,
+	_featureFlagPage,
 }) => {
+
+	//await _featureFlagPage.toggleFeatureFlag('LPS-148856');
+
 	await _objectDefinitionsPage.goto();
 	await _objectDefinitionsPage.clickUncategorizedObjectFolder();
 	await _objectDefinitionsPage.openObjectFolderActions();
@@ -55,8 +76,12 @@ test('can create relationship by dragging node handles', async ({
 	_homePage,
 	_modelBuilderPage,
 	_objectDefinitionsPage,
+	_featureFlagPage,
 	page,
 }) => {
+
+	//await _featureFlagPage.toggleFeatureFlag('LPS-148856');
+
 	await _homePage.goto();
 
 	const objectFolder = await _api.objectAdmin.postRandomObjectFolder();
