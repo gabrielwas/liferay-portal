@@ -31,6 +31,8 @@ export class FeatureFlagPage {
 		await this.searchFor.fill(featureFlag);
 		await this.searchButton.click();
 
+        await expect(this.page.locator('label')).toBeVisible();
+
 		const labelFFTextContent = await this.page
 			.locator('label')
 			.textContent();
