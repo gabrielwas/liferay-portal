@@ -16,13 +16,13 @@ const { chromium } = require('playwright');
 
 export const test = mergeTests(apiHelpersTest, homePageTest, objectsPagesTest, instanceSettingsTest);
 
-test.beforeAll(async () => {
-	const browser = await chromium.launch();
-	const page = await browser.newPage();
-	const featureFlagPage = new FeatureFlagPage(page);
+// test.beforeAll(async () => {
+// 	const browser = await chromium.launch();
+// 	const page = await browser.newPage();
+// 	const featureFlagPage = new FeatureFlagPage(page);
 
-	await featureFlagPage.toggleFeatureFlag('LPS-148856');
-});
+// 	await featureFlagPage.toggleFeatureFlag('LPS-148856');
+// });
 
 
 test('created object folders are on the left side bar', async ({
@@ -31,7 +31,7 @@ test('created object folders are on the left side bar', async ({
 	_featureFlagPage,
 }) => {
 
-	//await _featureFlagPage.toggleFeatureFlag('LPS-148856');
+	await _featureFlagPage.toggleFeatureFlag('LPS-148856');
 
 	await _objectDefinitionsPage.goto();
 
@@ -57,7 +57,7 @@ test('uncategorized folder does not contains delete and edit options', async ({
 	_featureFlagPage,
 }) => {
 
-	//await _featureFlagPage.toggleFeatureFlag('LPS-148856');
+	await _featureFlagPage.toggleFeatureFlag('LPS-148856');
 
 	await _objectDefinitionsPage.goto();
 	await _objectDefinitionsPage.clickUncategorizedObjectFolder();
@@ -80,7 +80,7 @@ test('can create relationship by dragging node handles', async ({
 	page,
 }) => {
 
-	//await _featureFlagPage.toggleFeatureFlag('LPS-148856');
+	await _featureFlagPage.toggleFeatureFlag('LPS-148856');
 
 	await _homePage.goto();
 
