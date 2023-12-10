@@ -1,5 +1,7 @@
 import {HomePage} from '../home.page';
 
+import {expect} from '@playwright/test';
+
 export class FeatureFlagPage {
 	constructor(page) {
 		this.homePage = new HomePage(page);
@@ -20,6 +22,11 @@ export class FeatureFlagPage {
 
 	async toggleFeatureFlag(featureFlag) {
 		await this.goto();
+
+		await expect(
+			this.page.getByRole('heading', {name: 'Feature Flags'})
+		).toBeVisible();
+
 		await this.searchFor.click();
 		await this.searchFor.fill(featureFlag);
 		await this.searchButton.click();
