@@ -8,7 +8,7 @@ import {ObjectAdminApiHelper} from './ObjectAdminApiHelper';
 
 export class ApiHelpers {
 	constructor(page) {
-		this.baseUrl = liferayConfig.environment.baseUrl;
+		this.baseUrl = liferayConfig.environment.baseUrl + '/o/';
 		this.objectAdmin = new ObjectAdminApiHelper(this);
 		this.page = page;
 	}
