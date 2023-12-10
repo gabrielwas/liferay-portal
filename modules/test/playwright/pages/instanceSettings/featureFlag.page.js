@@ -41,6 +41,14 @@ export class FeatureFlagPage {
 				.filter({hasText: featureFlag})
 				.getByRole('switch')
 				.click();
+
+			await expect(
+				this.page
+					.locator(
+						'#portlet_com_liferay_configuration_admin_web_portlet_InstanceSettingsPortlet'
+					)
+					.getByText('Enabled')
+			).toBeVisible();
 		}
 	}
 }
