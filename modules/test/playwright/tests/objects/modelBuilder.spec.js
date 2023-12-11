@@ -27,11 +27,25 @@ export const test = mergeTests(apiHelpersTest, homePageTest, objectsPagesTest, i
 
 test('created object folders are on the left side bar', async ({
 	_api,
+	_homePage,
 	_objectDefinitionsPage,
-	_featureFlagPage,
 }) => {
 
-	await _featureFlagPage.toggleFeatureFlag('LPS-148856');
+	await _homePage.goto();
+
+	await _homePage.page.evaluate(() => Liferay.Util.fetch(
+		'/o/com-liferay-feature-flag-web/set-enabled',
+		{
+			body: Liferay.Util.objectToFormData({
+				companyId: Liferay.ThemeDisplay.getCompanyId(),
+				enabled: 'true',
+				key: 'LPS-148856',
+			}),
+			method: 'POST',
+		}
+	));
+
+	//await _featureFlagPage.toggleFeatureFlag('LPS-148856');
 
 	await _objectDefinitionsPage.goto();
 
@@ -55,9 +69,25 @@ test('created object folders are on the left side bar', async ({
 test('uncategorized folder does not contains delete and edit options', async ({
 	_objectDefinitionsPage,
 	_featureFlagPage,
+	_homePage,
 }) => {
 
-	await _featureFlagPage.toggleFeatureFlag('LPS-148856');
+
+	await _homePage.goto();
+
+	await _homePage.page.evaluate(() => Liferay.Util.fetch(
+		'/o/com-liferay-feature-flag-web/set-enabled',
+		{
+			body: Liferay.Util.objectToFormData({
+				companyId: Liferay.ThemeDisplay.getCompanyId(),
+				enabled: 'true',
+				key: 'LPS-148856',
+			}),
+			method: 'POST',
+		}
+	));
+
+	//await _featureFlagPage.toggleFeatureFlag('LPS-148856');
 
 	await _objectDefinitionsPage.goto();
 	await _objectDefinitionsPage.clickUncategorizedObjectFolder();
@@ -80,7 +110,21 @@ test('can create relationship by dragging node handles', async ({
 	page,
 }) => {
 
-	await _featureFlagPage.toggleFeatureFlag('LPS-148856');
+	await _homePage.goto();
+
+	await _homePage.page.evaluate(() => Liferay.Util.fetch(
+		'/o/com-liferay-feature-flag-web/set-enabled',
+		{
+			body: Liferay.Util.objectToFormData({
+				companyId: Liferay.ThemeDisplay.getCompanyId(),
+				enabled: 'true',
+				key: 'LPS-148856',
+			}),
+			method: 'POST',
+		}
+	));
+
+	//await _featureFlagPage.toggleFeatureFlag('LPS-148856');
 
 	await _homePage.goto();
 
