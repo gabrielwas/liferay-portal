@@ -8,44 +8,16 @@ import {expect, mergeTests} from '@playwright/test';
 import {test as apiHelpersTest} from '../../fixtures/apiHelpers.fixture';
 import {test as homePageTest} from '../../fixtures/homePage.fixture';
 import {test as objectsPagesTest} from '../../fixtures/objectsPages.fixture';
-import {test as instanceSettingsTest} from '../../fixtures/instanceSettings.fixture';
 import {getRandomInt} from '../../utils/util';
-import { FeatureFlagPage } from '../../pages/instanceSettings/featureFlag.page';
 
-const { chromium } = require('playwright');
-
-export const test = mergeTests(apiHelpersTest, homePageTest, objectsPagesTest, instanceSettingsTest);
-
-// test.beforeAll(async () => {
-// 	const browser = await chromium.launch();
-// 	const page = await browser.newPage();
-// 	const featureFlagPage = new FeatureFlagPage(page);
-
-// 	await featureFlagPage.toggleFeatureFlag('LPS-148856');
-// });
-
+export const test = mergeTests(apiHelpersTest, homePageTest, objectsPagesTest);
 
 test('created object folders are on the left side bar', async ({
 	_api,
-	_homePage,
 	_objectDefinitionsPage,
 }) => {
 
-	await _homePage.goto();
-
-	await _homePage.page.evaluate(() => Liferay.Util.fetch(
-		'/o/com-liferay-feature-flag-web/set-enabled',
-		{
-			body: Liferay.Util.objectToFormData({
-				companyId: Liferay.ThemeDisplay.getCompanyId(),
-				enabled: 'true',
-				key: 'LPS-148856',
-			}),
-			method: 'POST',
-		}
-	));
-
-	//await _featureFlagPage.toggleFeatureFlag('LPS-148856');
+	await _api.featureFlag.updateFeatureFlag('LPS-148856', 'true');
 
 	await _objectDefinitionsPage.goto();
 
@@ -68,26 +40,10 @@ test('created object folders are on the left side bar', async ({
 
 test('uncategorized folder does not contains delete and edit options', async ({
 	_objectDefinitionsPage,
-	_featureFlagPage,
-	_homePage,
+	_api
 }) => {
 
-
-	await _homePage.goto();
-
-	await _homePage.page.evaluate(() => Liferay.Util.fetch(
-		'/o/com-liferay-feature-flag-web/set-enabled',
-		{
-			body: Liferay.Util.objectToFormData({
-				companyId: Liferay.ThemeDisplay.getCompanyId(),
-				enabled: 'true',
-				key: 'LPS-148856',
-			}),
-			method: 'POST',
-		}
-	));
-
-	//await _featureFlagPage.toggleFeatureFlag('LPS-148856');
+	await _api.featureFlag.updateFeatureFlag('LPS-148856', 'true');
 
 	await _objectDefinitionsPage.goto();
 	await _objectDefinitionsPage.clickUncategorizedObjectFolder();
@@ -103,30 +59,12 @@ test('uncategorized folder does not contains delete and edit options', async ({
 
 test('can create relationship by dragging node handles', async ({
 	_api,
-	_homePage,
 	_modelBuilderPage,
 	_objectDefinitionsPage,
-	_featureFlagPage,
 	page,
 }) => {
 
-	await _homePage.goto();
-
-	await _homePage.page.evaluate(() => Liferay.Util.fetch(
-		'/o/com-liferay-feature-flag-web/set-enabled',
-		{
-			body: Liferay.Util.objectToFormData({
-				companyId: Liferay.ThemeDisplay.getCompanyId(),
-				enabled: 'true',
-				key: 'LPS-148856',
-			}),
-			method: 'POST',
-		}
-	));
-
-	//await _featureFlagPage.toggleFeatureFlag('LPS-148856');
-
-	await _homePage.goto();
+	await _api.featureFlag.updateFeatureFlag('LPS-148856', 'true');
 
 	const objectFolder = await _api.objectAdmin.postRandomObjectFolder();
 	const objectDefinition1 = await _api.objectAdmin.postRandomObjectDefinition(
