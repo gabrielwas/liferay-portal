@@ -5,7 +5,9 @@
 
 const liferayConfig = {
 	environment: {
-		baseUrl: process.env.URL || 'http://localhost:8080/o/',
+		baseUrl: process.env.PORTAL_URL
+			? process.env.PORTAL_URL
+			: 'http://localhost:8080',
 	},
 	user: {
 		login: process.env.LIFERAY_USER_LOGIN || 'test@liferay.com',

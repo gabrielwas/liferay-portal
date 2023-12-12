@@ -4,11 +4,13 @@
  */
 
 import {liferayConfig} from '../liferay.config';
+import {FeatureFlagApiHelper} from './FeatureFlagApiHelper';
 import {ObjectAdminApiHelper} from './ObjectAdminApiHelper';
 
 export class ApiHelpers {
 	constructor(page) {
-		this.baseUrl = liferayConfig.environment.baseUrl;
+		this.baseUrl = liferayConfig.environment.baseUrl + '/o/';
+		this.featureFlag = new FeatureFlagApiHelper(page);
 		this.objectAdmin = new ObjectAdminApiHelper(this);
 		this.page = page;
 	}

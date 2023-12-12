@@ -14,11 +14,11 @@ export const test = mergeTests(apiHelpersTest, homePageTest, objectsPagesTest);
 
 test('can create relationship by dragging node handles', async ({
 	_api,
-	_homePage,
 	_modelBuilderPage,
 	_objectDefinitionsPage,
 }) => {
-	await _homePage.goto();
+	
+	await _api.featureFlag.updateFeatureFlag('LPS-148856', 'true');
 
 	const objectFolder = await _api.objectAdmin.postRandomObjectFolder();
 	const objectDefinition1 = await _api.objectAdmin.postRandomObjectDefinition(

@@ -16,6 +16,9 @@ test('created object folders are on the left side bar', async ({
 	_api,
 	_objectDefinitionsPage,
 }) => {
+
+	await _api.featureFlag.updateFeatureFlag('LPS-148856', 'true');
+
 	await _objectDefinitionsPage.goto();
 
 	const objectFolderExternalReferenceCode = 'objectFolder' + getRandomInt();
@@ -36,8 +39,12 @@ test('created object folders are on the left side bar', async ({
 });
 
 test('uncategorized folder does not contains delete and edit options', async ({
+	_api,
 	_objectDefinitionsPage,
 }) => {
+
+	await _api.featureFlag.updateFeatureFlag('LPS-148856', 'true');
+
 	await _objectDefinitionsPage.goto();
 	await _objectDefinitionsPage.clickUncategorizedObjectFolder();
 	await _objectDefinitionsPage.openObjectFolderActions();

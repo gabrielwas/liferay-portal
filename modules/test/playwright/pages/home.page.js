@@ -11,6 +11,9 @@ export class HomePage {
 		this.controlPanelButton = page.getByRole('tab', {
 			name: 'Control Panel',
 		});
+		this.instanceSettingsLink = page.getByRole('link', {
+			name: 'Instance Settings',
+		});
 		this.objectsLink = page.getByRole('link', {name: 'Objects'});
 		this.page = page;
 		this.signInButton = page.getByRole('button', {name: 'Sign In'});
@@ -21,10 +24,19 @@ export class HomePage {
 	}
 
 	async goToObjects() {
+		await this.goToControlPanel();
+		await this.objectsLink.click();
+	}
+
+	async goToInstanceSettings() {
+		await this.goToControlPanel();
+		await this.instanceSettingsLink.click();
+	}
+
+	async goToControlPanel() {
 		await this.goto();
 		await this.applicationMenuButton.click();
 		await this.controlPanelButton.click();
-		await this.objectsLink.click();
 	}
 
 	async login(email, password) {
