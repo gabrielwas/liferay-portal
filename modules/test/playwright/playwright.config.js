@@ -7,19 +7,18 @@ const {defineConfig, devices} = require('@playwright/test');
 
 module.exports = defineConfig({
 	forbidOnly: !!process.env.CI,
-	fullyParallel: true,
 	projects: [
 		{
+			dependencies: ['setup'],
 			name: 'chromium',
-			use: {...devices['Desktop Chrome']},
+			use: {
+				...devices['Desktop Chrome'],
+				storageState: 'tmp/.auth/user.json',
+			},
 		},
 		{
-			name: 'firefox',
-			use: {...devices['Desktop Firefox']},
-		},
-		{
-			name: 'webkit',
-			use: {...devices['Desktop Safari']},
+			name: 'setup',
+			testMatch: /global.setup\.js/,
 		},
 	],
 	reporter: [
@@ -43,7 +42,8 @@ module.exports = defineConfig({
 		baseURL: process.env.PORTAL_URL
 			? process.env.PORTAL_URL
 			: 'http://localhost:8080',
-		trace: 'on-first-retry',
+		screenshot: 'only-on-failure',
+		trace: 'retain-on-failure',
 	},
 	workers: process.env.CI ? 3 : undefined,
 });
