@@ -7,8 +7,11 @@ package com.liferay.object.internal.search.spi.model.query.contributor;
 
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.search.BooleanClauseOccur;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.filter.BooleanFilter;
+import com.liferay.portal.kernel.search.filter.Filter;
+import com.liferay.portal.kernel.search.filter.TermFilter;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.search.spi.model.query.contributor.ModelPreFilterContributor;
 import com.liferay.portal.search.spi.model.registrar.ModelSearchSettings;
@@ -42,6 +45,35 @@ public class ObjectEntryModelPreFilterContributor
 		if (objectDefinitionId > 0) {
 			booleanFilter.addRequiredTerm(
 				"objectDefinitionId", objectDefinitionId);
+		}
+
+		// Remember: Add to ContextSXPParameterContributor the accounts
+
+		//Remember: Make it work with organization latter
+
+
+		if(objectDefinitionId is account restricted){
+
+			BooleanFilter accountRestrictedBooleanFilter = new BooleanFilter();
+
+			accountRestrictedBooleanFilter.addTerm("isAccountRestricted", Boolean.TRUE.toString(),
+				BooleanClauseOccur.MUST);
+
+			BooleanFilter accountIdsBooleanFilter = new BooleanFilter();
+
+			long[] accountIds = (long[])searchContext.getAttribute(
+				"accountIds");
+
+			for(Long accountId : accountIds){
+
+				Filter filter = new TermFilter("accountId", String.valueOf(accountId));
+
+				accountIdsBooleanFilter.add(filter, BooleanClauseOccur.SHOULD);
+			}
+
+			accountRestrictedBooleanFilter.add(accountIdsBooleanFilter, BooleanClauseOccur.MUST);
+
+			booleanFilter.add(accountRestrictedBooleanFilter, BooleanClauseOccur.MUST);
 		}
 
 		_workflowStatusModelPreFilterContributor.contribute(

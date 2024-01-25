@@ -138,7 +138,17 @@ public class ObjectEntryModelDocumentContributor
 
 		StringBundler sb = new StringBundler(objectFields.size() * 4);
 
+		long accountEntryRestrictedObjectFieldId =
+			objectDefinition.getAccountEntryRestrictedObjectFieldId();
+
+		document.addKeyword("isAccountRestricted", objectDefinition.getAccountEntryRestricted());
+
 		for (ObjectField objectField : objectFields) {
+
+			if(objectDefinition.getAccountEntryRestricted() && objectField.getObjectFieldId() == accountEntryRestrictedObjectFieldId){
+				document.addNumber("accountId", Long.getLong( (String) values.get(objectField.getName())));
+			}
+
 			_contribute(fieldArray, objectEntry, objectField, sb, values);
 		}
 
