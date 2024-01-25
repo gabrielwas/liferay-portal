@@ -5,6 +5,7 @@
 
 package com.liferay.search.experiences.internal.blueprint.parameter;
 
+import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetTagLocalService;
 import com.liferay.expando.kernel.service.ExpandoColumnLocalService;
@@ -48,7 +49,8 @@ public class SXPParameterContributorProviderImpl
 	@Activate
 	protected void activate() {
 		_sxpParameterContributors = new SXPParameterContributor[] {
-			new ContextSXPParameterContributor(_groupLocalService, _language),
+			new ContextSXPParameterContributor(
+				_accountEntryLocalService, _groupLocalService, _language),
 			new IpstackSXPParameterContributor(_configurationProvider),
 			new MLSXPParameterContributor(
 				_language, _semanticSearchConfigurationProvider,
@@ -63,6 +65,9 @@ public class SXPParameterContributorProviderImpl
 				_userGroupRoleLocalService, _userLocalService)
 		};
 	}
+
+	@Reference
+	private AccountEntryLocalService _accountEntryLocalService;
 
 	@Reference
 	private AssetCategoryLocalService _assetCategoryLocalService;

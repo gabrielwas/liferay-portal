@@ -5,6 +5,9 @@
 
 package com.liferay.object.internal.search.spi.model.query.contributor;
 
+import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.service.ObjectDefinitionLocalService;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.search.BooleanClauseOccur;
@@ -24,8 +27,10 @@ public class ObjectEntryModelPreFilterContributor
 	implements ModelPreFilterContributor {
 
 	public ObjectEntryModelPreFilterContributor(
+		ObjectDefinitionLocalService objectDefinitionLocalService,
 		ModelPreFilterContributor workflowStatusModelPreFilterContributor) {
 
+		_objectDefinitionLocalService = objectDefinitionLocalService;
 		_workflowStatusModelPreFilterContributor =
 			workflowStatusModelPreFilterContributor;
 	}
@@ -38,42 +43,61 @@ public class ObjectEntryModelPreFilterContributor
 		long objectDefinitionId = GetterUtil.getLong(
 			searchContext.getAttribute("objectDefinitionId"));
 
+		long[] accountEntryIds1 = (long[])searchContext.getAttribute(
+			"accountEntryIds");
+
 		if (_log.isDebugEnabled()) {
 			_log.debug("Object definition ID " + objectDefinitionId);
 		}
 
 		if (objectDefinitionId > 0) {
+
 			booleanFilter.addRequiredTerm(
 				"objectDefinitionId", objectDefinitionId);
 		}
 
-		// Remember: Add to ContextSXPParameterContributor the accounts
+		boolean accountEntryRestricted = false;
 
-		//Remember: Make it work with organization latter
+		try {
+			ObjectDefinition objectDefinition =
+				_objectDefinitionLocalService.getObjectDefinition(
+					objectDefinitionId);
 
+			accountEntryRestricted =
+				objectDefinition.isAccountEntryRestricted();
+		}
+		catch (PortalException portalException) {
+			throw new RuntimeException(portalException);
+		}
 
-		if(objectDefinitionId is account restricted){
+		// Remember: Make it work with organization latter
+
+		if (accountEntryRestricted) {
 
 			BooleanFilter accountRestrictedBooleanFilter = new BooleanFilter();
 
-			accountRestrictedBooleanFilter.addTerm("isAccountRestricted", Boolean.TRUE.toString(),
-				BooleanClauseOccur.MUST);
+			BooleanFilter accountEntryIdsBooleanFilter = new BooleanFilter();
 
-			BooleanFilter accountIdsBooleanFilter = new BooleanFilter();
+			long[] accountEntryIds = (long[])searchContext.getAttribute(
+				"accountEntryIds");
 
-			long[] accountIds = (long[])searchContext.getAttribute(
-				"accountIds");
+			for (Long accountEntryId : accountEntryIds) {
+				Filter filter = new TermFilter(
+					"accountEntryId", String.valueOf(accountEntryId));
 
-			for(Long accountId : accountIds){
-
-				Filter filter = new TermFilter("accountId", String.valueOf(accountId));
-
-				accountIdsBooleanFilter.add(filter, BooleanClauseOccur.SHOULD);
+				accountEntryIdsBooleanFilter.add(
+					filter, BooleanClauseOccur.SHOULD);
 			}
 
-			accountRestrictedBooleanFilter.add(accountIdsBooleanFilter, BooleanClauseOccur.MUST);
+			accountRestrictedBooleanFilter.add(
+				accountEntryIdsBooleanFilter, BooleanClauseOccur.MUST);
 
-			booleanFilter.add(accountRestrictedBooleanFilter, BooleanClauseOccur.MUST);
+			accountRestrictedBooleanFilter.addTerm(
+				"isAccountRestricted", Boolean.TRUE.toString(),
+				BooleanClauseOccur.MUST);
+
+			booleanFilter.add(
+				accountRestrictedBooleanFilter, BooleanClauseOccur.MUST);
 		}
 
 		_workflowStatusModelPreFilterContributor.contribute(
@@ -83,6 +107,7 @@ public class ObjectEntryModelPreFilterContributor
 	private static final Log _log = LogFactoryUtil.getLog(
 		ObjectEntryModelPreFilterContributor.class);
 
+	private final ObjectDefinitionLocalService _objectDefinitionLocalService;
 	private final ModelPreFilterContributor
 		_workflowStatusModelPreFilterContributor;
 

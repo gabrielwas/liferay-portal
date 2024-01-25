@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.search.FieldArray;
 import com.liferay.portal.kernel.util.Base64;
 import com.liferay.portal.kernel.util.BigDecimalUtil;
 import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.spi.model.index.contributor.ModelDocumentContributor;
@@ -138,15 +139,17 @@ public class ObjectEntryModelDocumentContributor
 
 		StringBundler sb = new StringBundler(objectFields.size() * 4);
 
-		long accountEntryRestrictedObjectFieldId =
-			objectDefinition.getAccountEntryRestrictedObjectFieldId();
-
-		document.addKeyword("isAccountRestricted", objectDefinition.getAccountEntryRestricted());
+		document.addKeyword(
+			"isAccountRestricted", objectDefinition.isAccountEntryRestricted());
 
 		for (ObjectField objectField : objectFields) {
+			if (objectDefinition.isAccountEntryRestricted() &&
+				(objectField.getObjectFieldId() ==
+				 objectDefinition.getAccountEntryRestrictedObjectFieldId())) {
 
-			if(objectDefinition.getAccountEntryRestricted() && objectField.getObjectFieldId() == accountEntryRestrictedObjectFieldId){
-				document.addNumber("accountId", Long.getLong( (String) values.get(objectField.getName())));
+				document.addNumber(
+					"accountEntryId",
+					GetterUtil.getLong(values.get(objectField.getName())));
 			}
 
 			_contribute(fieldArray, objectEntry, objectField, sb, values);

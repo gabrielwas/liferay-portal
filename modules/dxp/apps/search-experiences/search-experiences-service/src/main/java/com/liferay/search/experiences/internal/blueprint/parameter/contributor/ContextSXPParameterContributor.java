@@ -5,15 +5,22 @@
 
 package com.liferay.search.experiences.internal.blueprint.parameter.contributor;
 
+import com.liferay.account.constants.AccountConstants;
+import com.liferay.account.model.AccountEntry;
+import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.ListUtil;
+import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.search.experiences.blueprint.parameter.SXPParameter;
 import com.liferay.search.experiences.blueprint.parameter.contributor.SXPParameterContributor;
 import com.liferay.search.experiences.blueprint.parameter.contributor.SXPParameterContributorDefinition;
@@ -35,8 +42,10 @@ import java.util.Set;
 public class ContextSXPParameterContributor implements SXPParameterContributor {
 
 	public ContextSXPParameterContributor(
+		AccountEntryLocalService accountEntryLocalService,
 		GroupLocalService groupLocalService, Language language) {
 
+		_accountEntryLocalService = accountEntryLocalService;
 		_groupLocalService = groupLocalService;
 		_language = language;
 	}
@@ -45,6 +54,28 @@ public class ContextSXPParameterContributor implements SXPParameterContributor {
 	public void contribute(
 		ExceptionListener exceptionListener, SearchContext searchContext,
 		Set<SXPParameter> sxpParameters) {
+
+		try {
+			long userId = GetterUtil.getLong(
+				searchContext.getAttribute(Field.USER_ID));
+
+			long[] accountEntryIds = ListUtil.toLongArray(
+				_accountEntryLocalService.getUserAccountEntries(
+					userId, AccountConstants.PARENT_ACCOUNT_ENTRY_ID_DEFAULT,
+					null,
+					AccountConstants.ACCOUNT_ENTRY_TYPES_DEFAULT_ALLOWED_TYPES,
+					WorkflowConstants.STATUS_APPROVED, QueryUtil.ALL_POS,
+					QueryUtil.ALL_POS),
+				AccountEntry::getAccountEntryId);
+
+			sxpParameters.add(
+				new LongArraySXPParameter(
+					"accountEntryIds", true,
+					ArrayUtil.toArray(accountEntryIds)));
+		}
+		catch (PortalException portalException) {
+			exceptionListener.exceptionThrown(portalException);
+		}
 
 		long[] commerceAccountGroupIds = (long[])searchContext.getAttribute(
 			"commerceAccountGroupIds");
@@ -147,6 +178,7 @@ public class ContextSXPParameterContributor implements SXPParameterContributor {
 				"context.scope_group_id"));
 	}
 
+	private final AccountEntryLocalService _accountEntryLocalService;
 	private final GroupLocalService _groupLocalService;
 	private final Language _language;
 

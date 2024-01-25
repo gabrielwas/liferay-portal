@@ -217,6 +217,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 			_bundleContext.registerService(
 				ModelPreFilterContributor.class,
 				new ObjectEntryModelPreFilterContributor(
+					_objectDefinitionLocalService,
 					_workflowStatusModelPreFilterContributor),
 				HashMapDictionaryBuilder.<String, Object>put(
 					"indexer.class.name", objectDefinition.getClassName()
