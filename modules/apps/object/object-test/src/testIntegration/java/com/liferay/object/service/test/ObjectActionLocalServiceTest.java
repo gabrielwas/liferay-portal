@@ -5,16 +5,22 @@
 
 package com.liferay.object.service.test;
 
+import com.liferay.account.constants.AccountConstants;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.commerce.constants.CommerceOrderConstants;
 import com.liferay.commerce.constants.CommerceOrderPaymentConstants;
+import com.liferay.commerce.constants.CommerceSubscriptionEntryConstants;
 import com.liferay.commerce.currency.model.CommerceCurrency;
 import com.liferay.commerce.currency.test.util.CommerceCurrencyTestUtil;
 import com.liferay.commerce.model.CommerceOrder;
+import com.liferay.commerce.model.CommerceSubscriptionEntry;
 import com.liferay.commerce.order.engine.CommerceOrderEngine;
+import com.liferay.commerce.payment.engine.CommerceSubscriptionEngine;
 import com.liferay.commerce.product.model.CommerceChannel;
 import com.liferay.commerce.service.CommerceOrderLocalService;
+import com.liferay.commerce.service.CommerceOrderLocalServiceUtil;
+import com.liferay.commerce.service.CommerceSubscriptionEntryLocalService;
 import com.liferay.commerce.test.util.CommerceTestUtil;
 import com.liferay.object.action.engine.ObjectActionEngine;
 import com.liferay.object.action.executor.ObjectActionExecutorRegistry;
@@ -55,6 +61,7 @@ import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -112,6 +119,7 @@ import java.io.Serializable;
 
 import java.lang.reflect.Method;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -1200,6 +1208,9 @@ public class ObjectActionLocalServiceTest {
 		Assert.assertTrue(
 			objectActionTriggerKeys.contains(
 				DestinationNames.COMMERCE_PAYMENT_STATUS));
+		Assert.assertTrue(
+			objectActionTriggerKeys.contains(
+				DestinationNames.COMMERCE_SUBSCRIPTION_STATUS));
 
 		// Add object action to update commerce order status to
 		// CommerceOrderConstants#ORDER_STATUS_PROCESSING after updating payment
@@ -1307,6 +1318,35 @@ public class ObjectActionLocalServiceTest {
 			).build(),
 			false);
 
+		// Add object action to update commerce shipping amount after updating
+		// subscription status
+
+		ObjectAction objectAction3 = _objectActionLocalService.addObjectAction(
+			RandomTestUtil.randomString(), TestPropsValues.getUserId(),
+			commerceOrderObjectDefinition.getObjectDefinitionId(), true,
+			StringPool.BLANK, RandomTestUtil.randomString(),
+			LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+			LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+			RandomTestUtil.randomString(),
+			ObjectActionExecutorConstants.KEY_UPDATE_OBJECT_ENTRY,
+			DestinationNames.COMMERCE_SUBSCRIPTION_STATUS,
+			UnicodePropertiesBuilder.put(
+				"objectDefinitionId",
+				commerceOrderObjectDefinition.getObjectDefinitionId()
+			).put(
+				"predefinedValues",
+				JSONUtil.putAll(
+					JSONUtil.put(
+						"inputAsValue", true
+					).put(
+						"name", "shippingAmount"
+					).put(
+						"value", "15"
+					)
+				).toString()
+			).build(),
+			false);
+
 		PermissionChecker originalPermissionChecker =
 			PermissionThreadLocal.getPermissionChecker();
 		String originalName = PrincipalThreadLocal.getName();
@@ -1353,6 +1393,62 @@ public class ObjectActionLocalServiceTest {
 			Assert.assertEquals(
 				CommerceOrderConstants.ORDER_STATUS_OPEN,
 				commerceOrder2.getOrderStatus());
+
+			CommerceOrder commerceOrder3 = CommerceTestUtil.addB2CCommerceOrder(
+				_user.getUserId(), commerceChannel.getGroupId(),
+				commerceCurrency.getCommerceCurrencyId());
+
+			commerceOrder3 = CommerceTestUtil.addCheckoutDetailsToCommerceOrder(
+				commerceOrder3, _user.getUserId(), true, false);
+
+			commerceOrder3.setPaymentStatus(
+				CommerceOrderPaymentConstants.STATUS_COMPLETED);
+
+			commerceOrder3 = _commerceOrderLocalService.updateCommerceOrder(
+				commerceOrder3);
+
+			commerceOrder3 = _commerceOrderEngine.checkoutCommerceOrder(
+				commerceOrder3, _user.getUserId());
+
+			BigDecimal shippingAmount = commerceOrder3.getShippingAmount();
+
+			List<CommerceSubscriptionEntry> commerceSubscriptionEntries =
+				_commerceSubscriptionEntryLocalService.
+					getCommerceSubscriptionEntries(
+						_user.getCompanyId(), commerceChannel.getGroupId(),
+						_user.getUserId(), QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+						null);
+
+			Assert.assertEquals(
+				commerceSubscriptionEntries.toString(), 1,
+				commerceSubscriptionEntries.size());
+
+			CommerceSubscriptionEntry commerceSubscriptionEntry =
+				commerceSubscriptionEntries.get(0);
+
+			Assert.assertEquals(
+				CommerceSubscriptionEntryConstants.SUBSCRIPTION_STATUS_ACTIVE,
+				commerceSubscriptionEntry.getSubscriptionStatus());
+
+			_commerceSubscriptionEngine.suspendRecurringPayment(
+				commerceSubscriptionEntry.getCommerceSubscriptionEntryId());
+
+			commerceSubscriptionEntry =
+				_commerceSubscriptionEntryLocalService.getCommerceSubscriptionEntry(
+					commerceSubscriptionEntry.getCommerceSubscriptionEntryId());
+
+			Assert.assertEquals(
+				CommerceSubscriptionEntryConstants.SUBSCRIPTION_STATUS_SUSPENDED,
+				commerceSubscriptionEntry.getSubscriptionStatus());
+
+			commerceOrder3 = _commerceOrderLocalService.getCommerceOrder(
+				commerceOrder3.getCommerceOrderId());
+
+			BigDecimal shippingAmount2 = commerceOrder3.getShippingAmount();
+
+			shippingAmount2.abs();
+
+
 		}
 		finally {
 			PermissionThreadLocal.setPermissionChecker(
@@ -1382,7 +1478,7 @@ public class ObjectActionLocalServiceTest {
 				organizationObjectDefinition.getObjectDefinitionId()
 			).build());
 
-		ObjectAction objectAction3 = _objectActionLocalService.addObjectAction(
+		ObjectAction objectAction4 = _objectActionLocalService.addObjectAction(
 			RandomTestUtil.randomString(), TestPropsValues.getUserId(),
 			organizationObjectDefinition.getObjectDefinitionId(), true,
 			StringPool.BLANK, RandomTestUtil.randomString(),
@@ -1422,7 +1518,7 @@ public class ObjectActionLocalServiceTest {
 			).build(),
 			false);
 
-		ObjectAction objectAction4 = _addObjectAction(
+		ObjectAction objectAction5 = _addObjectAction(
 			RandomTestUtil.randomString(),
 			ObjectActionExecutorConstants.KEY_ADD_OBJECT_ENTRY,
 			ObjectActionTriggerConstants.KEY_ON_AFTER_ADD,
@@ -1532,7 +1628,7 @@ public class ObjectActionLocalServiceTest {
 
 		// Add object action to create user after adding an object entry
 
-		ObjectAction objectAction5 = _addObjectAction(
+		ObjectAction objectAction6 = _addObjectAction(
 			RandomTestUtil.randomString(),
 			ObjectActionExecutorConstants.KEY_ADD_OBJECT_ENTRY,
 			ObjectActionTriggerConstants.KEY_ON_AFTER_ADD,
@@ -1583,7 +1679,7 @@ public class ObjectActionLocalServiceTest {
 
 		// Add object action to update user after adding a user
 
-		ObjectAction objectAction6 = _objectActionLocalService.addObjectAction(
+		ObjectAction objectAction7 = _objectActionLocalService.addObjectAction(
 			RandomTestUtil.randomString(), TestPropsValues.getUserId(),
 			userObjectDefinition.getObjectDefinitionId(), true,
 			StringPool.BLANK, RandomTestUtil.randomString(),
@@ -1658,7 +1754,7 @@ public class ObjectActionLocalServiceTest {
 
 		// Add object action to execute Groovy after adding a user
 
-		objectAction5 = _objectActionLocalService.addObjectAction(
+		objectAction6 = _objectActionLocalService.addObjectAction(
 			RandomTestUtil.randomString(), TestPropsValues.getUserId(),
 			userObjectDefinition.getObjectDefinitionId(), true,
 			StringPool.BLANK, RandomTestUtil.randomString(),
@@ -1674,7 +1770,7 @@ public class ObjectActionLocalServiceTest {
 
 		// Add object action to execute Groovy after updating a user
 
-		objectAction6 = _objectActionLocalService.addObjectAction(
+		objectAction7 = _objectActionLocalService.addObjectAction(
 			RandomTestUtil.randomString(), TestPropsValues.getUserId(),
 			userObjectDefinition.getObjectDefinitionId(), true,
 			StringPool.BLANK, RandomTestUtil.randomString(),
@@ -1711,6 +1807,7 @@ public class ObjectActionLocalServiceTest {
 		_objectActionLocalService.deleteObjectAction(objectAction4);
 		_objectActionLocalService.deleteObjectAction(objectAction5);
 		_objectActionLocalService.deleteObjectAction(objectAction6);
+		_objectActionLocalService.deleteObjectAction(objectAction7);
 		_objectFieldLocalService.deleteObjectField(objectField1);
 		_objectFieldLocalService.deleteObjectField(objectField2);
 		_objectFieldLocalService.deleteObjectField(objectField3);
@@ -2368,6 +2465,13 @@ public class ObjectActionLocalServiceTest {
 
 	@Inject
 	private ResourcePermissionLocalService _resourcePermissionLocalService;
+
+	@Inject
+	private CommerceSubscriptionEntryLocalService
+		_commerceSubscriptionEntryLocalService;
+
+	@Inject
+	private CommerceSubscriptionEngine _commerceSubscriptionEngine;
 
 	private User _user;
 

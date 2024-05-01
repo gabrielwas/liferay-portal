@@ -790,6 +790,13 @@ public class CommerceSubscriptionEntryLocalServiceImpl
 	private void _sendSubscriptionStatusMessage(
 		long commerceSubscriptionEntryId, int subscriptionStatus) {
 
+		CommerceSubscriptionEntry commerceSubscriptionEntry =
+			commerceSubscriptionEntryPersistence.fetchByPrimaryKey(
+				commerceSubscriptionEntryId);
+
+		long commerceOrderItemId =
+			commerceSubscriptionEntry.getCommerceOrderItemId();
+
 		TransactionCommitCallbackUtil.registerCallback(
 			() -> {
 				Message message = new Message();
