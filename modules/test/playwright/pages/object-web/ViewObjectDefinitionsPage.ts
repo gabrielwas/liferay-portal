@@ -71,6 +71,10 @@ export class ViewObjectDefinitionsPage {
 		await this.defaultObjectFolder.click();
 	}
 
+	async openObjectDefinition(objectDefinitionLabel: string){
+		await this.page.getByRole('link', { name: objectDefinitionLabel, exact: true }).click();
+	}
+
 	async createObjectFolder(objectFolderLabel: string) {
 		await this.addObjectFolderButton.click();
 		await this.objectFolderLabelInput.click();
