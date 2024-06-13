@@ -14,6 +14,7 @@ import com.liferay.notification.model.NotificationQueueEntry;
 import com.liferay.notification.model.NotificationRecipient;
 import com.liferay.notification.model.NotificationRecipientSetting;
 import com.liferay.notification.model.NotificationTemplate;
+import com.liferay.notification.util.NotificationRecipientSettingUtil;
 import com.liferay.object.constants.ObjectActionExecutorConstants;
 import com.liferay.object.constants.ObjectActionKeys;
 import com.liferay.object.constants.ObjectActionTriggerConstants;
@@ -89,9 +90,12 @@ public class UserNotificationTypeTest extends BaseNotificationTypeTest {
 	public void testSendNotificationRecipientTypeRole() throws Exception {
 		_testSendNotification(
 			Arrays.asList(
-				createNotificationRecipientSetting(
-					"roleName", RoleConstants.ADMINISTRATOR),
-				createNotificationRecipientSetting("roleName", role.getName())),
+				NotificationRecipientSettingUtil.
+					createNotificationRecipientSetting(
+						"roleName", RoleConstants.ADMINISTRATOR),
+				NotificationRecipientSettingUtil.
+					createNotificationRecipientSetting(
+						"roleName", role.getName())),
 			NotificationRecipientConstants.TYPE_ROLE);
 	}
 
@@ -127,8 +131,9 @@ public class UserNotificationTypeTest extends BaseNotificationTypeTest {
 			notificationTemplateLocalService.addNotificationTemplate(
 				_createNotificationContext(
 					Collections.singletonList(
-						createNotificationRecipientSetting(
-							"roleName", role.getName())),
+						NotificationRecipientSettingUtil.
+							createNotificationRecipientSetting(
+								"roleName", role.getName())),
 					NotificationRecipientConstants.TYPE_ROLE)));
 
 		_assertNotificationQueueEntry(user.getFullName());
@@ -164,8 +169,9 @@ public class UserNotificationTypeTest extends BaseNotificationTypeTest {
 
 		_testSendNotificationRecipientTypeTerm(
 			Arrays.asList(
-				createNotificationRecipientSetting(
-					"term", getTermName("AUTHOR_ID"))),
+				NotificationRecipientSettingUtil.
+					createNotificationRecipientSetting(
+						"term", getTermName("AUTHOR_ID"))),
 			NotificationRecipientConstants.TYPE_TERM);
 	}
 
@@ -177,8 +183,9 @@ public class UserNotificationTypeTest extends BaseNotificationTypeTest {
 			notificationTemplateLocalService.addNotificationTemplate(
 				_createNotificationContext(
 					Arrays.asList(
-						createNotificationRecipientSetting(
-							"term", getTermName("creator"))),
+						NotificationRecipientSettingUtil.
+							createNotificationRecipientSetting(
+								"term", getTermName("creator"))),
 					NotificationRecipientConstants.TYPE_TERM));
 
 		objectActionLocalService.addObjectAction(
@@ -254,8 +261,9 @@ public class UserNotificationTypeTest extends BaseNotificationTypeTest {
 
 		_testSendNotificationRecipientTypeTerm(
 			Arrays.asList(
-				createNotificationRecipientSetting(
-					"term", "[%CURRENT_USER_ID%]")),
+				NotificationRecipientSettingUtil.
+					createNotificationRecipientSetting(
+						"term", "[%CURRENT_USER_ID%]")),
 			NotificationRecipientConstants.TYPE_TERM);
 	}
 
@@ -265,8 +273,9 @@ public class UserNotificationTypeTest extends BaseNotificationTypeTest {
 
 		_testSendNotificationRecipientTypeTerm(
 			Arrays.asList(
-				createNotificationRecipientSetting(
-					"term", getTermName(true, "AUTHOR_ID"))),
+				NotificationRecipientSettingUtil.
+					createNotificationRecipientSetting(
+						"term", getTermName(true, "AUTHOR_ID"))),
 			NotificationRecipientConstants.TYPE_TERM);
 	}
 
@@ -276,10 +285,12 @@ public class UserNotificationTypeTest extends BaseNotificationTypeTest {
 
 		_testSendNotification(
 			Arrays.asList(
-				createNotificationRecipientSetting(
-					"term", getTermName("creator")),
-				createNotificationRecipientSetting(
-					"term", user1.getScreenName())),
+				NotificationRecipientSettingUtil.
+					createNotificationRecipientSetting(
+						"term", getTermName("creator")),
+				NotificationRecipientSettingUtil.
+					createNotificationRecipientSetting(
+						"term", user1.getScreenName())),
 			NotificationRecipientConstants.TYPE_TERM);
 	}
 
@@ -287,10 +298,12 @@ public class UserNotificationTypeTest extends BaseNotificationTypeTest {
 	public void testSendNotificationRecipientTypeUser() throws Exception {
 		_testSendNotification(
 			Arrays.asList(
-				createNotificationRecipientSetting(
-					"userScreenName", user1.getScreenName()),
-				createNotificationRecipientSetting(
-					"userScreenName", user2.getScreenName())),
+				NotificationRecipientSettingUtil.
+					createNotificationRecipientSetting(
+						"userScreenName", user1.getScreenName()),
+				NotificationRecipientSettingUtil.
+					createNotificationRecipientSetting(
+						"userScreenName", user2.getScreenName())),
 			NotificationRecipientConstants.TYPE_USER);
 	}
 
