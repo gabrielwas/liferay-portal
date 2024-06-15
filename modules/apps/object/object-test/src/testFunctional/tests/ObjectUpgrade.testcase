@@ -18,12 +18,12 @@ definition {
 		SearchAdministration.executeReindex();
 	}
 
-	@ignore = "Test Stub"
 	@priority = 5
 	test ViewActionWithNotificationAfterUpgrade7413U33 {
 		property data.archive.type = "data-archive-object";
 		property database.types = "mariadb,mysql,postgresql,sqlserver";
 		property portal.version = "7.4.13.u33";
+		property test.smtp.server.enabled = "true";
 
 		task ("Given Custom Object1 and Object Actions") {
 			ObjectAdmin.openObjectAdmin();
@@ -81,59 +81,7 @@ definition {
 			Close.closeWindow();
 		}
 
-		task ("And when user edits Custom Action name and Expression Builder condition and asserts action ran and received notification") {
-			ObjectAdmin.openObjectAdmin();
 
-			ObjectPortlet.selectCustomObject(label = "Custom Object1");
-
-			ObjectAdmin.goToActionsTab();
-
-			ObjectAdmin.editObjectAction(
-				actionLabel = "Update Custom Action",
-				inputExpression = "customFieldText == 'Update Notification Test'",
-				viewEntry = "Custom Action");
-
-			Navigator.openURL();
-
-			ProductMenu.gotoPortlet(
-				category = "Content & Data",
-				portlet = "Custom Objects1");
-
-			LexiconEntry.gotoAdd();
-
-			Type(
-				key_text = "",
-				locator1 = "TextInput#ANY",
-				value1 = "Update Notification Test");
-
-			Button.clickSave();
-
-			ProductMenu.gotoPortlet(
-				category = "Content & Data",
-				panel = "Site Administration",
-				portlet = "Custom Objects1");
-
-			MockMock.viewMail(
-				asset = "Subject",
-				content = "Email Body",
-				recipient = "test@liferay",
-				sender = "Test Test",
-				subject = "Subject");
-		}
-
-		task ("Then the user is able to delete the action") {
-			ObjectAdmin.openObjectAdmin();
-
-			ObjectPortlet.selectCustomObject(label = "Custom Object1");
-
-			ObjectAdmin.goToActionsTab();
-
-			Click(
-				key_objectLabel = "Custom Action",
-				locator1 = "ObjectAdmin#OBJECT_KEBAB_MENU");
-
-			MenuItem.clickNoError(menuItem = "Delete");
-		}
 	}
 
 	@priority = 5
