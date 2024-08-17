@@ -78,6 +78,7 @@ import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.GroupThreadLocal;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -159,7 +160,7 @@ public class DefaultObjectEntryManagerImpl
 			_addOrUpdateNestedObjectEntries(
 				dtoConverterContext, objectDefinition, objectEntry,
 				_getObjectRelationships(objectDefinition, objectEntry),
-				serviceBuilderObjectEntry.getPrimaryKey(), scopeKey));
+				serviceBuilderObjectEntry, scopeKey));
 	}
 
 	@Override
@@ -818,8 +819,7 @@ public class DefaultObjectEntryManagerImpl
 			_addOrUpdateNestedObjectEntries(
 				dtoConverterContext, objectDefinition, objectEntry,
 				_getObjectRelationships(objectDefinition, objectEntry),
-				serviceBuilderObjectEntry.getPrimaryKey(),
-				objectEntry.getScopeKey()));
+				serviceBuilderObjectEntry, objectEntry.getScopeKey()));
 	}
 
 	@Override
@@ -852,7 +852,7 @@ public class DefaultObjectEntryManagerImpl
 			_addOrUpdateNestedObjectEntries(
 				dtoConverterContext, objectDefinition, objectEntry,
 				_getObjectRelationships(objectDefinition, objectEntry),
-				serviceBuilderObjectEntry.getPrimaryKey(), scopeKey));
+				serviceBuilderObjectEntry, scopeKey));
 	}
 
 	private Map<String, String> _addAction(
@@ -884,8 +884,15 @@ public class DefaultObjectEntryManagerImpl
 				DTOConverterContext dtoConverterContext,
 				ObjectDefinition objectDefinition, ObjectEntry objectEntry,
 				Map<String, ObjectRelationship> objectRelationships,
-				long primaryKey, String scopeKey)
+				com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry,
+				String scopeKey)
 		throws Exception {
+
+		if (MapUtil.isEmpty(objectRelationships)) {
+			return serviceBuilderObjectEntry;
+		}
+
+		long primaryKey = serviceBuilderObjectEntry.getPrimaryKey();
 
 		Map<String, Object> properties = objectEntry.getProperties();
 
@@ -1687,6 +1694,10 @@ public class DefaultObjectEntryManagerImpl
 		for (ObjectField objectField :
 				objectFieldLocalService.getObjectFields(
 					objectDefinition.getObjectDefinitionId())) {
+
+			if (objectField.isMetadata()) {
+				continue;
+			}
 
 			if (Objects.equals(
 					objectField.getBusinessType(),

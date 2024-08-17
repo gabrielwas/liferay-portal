@@ -307,6 +307,8 @@ public class ObjectEntryLocalServiceImpl
 		objectEntry.setStatusByUserId(user.getUserId());
 		objectEntry.setStatusDate(serviceContext.getModifiedDate(null));
 
+		objectEntry.setValues(values);
+
 		_resourceLocalService.addResources(
 			objectEntry.getCompanyId(), objectEntry.getGroupId(),
 			objectEntry.getUserId(), objectDefinition.getClassName(),
