@@ -353,6 +353,11 @@ public class PLOEntryLocalServiceWrapper
 	}
 
 	@Override
+	public int getPLOEntryCount(long companyId, String key) {
+		return _ploEntryLocalService.getPLOEntryCount(companyId, key);
+	}
+
+	@Override
 	public void importPLOEntries(
 			long companyId, long userId, String languageId,
 			java.util.Properties properties)

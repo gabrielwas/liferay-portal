@@ -306,6 +306,10 @@ public class PLOEntryLocalServiceUtil {
 		return getService().getPLOEntry(ploEntryId);
 	}
 
+	public static int getPLOEntryCount(long companyId, String key) {
+		return getService().getPLOEntryCount(companyId, key);
+	}
+
 	public static void importPLOEntries(
 			long companyId, long userId, String languageId,
 			java.util.Properties properties)
