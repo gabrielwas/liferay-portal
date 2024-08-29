@@ -97,6 +97,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.osgi.framework.BundleContext;
@@ -389,26 +390,46 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					).build()));
 		}
 
-		try {
-			for (Locale locale : LanguageUtil.getAvailableLocales()) {
-				String languageId = LocaleUtil.toLanguageId(locale);
+		String objectDefinitionLabelPLOEntryKey =
+			"model.resource.com.liferay.object.model.ObjectDefinition#" +
+				objectDefinition.getObjectDefinitionId();
+		String objectDefinitionPluralLabelPLOEntryKey =
+			"model.resource." + objectDefinition.getResourceName();
 
-				_ploEntryLocalService.addOrUpdatePLOEntry(
-					objectDefinition.getCompanyId(),
-					objectDefinition.getUserId(),
-					"model.resource." + objectDefinition.getResourceName(),
-					languageId, objectDefinition.getPluralLabel(locale));
-				_ploEntryLocalService.addOrUpdatePLOEntry(
-					objectDefinition.getCompanyId(),
-					objectDefinition.getUserId(),
-					"model.resource.com.liferay.object.model." +
-						"ObjectDefinition#" +
-							objectDefinition.getObjectDefinitionId(),
-					languageId, objectDefinition.getLabel(locale));
+		int objectDefinitionLabelPLOEntryCount =
+			_ploEntryLocalService.getPLOEntryCount(
+				objectDefinition.getCompanyId(),
+				objectDefinitionLabelPLOEntryKey);
+		int objectDefinitionPluralLabelPLOEntryCount =
+			_ploEntryLocalService.getPLOEntryCount(
+				objectDefinition.getCompanyId(),
+				objectDefinitionPluralLabelPLOEntryKey);
+
+		Set<Locale> availableLocales = LanguageUtil.getAvailableLocales();
+
+		if ((objectDefinitionLabelPLOEntryCount != availableLocales.size()) ||
+			(objectDefinitionPluralLabelPLOEntryCount !=
+				availableLocales.size())) {
+
+			try {
+				for (Locale locale : LanguageUtil.getAvailableLocales()) {
+					String languageId = LocaleUtil.toLanguageId(locale);
+
+					_ploEntryLocalService.addOrUpdatePLOEntry(
+						objectDefinition.getCompanyId(),
+						objectDefinition.getUserId(),
+						objectDefinitionLabelPLOEntryKey, languageId,
+						objectDefinition.getLabel(locale));
+					_ploEntryLocalService.addOrUpdatePLOEntry(
+						objectDefinition.getCompanyId(),
+						objectDefinition.getUserId(),
+						objectDefinitionPluralLabelPLOEntryKey, languageId,
+						objectDefinition.getPluralLabel(locale));
+				}
 			}
-		}
-		catch (PortalException portalException) {
-			return ReflectionUtil.throwException(portalException);
+			catch (PortalException portalException) {
+				return ReflectionUtil.throwException(portalException);
+			}
 		}
 
 		ObjectLayout objectLayout =
