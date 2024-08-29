@@ -99,6 +99,11 @@ public class PLOEntryLocalServiceImpl extends PLOEntryLocalServiceBaseImpl {
 	}
 
 	@Override
+	public int getPLOEntryCount(long companyId, String key) {
+		return ploEntryPersistence.countByC_K(companyId, key);
+	}
+
+	@Override
 	public void importPLOEntries(
 			long companyId, long userId, String languageId,
 			Properties properties)
