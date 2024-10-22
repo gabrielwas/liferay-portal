@@ -748,58 +748,58 @@ public class ObjectActionLocalServiceImpl
 					ObjectActionTriggerConstants.KEY_ON_AFTER_DELETE));
 		}
 
+//		if (Objects.equals(
+//				objectActionExecutorKey,
+//				ObjectActionExecutorConstants.KEY_ADD_OBJECT_ENTRY) ||
+//			Objects.equals(
+//				objectActionExecutorKey,
+//				ObjectActionExecutorConstants.KEY_UPDATE_OBJECT_ENTRY)) {
+//
+//			long objectDefinitionId = GetterUtil.getLong(
+//				parametersUnicodeProperties.get("objectDefinitionId"));
+//
+//			ObjectDefinition objectDefinition =
+//				_objectDefinitionPersistence.fetchByPrimaryKey(
+//					objectDefinitionId);
+//
+//			String objectDefinitionExternalReferenceCode = GetterUtil.getString(
+//				parametersUnicodeProperties.remove(
+//					"objectDefinitionExternalReferenceCode"));
+//
+//			if (Validator.isNotNull(objectDefinitionExternalReferenceCode)) {
+//				ObjectDefinition existingObjectDefinition =
+//					_objectDefinitionPersistence.fetchByERC_C(
+//						objectDefinitionExternalReferenceCode, companyId);
+//
+//				if (existingObjectDefinition != null) {
+//					objectDefinition = existingObjectDefinition;
+//
+//					parametersUnicodeProperties.put(
+//						"objectDefinitionId",
+//						String.valueOf(
+//							objectDefinition.getObjectDefinitionId()));
+//				}
+//			}
+//
+//			if ((objectDefinition == null) ||
+//				(Objects.equals(
+//					objectActionExecutorKey,
+//					ObjectActionExecutorConstants.KEY_ADD_OBJECT_ENTRY) &&
+//				 (!objectDefinition.isActive() ||
+//				  !objectDefinition.isApproved()) &&
+//				 !objectDefinition.isModifiableAndSystem())) {
+//
+//				errorMessageKeys.put("objectDefinitionId", "invalid");
+//			}
+//			else {
+//				_validatePredefinedValues(
+//					errorMessageKeys, objectActionExecutorKey,
+//					objectDefinition.getObjectDefinitionId(),
+//					_jsonFactory.createJSONArray(
+//						parametersUnicodeProperties.get("predefinedValues")));
+//			}
+//		}
 		if (Objects.equals(
-				objectActionExecutorKey,
-				ObjectActionExecutorConstants.KEY_ADD_OBJECT_ENTRY) ||
-			Objects.equals(
-				objectActionExecutorKey,
-				ObjectActionExecutorConstants.KEY_UPDATE_OBJECT_ENTRY)) {
-
-			long objectDefinitionId = GetterUtil.getLong(
-				parametersUnicodeProperties.get("objectDefinitionId"));
-
-			ObjectDefinition objectDefinition =
-				_objectDefinitionPersistence.fetchByPrimaryKey(
-					objectDefinitionId);
-
-			String objectDefinitionExternalReferenceCode = GetterUtil.getString(
-				parametersUnicodeProperties.remove(
-					"objectDefinitionExternalReferenceCode"));
-
-			if (Validator.isNotNull(objectDefinitionExternalReferenceCode)) {
-				ObjectDefinition existingObjectDefinition =
-					_objectDefinitionPersistence.fetchByERC_C(
-						objectDefinitionExternalReferenceCode, companyId);
-
-				if (existingObjectDefinition != null) {
-					objectDefinition = existingObjectDefinition;
-
-					parametersUnicodeProperties.put(
-						"objectDefinitionId",
-						String.valueOf(
-							objectDefinition.getObjectDefinitionId()));
-				}
-			}
-
-			if ((objectDefinition == null) ||
-				(Objects.equals(
-					objectActionExecutorKey,
-					ObjectActionExecutorConstants.KEY_ADD_OBJECT_ENTRY) &&
-				 (!objectDefinition.isActive() ||
-				  !objectDefinition.isApproved()) &&
-				 !objectDefinition.isModifiableAndSystem())) {
-
-				errorMessageKeys.put("objectDefinitionId", "invalid");
-			}
-			else {
-				_validatePredefinedValues(
-					errorMessageKeys, objectActionExecutorKey,
-					objectDefinition.getObjectDefinitionId(),
-					_jsonFactory.createJSONArray(
-						parametersUnicodeProperties.get("predefinedValues")));
-			}
-		}
-		else if (Objects.equals(
 					objectActionExecutorKey,
 					ObjectActionExecutorConstants.KEY_GROOVY)) {
 

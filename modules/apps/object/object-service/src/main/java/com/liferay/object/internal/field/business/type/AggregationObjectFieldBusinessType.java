@@ -124,140 +124,142 @@ public class AggregationObjectFieldBusinessType
 			List<ObjectFieldSetting> objectFieldSettings)
 		throws PortalException {
 
-		Map<String, Object> objectFieldSettingsValuesMap = new HashMap<>();
 
-		for (ObjectFieldSetting objectFieldSetting : objectFieldSettings) {
-			String name = objectFieldSetting.getName();
 
-			if (Objects.equals(name, "filters")) {
-				objectFieldSettingsValuesMap.put(
-					name, objectFieldSetting.getObjectFilters());
-
-				continue;
-			}
-
-			objectFieldSettingsValuesMap.put(
-				name, objectFieldSetting.getValue());
-		}
-
-		String function = GetterUtil.getString(
-			objectFieldSettingsValuesMap.get(
-				ObjectFieldSettingConstants.NAME_FUNCTION));
-
-		Set<String> requiredObjectFieldSettingsNames =
-			getRequiredObjectFieldSettingsNames(objectField);
-
-		if (!ArrayUtil.contains(_FUNCTION, function)) {
-			throw new ObjectFieldSettingValueException.InvalidValue(
-				objectField.getName(),
-				ObjectFieldSettingConstants.NAME_FUNCTION, function);
-		}
-		else if (Objects.equals(
-					function, ObjectFieldSettingConstants.VALUE_COUNT)) {
-
-			requiredObjectFieldSettingsNames.remove(
-				ObjectFieldSettingConstants.NAME_OBJECT_FIELD_NAME);
-		}
-
-		Set<String> missingRequiredObjectFieldSettingsNames = new HashSet<>();
-
-		for (String requiredObjectFieldSettingName :
-				requiredObjectFieldSettingsNames) {
-
-			if (Validator.isNull(
-					objectFieldSettingsValuesMap.get(
-						requiredObjectFieldSettingName))) {
-
-				missingRequiredObjectFieldSettingsNames.add(
-					requiredObjectFieldSettingName);
-			}
-		}
-
-		if (!missingRequiredObjectFieldSettingsNames.isEmpty()) {
-			throw new ObjectFieldSettingValueException.MissingRequiredValues(
-				objectField.getName(), missingRequiredObjectFieldSettingsNames);
-		}
-
-		Set<String> notAllowedObjectFieldSettingsNames = new HashSet<>(
-			objectFieldSettingsValuesMap.keySet());
-
-		notAllowedObjectFieldSettingsNames.removeAll(
-			getAllowedObjectFieldSettingsNames());
-		notAllowedObjectFieldSettingsNames.removeAll(
-			requiredObjectFieldSettingsNames);
-
-		if (!notAllowedObjectFieldSettingsNames.isEmpty()) {
-			throw new ObjectFieldSettingNameException.NotAllowedNames(
-				objectField.getName(), notAllowedObjectFieldSettingsNames);
-		}
-
-		try {
-			ObjectRelationship objectRelationship =
-				_objectRelationshipLocalService.getObjectRelationship(
-					objectField.getObjectDefinitionId(),
-					GetterUtil.getString(
-						objectFieldSettingsValuesMap.get(
-							ObjectFieldSettingConstants.
-								NAME_OBJECT_RELATIONSHIP_NAME)));
-
-			ObjectDefinition objectDefinition =
-				_objectDefinitionLocalService.fetchObjectDefinition(
-					objectRelationship.getObjectDefinitionId2());
-
-			if (!Objects.equals(
-					function, ObjectFieldSettingConstants.VALUE_COUNT)) {
-
-				ObjectField objectField1 =
-					_objectFieldLocalService.getObjectField(
-						objectDefinition.getObjectDefinitionId(),
-						GetterUtil.getString(
-							objectFieldSettingsValuesMap.get(
-								ObjectFieldSettingConstants.
-									NAME_OBJECT_FIELD_NAME)));
-
-				if (!ArrayUtil.contains(
-						_NUMERIC_BUSINESS_TYPES,
-						objectField1.getBusinessType())) {
-
-					throw new ObjectFieldSettingValueException.InvalidValue(
-						objectField.getName(),
-						ObjectFieldSettingConstants.NAME_OBJECT_FIELD_NAME,
-						GetterUtil.getString(
-							objectFieldSettingsValuesMap.get(
-								ObjectFieldSettingConstants.
-									NAME_OBJECT_FIELD_NAME)));
-				}
-			}
-
-			_validateObjectFilters(
-				objectDefinition, objectField.getName(),
-				(List<ObjectFilter>)objectFieldSettingsValuesMap.get(
-					"filters"));
-		}
-		catch (NoSuchObjectFieldException noSuchObjectFieldException) {
-			throw new ObjectFieldSettingValueException.InvalidValue(
-				objectField.getName(),
-				ObjectFieldSettingConstants.NAME_OBJECT_FIELD_NAME,
-				GetterUtil.getString(
-					objectFieldSettingsValuesMap.get(
-						ObjectFieldSettingConstants.NAME_OBJECT_FIELD_NAME)),
-				noSuchObjectFieldException);
-		}
-		catch (NoSuchObjectRelationshipException
-					noSuchObjectRelationshipException) {
-
-			throw new ObjectFieldSettingValueException.InvalidValue(
-				objectField.getName(),
-				ObjectFieldSettingConstants.NAME_OBJECT_RELATIONSHIP_NAME,
-				GetterUtil.getString(
-					objectFieldSettingsValuesMap.get(
-						ObjectFieldSettingConstants.
-							NAME_OBJECT_RELATIONSHIP_NAME)),
-				noSuchObjectRelationshipException);
-		}
-		catch (PortalException portalException) {
-			throw new RuntimeException(portalException);
-		}
+//		Map<String, Object> objectFieldSettingsValuesMap = new HashMap<>();
+//
+//		for (ObjectFieldSetting objectFieldSetting : objectFieldSettings) {
+//			String name = objectFieldSetting.getName();
+//
+//			if (Objects.equals(name, "filters")) {
+//				objectFieldSettingsValuesMap.put(
+//					name, objectFieldSetting.getObjectFilters());
+//
+//				continue;
+//			}
+//
+//			objectFieldSettingsValuesMap.put(
+//				name, objectFieldSetting.getValue());
+//		}
+//
+//		String function = GetterUtil.getString(
+//			objectFieldSettingsValuesMap.get(
+//				ObjectFieldSettingConstants.NAME_FUNCTION));
+//
+//		Set<String> requiredObjectFieldSettingsNames =
+//			getRequiredObjectFieldSettingsNames(objectField);
+//
+//		if (!ArrayUtil.contains(_FUNCTION, function)) {
+//			throw new ObjectFieldSettingValueException.InvalidValue(
+//				objectField.getName(),
+//				ObjectFieldSettingConstants.NAME_FUNCTION, function);
+//		}
+//		else if (Objects.equals(
+//					function, ObjectFieldSettingConstants.VALUE_COUNT)) {
+//
+//			requiredObjectFieldSettingsNames.remove(
+//				ObjectFieldSettingConstants.NAME_OBJECT_FIELD_NAME);
+//		}
+//
+//		Set<String> missingRequiredObjectFieldSettingsNames = new HashSet<>();
+//
+//		for (String requiredObjectFieldSettingName :
+//				requiredObjectFieldSettingsNames) {
+//
+//			if (Validator.isNull(
+//					objectFieldSettingsValuesMap.get(
+//						requiredObjectFieldSettingName))) {
+//
+//				missingRequiredObjectFieldSettingsNames.add(
+//					requiredObjectFieldSettingName);
+//			}
+//		}
+//
+//		if (!missingRequiredObjectFieldSettingsNames.isEmpty()) {
+//			throw new ObjectFieldSettingValueException.MissingRequiredValues(
+//				objectField.getName(), missingRequiredObjectFieldSettingsNames);
+//		}
+//
+//		Set<String> notAllowedObjectFieldSettingsNames = new HashSet<>(
+//			objectFieldSettingsValuesMap.keySet());
+//
+//		notAllowedObjectFieldSettingsNames.removeAll(
+//			getAllowedObjectFieldSettingsNames());
+//		notAllowedObjectFieldSettingsNames.removeAll(
+//			requiredObjectFieldSettingsNames);
+//
+//		if (!notAllowedObjectFieldSettingsNames.isEmpty()) {
+//			throw new ObjectFieldSettingNameException.NotAllowedNames(
+//				objectField.getName(), notAllowedObjectFieldSettingsNames);
+//		}
+//
+//		try {
+//			ObjectRelationship objectRelationship =
+//				_objectRelationshipLocalService.getObjectRelationship(
+//					objectField.getObjectDefinitionId(),
+//					GetterUtil.getString(
+//						objectFieldSettingsValuesMap.get(
+//							ObjectFieldSettingConstants.
+//								NAME_OBJECT_RELATIONSHIP_NAME)));
+//
+//			ObjectDefinition objectDefinition =
+//				_objectDefinitionLocalService.fetchObjectDefinition(
+//					objectRelationship.getObjectDefinitionId2());
+//
+//			if (!Objects.equals(
+//					function, ObjectFieldSettingConstants.VALUE_COUNT)) {
+//
+//				ObjectField objectField1 =
+//					_objectFieldLocalService.getObjectField(
+//						objectDefinition.getObjectDefinitionId(),
+//						GetterUtil.getString(
+//							objectFieldSettingsValuesMap.get(
+//								ObjectFieldSettingConstants.
+//									NAME_OBJECT_FIELD_NAME)));
+//
+//				if (!ArrayUtil.contains(
+//						_NUMERIC_BUSINESS_TYPES,
+//						objectField1.getBusinessType())) {
+//
+//					throw new ObjectFieldSettingValueException.InvalidValue(
+//						objectField.getName(),
+//						ObjectFieldSettingConstants.NAME_OBJECT_FIELD_NAME,
+//						GetterUtil.getString(
+//							objectFieldSettingsValuesMap.get(
+//								ObjectFieldSettingConstants.
+//									NAME_OBJECT_FIELD_NAME)));
+//				}
+//			}
+//
+//			_validateObjectFilters(
+//				objectDefinition, objectField.getName(),
+//				(List<ObjectFilter>)objectFieldSettingsValuesMap.get(
+//					"filters"));
+//		}
+//		catch (NoSuchObjectFieldException noSuchObjectFieldException) {
+//			throw new ObjectFieldSettingValueException.InvalidValue(
+//				objectField.getName(),
+//				ObjectFieldSettingConstants.NAME_OBJECT_FIELD_NAME,
+//				GetterUtil.getString(
+//					objectFieldSettingsValuesMap.get(
+//						ObjectFieldSettingConstants.NAME_OBJECT_FIELD_NAME)),
+//				noSuchObjectFieldException);
+//		}
+//		catch (NoSuchObjectRelationshipException
+//					noSuchObjectRelationshipException) {
+//
+//			throw new ObjectFieldSettingValueException.InvalidValue(
+//				objectField.getName(),
+//				ObjectFieldSettingConstants.NAME_OBJECT_RELATIONSHIP_NAME,
+//				GetterUtil.getString(
+//					objectFieldSettingsValuesMap.get(
+//						ObjectFieldSettingConstants.
+//							NAME_OBJECT_RELATIONSHIP_NAME)),
+//				noSuchObjectRelationshipException);
+//		}
+//		catch (PortalException portalException) {
+//			throw new RuntimeException(portalException);
+//		}
 	}
 
 	private void _validateObjectFilters(

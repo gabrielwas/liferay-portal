@@ -801,10 +801,15 @@ public class ObjectDefinitionResourceImpl
 		throws Exception {
 
 		com.liferay.object.model.ObjectDefinition
-			serviceBuilderObjectDefinition =
-				_objectDefinitionService.
-					fetchObjectDefinitionByExternalReferenceCode(
-						externalReferenceCode, contextCompany.getCompanyId());
+			serviceBuilderObjectDefinition;
+
+		if(objectDefinition.getSystem()){
+			serviceBuilderObjectDefinition = _objectDefinitionLocalService.fetchObjectDefinition(contextCompany.getCompanyId(), objectDefinition.getName());
+		}else{
+			serviceBuilderObjectDefinition = _objectDefinitionService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					externalReferenceCode, contextCompany.getCompanyId());
+		}
 
 		objectDefinition.setExternalReferenceCode(() -> externalReferenceCode);
 
