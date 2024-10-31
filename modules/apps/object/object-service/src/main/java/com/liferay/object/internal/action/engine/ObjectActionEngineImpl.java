@@ -204,23 +204,24 @@ public class ObjectActionEngineImpl implements ObjectActionEngine {
 		Map<Long, Set<Long>> objectEntryIdsMap =
 			ObjectActionThreadLocal.getObjectEntryIdsMap();
 
+		long objectEntryId = _getObjectEntryId(
+			objectDefinition, payloadJSONObject);
+
+		Set<Long> objectEntryIds = objectEntryIdsMap.get(
+			objectAction.getObjectActionId());
+
 		if (!StringUtil.equals(
 				objectAction.getObjectActionTriggerKey(),
 				ObjectActionTriggerConstants.KEY_ON_AFTER_UPDATE) &&
-			objectEntryIdsMap.containsKey(objectAction.getObjectActionId())) {
+			objectEntryIdsMap.containsKey(objectAction.getObjectActionId()) &&
+			objectEntryIds.contains(objectEntryId)) {
 
 			return;
 		}
 
-		long objectEntryId = _getObjectEntryId(
-			objectDefinition, payloadJSONObject);
-
 		if (StringUtil.equals(
 				objectAction.getObjectActionTriggerKey(),
 				ObjectActionTriggerConstants.KEY_ON_AFTER_UPDATE)) {
-
-			Set<Long> objectEntryIds = objectEntryIdsMap.get(
-				objectAction.getObjectActionId());
 
 			if (SetUtil.isNotEmpty(objectEntryIds) &&
 				objectEntryIds.contains(objectEntryId)) {
