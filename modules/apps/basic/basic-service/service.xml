@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!DOCTYPE service-builder PUBLIC "-//Liferay//DTD Service Builder 7.4.0//EN" "http://www.liferay.com/dtd/liferay-service-builder_7_4_0.dtd">
+
+<service-builder auto-import-default-references="false" auto-namespace-tables="false" dependency-injector="ds" mvcc-enabled="true" package-path="com.liferay.blade.basic" short-no-such-exception-enabled="false">
+	<namespace>SSB</namespace>
+	<entity external-reference-code="company" local-service="true" name="Flight" remote-service="true" uuid="true">
+
+		<!-- PK fields -->
+
+		<column name="flightId" primary="true" type="long" />
+
+		<!-- Group instance -->
+
+		<column name="groupId" type="long" />
+
+		<!-- Audit fields -->
+
+		<column name="companyId" type="long" />
+		<column name="userId" type="long" />
+		<column name="userName" type="String" />
+		<column name="createDate" type="Date" />
+		<column name="modifiedDate" type="Date" />
+
+		<!-- Other fields -->
+
+		<column name="flightNumber" type="String" />
+		<column name="active" type="boolean" />
+		<column name="capacity" type="int" />
+		<column name="flightDate" type="Date" />
+
+		<!-- Order -->
+
+		<order by="asc">
+			<order-column name="flightNumber" />
+		</order>
+
+		<!-- Finder methods -->
+
+		<finder name="Active" return-type="Collection">
+			<finder-column name="active" />
+		</finder>
+	</entity>
+</service-builder>

@@ -1,0 +1,6 @@
+Bundle-Name: Liferay Basic REST API
+Bundle-SymbolicName: com.liferay.basic.rest.api
+Bundle-Version: 1.0.0
+Export-Package:\
+	com.liferay.basic.rest.dto.v1_0,\
+	com.liferay.basic.rest.resource.v1_0

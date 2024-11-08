@@ -1,0 +1,6 @@
+Bundle-Name: Liferay Basic REST Test
+Bundle-SymbolicName: com.liferay.basic.rest.test
+Bundle-Version: 1.0.0
+-includeresource:\
+	com.liferay.basic.rest.client.jar=com.liferay.basic.rest.client-*.jar;lib:=true,\
+	@jsonassert-[0-9.]*.jar
