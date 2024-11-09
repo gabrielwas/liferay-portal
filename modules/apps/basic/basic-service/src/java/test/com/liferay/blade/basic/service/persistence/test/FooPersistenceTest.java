@@ -6,6 +6,7 @@
 package com.liferay.blade.basic.service.persistence.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.blade.basic.exception.DuplicateFooExternalReferenceCodeException;
 import com.liferay.blade.basic.exception.NoSuchFooException;
 import com.liferay.blade.basic.model.Foo;
 import com.liferay.blade.basic.service.FooLocalServiceUtil;
@@ -119,6 +120,8 @@ public class FooPersistenceTest {
 
 		newFoo.setUuid(RandomTestUtil.randomString());
 
+		newFoo.setExternalReferenceCode(RandomTestUtil.randomString());
+
 		newFoo.setGroupId(RandomTestUtil.nextLong());
 
 		newFoo.setCompanyId(RandomTestUtil.nextLong());
@@ -148,6 +151,9 @@ public class FooPersistenceTest {
 		Assert.assertEquals(
 			existingFoo.getMvccVersion(), newFoo.getMvccVersion());
 		Assert.assertEquals(existingFoo.getUuid(), newFoo.getUuid());
+		Assert.assertEquals(
+			existingFoo.getExternalReferenceCode(),
+			newFoo.getExternalReferenceCode());
 		Assert.assertEquals(existingFoo.getFooId(), newFoo.getFooId());
 		Assert.assertEquals(existingFoo.getGroupId(), newFoo.getGroupId());
 		Assert.assertEquals(existingFoo.getCompanyId(), newFoo.getCompanyId());
@@ -166,6 +172,25 @@ public class FooPersistenceTest {
 			Time.getShortTimestamp(existingFoo.getField4()),
 			Time.getShortTimestamp(newFoo.getField4()));
 		Assert.assertEquals(existingFoo.getField5(), newFoo.getField5());
+	}
+
+	@Test(expected = DuplicateFooExternalReferenceCodeException.class)
+	public void testUpdateWithExistingExternalReferenceCode() throws Exception {
+		Foo foo = addFoo();
+
+		Foo newFoo = addFoo();
+
+		newFoo.setCompanyId(foo.getCompanyId());
+
+		newFoo = _persistence.update(newFoo);
+
+		Session session = _persistence.getCurrentSession();
+
+		session.evict(newFoo);
+
+		newFoo.setExternalReferenceCode(foo.getExternalReferenceCode());
+
+		_persistence.update(newFoo);
 	}
 
 	@Test
@@ -203,6 +228,15 @@ public class FooPersistenceTest {
 	}
 
 	@Test
+	public void testCountByERC_C() throws Exception {
+		_persistence.countByERC_C("", RandomTestUtil.nextLong());
+
+		_persistence.countByERC_C("null", 0L);
+
+		_persistence.countByERC_C((String)null, 0L);
+	}
+
+	@Test
 	public void testFindByPrimaryKeyExisting() throws Exception {
 		Foo newFoo = addFoo();
 
@@ -226,10 +260,11 @@ public class FooPersistenceTest {
 
 	protected OrderByComparator<Foo> getOrderByComparator() {
 		return OrderByComparatorFactoryUtil.create(
-			"Foo", "mvccVersion", true, "uuid", true, "fooId", true, "groupId",
-			true, "companyId", true, "userId", true, "userName", true,
-			"createDate", true, "modifiedDate", true, "field1", true, "field2",
-			true, "field3", true, "field4", true, "field5", true);
+			"Foo", "mvccVersion", true, "uuid", true, "externalReferenceCode",
+			true, "fooId", true, "groupId", true, "companyId", true, "userId",
+			true, "userName", true, "createDate", true, "modifiedDate", true,
+			"field1", true, "field2", true, "field3", true, "field4", true,
+			"field5", true);
 	}
 
 	@Test
@@ -489,6 +524,17 @@ public class FooPersistenceTest {
 			ReflectionTestUtil.<Long>invoke(
 				foo, "getColumnOriginalValue", new Class<?>[] {String.class},
 				"groupId"));
+
+		Assert.assertEquals(
+			foo.getExternalReferenceCode(),
+			ReflectionTestUtil.invoke(
+				foo, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"externalReferenceCode"));
+		Assert.assertEquals(
+			Long.valueOf(foo.getCompanyId()),
+			ReflectionTestUtil.<Long>invoke(
+				foo, "getColumnOriginalValue", new Class<?>[] {String.class},
+				"companyId"));
 	}
 
 	protected Foo addFoo() throws Exception {
@@ -499,6 +545,8 @@ public class FooPersistenceTest {
 		foo.setMvccVersion(RandomTestUtil.nextLong());
 
 		foo.setUuid(RandomTestUtil.randomString());
+
+		foo.setExternalReferenceCode(RandomTestUtil.randomString());
 
 		foo.setGroupId(RandomTestUtil.nextLong());
 

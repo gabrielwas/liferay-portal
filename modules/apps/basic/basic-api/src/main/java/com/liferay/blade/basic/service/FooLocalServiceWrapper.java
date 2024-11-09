@@ -217,6 +217,14 @@ public class FooLocalServiceWrapper
 		return _fooLocalService.fetchFoo(fooId);
 	}
 
+	@Override
+	public com.liferay.blade.basic.model.Foo fetchFooByExternalReferenceCode(
+		String externalReferenceCode, long companyId) {
+
+		return _fooLocalService.fetchFooByExternalReferenceCode(
+			externalReferenceCode, companyId);
+	}
+
 	/**
 	 * Returns the foo matching the UUID and group.
 	 *
@@ -260,6 +268,15 @@ public class FooLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _fooLocalService.getFoo(fooId);
+	}
+
+	@Override
+	public com.liferay.blade.basic.model.Foo getFooByExternalReferenceCode(
+			String externalReferenceCode, long companyId)
+		throws com.liferay.portal.kernel.exception.PortalException {
+
+		return _fooLocalService.getFooByExternalReferenceCode(
+			externalReferenceCode, companyId);
 	}
 
 	/**

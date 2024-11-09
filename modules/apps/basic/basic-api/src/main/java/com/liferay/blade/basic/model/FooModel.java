@@ -7,6 +7,7 @@ package com.liferay.blade.basic.model;
 
 import com.liferay.portal.kernel.bean.AutoEscape;
 import com.liferay.portal.kernel.model.BaseModel;
+import com.liferay.portal.kernel.model.ExternalReferenceCodeModel;
 import com.liferay.portal.kernel.model.GroupedModel;
 import com.liferay.portal.kernel.model.MVCCModel;
 import com.liferay.portal.kernel.model.ShardedModel;
@@ -29,8 +30,8 @@ import org.osgi.annotation.versioning.ProviderType;
  */
 @ProviderType
 public interface FooModel
-	extends BaseModel<Foo>, GroupedModel, MVCCModel, ShardedModel,
-			StagedAuditedModel {
+	extends BaseModel<Foo>, ExternalReferenceCodeModel, GroupedModel, MVCCModel,
+			ShardedModel, StagedAuditedModel {
 
 	/*
 	 * NOTE FOR DEVELOPERS:
@@ -84,6 +85,23 @@ public interface FooModel
 	 */
 	@Override
 	public void setUuid(String uuid);
+
+	/**
+	 * Returns the external reference code of this foo.
+	 *
+	 * @return the external reference code of this foo
+	 */
+	@AutoEscape
+	@Override
+	public String getExternalReferenceCode();
+
+	/**
+	 * Sets the external reference code of this foo.
+	 *
+	 * @param externalReferenceCode the external reference code of this foo
+	 */
+	@Override
+	public void setExternalReferenceCode(String externalReferenceCode);
 
 	/**
 	 * Returns the foo ID of this foo.

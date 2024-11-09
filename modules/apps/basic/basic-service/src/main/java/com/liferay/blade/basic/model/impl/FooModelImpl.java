@@ -64,12 +64,13 @@ public class FooModelImpl extends BaseModelImpl<Foo> implements FooModel {
 
 	public static final Object[][] TABLE_COLUMNS = {
 		{"mvccVersion", Types.BIGINT}, {"uuid_", Types.VARCHAR},
-		{"fooId", Types.BIGINT}, {"groupId", Types.BIGINT},
-		{"companyId", Types.BIGINT}, {"userId", Types.BIGINT},
-		{"userName", Types.VARCHAR}, {"createDate", Types.TIMESTAMP},
-		{"modifiedDate", Types.TIMESTAMP}, {"field1", Types.VARCHAR},
-		{"field2", Types.BOOLEAN}, {"field3", Types.INTEGER},
-		{"field4", Types.TIMESTAMP}, {"field5", Types.VARCHAR}
+		{"externalReferenceCode", Types.VARCHAR}, {"fooId", Types.BIGINT},
+		{"groupId", Types.BIGINT}, {"companyId", Types.BIGINT},
+		{"userId", Types.BIGINT}, {"userName", Types.VARCHAR},
+		{"createDate", Types.TIMESTAMP}, {"modifiedDate", Types.TIMESTAMP},
+		{"field1", Types.VARCHAR}, {"field2", Types.BOOLEAN},
+		{"field3", Types.INTEGER}, {"field4", Types.TIMESTAMP},
+		{"field5", Types.VARCHAR}
 	};
 
 	public static final Map<String, Integer> TABLE_COLUMNS_MAP =
@@ -78,6 +79,7 @@ public class FooModelImpl extends BaseModelImpl<Foo> implements FooModel {
 	static {
 		TABLE_COLUMNS_MAP.put("mvccVersion", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("uuid_", Types.VARCHAR);
+		TABLE_COLUMNS_MAP.put("externalReferenceCode", Types.VARCHAR);
 		TABLE_COLUMNS_MAP.put("fooId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("groupId", Types.BIGINT);
 		TABLE_COLUMNS_MAP.put("companyId", Types.BIGINT);
@@ -93,7 +95,7 @@ public class FooModelImpl extends BaseModelImpl<Foo> implements FooModel {
 	}
 
 	public static final String TABLE_SQL_CREATE =
-		"create table Foo (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,fooId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,field1 VARCHAR(75) null,field2 BOOLEAN,field3 INTEGER,field4 DATE null,field5 VARCHAR(75) null)";
+		"create table Foo (mvccVersion LONG default 0 not null,uuid_ VARCHAR(75) null,externalReferenceCode VARCHAR(75) null,fooId LONG not null primary key,groupId LONG,companyId LONG,userId LONG,userName VARCHAR(75) null,createDate DATE null,modifiedDate DATE null,field1 VARCHAR(75) null,field2 BOOLEAN,field3 INTEGER,field4 DATE null,field5 VARCHAR(75) null)";
 
 	public static final String TABLE_SQL_DROP = "drop table Foo";
 
@@ -117,26 +119,32 @@ public class FooModelImpl extends BaseModelImpl<Foo> implements FooModel {
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)}
 	 */
 	@Deprecated
-	public static final long FIELD2_COLUMN_BITMASK = 2L;
+	public static final long EXTERNALREFERENCECODE_COLUMN_BITMASK = 2L;
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)}
 	 */
 	@Deprecated
-	public static final long GROUPID_COLUMN_BITMASK = 4L;
+	public static final long FIELD2_COLUMN_BITMASK = 4L;
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)}
 	 */
 	@Deprecated
-	public static final long UUID_COLUMN_BITMASK = 8L;
+	public static final long GROUPID_COLUMN_BITMASK = 8L;
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link #getColumnBitmask(String)}
+	 */
+	@Deprecated
+	public static final long UUID_COLUMN_BITMASK = 16L;
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
 	 *		#getColumnBitmask(String)}
 	 */
 	@Deprecated
-	public static final long FIELD1_COLUMN_BITMASK = 16L;
+	public static final long FIELD1_COLUMN_BITMASK = 32L;
 
 	/**
 	 * @deprecated As of Athanasius (7.3.x), with no direct replacement
@@ -243,6 +251,8 @@ public class FooModelImpl extends BaseModelImpl<Foo> implements FooModel {
 
 			attributeGetterFunctions.put("mvccVersion", Foo::getMvccVersion);
 			attributeGetterFunctions.put("uuid", Foo::getUuid);
+			attributeGetterFunctions.put(
+				"externalReferenceCode", Foo::getExternalReferenceCode);
 			attributeGetterFunctions.put("fooId", Foo::getFooId);
 			attributeGetterFunctions.put("groupId", Foo::getGroupId);
 			attributeGetterFunctions.put("companyId", Foo::getCompanyId);
@@ -275,6 +285,9 @@ public class FooModelImpl extends BaseModelImpl<Foo> implements FooModel {
 				"mvccVersion", (BiConsumer<Foo, Long>)Foo::setMvccVersion);
 			attributeSetterBiConsumers.put(
 				"uuid", (BiConsumer<Foo, String>)Foo::setUuid);
+			attributeSetterBiConsumers.put(
+				"externalReferenceCode",
+				(BiConsumer<Foo, String>)Foo::setExternalReferenceCode);
 			attributeSetterBiConsumers.put(
 				"fooId", (BiConsumer<Foo, Long>)Foo::setFooId);
 			attributeSetterBiConsumers.put(
@@ -348,6 +361,35 @@ public class FooModelImpl extends BaseModelImpl<Foo> implements FooModel {
 	@Deprecated
 	public String getOriginalUuid() {
 		return getColumnOriginalValue("uuid_");
+	}
+
+	@JSON
+	@Override
+	public String getExternalReferenceCode() {
+		if (_externalReferenceCode == null) {
+			return "";
+		}
+		else {
+			return _externalReferenceCode;
+		}
+	}
+
+	@Override
+	public void setExternalReferenceCode(String externalReferenceCode) {
+		if (_columnOriginalValues == Collections.EMPTY_MAP) {
+			_setColumnOriginalValues();
+		}
+
+		_externalReferenceCode = externalReferenceCode;
+	}
+
+	/**
+	 * @deprecated As of Athanasius (7.3.x), replaced by {@link
+	 *             #getColumnOriginalValue(String)}
+	 */
+	@Deprecated
+	public String getOriginalExternalReferenceCode() {
+		return getColumnOriginalValue("externalReferenceCode");
 	}
 
 	@JSON
@@ -665,6 +707,7 @@ public class FooModelImpl extends BaseModelImpl<Foo> implements FooModel {
 
 		fooImpl.setMvccVersion(getMvccVersion());
 		fooImpl.setUuid(getUuid());
+		fooImpl.setExternalReferenceCode(getExternalReferenceCode());
 		fooImpl.setFooId(getFooId());
 		fooImpl.setGroupId(getGroupId());
 		fooImpl.setCompanyId(getCompanyId());
@@ -690,6 +733,8 @@ public class FooModelImpl extends BaseModelImpl<Foo> implements FooModel {
 		fooImpl.setMvccVersion(
 			this.<Long>getColumnOriginalValue("mvccVersion"));
 		fooImpl.setUuid(this.<String>getColumnOriginalValue("uuid_"));
+		fooImpl.setExternalReferenceCode(
+			this.<String>getColumnOriginalValue("externalReferenceCode"));
 		fooImpl.setFooId(this.<Long>getColumnOriginalValue("fooId"));
 		fooImpl.setGroupId(this.<Long>getColumnOriginalValue("groupId"));
 		fooImpl.setCompanyId(this.<Long>getColumnOriginalValue("companyId"));
@@ -786,6 +831,16 @@ public class FooModelImpl extends BaseModelImpl<Foo> implements FooModel {
 
 		if ((uuid != null) && (uuid.length() == 0)) {
 			fooCacheModel.uuid = null;
+		}
+
+		fooCacheModel.externalReferenceCode = getExternalReferenceCode();
+
+		String externalReferenceCode = fooCacheModel.externalReferenceCode;
+
+		if ((externalReferenceCode != null) &&
+			(externalReferenceCode.length() == 0)) {
+
+			fooCacheModel.externalReferenceCode = null;
 		}
 
 		fooCacheModel.fooId = getFooId();
@@ -913,6 +968,7 @@ public class FooModelImpl extends BaseModelImpl<Foo> implements FooModel {
 
 	private long _mvccVersion;
 	private String _uuid;
+	private String _externalReferenceCode;
 	private long _fooId;
 	private long _groupId;
 	private long _companyId;
@@ -959,6 +1015,8 @@ public class FooModelImpl extends BaseModelImpl<Foo> implements FooModel {
 
 		_columnOriginalValues.put("mvccVersion", _mvccVersion);
 		_columnOriginalValues.put("uuid_", _uuid);
+		_columnOriginalValues.put(
+			"externalReferenceCode", _externalReferenceCode);
 		_columnOriginalValues.put("fooId", _fooId);
 		_columnOriginalValues.put("groupId", _groupId);
 		_columnOriginalValues.put("companyId", _companyId);
@@ -998,29 +1056,31 @@ public class FooModelImpl extends BaseModelImpl<Foo> implements FooModel {
 
 		columnBitmasks.put("uuid_", 2L);
 
-		columnBitmasks.put("fooId", 4L);
+		columnBitmasks.put("externalReferenceCode", 4L);
 
-		columnBitmasks.put("groupId", 8L);
+		columnBitmasks.put("fooId", 8L);
 
-		columnBitmasks.put("companyId", 16L);
+		columnBitmasks.put("groupId", 16L);
 
-		columnBitmasks.put("userId", 32L);
+		columnBitmasks.put("companyId", 32L);
 
-		columnBitmasks.put("userName", 64L);
+		columnBitmasks.put("userId", 64L);
 
-		columnBitmasks.put("createDate", 128L);
+		columnBitmasks.put("userName", 128L);
 
-		columnBitmasks.put("modifiedDate", 256L);
+		columnBitmasks.put("createDate", 256L);
 
-		columnBitmasks.put("field1", 512L);
+		columnBitmasks.put("modifiedDate", 512L);
 
-		columnBitmasks.put("field2", 1024L);
+		columnBitmasks.put("field1", 1024L);
 
-		columnBitmasks.put("field3", 2048L);
+		columnBitmasks.put("field2", 2048L);
 
-		columnBitmasks.put("field4", 4096L);
+		columnBitmasks.put("field3", 4096L);
 
-		columnBitmasks.put("field5", 8192L);
+		columnBitmasks.put("field4", 8192L);
+
+		columnBitmasks.put("field5", 16384L);
 
 		_columnBitmasks = Collections.unmodifiableMap(columnBitmasks);
 	}

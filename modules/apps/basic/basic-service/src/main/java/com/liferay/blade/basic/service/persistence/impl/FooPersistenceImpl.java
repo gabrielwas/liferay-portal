@@ -5,6 +5,7 @@
 
 package com.liferay.blade.basic.service.persistence.impl;
 
+import com.liferay.blade.basic.exception.DuplicateFooExternalReferenceCodeException;
 import com.liferay.blade.basic.exception.NoSuchFooException;
 import com.liferay.blade.basic.model.Foo;
 import com.liferay.blade.basic.model.FooTable;
@@ -23,12 +24,18 @@ import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.SessionFactory;
+import com.liferay.portal.kernel.exception.SystemException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.sanitizer.Sanitizer;
+import com.liferay.portal.kernel.sanitizer.SanitizerException;
+import com.liferay.portal.kernel.sanitizer.SanitizerUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
+import com.liferay.portal.kernel.security.auth.PrincipalThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
+import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -1869,6 +1876,205 @@ public class FooPersistenceImpl
 	private static final String _FINDER_COLUMN_FIELD2_FIELD2_2 =
 		"foo.field2 = ?";
 
+	private FinderPath _finderPathFetchByERC_C;
+
+	/**
+	 * Returns the foo where externalReferenceCode = &#63; and companyId = &#63; or throws a <code>NoSuchFooException</code> if it could not be found.
+	 *
+	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
+	 * @return the matching foo
+	 * @throws NoSuchFooException if a matching foo could not be found
+	 */
+	@Override
+	public Foo findByERC_C(String externalReferenceCode, long companyId)
+		throws NoSuchFooException {
+
+		Foo foo = fetchByERC_C(externalReferenceCode, companyId);
+
+		if (foo == null) {
+			StringBundler sb = new StringBundler(6);
+
+			sb.append(_NO_SUCH_ENTITY_WITH_KEY);
+
+			sb.append("externalReferenceCode=");
+			sb.append(externalReferenceCode);
+
+			sb.append(", companyId=");
+			sb.append(companyId);
+
+			sb.append("}");
+
+			if (_log.isDebugEnabled()) {
+				_log.debug(sb.toString());
+			}
+
+			throw new NoSuchFooException(sb.toString());
+		}
+
+		return foo;
+	}
+
+	/**
+	 * Returns the foo where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 *
+	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
+	 * @return the matching foo, or <code>null</code> if a matching foo could not be found
+	 */
+	@Override
+	public Foo fetchByERC_C(String externalReferenceCode, long companyId) {
+		return fetchByERC_C(externalReferenceCode, companyId, true);
+	}
+
+	/**
+	 * Returns the foo where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 *
+	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
+	 * @param useFinderCache whether to use the finder cache
+	 * @return the matching foo, or <code>null</code> if a matching foo could not be found
+	 */
+	@Override
+	public Foo fetchByERC_C(
+		String externalReferenceCode, long companyId, boolean useFinderCache) {
+
+		externalReferenceCode = Objects.toString(externalReferenceCode, "");
+
+		Object[] finderArgs = null;
+
+		if (useFinderCache) {
+			finderArgs = new Object[] {externalReferenceCode, companyId};
+		}
+
+		Object result = null;
+
+		if (useFinderCache) {
+			result = finderCache.getResult(
+				_finderPathFetchByERC_C, finderArgs, this);
+		}
+
+		if (result instanceof Foo) {
+			Foo foo = (Foo)result;
+
+			if (!Objects.equals(
+					externalReferenceCode, foo.getExternalReferenceCode()) ||
+				(companyId != foo.getCompanyId())) {
+
+				result = null;
+			}
+		}
+
+		if (result == null) {
+			StringBundler sb = new StringBundler(4);
+
+			sb.append(_SQL_SELECT_FOO_WHERE);
+
+			boolean bindExternalReferenceCode = false;
+
+			if (externalReferenceCode.isEmpty()) {
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_3);
+			}
+			else {
+				bindExternalReferenceCode = true;
+
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_2);
+			}
+
+			sb.append(_FINDER_COLUMN_ERC_C_COMPANYID_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindExternalReferenceCode) {
+					queryPos.add(externalReferenceCode);
+				}
+
+				queryPos.add(companyId);
+
+				List<Foo> list = query.list();
+
+				if (list.isEmpty()) {
+					if (useFinderCache) {
+						finderCache.putResult(
+							_finderPathFetchByERC_C, finderArgs, list);
+					}
+				}
+				else {
+					Foo foo = list.get(0);
+
+					result = foo;
+
+					cacheResult(foo);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		if (result instanceof List<?>) {
+			return null;
+		}
+		else {
+			return (Foo)result;
+		}
+	}
+
+	/**
+	 * Removes the foo where externalReferenceCode = &#63; and companyId = &#63; from the database.
+	 *
+	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
+	 * @return the foo that was removed
+	 */
+	@Override
+	public Foo removeByERC_C(String externalReferenceCode, long companyId)
+		throws NoSuchFooException {
+
+		Foo foo = findByERC_C(externalReferenceCode, companyId);
+
+		return remove(foo);
+	}
+
+	/**
+	 * Returns the number of foos where externalReferenceCode = &#63; and companyId = &#63;.
+	 *
+	 * @param externalReferenceCode the external reference code
+	 * @param companyId the company ID
+	 * @return the number of matching foos
+	 */
+	@Override
+	public int countByERC_C(String externalReferenceCode, long companyId) {
+		Foo foo = fetchByERC_C(externalReferenceCode, companyId);
+
+		if (foo == null) {
+			return 0;
+		}
+
+		return 1;
+	}
+
+	private static final String _FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_2 =
+		"foo.externalReferenceCode = ? AND ";
+
+	private static final String _FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_3 =
+		"(foo.externalReferenceCode IS NULL OR foo.externalReferenceCode = '') AND ";
+
+	private static final String _FINDER_COLUMN_ERC_C_COMPANYID_2 =
+		"foo.companyId = ?";
+
 	public FooPersistenceImpl() {
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
 
@@ -1896,6 +2102,11 @@ public class FooPersistenceImpl
 		finderCache.putResult(
 			_finderPathFetchByUUID_G,
 			new Object[] {foo.getUuid(), foo.getGroupId()}, foo);
+
+		finderCache.putResult(
+			_finderPathFetchByERC_C,
+			new Object[] {foo.getExternalReferenceCode(), foo.getCompanyId()},
+			foo);
 	}
 
 	private int _valueObjectFinderCacheListThreshold;
@@ -1971,6 +2182,12 @@ public class FooPersistenceImpl
 		};
 
 		finderCache.putResult(_finderPathFetchByUUID_G, args, fooModelImpl);
+
+		args = new Object[] {
+			fooModelImpl.getExternalReferenceCode(), fooModelImpl.getCompanyId()
+		};
+
+		finderCache.putResult(_finderPathFetchByERC_C, args, fooModelImpl);
 	}
 
 	/**
@@ -2100,6 +2317,64 @@ public class FooPersistenceImpl
 			String uuid = PortalUUIDUtil.generate();
 
 			foo.setUuid(uuid);
+		}
+
+		if (Validator.isNull(foo.getExternalReferenceCode())) {
+			foo.setExternalReferenceCode(foo.getUuid());
+		}
+		else {
+			if (!Objects.equals(
+					fooModelImpl.getColumnOriginalValue(
+						"externalReferenceCode"),
+					foo.getExternalReferenceCode())) {
+
+				long userId = GetterUtil.getLong(
+					PrincipalThreadLocal.getName());
+
+				if (userId > 0) {
+					long companyId = foo.getCompanyId();
+
+					long groupId = foo.getGroupId();
+
+					long classPK = 0;
+
+					if (!isNew) {
+						classPK = foo.getPrimaryKey();
+					}
+
+					try {
+						foo.setExternalReferenceCode(
+							SanitizerUtil.sanitize(
+								companyId, groupId, userId, Foo.class.getName(),
+								classPK, ContentTypes.TEXT_HTML,
+								Sanitizer.MODE_ALL,
+								foo.getExternalReferenceCode(), null));
+					}
+					catch (SanitizerException sanitizerException) {
+						throw new SystemException(sanitizerException);
+					}
+				}
+			}
+
+			Foo ercFoo = fetchByERC_C(
+				foo.getExternalReferenceCode(), foo.getCompanyId());
+
+			if (isNew) {
+				if (ercFoo != null) {
+					throw new DuplicateFooExternalReferenceCodeException(
+						"Duplicate foo with external reference code " +
+							foo.getExternalReferenceCode() + " and company " +
+								foo.getCompanyId());
+				}
+			}
+			else {
+				if ((ercFoo != null) && (foo.getFooId() != ercFoo.getFooId())) {
+					throw new DuplicateFooExternalReferenceCodeException(
+						"Duplicate foo with external reference code " +
+							foo.getExternalReferenceCode() + " and company " +
+								foo.getCompanyId());
+				}
+			}
 		}
 
 		ServiceContext serviceContext =
@@ -2488,6 +2763,11 @@ public class FooPersistenceImpl
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByField2",
 			new String[] {Boolean.class.getName()}, new String[] {"field2"},
 			false);
+
+		_finderPathFetchByERC_C = new FinderPath(
+			FINDER_CLASS_NAME_ENTITY, "fetchByERC_C",
+			new String[] {String.class.getName(), Long.class.getName()},
+			new String[] {"externalReferenceCode", "companyId"}, true);
 
 		FooUtil.setPersistence(this);
 	}

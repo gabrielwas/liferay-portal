@@ -27,6 +27,9 @@ public class FooTable extends BaseTable<FooTable> {
 		"mvccVersion", Long.class, Types.BIGINT, Column.FLAG_NULLITY);
 	public final Column<FooTable, String> uuid = createColumn(
 		"uuid_", String.class, Types.VARCHAR, Column.FLAG_DEFAULT);
+	public final Column<FooTable, String> externalReferenceCode = createColumn(
+		"externalReferenceCode", String.class, Types.VARCHAR,
+		Column.FLAG_DEFAULT);
 	public final Column<FooTable, Long> fooId = createColumn(
 		"fooId", Long.class, Types.BIGINT, Column.FLAG_PRIMARY);
 	public final Column<FooTable, Long> groupId = createColumn(

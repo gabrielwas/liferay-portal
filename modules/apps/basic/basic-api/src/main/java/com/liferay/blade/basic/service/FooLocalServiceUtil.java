@@ -199,6 +199,13 @@ public class FooLocalServiceUtil {
 		return getService().fetchFoo(fooId);
 	}
 
+	public static Foo fetchFooByExternalReferenceCode(
+		String externalReferenceCode, long companyId) {
+
+		return getService().fetchFooByExternalReferenceCode(
+			externalReferenceCode, companyId);
+	}
+
 	/**
 	 * Returns the foo matching the UUID and group.
 	 *
@@ -233,6 +240,14 @@ public class FooLocalServiceUtil {
 	 */
 	public static Foo getFoo(long fooId) throws PortalException {
 		return getService().getFoo(fooId);
+	}
+
+	public static Foo getFooByExternalReferenceCode(
+			String externalReferenceCode, long companyId)
+		throws PortalException {
+
+		return getService().getFooByExternalReferenceCode(
+			externalReferenceCode, companyId);
 	}
 
 	/**

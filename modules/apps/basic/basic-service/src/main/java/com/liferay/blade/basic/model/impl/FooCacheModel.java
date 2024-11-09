@@ -67,12 +67,14 @@ public class FooCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(29);
+		StringBundler sb = new StringBundler(31);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
 		sb.append(", uuid=");
 		sb.append(uuid);
+		sb.append(", externalReferenceCode=");
+		sb.append(externalReferenceCode);
 		sb.append(", fooId=");
 		sb.append(fooId);
 		sb.append(", groupId=");
@@ -113,6 +115,13 @@ public class FooCacheModel
 		}
 		else {
 			fooImpl.setUuid(uuid);
+		}
+
+		if (externalReferenceCode == null) {
+			fooImpl.setExternalReferenceCode("");
+		}
+		else {
+			fooImpl.setExternalReferenceCode(externalReferenceCode);
 		}
 
 		fooImpl.setFooId(fooId);
@@ -174,6 +183,7 @@ public class FooCacheModel
 	public void readExternal(ObjectInput objectInput) throws IOException {
 		mvccVersion = objectInput.readLong();
 		uuid = objectInput.readUTF();
+		externalReferenceCode = objectInput.readUTF();
 
 		fooId = objectInput.readLong();
 
@@ -203,6 +213,13 @@ public class FooCacheModel
 		}
 		else {
 			objectOutput.writeUTF(uuid);
+		}
+
+		if (externalReferenceCode == null) {
+			objectOutput.writeUTF("");
+		}
+		else {
+			objectOutput.writeUTF(externalReferenceCode);
 		}
 
 		objectOutput.writeLong(fooId);
@@ -245,6 +262,7 @@ public class FooCacheModel
 
 	public long mvccVersion;
 	public String uuid;
+	public String externalReferenceCode;
 	public long fooId;
 	public long groupId;
 	public long companyId;

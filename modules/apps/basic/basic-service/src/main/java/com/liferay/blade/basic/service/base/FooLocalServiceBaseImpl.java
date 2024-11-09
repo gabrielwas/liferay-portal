@@ -248,6 +248,21 @@ public abstract class FooLocalServiceBaseImpl
 		return fooPersistence.fetchByUUID_G(uuid, groupId);
 	}
 
+	@Override
+	public Foo fetchFooByExternalReferenceCode(
+		String externalReferenceCode, long companyId) {
+
+		return fooPersistence.fetchByERC_C(externalReferenceCode, companyId);
+	}
+
+	@Override
+	public Foo getFooByExternalReferenceCode(
+			String externalReferenceCode, long companyId)
+		throws PortalException {
+
+		return fooPersistence.findByERC_C(externalReferenceCode, companyId);
+	}
+
 	/**
 	 * Returns the foo with the primary key.
 	 *

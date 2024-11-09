@@ -4,6 +4,7 @@
 	<model name="com.liferay.blade.basic.model.Foo">
 		<field name="mvccVersion" type="long" />
 		<field name="uuid" type="String" />
+		<field name="externalReferenceCode" type="String" />
 		<field name="fooId" type="long" />
 		<field name="groupId" type="long" />
 		<field name="companyId" type="long" />

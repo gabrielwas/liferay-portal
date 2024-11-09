@@ -192,6 +192,10 @@ public interface FooLocalService
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public Foo fetchFoo(long fooId);
 
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public Foo fetchFooByExternalReferenceCode(
+		String externalReferenceCode, long companyId);
+
 	/**
 	 * Returns the foo matching the UUID and group.
 	 *
@@ -218,6 +222,11 @@ public interface FooLocalService
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public Foo getFoo(long fooId) throws PortalException;
+
+	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+	public Foo getFooByExternalReferenceCode(
+			String externalReferenceCode, long companyId)
+		throws PortalException;
 
 	/**
 	 * Returns the foo matching the UUID and group.
