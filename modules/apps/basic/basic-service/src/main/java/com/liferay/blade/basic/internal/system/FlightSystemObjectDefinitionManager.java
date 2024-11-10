@@ -5,6 +5,8 @@ import com.liferay.blade.basic.model.FlightTable;
 import com.liferay.blade.basic.service.FlightLocalService;
 import com.liferay.counter.kernel.service.CounterLocalService;
 import com.liferay.object.constants.ObjectDefinitionConstants;
+import com.liferay.object.field.builder.BooleanObjectFieldBuilder;
+import com.liferay.object.field.builder.IntegerObjectFieldBuilder;
 import com.liferay.object.field.builder.TextObjectFieldBuilder;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.system.BaseSystemObjectDefinitionManager;
@@ -25,6 +27,7 @@ import com.liferay.portal.vulcan.pagination.Pagination;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -45,9 +48,10 @@ public class FlightSystemObjectDefinitionManager extends
 		Flight flight = _flightLocalService.createFlight(increment);
 
 		flight.setExternalReferenceCode(String.valueOf(increment));
-		flight.setFlightNumber(GetterUtil.getString(values.get("flightNumber")));
+
 		flight.setActive(GetterUtil.getBoolean(values.get("active")));
 		flight.setCapacity(GetterUtil.getInteger(values.get("capacity")));
+		flight.setFlightNumber(GetterUtil.getString(values.get("flightNumber")));
 
 		flight = _flightLocalService.addFlight(flight);
 
@@ -114,7 +118,27 @@ public class FlightSystemObjectDefinitionManager extends
 
 	@Override
 	public List<ObjectField> getObjectFields() {
-		return Collections.singletonList(
+		return Arrays.asList(
+			new BooleanObjectFieldBuilder(
+			).labelMap(
+				createLabelMap("active")
+			).name(
+				"active"
+			).required(
+				false
+			).system(
+				true
+			).build(),
+			new IntegerObjectFieldBuilder(
+			).labelMap(
+				createLabelMap("capacity")
+			).name(
+				"capacity"
+			).required(
+				false
+			).system(
+				true
+			).build(),
 			new TextObjectFieldBuilder(
 			).labelMap(
 				createLabelMap("flightNumber")
