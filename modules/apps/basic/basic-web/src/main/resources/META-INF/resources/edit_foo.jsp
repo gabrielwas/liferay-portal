@@ -51,7 +51,9 @@ if (flightId > 0) {
 
 		<aui:input name="flightDate" />
 
-		<liferay-expando:custom-attributes-available className="<%= Flight.class.getName() %>">
+		<liferay-expando:custom-attributes-available
+			className="<%= Flight.class.getName() %>"
+		>
 			<liferay-expando:custom-attribute-list
 				className="<%= Flight.class.getName() %>"
 				classPK="<%= (flight != null) ? flight.getFlightId() : 0 %>"

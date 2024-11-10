@@ -31,7 +31,12 @@ else {
 }
 %>
 
-<liferay-ui:icon-menu icon="<>" message="<>" showExpanded="<%= row == null %>" showWhenSingleIcon="<%= row == null %>">
+<liferay-ui:icon-menu
+	icon="<>"
+	message="<>"
+	showExpanded="<%= row == null %>"
+	showWhenSingleIcon="<%= row == null %>"
+>
 	<portlet:renderURL var="editURL">
 		<portlet:param name="mvcPath" value="/edit_foo.jsp" />
 		<portlet:param name="redirect" value="<%= currentURL %>" />
@@ -54,5 +59,7 @@ else {
 		<portlet:param name="flightId" value="<%= String.valueOf(flight.getFlightId()) %>" />
 	</portlet:actionURL>
 
-	<liferay-ui:icon-delete url="<%= deleteURL %>" />
+	<liferay-ui:icon-delete
+		url="<%= deleteURL %>"
+	/>
 </liferay-ui:icon-menu>

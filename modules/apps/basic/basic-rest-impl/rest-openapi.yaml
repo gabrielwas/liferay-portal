@@ -9,21 +9,21 @@ components:
                         type: object
                     readOnly: true
                     type: object
-                flightNumber:
-                    type: string
-                externalReferenceCode:
-                    type: string
                 active:
                     type: boolean
+                capacity:
+                    type: integer
+                externalReferenceCode:
+                    type: string
+                flightDate:
+                    format: date
+                    type: string
+                flightNumber:
+                    type: string
                 id:
                     format: int64
                     readOnly: true
                     type: integer
-                capacity:
-                    type: integer
-                flightDate:
-                    format: date
-                    type: string
                 status:
                     format: int32
                     readOnly: true

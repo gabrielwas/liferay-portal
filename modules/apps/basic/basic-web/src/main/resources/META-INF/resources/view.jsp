@@ -38,7 +38,7 @@
 
 	<liferay-ui:search-container-row
 		className="com.liferay.blade.basic.model.Flight"
-		escapedModel="true"
+		escapedModel="<%= true %>"
 		modelVar="flight"
 	>
 		<liferay-ui:search-container-column-text
@@ -54,7 +54,6 @@
 			<strong><%= flight.getFlightNumber() %></strong>
 
 			<br />
-
 		</liferay-ui:search-container-column-text>
 
 		<liferay-ui:search-container-column-text

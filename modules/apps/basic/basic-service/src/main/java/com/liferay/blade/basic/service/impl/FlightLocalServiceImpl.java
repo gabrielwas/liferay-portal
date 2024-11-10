@@ -7,11 +7,9 @@ package com.liferay.blade.basic.service.impl;
 
 import com.liferay.blade.basic.model.Flight;
 import com.liferay.blade.basic.service.base.FlightLocalServiceBaseImpl;
-import com.liferay.counter.kernel.service.CounterLocalService;
 import com.liferay.portal.aop.AopService;
 
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Brian Wing Shun Chan
@@ -24,14 +22,9 @@ public class FlightLocalServiceImpl extends FlightLocalServiceBaseImpl {
 
 	@Override
 	public Flight addFlight(Flight flight) {
-
-		flight.setFlightId(_counterLocalService.increment());
+		flight.setFlightId(counterLocalService.increment());
 
 		return flightPersistence.update(flight);
-
 	}
-
-	@Reference
-	private CounterLocalService _counterLocalService;
 
 }

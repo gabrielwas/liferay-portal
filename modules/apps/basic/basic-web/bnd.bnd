@@ -1,4 +1,5 @@
-Bundle-SymbolicName: com.liferay.blade.basic.web
+Bundle-Name: Liferay Basic Web
+Bundle-SymbolicName: com.liferay.blade.samples.servicebuilder.web
 Bundle-Version: 1.0.0
 Web-ContextPath: /basic-web
 -dsannotations-options: inherit

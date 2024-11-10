@@ -7,16 +7,15 @@ package com.liferay.basic.rest.internal.resource.v1_0;
 
 import com.liferay.basic.rest.dto.v1_0.Flight;
 import com.liferay.basic.rest.resource.v1_0.FlightResource;
-
 import com.liferay.blade.basic.service.FlightLocalService;
 import com.liferay.counter.kernel.service.CounterLocalService;
-import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.vulcan.aggregation.Aggregation;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ServiceScope;
@@ -30,73 +29,68 @@ import org.osgi.service.component.annotations.ServiceScope;
 )
 public class FlightResourceImpl extends BaseFlightResourceImpl {
 
-
 	@Override
-	public Flight postFlight(Flight flight) throws Exception {
-
-		long increment = _counterLocalService.increment();
-
-		com.liferay.blade.basic.model.Flight serviceBuilderFlight = _flightLocalService.createFlight(increment);
-
-		serviceBuilderFlight.setExternalReferenceCode(String.valueOf(increment));
-		serviceBuilderFlight.setFlightNumber(flight.getFlightNumber());
-		serviceBuilderFlight.setActive(flight.getActive());
-		serviceBuilderFlight.setCapacity(flight.getCapacity());
-
-		serviceBuilderFlight = _flightLocalService.addFlight(serviceBuilderFlight);
-
-
-
-		return _toFlight(serviceBuilderFlight);
+	public void deleteFlight(Long flightId) throws Exception {
+		_flightLocalService.deleteFlight(flightId);
 	}
 
 	@Override
-	public Flight getFlight(
-		Long flightId)
-		throws Exception {
-
+	public Flight getFlight(Long flightId) throws Exception {
 		return _toFlight(_flightLocalService.getFlight(flightId));
 	}
 
 	@Override
-	public Page<Flight> getFlightsPage(String search,
-		Aggregation aggregation,
-		 Filter filter,
-		Pagination pagination,
-	 	Sort[] sorts)
+	public Flight getFlightByExternalReferenceCode(String externalReferenceCode)
 		throws Exception {
 
-		return Page.of(TransformUtil.transform(_flightLocalService.getFlights(QueryUtil.ALL_POS, QueryUtil.ALL_POS), this::_toFlight));
-
+		return _toFlight(
+			_flightLocalService.getFlightByExternalReferenceCode(
+				externalReferenceCode, contextCompany.getCompanyId()));
 	}
 
 	@Override
-	public void deleteFlight(
-		Long flightId)
+	public Page<Flight> getFlightsPage(
+			String search, Aggregation aggregation, Filter filter,
+			Pagination pagination, Sort[] sorts)
 		throws Exception {
 
-		_flightLocalService.deleteFlight(flightId);
-
+		return Page.of(
+			transform(
+				_flightLocalService.getFlights(
+					QueryUtil.ALL_POS, QueryUtil.ALL_POS),
+				this::_toFlight));
 	}
 
 	@Override
-	public Flight getFlightByExternalReferenceCode(
-		String externalReferenceCode)
-		throws Exception {
+	public Flight postFlight(Flight flight) throws Exception {
+		long increment = _counterLocalService.increment();
 
-		return _toFlight(_flightLocalService.getFlightByExternalReferenceCode(externalReferenceCode, contextCompany.getCompanyId()));
+		com.liferay.blade.basic.model.Flight serviceBuilderFlight =
+			_flightLocalService.createFlight(increment);
+
+		serviceBuilderFlight.setExternalReferenceCode(
+			String.valueOf(increment));
+
+		serviceBuilderFlight.setActive(flight.getActive());
+		serviceBuilderFlight.setCapacity(flight.getCapacity());
+		serviceBuilderFlight.setFlightNumber(flight.getFlightNumber());
+
+		serviceBuilderFlight = _flightLocalService.addFlight(
+			serviceBuilderFlight);
+
+		return _toFlight(serviceBuilderFlight);
 	}
 
-	private Flight _toFlight(com.liferay.blade.basic.model.Flight serviceBuilderFlight){
+	private Flight _toFlight(
+		com.liferay.blade.basic.model.Flight serviceBuilderFlight) {
 
-		return new Flight(){
+		return new Flight() {
 			{
-				setFlightNumber(serviceBuilderFlight.getFlightNumber());
-				setActive(serviceBuilderFlight.isActive());
-				setCapacity(serviceBuilderFlight.getCapacity());
+				setActive(serviceBuilderFlight::isActive);
+				setCapacity(serviceBuilderFlight::getCapacity);
+				setFlightNumber(serviceBuilderFlight::getFlightNumber);
 			}
 		};
-
 	}
 
 	@Reference

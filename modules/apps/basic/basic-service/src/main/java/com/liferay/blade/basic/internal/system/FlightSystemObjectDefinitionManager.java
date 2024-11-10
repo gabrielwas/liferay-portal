@@ -1,3 +1,8 @@
+/**
+ * SPDX-FileCopyrightText: (c) 2024 Liferay, Inc. https://liferay.com
+ * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
+ */
+
 package com.liferay.blade.basic.internal.system;
 
 import com.liferay.blade.basic.model.Flight;
@@ -24,20 +29,20 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Gabriel Albuquerque
  */
 @Component(service = SystemObjectDefinitionManager.class)
-public class FlightSystemObjectDefinitionManager extends
-	BaseSystemObjectDefinitionManager {
+public class FlightSystemObjectDefinitionManager
+	extends BaseSystemObjectDefinitionManager {
 
 	@Override
 	public long addBaseModel(User user, Map<String, Object> values)
@@ -51,34 +56,36 @@ public class FlightSystemObjectDefinitionManager extends
 
 		flight.setActive(GetterUtil.getBoolean(values.get("active")));
 		flight.setCapacity(GetterUtil.getInteger(values.get("capacity")));
-		flight.setFlightNumber(GetterUtil.getString(values.get("flightNumber")));
+		flight.setFlightNumber(
+			GetterUtil.getString(values.get("flightNumber")));
 
 		flight = _flightLocalService.addFlight(flight);
 
 		return flight.getFlightId();
-
 	}
 
 	@Override
 	public BaseModel<?> deleteBaseModel(BaseModel<?> baseModel)
 		throws PortalException {
 
-		return _flightLocalService.deleteFlight((Flight) baseModel);
+		return _flightLocalService.deleteFlight((Flight)baseModel);
 	}
 
 	@Override
 	public BaseModel<?> fetchBaseModelByExternalReferenceCode(
 		String externalReferenceCode, long companyId) {
 
-		return _flightLocalService.fetchFlightByExternalReferenceCode(externalReferenceCode, companyId);
+		return _flightLocalService.fetchFlightByExternalReferenceCode(
+			externalReferenceCode, companyId);
 	}
 
 	@Override
 	public BaseModel<?> getBaseModelByExternalReferenceCode(
-		String externalReferenceCode, long companyId)
+			String externalReferenceCode, long companyId)
 		throws PortalException {
 
-		return _flightLocalService.getFlightByExternalReferenceCode(externalReferenceCode, companyId);
+		return _flightLocalService.getFlightByExternalReferenceCode(
+			externalReferenceCode, companyId);
 	}
 
 	@Override
@@ -98,8 +105,7 @@ public class FlightSystemObjectDefinitionManager extends
 	@Override
 	public JaxRsApplicationDescriptor getJaxRsApplicationDescriptor() {
 		return new JaxRsApplicationDescriptor(
-			"Liferay.Basic.REST", "basic",
-			"flights", "v1.0");
+			"Liferay.Basic.REST", "basic", "flights", "v1.0");
 	}
 
 	@Override
@@ -152,6 +158,17 @@ public class FlightSystemObjectDefinitionManager extends
 	}
 
 	@Override
+	public Page<?> getPage(
+			User user, String search, Filter filter, Pagination pagination,
+			Sort[] sorts)
+		throws Exception {
+
+		return Page.of(
+			_flightLocalService.getFlights(
+				QueryUtil.ALL_POS, QueryUtil.ALL_POS));
+	}
+
+	@Override
 	public Column<?, Long> getPrimaryKeyColumn() {
 		return FlightTable.INSTANCE.flightId;
 	}
@@ -167,29 +184,22 @@ public class FlightSystemObjectDefinitionManager extends
 	}
 
 	@Override
+	public String getTitleObjectFieldName() {
+		return "flightNumber";
+	}
+
+	@Override
 	public int getVersion() {
 		return 1;
 	}
 
 	@Override
 	public void updateBaseModel(
-		long primaryKey, User user, Map<String, Object> values)
-		throws Exception {
-		//TODO
-	}
-
-	@Override
-	public Page<?> getPage(
-		User user, String search, Filter filter, Pagination pagination,
-		Sort[] sorts)
+			long primaryKey, User user, Map<String, Object> values)
 		throws Exception {
 
-		return Page.of(_flightLocalService.getFlights(QueryUtil.ALL_POS, QueryUtil.ALL_POS));
-	}
+		// TODO
 
-	@Override
-	public String getTitleObjectFieldName() {
-		return "flightNumber";
 	}
 
 	@Reference
@@ -197,4 +207,5 @@ public class FlightSystemObjectDefinitionManager extends
 
 	@Reference
 	private FlightLocalService _flightLocalService;
+
 }
