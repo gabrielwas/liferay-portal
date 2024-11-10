@@ -95,8 +95,8 @@ public class FooSystemObjectDefinitionManager extends
 	@Override
 	public JaxRsApplicationDescriptor getJaxRsApplicationDescriptor() {
 		return new JaxRsApplicationDescriptor(
-			StringPool.BLANK, StringPool.BLANK, StringPool.BLANK,
-			StringPool.BLANK);
+			"Liferay.Basic.REST", "basic",
+			"flights", "v1.0");
 	}
 
 	@Override

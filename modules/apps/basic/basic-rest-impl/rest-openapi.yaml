@@ -1,0 +1,264 @@
+components:
+    schemas:
+        Flight:
+            properties:
+                actions:
+                    additionalProperties:
+                        additionalProperties:
+                            type: string
+                        type: object
+                    readOnly: true
+                    type: object
+                flightNumber:
+                    type: string
+                externalReferenceCode:
+                    type: string
+                active:
+                    type: boolean
+                id:
+                    format: int64
+                    readOnly: true
+                    type: integer
+                capacity:
+                    type: integer
+                flightDate:
+                    format: date
+                    type: string
+                status:
+                    format: int32
+                    readOnly: true
+                    type: integer
+            type: object
+info:
+    description:
+        "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
+        'com.liferay.basic.rest.client', and version '1.0.0'."
+    license:
+        name: "Apache 2.0"
+        url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+    title: ""
+    version: v1.0
+openapi: 3.0.1
+paths:
+    "/flights":
+        get:
+            operationId: getFlightsPage
+            parameters:
+                - in: query
+                  name: aggregationTerms
+                  schema:
+                      items:
+                          type: string
+                      type: array
+                - in: query
+                  name: filter
+                  schema:
+                      type: string
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                - in: query
+                  name: pageSize
+                  schema:
+                      type: integer
+                - in: query
+                  name: search
+                  schema:
+                      type: string
+                - in: query
+                  name: sort
+                  schema:
+                      type: string
+                - in: header
+                  name: Accept-Language
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/Flight"
+                                type: array
+                        application/xml:
+                            schema:
+                                items:
+                                    $ref: "#/components/schemas/Flight"
+                                type: array
+            tags: ["Flight"]
+        post:
+            operationId: postFlight
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Flight"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/Flight"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Flight"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Flight"
+            tags: ["Flight"]
+    "/flights/by-external-reference-code/{externalReferenceCode}":
+        get:
+            operationId: getFlightByExternalReferenceCode
+            parameters:
+                - in: path
+                  name: externalReferenceCode
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Flight"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Flight"
+            tags: ["Flight"]
+        put:
+            operationId: putFlightByExternalReferenceCode
+            parameters:
+                - in: path
+                  name: externalReferenceCode
+                  required: true
+                  schema:
+                      type: string
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Flight"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/Flight"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Flight"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Flight"
+            tags: ["Flight"]
+    "/flights/{flightId}":
+        delete:
+            operationId: deleteFlight
+            parameters:
+                - in: path
+                  name: flightId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+            tags: ["Flight"]
+        get:
+            operationId: getFlight
+            parameters:
+                - in: path
+                  name: flightId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Flight"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Flight"
+            tags: ["Flight"]
+        patch:
+            operationId: patchFlight
+            parameters:
+                - in: path
+                  name: flightId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Flight"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/Flight"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Flight"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Flight"
+            tags: ["Flight"]
+        put:
+            operationId: putFlight
+            parameters:
+                - in: path
+                  name: flightId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/Flight"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/Flight"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Flight"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Flight"
+            tags: ["Flight"]
+    "/flights/{flightId}/copy":
+        post:
+            operationId: postFlightCopy
+            parameters:
+                - in: path
+                  name: flightId
+                  required: true
+                  schema:
+                      format: int64
+                      type: integer
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/Flight"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/Flight"
+            tags: ["Flight"]

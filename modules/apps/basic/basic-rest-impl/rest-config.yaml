@@ -1,0 +1,11 @@
+apiDir: "../basic-rest-api/src/main/java"
+apiPackagePath: "com.liferay.basic.rest"
+application:
+    baseURI: "/basic"
+    className: "BasicRESTApplication"
+    name: "Liferay.Basic.REST"
+author: "Gabriel Albuquerque"
+clientDir: "../basic-rest-client/src/main/java"
+compatibilityVersion: 6
+forcePredictableOperationId: true
+testDir: "../basic-rest-test/src/testIntegration/java"
