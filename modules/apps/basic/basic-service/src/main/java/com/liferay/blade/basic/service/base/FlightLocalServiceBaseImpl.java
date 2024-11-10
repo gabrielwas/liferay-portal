@@ -580,14 +580,6 @@ public abstract class FlightLocalServiceBaseImpl
 	protected com.liferay.counter.kernel.service.CounterLocalService
 		counterLocalService;
 
-	@Reference
-	protected com.liferay.asset.kernel.service.AssetEntryLocalService
-		assetEntryLocalService;
-
-	@Reference
-	protected com.liferay.asset.kernel.service.AssetTagLocalService
-		assetTagLocalService;
-
 	private static final Log _log = LogFactoryUtil.getLog(
 		FlightLocalServiceBaseImpl.class);
 

@@ -116,21 +116,6 @@ public abstract class FlightServiceBaseImpl
 	protected com.liferay.counter.kernel.service.CounterLocalService
 		counterLocalService;
 
-	@Reference
-	protected com.liferay.asset.kernel.service.AssetEntryLocalService
-		assetEntryLocalService;
-
-	@Reference
-	protected com.liferay.asset.kernel.service.AssetEntryService
-		assetEntryService;
-
-	@Reference
-	protected com.liferay.asset.kernel.service.AssetTagLocalService
-		assetTagLocalService;
-
-	@Reference
-	protected com.liferay.asset.kernel.service.AssetTagService assetTagService;
-
 	private static final Log _log = LogFactoryUtil.getLog(
 		FlightServiceBaseImpl.class);
 
