@@ -1,21 +1,20 @@
 <?xml version="1.0"?>
 
 <model-hints>
-	<model name="com.liferay.blade.basic.model.Foo">
+	<model name="com.liferay.blade.basic.model.Flight">
 		<field name="mvccVersion" type="long" />
 		<field name="uuid" type="String" />
 		<field name="externalReferenceCode" type="String" />
-		<field name="fooId" type="long" />
+		<field name="flightId" type="long" />
 		<field name="groupId" type="long" />
 		<field name="companyId" type="long" />
 		<field name="userId" type="long" />
 		<field name="userName" type="String" />
 		<field name="createDate" type="Date" />
 		<field name="modifiedDate" type="Date" />
-		<field name="field1" type="String" />
-		<field name="field2" type="boolean" />
-		<field name="field3" type="int" />
-		<field name="field4" type="Date" />
-		<field name="field5" type="String" />
+		<field name="flightNumber" type="String" />
+		<field name="active" type="boolean" />
+		<field name="capacity" type="int" />
+		<field name="flightDate" type="Date" />
 	</model>
 </model-hints>

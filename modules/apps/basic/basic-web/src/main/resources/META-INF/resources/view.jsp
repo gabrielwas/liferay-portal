@@ -30,52 +30,47 @@
 </aui:button-row>
 
 <liferay-ui:search-container
-	total="<%= fooLocalService.getFoosCount() %>"
+	total="<%= flightLocalService.getFlightsCount() %>"
 >
 	<liferay-ui:search-container-results
-		results="<%= fooLocalService.getFoos(searchContainer.getStart(), searchContainer.getEnd()) %>"
+		results="<%= flightLocalService.getFlights(searchContainer.getStart(), searchContainer.getEnd()) %>"
 	/>
 
 	<liferay-ui:search-container-row
-		className="com.liferay.blade.basic.model.Foo"
+		className="com.liferay.blade.basic.model.Flight"
 		escapedModel="true"
-		modelVar="foo"
+		modelVar="flight"
 	>
 		<liferay-ui:search-container-column-text
 			name="id"
-			property="fooId"
+			property="flightId"
 			valign="top"
 		/>
 
 		<liferay-ui:search-container-column-text
-			name="field1"
+			name="flightNumber"
 			valign="top"
 		>
-			<strong><%= foo.getField1() %></strong>
+			<strong><%= flight.getFlightNumber() %></strong>
 
 			<br />
 
 		</liferay-ui:search-container-column-text>
 
 		<liferay-ui:search-container-column-text
-			property="field2"
+			property="active"
 			valign="top"
 		/>
 
 		<liferay-ui:search-container-column-text
-			property="field3"
+			property="capacity"
 			valign="top"
 		/>
 
 		<liferay-ui:search-container-column-date
-			name="field4"
+			name="flightDate"
 			valign="top"
-			value="<%= foo.getField4() %>"
-		/>
-
-		<liferay-ui:search-container-column-text
-			property="field5"
-			valign="top"
+			value="<%= flight.getFlightDate() %>"
 		/>
 
 		<liferay-ui:search-container-column-jsp

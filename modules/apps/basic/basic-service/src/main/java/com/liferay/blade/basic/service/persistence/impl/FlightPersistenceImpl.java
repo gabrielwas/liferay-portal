@@ -5,14 +5,14 @@
 
 package com.liferay.blade.basic.service.persistence.impl;
 
-import com.liferay.blade.basic.exception.DuplicateFooExternalReferenceCodeException;
-import com.liferay.blade.basic.exception.NoSuchFooException;
-import com.liferay.blade.basic.model.Foo;
-import com.liferay.blade.basic.model.FooTable;
-import com.liferay.blade.basic.model.impl.FooImpl;
-import com.liferay.blade.basic.model.impl.FooModelImpl;
-import com.liferay.blade.basic.service.persistence.FooPersistence;
-import com.liferay.blade.basic.service.persistence.FooUtil;
+import com.liferay.blade.basic.exception.DuplicateFlightExternalReferenceCodeException;
+import com.liferay.blade.basic.exception.NoSuchFlightException;
+import com.liferay.blade.basic.model.Flight;
+import com.liferay.blade.basic.model.FlightTable;
+import com.liferay.blade.basic.model.impl.FlightImpl;
+import com.liferay.blade.basic.model.impl.FlightModelImpl;
+import com.liferay.blade.basic.service.persistence.FlightPersistence;
+import com.liferay.blade.basic.service.persistence.FlightUtil;
 import com.liferay.blade.basic.service.persistence.impl.constants.SSBPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
@@ -64,7 +64,7 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- * The persistence implementation for the foo service.
+ * The persistence implementation for the flight service.
  *
  * <p>
  * Caching information and settings can be found in <code>portal.properties</code>
@@ -73,17 +73,17 @@ import org.osgi.service.component.annotations.Reference;
  * @author Brian Wing Shun Chan
  * @generated
  */
-@Component(service = FooPersistence.class)
-public class FooPersistenceImpl
-	extends BasePersistenceImpl<Foo> implements FooPersistence {
+@Component(service = FlightPersistence.class)
+public class FlightPersistenceImpl
+	extends BasePersistenceImpl<Flight> implements FlightPersistence {
 
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify or reference this class directly. Always use <code>FooUtil</code> to access the foo persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.
+	 * Never modify or reference this class directly. Always use <code>FlightUtil</code> to access the flight persistence. Modify <code>service.xml</code> and rerun ServiceBuilder to regenerate this class.
 	 */
 	public static final String FINDER_CLASS_NAME_ENTITY =
-		FooImpl.class.getName();
+		FlightImpl.class.getName();
 
 	public static final String FINDER_CLASS_NAME_LIST_WITH_PAGINATION =
 		FINDER_CLASS_NAME_ENTITY + ".List1";
@@ -99,72 +99,72 @@ public class FooPersistenceImpl
 	private FinderPath _finderPathCountByUuid;
 
 	/**
-	 * Returns all the foos where uuid = &#63;.
+	 * Returns all the flights where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
-	 * @return the matching foos
+	 * @return the matching flights
 	 */
 	@Override
-	public List<Foo> findByUuid(String uuid) {
+	public List<Flight> findByUuid(String uuid) {
 		return findByUuid(uuid, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
 	/**
-	 * Returns a range of all the foos where uuid = &#63;.
+	 * Returns a range of all the flights where uuid = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FooModelImpl</code>.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FlightModelImpl</code>.
 	 * </p>
 	 *
 	 * @param uuid the uuid
-	 * @param start the lower bound of the range of foos
-	 * @param end the upper bound of the range of foos (not inclusive)
-	 * @return the range of matching foos
+	 * @param start the lower bound of the range of flights
+	 * @param end the upper bound of the range of flights (not inclusive)
+	 * @return the range of matching flights
 	 */
 	@Override
-	public List<Foo> findByUuid(String uuid, int start, int end) {
+	public List<Flight> findByUuid(String uuid, int start, int end) {
 		return findByUuid(uuid, start, end, null);
 	}
 
 	/**
-	 * Returns an ordered range of all the foos where uuid = &#63;.
+	 * Returns an ordered range of all the flights where uuid = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FooModelImpl</code>.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FlightModelImpl</code>.
 	 * </p>
 	 *
 	 * @param uuid the uuid
-	 * @param start the lower bound of the range of foos
-	 * @param end the upper bound of the range of foos (not inclusive)
+	 * @param start the lower bound of the range of flights
+	 * @param end the upper bound of the range of flights (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching foos
+	 * @return the ordered range of matching flights
 	 */
 	@Override
-	public List<Foo> findByUuid(
+	public List<Flight> findByUuid(
 		String uuid, int start, int end,
-		OrderByComparator<Foo> orderByComparator) {
+		OrderByComparator<Flight> orderByComparator) {
 
 		return findByUuid(uuid, start, end, orderByComparator, true);
 	}
 
 	/**
-	 * Returns an ordered range of all the foos where uuid = &#63;.
+	 * Returns an ordered range of all the flights where uuid = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FooModelImpl</code>.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FlightModelImpl</code>.
 	 * </p>
 	 *
 	 * @param uuid the uuid
-	 * @param start the lower bound of the range of foos
-	 * @param end the upper bound of the range of foos (not inclusive)
+	 * @param start the lower bound of the range of flights
+	 * @param end the upper bound of the range of flights (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param useFinderCache whether to use the finder cache
-	 * @return the ordered range of matching foos
+	 * @return the ordered range of matching flights
 	 */
 	@Override
-	public List<Foo> findByUuid(
+	public List<Flight> findByUuid(
 		String uuid, int start, int end,
-		OrderByComparator<Foo> orderByComparator, boolean useFinderCache) {
+		OrderByComparator<Flight> orderByComparator, boolean useFinderCache) {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -184,15 +184,15 @@ public class FooPersistenceImpl
 			finderArgs = new Object[] {uuid, start, end, orderByComparator};
 		}
 
-		List<Foo> list = null;
+		List<Flight> list = null;
 
 		if (useFinderCache) {
-			list = (List<Foo>)finderCache.getResult(
+			list = (List<Flight>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
-				for (Foo foo : list) {
-					if (!uuid.equals(foo.getUuid())) {
+				for (Flight flight : list) {
+					if (!uuid.equals(flight.getUuid())) {
 						list = null;
 
 						break;
@@ -212,7 +212,7 @@ public class FooPersistenceImpl
 				sb = new StringBundler(3);
 			}
 
-			sb.append(_SQL_SELECT_FOO_WHERE);
+			sb.append(_SQL_SELECT_FLIGHT_WHERE);
 
 			boolean bindUuid = false;
 
@@ -230,7 +230,7 @@ public class FooPersistenceImpl
 					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
 			}
 			else {
-				sb.append(FooModelImpl.ORDER_BY_JPQL);
+				sb.append(FlightModelImpl.ORDER_BY_JPQL);
 			}
 
 			String sql = sb.toString();
@@ -248,7 +248,7 @@ public class FooPersistenceImpl
 					queryPos.add(uuid);
 				}
 
-				list = (List<Foo>)QueryUtil.list(
+				list = (List<Flight>)QueryUtil.list(
 					query, getDialect(), start, end);
 
 				cacheResult(list);
@@ -269,22 +269,22 @@ public class FooPersistenceImpl
 	}
 
 	/**
-	 * Returns the first foo in the ordered set where uuid = &#63;.
+	 * Returns the first flight in the ordered set where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching foo
-	 * @throws NoSuchFooException if a matching foo could not be found
+	 * @return the first matching flight
+	 * @throws NoSuchFlightException if a matching flight could not be found
 	 */
 	@Override
-	public Foo findByUuid_First(
-			String uuid, OrderByComparator<Foo> orderByComparator)
-		throws NoSuchFooException {
+	public Flight findByUuid_First(
+			String uuid, OrderByComparator<Flight> orderByComparator)
+		throws NoSuchFlightException {
 
-		Foo foo = fetchByUuid_First(uuid, orderByComparator);
+		Flight flight = fetchByUuid_First(uuid, orderByComparator);
 
-		if (foo != null) {
-			return foo;
+		if (flight != null) {
+			return flight;
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -296,21 +296,21 @@ public class FooPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchFooException(sb.toString());
+		throw new NoSuchFlightException(sb.toString());
 	}
 
 	/**
-	 * Returns the first foo in the ordered set where uuid = &#63;.
+	 * Returns the first flight in the ordered set where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching foo, or <code>null</code> if a matching foo could not be found
+	 * @return the first matching flight, or <code>null</code> if a matching flight could not be found
 	 */
 	@Override
-	public Foo fetchByUuid_First(
-		String uuid, OrderByComparator<Foo> orderByComparator) {
+	public Flight fetchByUuid_First(
+		String uuid, OrderByComparator<Flight> orderByComparator) {
 
-		List<Foo> list = findByUuid(uuid, 0, 1, orderByComparator);
+		List<Flight> list = findByUuid(uuid, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
 			return list.get(0);
@@ -320,22 +320,22 @@ public class FooPersistenceImpl
 	}
 
 	/**
-	 * Returns the last foo in the ordered set where uuid = &#63;.
+	 * Returns the last flight in the ordered set where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching foo
-	 * @throws NoSuchFooException if a matching foo could not be found
+	 * @return the last matching flight
+	 * @throws NoSuchFlightException if a matching flight could not be found
 	 */
 	@Override
-	public Foo findByUuid_Last(
-			String uuid, OrderByComparator<Foo> orderByComparator)
-		throws NoSuchFooException {
+	public Flight findByUuid_Last(
+			String uuid, OrderByComparator<Flight> orderByComparator)
+		throws NoSuchFlightException {
 
-		Foo foo = fetchByUuid_Last(uuid, orderByComparator);
+		Flight flight = fetchByUuid_Last(uuid, orderByComparator);
 
-		if (foo != null) {
-			return foo;
+		if (flight != null) {
+			return flight;
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -347,19 +347,19 @@ public class FooPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchFooException(sb.toString());
+		throw new NoSuchFlightException(sb.toString());
 	}
 
 	/**
-	 * Returns the last foo in the ordered set where uuid = &#63;.
+	 * Returns the last flight in the ordered set where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching foo, or <code>null</code> if a matching foo could not be found
+	 * @return the last matching flight, or <code>null</code> if a matching flight could not be found
 	 */
 	@Override
-	public Foo fetchByUuid_Last(
-		String uuid, OrderByComparator<Foo> orderByComparator) {
+	public Flight fetchByUuid_Last(
+		String uuid, OrderByComparator<Flight> orderByComparator) {
 
 		int count = countByUuid(uuid);
 
@@ -367,7 +367,8 @@ public class FooPersistenceImpl
 			return null;
 		}
 
-		List<Foo> list = findByUuid(uuid, count - 1, count, orderByComparator);
+		List<Flight> list = findByUuid(
+			uuid, count - 1, count, orderByComparator);
 
 		if (!list.isEmpty()) {
 			return list.get(0);
@@ -377,37 +378,38 @@ public class FooPersistenceImpl
 	}
 
 	/**
-	 * Returns the foos before and after the current foo in the ordered set where uuid = &#63;.
+	 * Returns the flights before and after the current flight in the ordered set where uuid = &#63;.
 	 *
-	 * @param fooId the primary key of the current foo
+	 * @param flightId the primary key of the current flight
 	 * @param uuid the uuid
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next foo
-	 * @throws NoSuchFooException if a foo with the primary key could not be found
+	 * @return the previous, current, and next flight
+	 * @throws NoSuchFlightException if a flight with the primary key could not be found
 	 */
 	@Override
-	public Foo[] findByUuid_PrevAndNext(
-			long fooId, String uuid, OrderByComparator<Foo> orderByComparator)
-		throws NoSuchFooException {
+	public Flight[] findByUuid_PrevAndNext(
+			long flightId, String uuid,
+			OrderByComparator<Flight> orderByComparator)
+		throws NoSuchFlightException {
 
 		uuid = Objects.toString(uuid, "");
 
-		Foo foo = findByPrimaryKey(fooId);
+		Flight flight = findByPrimaryKey(flightId);
 
 		Session session = null;
 
 		try {
 			session = openSession();
 
-			Foo[] array = new FooImpl[3];
+			Flight[] array = new FlightImpl[3];
 
 			array[0] = getByUuid_PrevAndNext(
-				session, foo, uuid, orderByComparator, true);
+				session, flight, uuid, orderByComparator, true);
 
-			array[1] = foo;
+			array[1] = flight;
 
 			array[2] = getByUuid_PrevAndNext(
-				session, foo, uuid, orderByComparator, false);
+				session, flight, uuid, orderByComparator, false);
 
 			return array;
 		}
@@ -419,9 +421,9 @@ public class FooPersistenceImpl
 		}
 	}
 
-	protected Foo getByUuid_PrevAndNext(
-		Session session, Foo foo, String uuid,
-		OrderByComparator<Foo> orderByComparator, boolean previous) {
+	protected Flight getByUuid_PrevAndNext(
+		Session session, Flight flight, String uuid,
+		OrderByComparator<Flight> orderByComparator, boolean previous) {
 
 		StringBundler sb = null;
 
@@ -434,7 +436,7 @@ public class FooPersistenceImpl
 			sb = new StringBundler(3);
 		}
 
-		sb.append(_SQL_SELECT_FOO_WHERE);
+		sb.append(_SQL_SELECT_FLIGHT_WHERE);
 
 		boolean bindUuid = false;
 
@@ -504,7 +506,7 @@ public class FooPersistenceImpl
 			}
 		}
 		else {
-			sb.append(FooModelImpl.ORDER_BY_JPQL);
+			sb.append(FlightModelImpl.ORDER_BY_JPQL);
 		}
 
 		String sql = sb.toString();
@@ -522,13 +524,13 @@ public class FooPersistenceImpl
 
 		if (orderByComparator != null) {
 			for (Object orderByConditionValue :
-					orderByComparator.getOrderByConditionValues(foo)) {
+					orderByComparator.getOrderByConditionValues(flight)) {
 
 				queryPos.add(orderByConditionValue);
 			}
 		}
 
-		List<Foo> list = query.list();
+		List<Flight> list = query.list();
 
 		if (list.size() == 2) {
 			return list.get(1);
@@ -539,24 +541,24 @@ public class FooPersistenceImpl
 	}
 
 	/**
-	 * Removes all the foos where uuid = &#63; from the database.
+	 * Removes all the flights where uuid = &#63; from the database.
 	 *
 	 * @param uuid the uuid
 	 */
 	@Override
 	public void removeByUuid(String uuid) {
-		for (Foo foo :
+		for (Flight flight :
 				findByUuid(uuid, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 
-			remove(foo);
+			remove(flight);
 		}
 	}
 
 	/**
-	 * Returns the number of foos where uuid = &#63;.
+	 * Returns the number of flights where uuid = &#63;.
 	 *
 	 * @param uuid the uuid
-	 * @return the number of matching foos
+	 * @return the number of matching flights
 	 */
 	@Override
 	public int countByUuid(String uuid) {
@@ -571,7 +573,7 @@ public class FooPersistenceImpl
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
 
-			sb.append(_SQL_COUNT_FOO_WHERE);
+			sb.append(_SQL_COUNT_FLIGHT_WHERE);
 
 			boolean bindUuid = false;
 
@@ -614,28 +616,28 @@ public class FooPersistenceImpl
 		return count.intValue();
 	}
 
-	private static final String _FINDER_COLUMN_UUID_UUID_2 = "foo.uuid = ?";
+	private static final String _FINDER_COLUMN_UUID_UUID_2 = "flight.uuid = ?";
 
 	private static final String _FINDER_COLUMN_UUID_UUID_3 =
-		"(foo.uuid IS NULL OR foo.uuid = '')";
+		"(flight.uuid IS NULL OR flight.uuid = '')";
 
 	private FinderPath _finderPathFetchByUUID_G;
 
 	/**
-	 * Returns the foo where uuid = &#63; and groupId = &#63; or throws a <code>NoSuchFooException</code> if it could not be found.
+	 * Returns the flight where uuid = &#63; and groupId = &#63; or throws a <code>NoSuchFlightException</code> if it could not be found.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
-	 * @return the matching foo
-	 * @throws NoSuchFooException if a matching foo could not be found
+	 * @return the matching flight
+	 * @throws NoSuchFlightException if a matching flight could not be found
 	 */
 	@Override
-	public Foo findByUUID_G(String uuid, long groupId)
-		throws NoSuchFooException {
+	public Flight findByUUID_G(String uuid, long groupId)
+		throws NoSuchFlightException {
 
-		Foo foo = fetchByUUID_G(uuid, groupId);
+		Flight flight = fetchByUUID_G(uuid, groupId);
 
-		if (foo == null) {
+		if (flight == null) {
 			StringBundler sb = new StringBundler(6);
 
 			sb.append(_NO_SUCH_ENTITY_WITH_KEY);
@@ -652,34 +654,34 @@ public class FooPersistenceImpl
 				_log.debug(sb.toString());
 			}
 
-			throw new NoSuchFooException(sb.toString());
+			throw new NoSuchFlightException(sb.toString());
 		}
 
-		return foo;
+		return flight;
 	}
 
 	/**
-	 * Returns the foo where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the flight where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
-	 * @return the matching foo, or <code>null</code> if a matching foo could not be found
+	 * @return the matching flight, or <code>null</code> if a matching flight could not be found
 	 */
 	@Override
-	public Foo fetchByUUID_G(String uuid, long groupId) {
+	public Flight fetchByUUID_G(String uuid, long groupId) {
 		return fetchByUUID_G(uuid, groupId, true);
 	}
 
 	/**
-	 * Returns the foo where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the flight where uuid = &#63; and groupId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
 	 * @param useFinderCache whether to use the finder cache
-	 * @return the matching foo, or <code>null</code> if a matching foo could not be found
+	 * @return the matching flight, or <code>null</code> if a matching flight could not be found
 	 */
 	@Override
-	public Foo fetchByUUID_G(
+	public Flight fetchByUUID_G(
 		String uuid, long groupId, boolean useFinderCache) {
 
 		uuid = Objects.toString(uuid, "");
@@ -697,11 +699,11 @@ public class FooPersistenceImpl
 				_finderPathFetchByUUID_G, finderArgs, this);
 		}
 
-		if (result instanceof Foo) {
-			Foo foo = (Foo)result;
+		if (result instanceof Flight) {
+			Flight flight = (Flight)result;
 
-			if (!Objects.equals(uuid, foo.getUuid()) ||
-				(groupId != foo.getGroupId())) {
+			if (!Objects.equals(uuid, flight.getUuid()) ||
+				(groupId != flight.getGroupId())) {
 
 				result = null;
 			}
@@ -710,7 +712,7 @@ public class FooPersistenceImpl
 		if (result == null) {
 			StringBundler sb = new StringBundler(4);
 
-			sb.append(_SQL_SELECT_FOO_WHERE);
+			sb.append(_SQL_SELECT_FLIGHT_WHERE);
 
 			boolean bindUuid = false;
 
@@ -742,7 +744,7 @@ public class FooPersistenceImpl
 
 				queryPos.add(groupId);
 
-				List<Foo> list = query.list();
+				List<Flight> list = query.list();
 
 				if (list.isEmpty()) {
 					if (useFinderCache) {
@@ -751,11 +753,11 @@ public class FooPersistenceImpl
 					}
 				}
 				else {
-					Foo foo = list.get(0);
+					Flight flight = list.get(0);
 
-					result = foo;
+					result = flight;
 
-					cacheResult(foo);
+					cacheResult(flight);
 				}
 			}
 			catch (Exception exception) {
@@ -770,38 +772,38 @@ public class FooPersistenceImpl
 			return null;
 		}
 		else {
-			return (Foo)result;
+			return (Flight)result;
 		}
 	}
 
 	/**
-	 * Removes the foo where uuid = &#63; and groupId = &#63; from the database.
+	 * Removes the flight where uuid = &#63; and groupId = &#63; from the database.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
-	 * @return the foo that was removed
+	 * @return the flight that was removed
 	 */
 	@Override
-	public Foo removeByUUID_G(String uuid, long groupId)
-		throws NoSuchFooException {
+	public Flight removeByUUID_G(String uuid, long groupId)
+		throws NoSuchFlightException {
 
-		Foo foo = findByUUID_G(uuid, groupId);
+		Flight flight = findByUUID_G(uuid, groupId);
 
-		return remove(foo);
+		return remove(flight);
 	}
 
 	/**
-	 * Returns the number of foos where uuid = &#63; and groupId = &#63;.
+	 * Returns the number of flights where uuid = &#63; and groupId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param groupId the group ID
-	 * @return the number of matching foos
+	 * @return the number of matching flights
 	 */
 	@Override
 	public int countByUUID_G(String uuid, long groupId) {
-		Foo foo = fetchByUUID_G(uuid, groupId);
+		Flight flight = fetchByUUID_G(uuid, groupId);
 
-		if (foo == null) {
+		if (flight == null) {
 			return 0;
 		}
 
@@ -809,93 +811,93 @@ public class FooPersistenceImpl
 	}
 
 	private static final String _FINDER_COLUMN_UUID_G_UUID_2 =
-		"foo.uuid = ? AND ";
+		"flight.uuid = ? AND ";
 
 	private static final String _FINDER_COLUMN_UUID_G_UUID_3 =
-		"(foo.uuid IS NULL OR foo.uuid = '') AND ";
+		"(flight.uuid IS NULL OR flight.uuid = '') AND ";
 
 	private static final String _FINDER_COLUMN_UUID_G_GROUPID_2 =
-		"foo.groupId = ?";
+		"flight.groupId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByUuid_C;
 	private FinderPath _finderPathWithoutPaginationFindByUuid_C;
 	private FinderPath _finderPathCountByUuid_C;
 
 	/**
-	 * Returns all the foos where uuid = &#63; and companyId = &#63;.
+	 * Returns all the flights where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @return the matching foos
+	 * @return the matching flights
 	 */
 	@Override
-	public List<Foo> findByUuid_C(String uuid, long companyId) {
+	public List<Flight> findByUuid_C(String uuid, long companyId) {
 		return findByUuid_C(
 			uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
 	/**
-	 * Returns a range of all the foos where uuid = &#63; and companyId = &#63;.
+	 * Returns a range of all the flights where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FooModelImpl</code>.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FlightModelImpl</code>.
 	 * </p>
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @param start the lower bound of the range of foos
-	 * @param end the upper bound of the range of foos (not inclusive)
-	 * @return the range of matching foos
+	 * @param start the lower bound of the range of flights
+	 * @param end the upper bound of the range of flights (not inclusive)
+	 * @return the range of matching flights
 	 */
 	@Override
-	public List<Foo> findByUuid_C(
+	public List<Flight> findByUuid_C(
 		String uuid, long companyId, int start, int end) {
 
 		return findByUuid_C(uuid, companyId, start, end, null);
 	}
 
 	/**
-	 * Returns an ordered range of all the foos where uuid = &#63; and companyId = &#63;.
+	 * Returns an ordered range of all the flights where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FooModelImpl</code>.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FlightModelImpl</code>.
 	 * </p>
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @param start the lower bound of the range of foos
-	 * @param end the upper bound of the range of foos (not inclusive)
+	 * @param start the lower bound of the range of flights
+	 * @param end the upper bound of the range of flights (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching foos
+	 * @return the ordered range of matching flights
 	 */
 	@Override
-	public List<Foo> findByUuid_C(
+	public List<Flight> findByUuid_C(
 		String uuid, long companyId, int start, int end,
-		OrderByComparator<Foo> orderByComparator) {
+		OrderByComparator<Flight> orderByComparator) {
 
 		return findByUuid_C(
 			uuid, companyId, start, end, orderByComparator, true);
 	}
 
 	/**
-	 * Returns an ordered range of all the foos where uuid = &#63; and companyId = &#63;.
+	 * Returns an ordered range of all the flights where uuid = &#63; and companyId = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FooModelImpl</code>.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FlightModelImpl</code>.
 	 * </p>
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @param start the lower bound of the range of foos
-	 * @param end the upper bound of the range of foos (not inclusive)
+	 * @param start the lower bound of the range of flights
+	 * @param end the upper bound of the range of flights (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param useFinderCache whether to use the finder cache
-	 * @return the ordered range of matching foos
+	 * @return the ordered range of matching flights
 	 */
 	@Override
-	public List<Foo> findByUuid_C(
+	public List<Flight> findByUuid_C(
 		String uuid, long companyId, int start, int end,
-		OrderByComparator<Foo> orderByComparator, boolean useFinderCache) {
+		OrderByComparator<Flight> orderByComparator, boolean useFinderCache) {
 
 		uuid = Objects.toString(uuid, "");
 
@@ -917,16 +919,16 @@ public class FooPersistenceImpl
 			};
 		}
 
-		List<Foo> list = null;
+		List<Flight> list = null;
 
 		if (useFinderCache) {
-			list = (List<Foo>)finderCache.getResult(
+			list = (List<Flight>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
-				for (Foo foo : list) {
-					if (!uuid.equals(foo.getUuid()) ||
-						(companyId != foo.getCompanyId())) {
+				for (Flight flight : list) {
+					if (!uuid.equals(flight.getUuid()) ||
+						(companyId != flight.getCompanyId())) {
 
 						list = null;
 
@@ -947,7 +949,7 @@ public class FooPersistenceImpl
 				sb = new StringBundler(4);
 			}
 
-			sb.append(_SQL_SELECT_FOO_WHERE);
+			sb.append(_SQL_SELECT_FLIGHT_WHERE);
 
 			boolean bindUuid = false;
 
@@ -967,7 +969,7 @@ public class FooPersistenceImpl
 					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
 			}
 			else {
-				sb.append(FooModelImpl.ORDER_BY_JPQL);
+				sb.append(FlightModelImpl.ORDER_BY_JPQL);
 			}
 
 			String sql = sb.toString();
@@ -987,7 +989,7 @@ public class FooPersistenceImpl
 
 				queryPos.add(companyId);
 
-				list = (List<Foo>)QueryUtil.list(
+				list = (List<Flight>)QueryUtil.list(
 					query, getDialect(), start, end);
 
 				cacheResult(list);
@@ -1008,24 +1010,24 @@ public class FooPersistenceImpl
 	}
 
 	/**
-	 * Returns the first foo in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the first flight in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching foo
-	 * @throws NoSuchFooException if a matching foo could not be found
+	 * @return the first matching flight
+	 * @throws NoSuchFlightException if a matching flight could not be found
 	 */
 	@Override
-	public Foo findByUuid_C_First(
+	public Flight findByUuid_C_First(
 			String uuid, long companyId,
-			OrderByComparator<Foo> orderByComparator)
-		throws NoSuchFooException {
+			OrderByComparator<Flight> orderByComparator)
+		throws NoSuchFlightException {
 
-		Foo foo = fetchByUuid_C_First(uuid, companyId, orderByComparator);
+		Flight flight = fetchByUuid_C_First(uuid, companyId, orderByComparator);
 
-		if (foo != null) {
-			return foo;
+		if (flight != null) {
+			return flight;
 		}
 
 		StringBundler sb = new StringBundler(6);
@@ -1040,22 +1042,24 @@ public class FooPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchFooException(sb.toString());
+		throw new NoSuchFlightException(sb.toString());
 	}
 
 	/**
-	 * Returns the first foo in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the first flight in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching foo, or <code>null</code> if a matching foo could not be found
+	 * @return the first matching flight, or <code>null</code> if a matching flight could not be found
 	 */
 	@Override
-	public Foo fetchByUuid_C_First(
-		String uuid, long companyId, OrderByComparator<Foo> orderByComparator) {
+	public Flight fetchByUuid_C_First(
+		String uuid, long companyId,
+		OrderByComparator<Flight> orderByComparator) {
 
-		List<Foo> list = findByUuid_C(uuid, companyId, 0, 1, orderByComparator);
+		List<Flight> list = findByUuid_C(
+			uuid, companyId, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
 			return list.get(0);
@@ -1065,24 +1069,24 @@ public class FooPersistenceImpl
 	}
 
 	/**
-	 * Returns the last foo in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the last flight in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching foo
-	 * @throws NoSuchFooException if a matching foo could not be found
+	 * @return the last matching flight
+	 * @throws NoSuchFlightException if a matching flight could not be found
 	 */
 	@Override
-	public Foo findByUuid_C_Last(
+	public Flight findByUuid_C_Last(
 			String uuid, long companyId,
-			OrderByComparator<Foo> orderByComparator)
-		throws NoSuchFooException {
+			OrderByComparator<Flight> orderByComparator)
+		throws NoSuchFlightException {
 
-		Foo foo = fetchByUuid_C_Last(uuid, companyId, orderByComparator);
+		Flight flight = fetchByUuid_C_Last(uuid, companyId, orderByComparator);
 
-		if (foo != null) {
-			return foo;
+		if (flight != null) {
+			return flight;
 		}
 
 		StringBundler sb = new StringBundler(6);
@@ -1097,20 +1101,21 @@ public class FooPersistenceImpl
 
 		sb.append("}");
 
-		throw new NoSuchFooException(sb.toString());
+		throw new NoSuchFlightException(sb.toString());
 	}
 
 	/**
-	 * Returns the last foo in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the last flight in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching foo, or <code>null</code> if a matching foo could not be found
+	 * @return the last matching flight, or <code>null</code> if a matching flight could not be found
 	 */
 	@Override
-	public Foo fetchByUuid_C_Last(
-		String uuid, long companyId, OrderByComparator<Foo> orderByComparator) {
+	public Flight fetchByUuid_C_Last(
+		String uuid, long companyId,
+		OrderByComparator<Flight> orderByComparator) {
 
 		int count = countByUuid_C(uuid, companyId);
 
@@ -1118,7 +1123,7 @@ public class FooPersistenceImpl
 			return null;
 		}
 
-		List<Foo> list = findByUuid_C(
+		List<Flight> list = findByUuid_C(
 			uuid, companyId, count - 1, count, orderByComparator);
 
 		if (!list.isEmpty()) {
@@ -1129,39 +1134,39 @@ public class FooPersistenceImpl
 	}
 
 	/**
-	 * Returns the foos before and after the current foo in the ordered set where uuid = &#63; and companyId = &#63;.
+	 * Returns the flights before and after the current flight in the ordered set where uuid = &#63; and companyId = &#63;.
 	 *
-	 * @param fooId the primary key of the current foo
+	 * @param flightId the primary key of the current flight
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next foo
-	 * @throws NoSuchFooException if a foo with the primary key could not be found
+	 * @return the previous, current, and next flight
+	 * @throws NoSuchFlightException if a flight with the primary key could not be found
 	 */
 	@Override
-	public Foo[] findByUuid_C_PrevAndNext(
-			long fooId, String uuid, long companyId,
-			OrderByComparator<Foo> orderByComparator)
-		throws NoSuchFooException {
+	public Flight[] findByUuid_C_PrevAndNext(
+			long flightId, String uuid, long companyId,
+			OrderByComparator<Flight> orderByComparator)
+		throws NoSuchFlightException {
 
 		uuid = Objects.toString(uuid, "");
 
-		Foo foo = findByPrimaryKey(fooId);
+		Flight flight = findByPrimaryKey(flightId);
 
 		Session session = null;
 
 		try {
 			session = openSession();
 
-			Foo[] array = new FooImpl[3];
+			Flight[] array = new FlightImpl[3];
 
 			array[0] = getByUuid_C_PrevAndNext(
-				session, foo, uuid, companyId, orderByComparator, true);
+				session, flight, uuid, companyId, orderByComparator, true);
 
-			array[1] = foo;
+			array[1] = flight;
 
 			array[2] = getByUuid_C_PrevAndNext(
-				session, foo, uuid, companyId, orderByComparator, false);
+				session, flight, uuid, companyId, orderByComparator, false);
 
 			return array;
 		}
@@ -1173,9 +1178,9 @@ public class FooPersistenceImpl
 		}
 	}
 
-	protected Foo getByUuid_C_PrevAndNext(
-		Session session, Foo foo, String uuid, long companyId,
-		OrderByComparator<Foo> orderByComparator, boolean previous) {
+	protected Flight getByUuid_C_PrevAndNext(
+		Session session, Flight flight, String uuid, long companyId,
+		OrderByComparator<Flight> orderByComparator, boolean previous) {
 
 		StringBundler sb = null;
 
@@ -1188,7 +1193,7 @@ public class FooPersistenceImpl
 			sb = new StringBundler(4);
 		}
 
-		sb.append(_SQL_SELECT_FOO_WHERE);
+		sb.append(_SQL_SELECT_FLIGHT_WHERE);
 
 		boolean bindUuid = false;
 
@@ -1260,7 +1265,7 @@ public class FooPersistenceImpl
 			}
 		}
 		else {
-			sb.append(FooModelImpl.ORDER_BY_JPQL);
+			sb.append(FlightModelImpl.ORDER_BY_JPQL);
 		}
 
 		String sql = sb.toString();
@@ -1280,13 +1285,13 @@ public class FooPersistenceImpl
 
 		if (orderByComparator != null) {
 			for (Object orderByConditionValue :
-					orderByComparator.getOrderByConditionValues(foo)) {
+					orderByComparator.getOrderByConditionValues(flight)) {
 
 				queryPos.add(orderByConditionValue);
 			}
 		}
 
-		List<Foo> list = query.list();
+		List<Flight> list = query.list();
 
 		if (list.size() == 2) {
 			return list.get(1);
@@ -1297,28 +1302,28 @@ public class FooPersistenceImpl
 	}
 
 	/**
-	 * Removes all the foos where uuid = &#63; and companyId = &#63; from the database.
+	 * Removes all the flights where uuid = &#63; and companyId = &#63; from the database.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
 	 */
 	@Override
 	public void removeByUuid_C(String uuid, long companyId) {
-		for (Foo foo :
+		for (Flight flight :
 				findByUuid_C(
 					uuid, companyId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
 					null)) {
 
-			remove(foo);
+			remove(flight);
 		}
 	}
 
 	/**
-	 * Returns the number of foos where uuid = &#63; and companyId = &#63;.
+	 * Returns the number of flights where uuid = &#63; and companyId = &#63;.
 	 *
 	 * @param uuid the uuid
 	 * @param companyId the company ID
-	 * @return the number of matching foos
+	 * @return the number of matching flights
 	 */
 	@Override
 	public int countByUuid_C(String uuid, long companyId) {
@@ -1333,7 +1338,7 @@ public class FooPersistenceImpl
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
 
-			sb.append(_SQL_COUNT_FOO_WHERE);
+			sb.append(_SQL_COUNT_FLIGHT_WHERE);
 
 			boolean bindUuid = false;
 
@@ -1381,85 +1386,85 @@ public class FooPersistenceImpl
 	}
 
 	private static final String _FINDER_COLUMN_UUID_C_UUID_2 =
-		"foo.uuid = ? AND ";
+		"flight.uuid = ? AND ";
 
 	private static final String _FINDER_COLUMN_UUID_C_UUID_3 =
-		"(foo.uuid IS NULL OR foo.uuid = '') AND ";
+		"(flight.uuid IS NULL OR flight.uuid = '') AND ";
 
 	private static final String _FINDER_COLUMN_UUID_C_COMPANYID_2 =
-		"foo.companyId = ?";
+		"flight.companyId = ?";
 
-	private FinderPath _finderPathWithPaginationFindByField2;
-	private FinderPath _finderPathWithoutPaginationFindByField2;
-	private FinderPath _finderPathCountByField2;
+	private FinderPath _finderPathWithPaginationFindByActive;
+	private FinderPath _finderPathWithoutPaginationFindByActive;
+	private FinderPath _finderPathCountByActive;
 
 	/**
-	 * Returns all the foos where field2 = &#63;.
+	 * Returns all the flights where active = &#63;.
 	 *
-	 * @param field2 the field2
-	 * @return the matching foos
+	 * @param active the active
+	 * @return the matching flights
 	 */
 	@Override
-	public List<Foo> findByField2(boolean field2) {
-		return findByField2(field2, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
+	public List<Flight> findByActive(boolean active) {
+		return findByActive(active, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
 	/**
-	 * Returns a range of all the foos where field2 = &#63;.
+	 * Returns a range of all the flights where active = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FooModelImpl</code>.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FlightModelImpl</code>.
 	 * </p>
 	 *
-	 * @param field2 the field2
-	 * @param start the lower bound of the range of foos
-	 * @param end the upper bound of the range of foos (not inclusive)
-	 * @return the range of matching foos
+	 * @param active the active
+	 * @param start the lower bound of the range of flights
+	 * @param end the upper bound of the range of flights (not inclusive)
+	 * @return the range of matching flights
 	 */
 	@Override
-	public List<Foo> findByField2(boolean field2, int start, int end) {
-		return findByField2(field2, start, end, null);
+	public List<Flight> findByActive(boolean active, int start, int end) {
+		return findByActive(active, start, end, null);
 	}
 
 	/**
-	 * Returns an ordered range of all the foos where field2 = &#63;.
+	 * Returns an ordered range of all the flights where active = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FooModelImpl</code>.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FlightModelImpl</code>.
 	 * </p>
 	 *
-	 * @param field2 the field2
-	 * @param start the lower bound of the range of foos
-	 * @param end the upper bound of the range of foos (not inclusive)
+	 * @param active the active
+	 * @param start the lower bound of the range of flights
+	 * @param end the upper bound of the range of flights (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of matching foos
+	 * @return the ordered range of matching flights
 	 */
 	@Override
-	public List<Foo> findByField2(
-		boolean field2, int start, int end,
-		OrderByComparator<Foo> orderByComparator) {
+	public List<Flight> findByActive(
+		boolean active, int start, int end,
+		OrderByComparator<Flight> orderByComparator) {
 
-		return findByField2(field2, start, end, orderByComparator, true);
+		return findByActive(active, start, end, orderByComparator, true);
 	}
 
 	/**
-	 * Returns an ordered range of all the foos where field2 = &#63;.
+	 * Returns an ordered range of all the flights where active = &#63;.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FooModelImpl</code>.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FlightModelImpl</code>.
 	 * </p>
 	 *
-	 * @param field2 the field2
-	 * @param start the lower bound of the range of foos
-	 * @param end the upper bound of the range of foos (not inclusive)
+	 * @param active the active
+	 * @param start the lower bound of the range of flights
+	 * @param end the upper bound of the range of flights (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param useFinderCache whether to use the finder cache
-	 * @return the ordered range of matching foos
+	 * @return the ordered range of matching flights
 	 */
 	@Override
-	public List<Foo> findByField2(
-		boolean field2, int start, int end,
-		OrderByComparator<Foo> orderByComparator, boolean useFinderCache) {
+	public List<Flight> findByActive(
+		boolean active, int start, int end,
+		OrderByComparator<Flight> orderByComparator, boolean useFinderCache) {
 
 		FinderPath finderPath = null;
 		Object[] finderArgs = null;
@@ -1468,24 +1473,24 @@ public class FooPersistenceImpl
 			(orderByComparator == null)) {
 
 			if (useFinderCache) {
-				finderPath = _finderPathWithoutPaginationFindByField2;
-				finderArgs = new Object[] {field2};
+				finderPath = _finderPathWithoutPaginationFindByActive;
+				finderArgs = new Object[] {active};
 			}
 		}
 		else if (useFinderCache) {
-			finderPath = _finderPathWithPaginationFindByField2;
-			finderArgs = new Object[] {field2, start, end, orderByComparator};
+			finderPath = _finderPathWithPaginationFindByActive;
+			finderArgs = new Object[] {active, start, end, orderByComparator};
 		}
 
-		List<Foo> list = null;
+		List<Flight> list = null;
 
 		if (useFinderCache) {
-			list = (List<Foo>)finderCache.getResult(
+			list = (List<Flight>)finderCache.getResult(
 				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
-				for (Foo foo : list) {
-					if (field2 != foo.isField2()) {
+				for (Flight flight : list) {
+					if (active != flight.isActive()) {
 						list = null;
 
 						break;
@@ -1505,16 +1510,16 @@ public class FooPersistenceImpl
 				sb = new StringBundler(3);
 			}
 
-			sb.append(_SQL_SELECT_FOO_WHERE);
+			sb.append(_SQL_SELECT_FLIGHT_WHERE);
 
-			sb.append(_FINDER_COLUMN_FIELD2_FIELD2_2);
+			sb.append(_FINDER_COLUMN_ACTIVE_ACTIVE_2);
 
 			if (orderByComparator != null) {
 				appendOrderByComparator(
 					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
 			}
 			else {
-				sb.append(FooModelImpl.ORDER_BY_JPQL);
+				sb.append(FlightModelImpl.ORDER_BY_JPQL);
 			}
 
 			String sql = sb.toString();
@@ -1528,9 +1533,9 @@ public class FooPersistenceImpl
 
 				QueryPos queryPos = QueryPos.getInstance(query);
 
-				queryPos.add(field2);
+				queryPos.add(active);
 
-				list = (List<Foo>)QueryUtil.list(
+				list = (List<Flight>)QueryUtil.list(
 					query, getDialect(), start, end);
 
 				cacheResult(list);
@@ -1551,48 +1556,48 @@ public class FooPersistenceImpl
 	}
 
 	/**
-	 * Returns the first foo in the ordered set where field2 = &#63;.
+	 * Returns the first flight in the ordered set where active = &#63;.
 	 *
-	 * @param field2 the field2
+	 * @param active the active
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching foo
-	 * @throws NoSuchFooException if a matching foo could not be found
+	 * @return the first matching flight
+	 * @throws NoSuchFlightException if a matching flight could not be found
 	 */
 	@Override
-	public Foo findByField2_First(
-			boolean field2, OrderByComparator<Foo> orderByComparator)
-		throws NoSuchFooException {
+	public Flight findByActive_First(
+			boolean active, OrderByComparator<Flight> orderByComparator)
+		throws NoSuchFlightException {
 
-		Foo foo = fetchByField2_First(field2, orderByComparator);
+		Flight flight = fetchByActive_First(active, orderByComparator);
 
-		if (foo != null) {
-			return foo;
+		if (flight != null) {
+			return flight;
 		}
 
 		StringBundler sb = new StringBundler(4);
 
 		sb.append(_NO_SUCH_ENTITY_WITH_KEY);
 
-		sb.append("field2=");
-		sb.append(field2);
+		sb.append("active=");
+		sb.append(active);
 
 		sb.append("}");
 
-		throw new NoSuchFooException(sb.toString());
+		throw new NoSuchFlightException(sb.toString());
 	}
 
 	/**
-	 * Returns the first foo in the ordered set where field2 = &#63;.
+	 * Returns the first flight in the ordered set where active = &#63;.
 	 *
-	 * @param field2 the field2
+	 * @param active the active
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the first matching foo, or <code>null</code> if a matching foo could not be found
+	 * @return the first matching flight, or <code>null</code> if a matching flight could not be found
 	 */
 	@Override
-	public Foo fetchByField2_First(
-		boolean field2, OrderByComparator<Foo> orderByComparator) {
+	public Flight fetchByActive_First(
+		boolean active, OrderByComparator<Flight> orderByComparator) {
 
-		List<Foo> list = findByField2(field2, 0, 1, orderByComparator);
+		List<Flight> list = findByActive(active, 0, 1, orderByComparator);
 
 		if (!list.isEmpty()) {
 			return list.get(0);
@@ -1602,55 +1607,55 @@ public class FooPersistenceImpl
 	}
 
 	/**
-	 * Returns the last foo in the ordered set where field2 = &#63;.
+	 * Returns the last flight in the ordered set where active = &#63;.
 	 *
-	 * @param field2 the field2
+	 * @param active the active
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching foo
-	 * @throws NoSuchFooException if a matching foo could not be found
+	 * @return the last matching flight
+	 * @throws NoSuchFlightException if a matching flight could not be found
 	 */
 	@Override
-	public Foo findByField2_Last(
-			boolean field2, OrderByComparator<Foo> orderByComparator)
-		throws NoSuchFooException {
+	public Flight findByActive_Last(
+			boolean active, OrderByComparator<Flight> orderByComparator)
+		throws NoSuchFlightException {
 
-		Foo foo = fetchByField2_Last(field2, orderByComparator);
+		Flight flight = fetchByActive_Last(active, orderByComparator);
 
-		if (foo != null) {
-			return foo;
+		if (flight != null) {
+			return flight;
 		}
 
 		StringBundler sb = new StringBundler(4);
 
 		sb.append(_NO_SUCH_ENTITY_WITH_KEY);
 
-		sb.append("field2=");
-		sb.append(field2);
+		sb.append("active=");
+		sb.append(active);
 
 		sb.append("}");
 
-		throw new NoSuchFooException(sb.toString());
+		throw new NoSuchFlightException(sb.toString());
 	}
 
 	/**
-	 * Returns the last foo in the ordered set where field2 = &#63;.
+	 * Returns the last flight in the ordered set where active = &#63;.
 	 *
-	 * @param field2 the field2
+	 * @param active the active
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the last matching foo, or <code>null</code> if a matching foo could not be found
+	 * @return the last matching flight, or <code>null</code> if a matching flight could not be found
 	 */
 	@Override
-	public Foo fetchByField2_Last(
-		boolean field2, OrderByComparator<Foo> orderByComparator) {
+	public Flight fetchByActive_Last(
+		boolean active, OrderByComparator<Flight> orderByComparator) {
 
-		int count = countByField2(field2);
+		int count = countByActive(active);
 
 		if (count == 0) {
 			return null;
 		}
 
-		List<Foo> list = findByField2(
-			field2, count - 1, count, orderByComparator);
+		List<Flight> list = findByActive(
+			active, count - 1, count, orderByComparator);
 
 		if (!list.isEmpty()) {
 			return list.get(0);
@@ -1660,36 +1665,36 @@ public class FooPersistenceImpl
 	}
 
 	/**
-	 * Returns the foos before and after the current foo in the ordered set where field2 = &#63;.
+	 * Returns the flights before and after the current flight in the ordered set where active = &#63;.
 	 *
-	 * @param fooId the primary key of the current foo
-	 * @param field2 the field2
+	 * @param flightId the primary key of the current flight
+	 * @param active the active
 	 * @param orderByComparator the comparator to order the set by (optionally <code>null</code>)
-	 * @return the previous, current, and next foo
-	 * @throws NoSuchFooException if a foo with the primary key could not be found
+	 * @return the previous, current, and next flight
+	 * @throws NoSuchFlightException if a flight with the primary key could not be found
 	 */
 	@Override
-	public Foo[] findByField2_PrevAndNext(
-			long fooId, boolean field2,
-			OrderByComparator<Foo> orderByComparator)
-		throws NoSuchFooException {
+	public Flight[] findByActive_PrevAndNext(
+			long flightId, boolean active,
+			OrderByComparator<Flight> orderByComparator)
+		throws NoSuchFlightException {
 
-		Foo foo = findByPrimaryKey(fooId);
+		Flight flight = findByPrimaryKey(flightId);
 
 		Session session = null;
 
 		try {
 			session = openSession();
 
-			Foo[] array = new FooImpl[3];
+			Flight[] array = new FlightImpl[3];
 
-			array[0] = getByField2_PrevAndNext(
-				session, foo, field2, orderByComparator, true);
+			array[0] = getByActive_PrevAndNext(
+				session, flight, active, orderByComparator, true);
 
-			array[1] = foo;
+			array[1] = flight;
 
-			array[2] = getByField2_PrevAndNext(
-				session, foo, field2, orderByComparator, false);
+			array[2] = getByActive_PrevAndNext(
+				session, flight, active, orderByComparator, false);
 
 			return array;
 		}
@@ -1701,9 +1706,9 @@ public class FooPersistenceImpl
 		}
 	}
 
-	protected Foo getByField2_PrevAndNext(
-		Session session, Foo foo, boolean field2,
-		OrderByComparator<Foo> orderByComparator, boolean previous) {
+	protected Flight getByActive_PrevAndNext(
+		Session session, Flight flight, boolean active,
+		OrderByComparator<Flight> orderByComparator, boolean previous) {
 
 		StringBundler sb = null;
 
@@ -1716,9 +1721,9 @@ public class FooPersistenceImpl
 			sb = new StringBundler(3);
 		}
 
-		sb.append(_SQL_SELECT_FOO_WHERE);
+		sb.append(_SQL_SELECT_FLIGHT_WHERE);
 
-		sb.append(_FINDER_COLUMN_FIELD2_FIELD2_2);
+		sb.append(_FINDER_COLUMN_ACTIVE_ACTIVE_2);
 
 		if (orderByComparator != null) {
 			String[] orderByConditionFields =
@@ -1777,7 +1782,7 @@ public class FooPersistenceImpl
 			}
 		}
 		else {
-			sb.append(FooModelImpl.ORDER_BY_JPQL);
+			sb.append(FlightModelImpl.ORDER_BY_JPQL);
 		}
 
 		String sql = sb.toString();
@@ -1789,17 +1794,17 @@ public class FooPersistenceImpl
 
 		QueryPos queryPos = QueryPos.getInstance(query);
 
-		queryPos.add(field2);
+		queryPos.add(active);
 
 		if (orderByComparator != null) {
 			for (Object orderByConditionValue :
-					orderByComparator.getOrderByConditionValues(foo)) {
+					orderByComparator.getOrderByConditionValues(flight)) {
 
 				queryPos.add(orderByConditionValue);
 			}
 		}
 
-		List<Foo> list = query.list();
+		List<Flight> list = query.list();
 
 		if (list.size() == 2) {
 			return list.get(1);
@@ -1810,40 +1815,40 @@ public class FooPersistenceImpl
 	}
 
 	/**
-	 * Removes all the foos where field2 = &#63; from the database.
+	 * Removes all the flights where active = &#63; from the database.
 	 *
-	 * @param field2 the field2
+	 * @param active the active
 	 */
 	@Override
-	public void removeByField2(boolean field2) {
-		for (Foo foo :
-				findByField2(
-					field2, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
+	public void removeByActive(boolean active) {
+		for (Flight flight :
+				findByActive(
+					active, QueryUtil.ALL_POS, QueryUtil.ALL_POS, null)) {
 
-			remove(foo);
+			remove(flight);
 		}
 	}
 
 	/**
-	 * Returns the number of foos where field2 = &#63;.
+	 * Returns the number of flights where active = &#63;.
 	 *
-	 * @param field2 the field2
-	 * @return the number of matching foos
+	 * @param active the active
+	 * @return the number of matching flights
 	 */
 	@Override
-	public int countByField2(boolean field2) {
-		FinderPath finderPath = _finderPathCountByField2;
+	public int countByActive(boolean active) {
+		FinderPath finderPath = _finderPathCountByActive;
 
-		Object[] finderArgs = new Object[] {field2};
+		Object[] finderArgs = new Object[] {active};
 
 		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
 
-			sb.append(_SQL_COUNT_FOO_WHERE);
+			sb.append(_SQL_COUNT_FLIGHT_WHERE);
 
-			sb.append(_FINDER_COLUMN_FIELD2_FIELD2_2);
+			sb.append(_FINDER_COLUMN_ACTIVE_ACTIVE_2);
 
 			String sql = sb.toString();
 
@@ -1856,7 +1861,7 @@ public class FooPersistenceImpl
 
 				QueryPos queryPos = QueryPos.getInstance(query);
 
-				queryPos.add(field2);
+				queryPos.add(active);
 
 				count = (Long)query.uniqueResult();
 
@@ -1873,26 +1878,26 @@ public class FooPersistenceImpl
 		return count.intValue();
 	}
 
-	private static final String _FINDER_COLUMN_FIELD2_FIELD2_2 =
-		"foo.field2 = ?";
+	private static final String _FINDER_COLUMN_ACTIVE_ACTIVE_2 =
+		"flight.active = ?";
 
 	private FinderPath _finderPathFetchByERC_C;
 
 	/**
-	 * Returns the foo where externalReferenceCode = &#63; and companyId = &#63; or throws a <code>NoSuchFooException</code> if it could not be found.
+	 * Returns the flight where externalReferenceCode = &#63; and companyId = &#63; or throws a <code>NoSuchFlightException</code> if it could not be found.
 	 *
 	 * @param externalReferenceCode the external reference code
 	 * @param companyId the company ID
-	 * @return the matching foo
-	 * @throws NoSuchFooException if a matching foo could not be found
+	 * @return the matching flight
+	 * @throws NoSuchFlightException if a matching flight could not be found
 	 */
 	@Override
-	public Foo findByERC_C(String externalReferenceCode, long companyId)
-		throws NoSuchFooException {
+	public Flight findByERC_C(String externalReferenceCode, long companyId)
+		throws NoSuchFlightException {
 
-		Foo foo = fetchByERC_C(externalReferenceCode, companyId);
+		Flight flight = fetchByERC_C(externalReferenceCode, companyId);
 
-		if (foo == null) {
+		if (flight == null) {
 			StringBundler sb = new StringBundler(6);
 
 			sb.append(_NO_SUCH_ENTITY_WITH_KEY);
@@ -1909,34 +1914,34 @@ public class FooPersistenceImpl
 				_log.debug(sb.toString());
 			}
 
-			throw new NoSuchFooException(sb.toString());
+			throw new NoSuchFlightException(sb.toString());
 		}
 
-		return foo;
+		return flight;
 	}
 
 	/**
-	 * Returns the foo where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
+	 * Returns the flight where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found. Uses the finder cache.
 	 *
 	 * @param externalReferenceCode the external reference code
 	 * @param companyId the company ID
-	 * @return the matching foo, or <code>null</code> if a matching foo could not be found
+	 * @return the matching flight, or <code>null</code> if a matching flight could not be found
 	 */
 	@Override
-	public Foo fetchByERC_C(String externalReferenceCode, long companyId) {
+	public Flight fetchByERC_C(String externalReferenceCode, long companyId) {
 		return fetchByERC_C(externalReferenceCode, companyId, true);
 	}
 
 	/**
-	 * Returns the foo where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
+	 * Returns the flight where externalReferenceCode = &#63; and companyId = &#63; or returns <code>null</code> if it could not be found, optionally using the finder cache.
 	 *
 	 * @param externalReferenceCode the external reference code
 	 * @param companyId the company ID
 	 * @param useFinderCache whether to use the finder cache
-	 * @return the matching foo, or <code>null</code> if a matching foo could not be found
+	 * @return the matching flight, or <code>null</code> if a matching flight could not be found
 	 */
 	@Override
-	public Foo fetchByERC_C(
+	public Flight fetchByERC_C(
 		String externalReferenceCode, long companyId, boolean useFinderCache) {
 
 		externalReferenceCode = Objects.toString(externalReferenceCode, "");
@@ -1954,12 +1959,12 @@ public class FooPersistenceImpl
 				_finderPathFetchByERC_C, finderArgs, this);
 		}
 
-		if (result instanceof Foo) {
-			Foo foo = (Foo)result;
+		if (result instanceof Flight) {
+			Flight flight = (Flight)result;
 
 			if (!Objects.equals(
-					externalReferenceCode, foo.getExternalReferenceCode()) ||
-				(companyId != foo.getCompanyId())) {
+					externalReferenceCode, flight.getExternalReferenceCode()) ||
+				(companyId != flight.getCompanyId())) {
 
 				result = null;
 			}
@@ -1968,7 +1973,7 @@ public class FooPersistenceImpl
 		if (result == null) {
 			StringBundler sb = new StringBundler(4);
 
-			sb.append(_SQL_SELECT_FOO_WHERE);
+			sb.append(_SQL_SELECT_FLIGHT_WHERE);
 
 			boolean bindExternalReferenceCode = false;
 
@@ -2000,7 +2005,7 @@ public class FooPersistenceImpl
 
 				queryPos.add(companyId);
 
-				List<Foo> list = query.list();
+				List<Flight> list = query.list();
 
 				if (list.isEmpty()) {
 					if (useFinderCache) {
@@ -2009,11 +2014,11 @@ public class FooPersistenceImpl
 					}
 				}
 				else {
-					Foo foo = list.get(0);
+					Flight flight = list.get(0);
 
-					result = foo;
+					result = flight;
 
-					cacheResult(foo);
+					cacheResult(flight);
 				}
 			}
 			catch (Exception exception) {
@@ -2028,38 +2033,38 @@ public class FooPersistenceImpl
 			return null;
 		}
 		else {
-			return (Foo)result;
+			return (Flight)result;
 		}
 	}
 
 	/**
-	 * Removes the foo where externalReferenceCode = &#63; and companyId = &#63; from the database.
+	 * Removes the flight where externalReferenceCode = &#63; and companyId = &#63; from the database.
 	 *
 	 * @param externalReferenceCode the external reference code
 	 * @param companyId the company ID
-	 * @return the foo that was removed
+	 * @return the flight that was removed
 	 */
 	@Override
-	public Foo removeByERC_C(String externalReferenceCode, long companyId)
-		throws NoSuchFooException {
+	public Flight removeByERC_C(String externalReferenceCode, long companyId)
+		throws NoSuchFlightException {
 
-		Foo foo = findByERC_C(externalReferenceCode, companyId);
+		Flight flight = findByERC_C(externalReferenceCode, companyId);
 
-		return remove(foo);
+		return remove(flight);
 	}
 
 	/**
-	 * Returns the number of foos where externalReferenceCode = &#63; and companyId = &#63;.
+	 * Returns the number of flights where externalReferenceCode = &#63; and companyId = &#63;.
 	 *
 	 * @param externalReferenceCode the external reference code
 	 * @param companyId the company ID
-	 * @return the number of matching foos
+	 * @return the number of matching flights
 	 */
 	@Override
 	public int countByERC_C(String externalReferenceCode, long companyId) {
-		Foo foo = fetchByERC_C(externalReferenceCode, companyId);
+		Flight flight = fetchByERC_C(externalReferenceCode, companyId);
 
-		if (foo == null) {
+		if (flight == null) {
 			return 0;
 		}
 
@@ -2067,75 +2072,78 @@ public class FooPersistenceImpl
 	}
 
 	private static final String _FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_2 =
-		"foo.externalReferenceCode = ? AND ";
+		"flight.externalReferenceCode = ? AND ";
 
 	private static final String _FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_3 =
-		"(foo.externalReferenceCode IS NULL OR foo.externalReferenceCode = '') AND ";
+		"(flight.externalReferenceCode IS NULL OR flight.externalReferenceCode = '') AND ";
 
 	private static final String _FINDER_COLUMN_ERC_C_COMPANYID_2 =
-		"foo.companyId = ?";
+		"flight.companyId = ?";
 
-	public FooPersistenceImpl() {
+	public FlightPersistenceImpl() {
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
 
 		dbColumnNames.put("uuid", "uuid_");
+		dbColumnNames.put("active", "active_");
 
 		setDBColumnNames(dbColumnNames);
 
-		setModelClass(Foo.class);
+		setModelClass(Flight.class);
 
-		setModelImplClass(FooImpl.class);
+		setModelImplClass(FlightImpl.class);
 		setModelPKClass(long.class);
 
-		setTable(FooTable.INSTANCE);
+		setTable(FlightTable.INSTANCE);
 	}
 
 	/**
-	 * Caches the foo in the entity cache if it is enabled.
+	 * Caches the flight in the entity cache if it is enabled.
 	 *
-	 * @param foo the foo
+	 * @param flight the flight
 	 */
 	@Override
-	public void cacheResult(Foo foo) {
-		entityCache.putResult(FooImpl.class, foo.getPrimaryKey(), foo);
+	public void cacheResult(Flight flight) {
+		entityCache.putResult(FlightImpl.class, flight.getPrimaryKey(), flight);
 
 		finderCache.putResult(
 			_finderPathFetchByUUID_G,
-			new Object[] {foo.getUuid(), foo.getGroupId()}, foo);
+			new Object[] {flight.getUuid(), flight.getGroupId()}, flight);
 
 		finderCache.putResult(
 			_finderPathFetchByERC_C,
-			new Object[] {foo.getExternalReferenceCode(), foo.getCompanyId()},
-			foo);
+			new Object[] {
+				flight.getExternalReferenceCode(), flight.getCompanyId()
+			},
+			flight);
 	}
 
 	private int _valueObjectFinderCacheListThreshold;
 
 	/**
-	 * Caches the foos in the entity cache if it is enabled.
+	 * Caches the flights in the entity cache if it is enabled.
 	 *
-	 * @param foos the foos
+	 * @param flights the flights
 	 */
 	@Override
-	public void cacheResult(List<Foo> foos) {
+	public void cacheResult(List<Flight> flights) {
 		if ((_valueObjectFinderCacheListThreshold == 0) ||
 			((_valueObjectFinderCacheListThreshold > 0) &&
-			 (foos.size() > _valueObjectFinderCacheListThreshold))) {
+			 (flights.size() > _valueObjectFinderCacheListThreshold))) {
 
 			return;
 		}
 
-		for (Foo foo : foos) {
-			if (entityCache.getResult(FooImpl.class, foo.getPrimaryKey()) ==
-					null) {
+		for (Flight flight : flights) {
+			if (entityCache.getResult(
+					FlightImpl.class, flight.getPrimaryKey()) == null) {
 
-				cacheResult(foo);
+				cacheResult(flight);
 			}
 		}
 	}
 
 	/**
-	 * Clears the cache for all foos.
+	 * Clears the cache for all flights.
 	 *
 	 * <p>
 	 * The <code>EntityCache</code> and <code>FinderCache</code> are both cleared by this method.
@@ -2143,115 +2151,116 @@ public class FooPersistenceImpl
 	 */
 	@Override
 	public void clearCache() {
-		entityCache.clearCache(FooImpl.class);
+		entityCache.clearCache(FlightImpl.class);
 
-		finderCache.clearCache(FooImpl.class);
+		finderCache.clearCache(FlightImpl.class);
 	}
 
 	/**
-	 * Clears the cache for the foo.
+	 * Clears the cache for the flight.
 	 *
 	 * <p>
 	 * The <code>EntityCache</code> and <code>FinderCache</code> are both cleared by this method.
 	 * </p>
 	 */
 	@Override
-	public void clearCache(Foo foo) {
-		entityCache.removeResult(FooImpl.class, foo);
+	public void clearCache(Flight flight) {
+		entityCache.removeResult(FlightImpl.class, flight);
 	}
 
 	@Override
-	public void clearCache(List<Foo> foos) {
-		for (Foo foo : foos) {
-			entityCache.removeResult(FooImpl.class, foo);
+	public void clearCache(List<Flight> flights) {
+		for (Flight flight : flights) {
+			entityCache.removeResult(FlightImpl.class, flight);
 		}
 	}
 
 	@Override
 	public void clearCache(Set<Serializable> primaryKeys) {
-		finderCache.clearCache(FooImpl.class);
+		finderCache.clearCache(FlightImpl.class);
 
 		for (Serializable primaryKey : primaryKeys) {
-			entityCache.removeResult(FooImpl.class, primaryKey);
+			entityCache.removeResult(FlightImpl.class, primaryKey);
 		}
 	}
 
-	protected void cacheUniqueFindersCache(FooModelImpl fooModelImpl) {
+	protected void cacheUniqueFindersCache(FlightModelImpl flightModelImpl) {
 		Object[] args = new Object[] {
-			fooModelImpl.getUuid(), fooModelImpl.getGroupId()
+			flightModelImpl.getUuid(), flightModelImpl.getGroupId()
 		};
 
-		finderCache.putResult(_finderPathFetchByUUID_G, args, fooModelImpl);
+		finderCache.putResult(_finderPathFetchByUUID_G, args, flightModelImpl);
 
 		args = new Object[] {
-			fooModelImpl.getExternalReferenceCode(), fooModelImpl.getCompanyId()
+			flightModelImpl.getExternalReferenceCode(),
+			flightModelImpl.getCompanyId()
 		};
 
-		finderCache.putResult(_finderPathFetchByERC_C, args, fooModelImpl);
+		finderCache.putResult(_finderPathFetchByERC_C, args, flightModelImpl);
 	}
 
 	/**
-	 * Creates a new foo with the primary key. Does not add the foo to the database.
+	 * Creates a new flight with the primary key. Does not add the flight to the database.
 	 *
-	 * @param fooId the primary key for the new foo
-	 * @return the new foo
+	 * @param flightId the primary key for the new flight
+	 * @return the new flight
 	 */
 	@Override
-	public Foo create(long fooId) {
-		Foo foo = new FooImpl();
+	public Flight create(long flightId) {
+		Flight flight = new FlightImpl();
 
-		foo.setNew(true);
-		foo.setPrimaryKey(fooId);
+		flight.setNew(true);
+		flight.setPrimaryKey(flightId);
 
 		String uuid = PortalUUIDUtil.generate();
 
-		foo.setUuid(uuid);
+		flight.setUuid(uuid);
 
-		foo.setCompanyId(CompanyThreadLocal.getCompanyId());
+		flight.setCompanyId(CompanyThreadLocal.getCompanyId());
 
-		return foo;
+		return flight;
 	}
 
 	/**
-	 * Removes the foo with the primary key from the database. Also notifies the appropriate model listeners.
+	 * Removes the flight with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
-	 * @param fooId the primary key of the foo
-	 * @return the foo that was removed
-	 * @throws NoSuchFooException if a foo with the primary key could not be found
+	 * @param flightId the primary key of the flight
+	 * @return the flight that was removed
+	 * @throws NoSuchFlightException if a flight with the primary key could not be found
 	 */
 	@Override
-	public Foo remove(long fooId) throws NoSuchFooException {
-		return remove((Serializable)fooId);
+	public Flight remove(long flightId) throws NoSuchFlightException {
+		return remove((Serializable)flightId);
 	}
 
 	/**
-	 * Removes the foo with the primary key from the database. Also notifies the appropriate model listeners.
+	 * Removes the flight with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
-	 * @param primaryKey the primary key of the foo
-	 * @return the foo that was removed
-	 * @throws NoSuchFooException if a foo with the primary key could not be found
+	 * @param primaryKey the primary key of the flight
+	 * @return the flight that was removed
+	 * @throws NoSuchFlightException if a flight with the primary key could not be found
 	 */
 	@Override
-	public Foo remove(Serializable primaryKey) throws NoSuchFooException {
+	public Flight remove(Serializable primaryKey) throws NoSuchFlightException {
 		Session session = null;
 
 		try {
 			session = openSession();
 
-			Foo foo = (Foo)session.get(FooImpl.class, primaryKey);
+			Flight flight = (Flight)session.get(FlightImpl.class, primaryKey);
 
-			if (foo == null) {
+			if (flight == null) {
 				if (_log.isDebugEnabled()) {
 					_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 				}
 
-				throw new NoSuchFooException(
+				throw new NoSuchFlightException(
 					_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
-			return remove(foo);
+			return remove(flight);
 		}
-		catch (NoSuchFooException noSuchEntityException) {
+		catch (NoSuchFlightException noSuchEntityException) {
 			throw noSuchEntityException;
 		}
 		catch (Exception exception) {
@@ -2263,18 +2272,19 @@ public class FooPersistenceImpl
 	}
 
 	@Override
-	protected Foo removeImpl(Foo foo) {
+	protected Flight removeImpl(Flight flight) {
 		Session session = null;
 
 		try {
 			session = openSession();
 
-			if (!session.contains(foo)) {
-				foo = (Foo)session.get(FooImpl.class, foo.getPrimaryKeyObj());
+			if (!session.contains(flight)) {
+				flight = (Flight)session.get(
+					FlightImpl.class, flight.getPrimaryKeyObj());
 			}
 
-			if (foo != null) {
-				session.delete(foo);
+			if (flight != null) {
+				session.delete(flight);
 			}
 		}
 		catch (Exception exception) {
@@ -2284,71 +2294,71 @@ public class FooPersistenceImpl
 			closeSession(session);
 		}
 
-		if (foo != null) {
-			clearCache(foo);
+		if (flight != null) {
+			clearCache(flight);
 		}
 
-		return foo;
+		return flight;
 	}
 
 	@Override
-	public Foo updateImpl(Foo foo) {
-		boolean isNew = foo.isNew();
+	public Flight updateImpl(Flight flight) {
+		boolean isNew = flight.isNew();
 
-		if (!(foo instanceof FooModelImpl)) {
+		if (!(flight instanceof FlightModelImpl)) {
 			InvocationHandler invocationHandler = null;
 
-			if (ProxyUtil.isProxyClass(foo.getClass())) {
-				invocationHandler = ProxyUtil.getInvocationHandler(foo);
+			if (ProxyUtil.isProxyClass(flight.getClass())) {
+				invocationHandler = ProxyUtil.getInvocationHandler(flight);
 
 				throw new IllegalArgumentException(
-					"Implement ModelWrapper in foo proxy " +
+					"Implement ModelWrapper in flight proxy " +
 						invocationHandler.getClass());
 			}
 
 			throw new IllegalArgumentException(
-				"Implement ModelWrapper in custom Foo implementation " +
-					foo.getClass());
+				"Implement ModelWrapper in custom Flight implementation " +
+					flight.getClass());
 		}
 
-		FooModelImpl fooModelImpl = (FooModelImpl)foo;
+		FlightModelImpl flightModelImpl = (FlightModelImpl)flight;
 
-		if (Validator.isNull(foo.getUuid())) {
+		if (Validator.isNull(flight.getUuid())) {
 			String uuid = PortalUUIDUtil.generate();
 
-			foo.setUuid(uuid);
+			flight.setUuid(uuid);
 		}
 
-		if (Validator.isNull(foo.getExternalReferenceCode())) {
-			foo.setExternalReferenceCode(foo.getUuid());
+		if (Validator.isNull(flight.getExternalReferenceCode())) {
+			flight.setExternalReferenceCode(flight.getUuid());
 		}
 		else {
 			if (!Objects.equals(
-					fooModelImpl.getColumnOriginalValue(
+					flightModelImpl.getColumnOriginalValue(
 						"externalReferenceCode"),
-					foo.getExternalReferenceCode())) {
+					flight.getExternalReferenceCode())) {
 
 				long userId = GetterUtil.getLong(
 					PrincipalThreadLocal.getName());
 
 				if (userId > 0) {
-					long companyId = foo.getCompanyId();
+					long companyId = flight.getCompanyId();
 
-					long groupId = foo.getGroupId();
+					long groupId = flight.getGroupId();
 
 					long classPK = 0;
 
 					if (!isNew) {
-						classPK = foo.getPrimaryKey();
+						classPK = flight.getPrimaryKey();
 					}
 
 					try {
-						foo.setExternalReferenceCode(
+						flight.setExternalReferenceCode(
 							SanitizerUtil.sanitize(
-								companyId, groupId, userId, Foo.class.getName(),
-								classPK, ContentTypes.TEXT_HTML,
-								Sanitizer.MODE_ALL,
-								foo.getExternalReferenceCode(), null));
+								companyId, groupId, userId,
+								Flight.class.getName(), classPK,
+								ContentTypes.TEXT_HTML, Sanitizer.MODE_ALL,
+								flight.getExternalReferenceCode(), null));
 					}
 					catch (SanitizerException sanitizerException) {
 						throw new SystemException(sanitizerException);
@@ -2356,23 +2366,25 @@ public class FooPersistenceImpl
 				}
 			}
 
-			Foo ercFoo = fetchByERC_C(
-				foo.getExternalReferenceCode(), foo.getCompanyId());
+			Flight ercFlight = fetchByERC_C(
+				flight.getExternalReferenceCode(), flight.getCompanyId());
 
 			if (isNew) {
-				if (ercFoo != null) {
-					throw new DuplicateFooExternalReferenceCodeException(
-						"Duplicate foo with external reference code " +
-							foo.getExternalReferenceCode() + " and company " +
-								foo.getCompanyId());
+				if (ercFlight != null) {
+					throw new DuplicateFlightExternalReferenceCodeException(
+						"Duplicate flight with external reference code " +
+							flight.getExternalReferenceCode() +
+								" and company " + flight.getCompanyId());
 				}
 			}
 			else {
-				if ((ercFoo != null) && (foo.getFooId() != ercFoo.getFooId())) {
-					throw new DuplicateFooExternalReferenceCodeException(
-						"Duplicate foo with external reference code " +
-							foo.getExternalReferenceCode() + " and company " +
-								foo.getCompanyId());
+				if ((ercFlight != null) &&
+					(flight.getFlightId() != ercFlight.getFlightId())) {
+
+					throw new DuplicateFlightExternalReferenceCodeException(
+						"Duplicate flight with external reference code " +
+							flight.getExternalReferenceCode() +
+								" and company " + flight.getCompanyId());
 				}
 			}
 		}
@@ -2382,21 +2394,21 @@ public class FooPersistenceImpl
 
 		Date date = new Date();
 
-		if (isNew && (foo.getCreateDate() == null)) {
+		if (isNew && (flight.getCreateDate() == null)) {
 			if (serviceContext == null) {
-				foo.setCreateDate(date);
+				flight.setCreateDate(date);
 			}
 			else {
-				foo.setCreateDate(serviceContext.getCreateDate(date));
+				flight.setCreateDate(serviceContext.getCreateDate(date));
 			}
 		}
 
-		if (!fooModelImpl.hasSetModifiedDate()) {
+		if (!flightModelImpl.hasSetModifiedDate()) {
 			if (serviceContext == null) {
-				foo.setModifiedDate(date);
+				flight.setModifiedDate(date);
 			}
 			else {
-				foo.setModifiedDate(serviceContext.getModifiedDate(date));
+				flight.setModifiedDate(serviceContext.getModifiedDate(date));
 			}
 		}
 
@@ -2406,10 +2418,10 @@ public class FooPersistenceImpl
 			session = openSession();
 
 			if (isNew) {
-				session.save(foo);
+				session.save(flight);
 			}
 			else {
-				foo = (Foo)session.merge(foo);
+				flight = (Flight)session.merge(flight);
 			}
 		}
 		catch (Exception exception) {
@@ -2419,128 +2431,128 @@ public class FooPersistenceImpl
 			closeSession(session);
 		}
 
-		entityCache.putResult(FooImpl.class, fooModelImpl, false, true);
+		entityCache.putResult(FlightImpl.class, flightModelImpl, false, true);
 
-		cacheUniqueFindersCache(fooModelImpl);
+		cacheUniqueFindersCache(flightModelImpl);
 
 		if (isNew) {
-			foo.setNew(false);
+			flight.setNew(false);
 		}
 
-		foo.resetOriginalValues();
+		flight.resetOriginalValues();
 
-		return foo;
+		return flight;
 	}
 
 	/**
-	 * Returns the foo with the primary key or throws a <code>com.liferay.portal.kernel.exception.NoSuchModelException</code> if it could not be found.
+	 * Returns the flight with the primary key or throws a <code>com.liferay.portal.kernel.exception.NoSuchModelException</code> if it could not be found.
 	 *
-	 * @param primaryKey the primary key of the foo
-	 * @return the foo
-	 * @throws NoSuchFooException if a foo with the primary key could not be found
+	 * @param primaryKey the primary key of the flight
+	 * @return the flight
+	 * @throws NoSuchFlightException if a flight with the primary key could not be found
 	 */
 	@Override
-	public Foo findByPrimaryKey(Serializable primaryKey)
-		throws NoSuchFooException {
+	public Flight findByPrimaryKey(Serializable primaryKey)
+		throws NoSuchFlightException {
 
-		Foo foo = fetchByPrimaryKey(primaryKey);
+		Flight flight = fetchByPrimaryKey(primaryKey);
 
-		if (foo == null) {
+		if (flight == null) {
 			if (_log.isDebugEnabled()) {
 				_log.debug(_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 			}
 
-			throw new NoSuchFooException(
+			throw new NoSuchFlightException(
 				_NO_SUCH_ENTITY_WITH_PRIMARY_KEY + primaryKey);
 		}
 
-		return foo;
+		return flight;
 	}
 
 	/**
-	 * Returns the foo with the primary key or throws a <code>NoSuchFooException</code> if it could not be found.
+	 * Returns the flight with the primary key or throws a <code>NoSuchFlightException</code> if it could not be found.
 	 *
-	 * @param fooId the primary key of the foo
-	 * @return the foo
-	 * @throws NoSuchFooException if a foo with the primary key could not be found
+	 * @param flightId the primary key of the flight
+	 * @return the flight
+	 * @throws NoSuchFlightException if a flight with the primary key could not be found
 	 */
 	@Override
-	public Foo findByPrimaryKey(long fooId) throws NoSuchFooException {
-		return findByPrimaryKey((Serializable)fooId);
+	public Flight findByPrimaryKey(long flightId) throws NoSuchFlightException {
+		return findByPrimaryKey((Serializable)flightId);
 	}
 
 	/**
-	 * Returns the foo with the primary key or returns <code>null</code> if it could not be found.
+	 * Returns the flight with the primary key or returns <code>null</code> if it could not be found.
 	 *
-	 * @param fooId the primary key of the foo
-	 * @return the foo, or <code>null</code> if a foo with the primary key could not be found
+	 * @param flightId the primary key of the flight
+	 * @return the flight, or <code>null</code> if a flight with the primary key could not be found
 	 */
 	@Override
-	public Foo fetchByPrimaryKey(long fooId) {
-		return fetchByPrimaryKey((Serializable)fooId);
+	public Flight fetchByPrimaryKey(long flightId) {
+		return fetchByPrimaryKey((Serializable)flightId);
 	}
 
 	/**
-	 * Returns all the foos.
+	 * Returns all the flights.
 	 *
-	 * @return the foos
+	 * @return the flights
 	 */
 	@Override
-	public List<Foo> findAll() {
+	public List<Flight> findAll() {
 		return findAll(QueryUtil.ALL_POS, QueryUtil.ALL_POS, null);
 	}
 
 	/**
-	 * Returns a range of all the foos.
+	 * Returns a range of all the flights.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FooModelImpl</code>.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FlightModelImpl</code>.
 	 * </p>
 	 *
-	 * @param start the lower bound of the range of foos
-	 * @param end the upper bound of the range of foos (not inclusive)
-	 * @return the range of foos
+	 * @param start the lower bound of the range of flights
+	 * @param end the upper bound of the range of flights (not inclusive)
+	 * @return the range of flights
 	 */
 	@Override
-	public List<Foo> findAll(int start, int end) {
+	public List<Flight> findAll(int start, int end) {
 		return findAll(start, end, null);
 	}
 
 	/**
-	 * Returns an ordered range of all the foos.
+	 * Returns an ordered range of all the flights.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FooModelImpl</code>.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FlightModelImpl</code>.
 	 * </p>
 	 *
-	 * @param start the lower bound of the range of foos
-	 * @param end the upper bound of the range of foos (not inclusive)
+	 * @param start the lower bound of the range of flights
+	 * @param end the upper bound of the range of flights (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the ordered range of foos
+	 * @return the ordered range of flights
 	 */
 	@Override
-	public List<Foo> findAll(
-		int start, int end, OrderByComparator<Foo> orderByComparator) {
+	public List<Flight> findAll(
+		int start, int end, OrderByComparator<Flight> orderByComparator) {
 
 		return findAll(start, end, orderByComparator, true);
 	}
 
 	/**
-	 * Returns an ordered range of all the foos.
+	 * Returns an ordered range of all the flights.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FooModelImpl</code>.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>FlightModelImpl</code>.
 	 * </p>
 	 *
-	 * @param start the lower bound of the range of foos
-	 * @param end the upper bound of the range of foos (not inclusive)
+	 * @param start the lower bound of the range of flights
+	 * @param end the upper bound of the range of flights (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
 	 * @param useFinderCache whether to use the finder cache
-	 * @return the ordered range of foos
+	 * @return the ordered range of flights
 	 */
 	@Override
-	public List<Foo> findAll(
-		int start, int end, OrderByComparator<Foo> orderByComparator,
+	public List<Flight> findAll(
+		int start, int end, OrderByComparator<Flight> orderByComparator,
 		boolean useFinderCache) {
 
 		FinderPath finderPath = null;
@@ -2559,10 +2571,10 @@ public class FooPersistenceImpl
 			finderArgs = new Object[] {start, end, orderByComparator};
 		}
 
-		List<Foo> list = null;
+		List<Flight> list = null;
 
 		if (useFinderCache) {
-			list = (List<Foo>)finderCache.getResult(
+			list = (List<Flight>)finderCache.getResult(
 				finderPath, finderArgs, this);
 		}
 
@@ -2574,7 +2586,7 @@ public class FooPersistenceImpl
 				sb = new StringBundler(
 					2 + (orderByComparator.getOrderByFields().length * 2));
 
-				sb.append(_SQL_SELECT_FOO);
+				sb.append(_SQL_SELECT_FLIGHT);
 
 				appendOrderByComparator(
 					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
@@ -2582,9 +2594,9 @@ public class FooPersistenceImpl
 				sql = sb.toString();
 			}
 			else {
-				sql = _SQL_SELECT_FOO;
+				sql = _SQL_SELECT_FLIGHT;
 
-				sql = sql.concat(FooModelImpl.ORDER_BY_JPQL);
+				sql = sql.concat(FlightModelImpl.ORDER_BY_JPQL);
 			}
 
 			Session session = null;
@@ -2594,7 +2606,7 @@ public class FooPersistenceImpl
 
 				Query query = session.createQuery(sql);
 
-				list = (List<Foo>)QueryUtil.list(
+				list = (List<Flight>)QueryUtil.list(
 					query, getDialect(), start, end);
 
 				cacheResult(list);
@@ -2615,20 +2627,20 @@ public class FooPersistenceImpl
 	}
 
 	/**
-	 * Removes all the foos from the database.
+	 * Removes all the flights from the database.
 	 *
 	 */
 	@Override
 	public void removeAll() {
-		for (Foo foo : findAll()) {
-			remove(foo);
+		for (Flight flight : findAll()) {
+			remove(flight);
 		}
 	}
 
 	/**
-	 * Returns the number of foos.
+	 * Returns the number of flights.
 	 *
-	 * @return the number of foos
+	 * @return the number of flights
 	 */
 	@Override
 	public int countAll() {
@@ -2641,7 +2653,7 @@ public class FooPersistenceImpl
 			try {
 				session = openSession();
 
-				Query query = session.createQuery(_SQL_COUNT_FOO);
+				Query query = session.createQuery(_SQL_COUNT_FLIGHT);
 
 				count = (Long)query.uniqueResult();
 
@@ -2671,21 +2683,21 @@ public class FooPersistenceImpl
 
 	@Override
 	protected String getPKDBName() {
-		return "fooId";
+		return "flightId";
 	}
 
 	@Override
 	protected String getSelectSQL() {
-		return _SQL_SELECT_FOO;
+		return _SQL_SELECT_FLIGHT;
 	}
 
 	@Override
 	protected Map<String, Integer> getTableColumnsMap() {
-		return FooModelImpl.TABLE_COLUMNS_MAP;
+		return FlightModelImpl.TABLE_COLUMNS_MAP;
 	}
 
 	/**
-	 * Initializes the foo persistence.
+	 * Initializes the flight persistence.
 	 */
 	@Activate
 	public void activate() {
@@ -2746,22 +2758,22 @@ public class FooPersistenceImpl
 			new String[] {String.class.getName(), Long.class.getName()},
 			new String[] {"uuid_", "companyId"}, false);
 
-		_finderPathWithPaginationFindByField2 = new FinderPath(
-			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByField2",
+		_finderPathWithPaginationFindByActive = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByActive",
 			new String[] {
 				Boolean.class.getName(), Integer.class.getName(),
 				Integer.class.getName(), OrderByComparator.class.getName()
 			},
-			new String[] {"field2"}, true);
+			new String[] {"active_"}, true);
 
-		_finderPathWithoutPaginationFindByField2 = new FinderPath(
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByField2",
-			new String[] {Boolean.class.getName()}, new String[] {"field2"},
+		_finderPathWithoutPaginationFindByActive = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "findByActive",
+			new String[] {Boolean.class.getName()}, new String[] {"active_"},
 			true);
 
-		_finderPathCountByField2 = new FinderPath(
-			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByField2",
-			new String[] {Boolean.class.getName()}, new String[] {"field2"},
+		_finderPathCountByActive = new FinderPath(
+			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByActive",
+			new String[] {Boolean.class.getName()}, new String[] {"active_"},
 			false);
 
 		_finderPathFetchByERC_C = new FinderPath(
@@ -2769,14 +2781,14 @@ public class FooPersistenceImpl
 			new String[] {String.class.getName(), Long.class.getName()},
 			new String[] {"externalReferenceCode", "companyId"}, true);
 
-		FooUtil.setPersistence(this);
+		FlightUtil.setPersistence(this);
 	}
 
 	@Deactivate
 	public void deactivate() {
-		FooUtil.setPersistence(null);
+		FlightUtil.setPersistence(null);
 
-		entityCache.removeCache(FooImpl.class.getName());
+		entityCache.removeCache(FlightImpl.class.getName());
 	}
 
 	@Override
@@ -2811,30 +2823,31 @@ public class FooPersistenceImpl
 	@Reference
 	protected FinderCache finderCache;
 
-	private static final String _SQL_SELECT_FOO = "SELECT foo FROM Foo foo";
+	private static final String _SQL_SELECT_FLIGHT =
+		"SELECT flight FROM Flight flight";
 
-	private static final String _SQL_SELECT_FOO_WHERE =
-		"SELECT foo FROM Foo foo WHERE ";
+	private static final String _SQL_SELECT_FLIGHT_WHERE =
+		"SELECT flight FROM Flight flight WHERE ";
 
-	private static final String _SQL_COUNT_FOO =
-		"SELECT COUNT(foo) FROM Foo foo";
+	private static final String _SQL_COUNT_FLIGHT =
+		"SELECT COUNT(flight) FROM Flight flight";
 
-	private static final String _SQL_COUNT_FOO_WHERE =
-		"SELECT COUNT(foo) FROM Foo foo WHERE ";
+	private static final String _SQL_COUNT_FLIGHT_WHERE =
+		"SELECT COUNT(flight) FROM Flight flight WHERE ";
 
-	private static final String _ORDER_BY_ENTITY_ALIAS = "foo.";
+	private static final String _ORDER_BY_ENTITY_ALIAS = "flight.";
 
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY =
-		"No Foo exists with the primary key ";
+		"No Flight exists with the primary key ";
 
 	private static final String _NO_SUCH_ENTITY_WITH_KEY =
-		"No Foo exists with the key {";
+		"No Flight exists with the key {";
 
 	private static final Log _log = LogFactoryUtil.getLog(
-		FooPersistenceImpl.class);
+		FlightPersistenceImpl.class);
 
 	private static final Set<String> _badColumnNames = SetUtil.fromArray(
-		new String[] {"uuid"});
+		new String[] {"uuid", "active"});
 
 	@Override
 	protected FinderCache getFinderCache() {

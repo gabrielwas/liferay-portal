@@ -3,12 +3,11 @@
 
 <service-builder auto-import-default-references="false" auto-namespace-tables="false" dependency-injector="ds" mvcc-enabled="true" package-path="com.liferay.blade.basic" short-no-such-exception-enabled="false">
 	<namespace>SSB</namespace>
-	<entity external-reference-code="company" local-service="true" name="Foo" remote-service="true" uuid="true">
-		<!--<entity name="Foo" table="foo" uuid="true" local-service="true" remote-service="false" data-source="sampleDataSource" session-factory="sampleSessionFactory" tx-manager="sampleTransactionManager">-->
+	<entity external-reference-code="company" local-service="true" name="Flight" remote-service="true" uuid="true">
 
 		<!-- PK fields -->
 
-		<column name="fooId" primary="true" type="long" />
+		<column name="flightId" primary="true" type="long" />
 
 		<!-- Group instance -->
 
@@ -24,22 +23,21 @@
 
 		<!-- Other fields -->
 
-		<column name="field1" type="String" />
-		<column name="field2" type="boolean" />
-		<column name="field3" type="int" />
-		<column name="field4" type="Date" />
-		<column name="field5" type="String" />
+		<column name="flightNumber" type="String" />
+		<column name="active" type="boolean" />
+		<column name="capacity" type="int" />
+		<column name="flightDate" type="Date" />
 
 		<!-- Order -->
 
 		<order by="asc">
-			<order-column name="field1" />
+			<order-column name="flightNumber" />
 		</order>
 
 		<!-- Finder methods -->
 
-		<finder name="Field2" return-type="Collection">
-			<finder-column name="field2" />
+		<finder name="Active" return-type="Collection">
+			<finder-column name="active" />
 		</finder>
 
 		<!-- References -->

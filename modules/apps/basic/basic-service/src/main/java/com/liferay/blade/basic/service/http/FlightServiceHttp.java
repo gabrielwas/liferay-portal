@@ -7,7 +7,7 @@ package com.liferay.blade.basic.service.http;
 
 /**
  * Provides the HTTP utility for the
- * <code>com.liferay.blade.basic.service.FooServiceUtil</code> service
+ * <code>com.liferay.blade.basic.service.FlightServiceUtil</code> service
  * utility. The
  * static methods of this class calls the same methods of the service utility.
  * However, the signatures are different because it requires an additional
@@ -31,5 +31,5 @@ package com.liferay.blade.basic.service.http;
  * @author Brian Wing Shun Chan
  * @generated
  */
-public class FooServiceHttp {
+public class FlightServiceHttp {
 }

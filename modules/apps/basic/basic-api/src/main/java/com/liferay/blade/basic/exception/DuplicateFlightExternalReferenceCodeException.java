@@ -9,20 +9,20 @@ import com.liferay.portal.kernel.exception.DuplicateExternalReferenceCodeExcepti
 /**
  * @author Brian Wing Shun Chan
  */
-public class DuplicateFooExternalReferenceCodeException extends DuplicateExternalReferenceCodeException {
+public class DuplicateFlightExternalReferenceCodeException extends DuplicateExternalReferenceCodeException {
 
-	public DuplicateFooExternalReferenceCodeException() {
+	public DuplicateFlightExternalReferenceCodeException() {
 	}
 
-	public DuplicateFooExternalReferenceCodeException(String msg) {
+	public DuplicateFlightExternalReferenceCodeException(String msg) {
 		super(msg);
 	}
 
-	public DuplicateFooExternalReferenceCodeException(String msg, Throwable throwable) {
+	public DuplicateFlightExternalReferenceCodeException(String msg, Throwable throwable) {
 		super(msg, throwable);
 	}
 
-	public DuplicateFooExternalReferenceCodeException(Throwable throwable) {
+	public DuplicateFlightExternalReferenceCodeException(Throwable throwable) {
 		super(throwable);
 	}
 

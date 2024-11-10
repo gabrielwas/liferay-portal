@@ -1,3 +1,3 @@
-create unique index IX_B5AA2AB7 on Foo (externalReferenceCode[$COLUMN_LENGTH:75$], companyId);
-create index IX_99833ED8 on Foo (field2);
-create unique index IX_D5BE2462 on Foo (uuid_[$COLUMN_LENGTH:75$], groupId);
+create index IX_2930DF73 on Flight (active_);
+create unique index IX_6C5559A1 on Flight (externalReferenceCode[$COLUMN_LENGTH:75$], companyId);
+create unique index IX_869019CC on Flight (uuid_[$COLUMN_LENGTH:75$], groupId);

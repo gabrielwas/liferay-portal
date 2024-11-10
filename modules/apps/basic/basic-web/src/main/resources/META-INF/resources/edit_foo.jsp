@@ -21,54 +21,44 @@
 <%
 String redirect = ParamUtil.getString(request, "redirect");
 
-long fooId = ParamUtil.getLong(request, "fooId");
+long flightId = ParamUtil.getLong(request, "flightId");
 
-Foo foo = null;
+Flight flight = null;
 
-if (fooId > 0) {
-	foo = fooLocalService.getFoo(fooId);
+if (flightId > 0) {
+	flight = flightLocalService.getFlight(flightId);
 }
 %>
 
 <aui:form action="<%= (javax.portlet.ActionURL)renderResponse.createActionURL() %>" method="post" name="fm">
-	<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= (foo == null) ? Constants.ADD : Constants.UPDATE %>" />
+	<aui:input name="<%= Constants.CMD %>" type="hidden" value="<%= (flight == null) ? Constants.ADD : Constants.UPDATE %>" />
 	<aui:input name="redirect" type="hidden" value="<%= currentURL %>" />
-	<aui:input name="fooId" type="hidden" value="<%= fooId %>" />
+	<aui:input name="flightId" type="hidden" value="<%= flightId %>" />
 
 	<liferay-ui:header
 		backURL="<%= redirect %>"
-		title='<%= (foo != null) ? foo.getField1() : "new-foo" %>'
+		title='<%= (flight != null) ? flight.getFlightNumber() : "new-foo" %>'
 	/>
 
-	<liferay-asset:asset-categories-error />
-
-	<liferay-asset:asset-tags-error />
-
-	<aui:model-context bean="<%= foo %>" model="<%= Foo.class %>" />
+	<aui:model-context bean="<%= flight %>" model="<%= Flight.class %>" />
 
 	<aui:fieldset>
-		<aui:input name="field1" />
+		<aui:input name="flightNumber" />
 
-		<aui:input name="field2" />
+		<aui:input name="active" />
 
-		<aui:input name="field3" />
+		<aui:input name="capacity" />
 
-		<aui:input name="field4" />
+		<aui:input name="flightDate" />
 
-		<aui:input name="field5" />
-
-		<liferay-expando:custom-attributes-available className="<%= Foo.class.getName() %>">
+		<liferay-expando:custom-attributes-available className="<%= Flight.class.getName() %>">
 			<liferay-expando:custom-attribute-list
-				className="<%= Foo.class.getName() %>"
-				classPK="<%= (foo != null) ? foo.getFooId() : 0 %>"
+				className="<%= Flight.class.getName() %>"
+				classPK="<%= (flight != null) ? flight.getFlightId() : 0 %>"
 				editable="<%= true %>"
 				label="<%= true %>"
 			/>
 		</liferay-expando:custom-attributes-available>
-
-		<aui:input name="categories" type="assetCategories" />
-
-		<aui:input name="tags" type="assetTags" />
 	</aui:fieldset>
 
 	<aui:button-row>

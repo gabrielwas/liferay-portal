@@ -8,23 +8,23 @@ package com.liferay.blade.basic.service;
 import com.liferay.portal.kernel.module.service.Snapshot;
 
 /**
- * Provides the remote service utility for Foo. This utility wraps
- * <code>com.liferay.blade.basic.service.impl.FooServiceImpl</code> and is an
+ * Provides the remote service utility for Flight. This utility wraps
+ * <code>com.liferay.blade.basic.service.impl.FlightServiceImpl</code> and is an
  * access point for service operations in application layer code running on a
  * remote server. Methods of this service are expected to have security checks
  * based on the propagated JAAS credentials because this service can be
  * accessed remotely.
  *
  * @author Brian Wing Shun Chan
- * @see FooService
+ * @see FlightService
  * @generated
  */
-public class FooServiceUtil {
+public class FlightServiceUtil {
 
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify this class directly. Add custom service methods to <code>com.liferay.blade.basic.service.impl.FooServiceImpl</code> and rerun ServiceBuilder to regenerate this class.
+	 * Never modify this class directly. Add custom service methods to <code>com.liferay.blade.basic.service.impl.FlightServiceImpl</code> and rerun ServiceBuilder to regenerate this class.
 	 */
 
 	/**
@@ -36,11 +36,11 @@ public class FooServiceUtil {
 		return getService().getOSGiServiceIdentifier();
 	}
 
-	public static FooService getService() {
+	public static FlightService getService() {
 		return _serviceSnapshot.get();
 	}
 
-	private static final Snapshot<FooService> _serviceSnapshot = new Snapshot<>(
-		FooServiceUtil.class, FooService.class);
+	private static final Snapshot<FlightService> _serviceSnapshot =
+		new Snapshot<>(FlightServiceUtil.class, FlightService.class);
 
 }

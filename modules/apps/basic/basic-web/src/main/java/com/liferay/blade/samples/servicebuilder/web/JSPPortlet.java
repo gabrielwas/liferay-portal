@@ -16,8 +16,8 @@
 
 package com.liferay.blade.samples.servicebuilder.web;
 
-import com.liferay.blade.basic.model.Foo;
-import com.liferay.blade.basic.service.FooLocalService;
+import com.liferay.blade.basic.model.Flight;
+import com.liferay.blade.basic.service.FlightLocalService;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 import com.liferay.portal.kernel.servlet.SessionErrors;
@@ -61,8 +61,8 @@ import org.osgi.service.component.annotations.Reference;
 )
 public class JSPPortlet extends MVCPortlet {
 
-	public FooLocalService getFooLocalService() {
-		return _fooLocalService;
+	public FlightLocalService getFlightLocalService() {
+		return _flightLocalService;
 	}
 
 	@Override
@@ -74,10 +74,10 @@ public class JSPPortlet extends MVCPortlet {
 			String cmd = ParamUtil.getString(actionRequest, Constants.CMD);
 
 			if (cmd.equals(Constants.ADD) || cmd.equals(Constants.UPDATE)) {
-				updateFoo(actionRequest);
+				updateFlight(actionRequest);
 			}
 			else if (cmd.equals(Constants.DELETE)) {
-				deleteFoo(actionRequest);
+				deleteFlight(actionRequest);
 			}
 
 			if (Validator.isNotNull(cmd)) {
@@ -101,67 +101,64 @@ public class JSPPortlet extends MVCPortlet {
 		throws IOException, PortletException {
 
 		//set service bean
-		request.setAttribute("fooLocalService", getFooLocalService());
+		request.setAttribute("flightLocalService", getFlightLocalService());
 
 		super.render(request, response);
 	}
 
-	protected void deleteFoo(ActionRequest actionRequest) throws Exception {
-		long fooId = ParamUtil.getLong(actionRequest, "fooId");
+	protected void deleteFlight(ActionRequest actionRequest) throws Exception {
+		long flightId = ParamUtil.getLong(actionRequest, "flightId");
 
-		getFooLocalService().deleteFoo(fooId);
+		getFlightLocalService().deleteFlight(flightId);
 	}
 
-	protected void updateFoo(ActionRequest actionRequest) throws Exception {
-		long fooId = ParamUtil.getLong(actionRequest, "fooId");
+	protected void updateFlight(ActionRequest actionRequest) throws Exception {
+		long flightId = ParamUtil.getLong(actionRequest, "flightId");
 
-		String field1 = ParamUtil.getString(actionRequest, "field1");
-		boolean field2 = ParamUtil.getBoolean(actionRequest, "field2");
-		int field3 = ParamUtil.getInteger(actionRequest, "field3");
-		String field5 = ParamUtil.getString(actionRequest, "field5");
+		String flightNumber = ParamUtil.getString(actionRequest, "flightNumber");
+		boolean active = ParamUtil.getBoolean(actionRequest, "active");
+		int capacity = ParamUtil.getInteger(actionRequest, "capacity");
 
-		int dateMonth = ParamUtil.getInteger(actionRequest, "field4Month");
-		int dateDay = ParamUtil.getInteger(actionRequest, "field4Day");
-		int dateYear = ParamUtil.getInteger(actionRequest, "field4Year");
-		int dateHour = ParamUtil.getInteger(actionRequest, "field4Hour");
-		int dateMinute = ParamUtil.getInteger(actionRequest, "field4Minute");
-		int dateAmPm = ParamUtil.getInteger(actionRequest, "field4AmPm");
+		int dateMonth = ParamUtil.getInteger(actionRequest, "flightDateMonth");
+		int dateDay = ParamUtil.getInteger(actionRequest, "flightDateDay");
+		int dateYear = ParamUtil.getInteger(actionRequest, "flightDateYear");
+		int dateHour = ParamUtil.getInteger(actionRequest, "flightDateHour");
+		int dateMinute = ParamUtil.getInteger(actionRequest, "flightDateMinute");
+		int dateAmPm = ParamUtil.getInteger(actionRequest, "flightDateAmPm");
 
 		if (dateAmPm == Calendar.PM) {
 			dateHour += 12;
 		}
 
-		Date field4 = PortalUtil.getDate(
+		Date flightDate = PortalUtil.getDate(
 			dateMonth, dateDay, dateYear, dateHour, dateMinute,
 			PortalException.class);
 
-		if (fooId <= 0) {
-			Foo foo = getFooLocalService().createFoo(0);
+		if (flightId <= 0) {
+			Flight flight = getFlightLocalService().createFlight(0);
 
-			foo.setField1(field1);
-			foo.setField2(field2);
-			foo.setField3(field3);
-			foo.setField4(field4);
-			foo.setField5(field5);
-			foo.isNew();
+			flight.setFlightNumber(flightNumber);
+			flight.setActive(active);
+			flight.setCapacity(capacity);
+			flight.setFlightDate(flightDate);
+			flight.isNew();
 
-			getFooLocalService().addFoo(foo);
+			getFlightLocalService().addFlight(flight);
 		}
 		else {
-			Foo foo = getFooLocalService().fetchFoo(fooId);
+			Flight flight = getFlightLocalService().fetchFlight(flightId);
 
-			foo.setFooId(fooId);
-			foo.setField1(field1);
-			foo.setField2(field2);
-			foo.setField3(field3);
-			foo.setField4(field4);
-			foo.setField5(field5);
+			flight.setFlightId(flightId);
+			flight.setFlightNumber(flightNumber);
+			flight.setActive(active);
+			flight.setCapacity(capacity);
+			flight.setFlightDate(flightDate);
 
-			getFooLocalService().updateFoo(foo);
+			getFlightLocalService().updateFlight(flight);
 		}
 	}
 
 	@Reference
-	private volatile FooLocalService _fooLocalService;
+	private volatile FlightLocalService _flightLocalService;
 
 }

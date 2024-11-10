@@ -165,11 +165,7 @@ public class ObjectDefinitionsActionsDisplayContext
 						"object-action-executor-help[" +
 							objectActionExecutor.getKey() + "]")
 				).put(
-					"label",
-					LanguageUtil.get(
-						objectRequestHelper.getLocale(),
-						"object-action-executor[" +
-							objectActionExecutor.getKey() + "]")
+					"label", "Register flight in External System"
 				).put(
 					"value", objectActionExecutor.getKey()
 				));

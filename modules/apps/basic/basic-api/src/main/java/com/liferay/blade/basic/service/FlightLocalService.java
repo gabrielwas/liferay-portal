@@ -5,7 +5,7 @@
 
 package com.liferay.blade.basic.service;
 
-import com.liferay.blade.basic.model.Foo;
+import com.liferay.blade.basic.model.Flight;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.petra.sql.dsl.query.DSLQuery;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
@@ -32,13 +32,13 @@ import java.util.List;
 import org.osgi.annotation.versioning.ProviderType;
 
 /**
- * Provides the local service interface for Foo. Methods of this
+ * Provides the local service interface for Flight. Methods of this
  * service will not have security checks based on the propagated JAAS
  * credentials because this service can only be accessed from within the same
  * VM.
  *
  * @author Brian Wing Shun Chan
- * @see FooLocalServiceUtil
+ * @see FlightLocalServiceUtil
  * @generated
  */
 @ProviderType
@@ -46,36 +46,36 @@ import org.osgi.annotation.versioning.ProviderType;
 	isolation = Isolation.PORTAL,
 	rollbackFor = {PortalException.class, SystemException.class}
 )
-public interface FooLocalService
+public interface FlightLocalService
 	extends BaseLocalService, PersistedModelLocalService {
 
 	/*
 	 * NOTE FOR DEVELOPERS:
 	 *
-	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.blade.basic.service.impl.FooLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the foo local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link FooLocalServiceUtil} if injection and service tracking are not available.
+	 * Never modify this interface directly. Add custom service methods to <code>com.liferay.blade.basic.service.impl.FlightLocalServiceImpl</code> and rerun ServiceBuilder to automatically copy the method declarations to this interface. Consume the flight local service via injection or a <code>org.osgi.util.tracker.ServiceTracker</code>. Use {@link FlightLocalServiceUtil} if injection and service tracking are not available.
 	 */
 
 	/**
-	 * Adds the foo to the database. Also notifies the appropriate model listeners.
+	 * Adds the flight to the database. Also notifies the appropriate model listeners.
 	 *
 	 * <p>
-	 * <strong>Important:</strong> Inspect FooLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * <strong>Important:</strong> Inspect FlightLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
 	 * </p>
 	 *
-	 * @param foo the foo
-	 * @return the foo that was added
+	 * @param flight the flight
+	 * @return the flight that was added
 	 */
 	@Indexable(type = IndexableType.REINDEX)
-	public Foo addFoo(Foo foo);
+	public Flight addFlight(Flight flight);
 
 	/**
-	 * Creates a new foo with the primary key. Does not add the foo to the database.
+	 * Creates a new flight with the primary key. Does not add the flight to the database.
 	 *
-	 * @param fooId the primary key for the new foo
-	 * @return the new foo
+	 * @param flightId the primary key for the new flight
+	 * @return the new flight
 	 */
 	@Transactional(enabled = false)
-	public Foo createFoo(long fooId);
+	public Flight createFlight(long flightId);
 
 	/**
 	 * @throws PortalException
@@ -84,31 +84,31 @@ public interface FooLocalService
 		throws PortalException;
 
 	/**
-	 * Deletes the foo from the database. Also notifies the appropriate model listeners.
+	 * Deletes the flight from the database. Also notifies the appropriate model listeners.
 	 *
 	 * <p>
-	 * <strong>Important:</strong> Inspect FooLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * <strong>Important:</strong> Inspect FlightLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
 	 * </p>
 	 *
-	 * @param foo the foo
-	 * @return the foo that was removed
+	 * @param flight the flight
+	 * @return the flight that was removed
 	 */
 	@Indexable(type = IndexableType.DELETE)
-	public Foo deleteFoo(Foo foo);
+	public Flight deleteFlight(Flight flight);
 
 	/**
-	 * Deletes the foo with the primary key from the database. Also notifies the appropriate model listeners.
+	 * Deletes the flight with the primary key from the database. Also notifies the appropriate model listeners.
 	 *
 	 * <p>
-	 * <strong>Important:</strong> Inspect FooLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * <strong>Important:</strong> Inspect FlightLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
 	 * </p>
 	 *
-	 * @param fooId the primary key of the foo
-	 * @return the foo that was removed
-	 * @throws PortalException if a foo with the primary key could not be found
+	 * @param flightId the primary key of the flight
+	 * @return the flight that was removed
+	 * @throws PortalException if a flight with the primary key could not be found
 	 */
 	@Indexable(type = IndexableType.DELETE)
-	public Foo deleteFoo(long fooId) throws PortalException;
+	public Flight deleteFlight(long flightId) throws PortalException;
 
 	/**
 	 * @throws PortalException
@@ -139,7 +139,7 @@ public interface FooLocalService
 	 * Performs a dynamic query on the database and returns a range of the matching rows.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>com.liferay.blade.basic.model.impl.FooModelImpl</code>.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>com.liferay.blade.basic.model.impl.FlightModelImpl</code>.
 	 * </p>
 	 *
 	 * @param dynamicQuery the dynamic query
@@ -155,7 +155,7 @@ public interface FooLocalService
 	 * Performs a dynamic query on the database and returns an ordered range of the matching rows.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>com.liferay.blade.basic.model.impl.FooModelImpl</code>.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>com.liferay.blade.basic.model.impl.FlightModelImpl</code>.
 	 * </p>
 	 *
 	 * @param dynamicQuery the dynamic query
@@ -190,21 +190,21 @@ public interface FooLocalService
 		DynamicQuery dynamicQuery, Projection projection);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Foo fetchFoo(long fooId);
+	public Flight fetchFlight(long flightId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Foo fetchFooByExternalReferenceCode(
+	public Flight fetchFlightByExternalReferenceCode(
 		String externalReferenceCode, long companyId);
 
 	/**
-	 * Returns the foo matching the UUID and group.
+	 * Returns the flight matching the UUID and group.
 	 *
-	 * @param uuid the foo's UUID
+	 * @param uuid the flight's UUID
 	 * @param groupId the primary key of the group
-	 * @return the matching foo, or <code>null</code> if a matching foo could not be found
+	 * @return the matching flight, or <code>null</code> if a matching flight could not be found
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Foo fetchFooByUuidAndGroupId(String uuid, long groupId);
+	public Flight fetchFlightByUuidAndGroupId(String uuid, long groupId);
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public ActionableDynamicQuery getActionableDynamicQuery();
@@ -214,78 +214,79 @@ public interface FooLocalService
 		PortletDataContext portletDataContext);
 
 	/**
-	 * Returns the foo with the primary key.
+	 * Returns the flight with the primary key.
 	 *
-	 * @param fooId the primary key of the foo
-	 * @return the foo
-	 * @throws PortalException if a foo with the primary key could not be found
+	 * @param flightId the primary key of the flight
+	 * @return the flight
+	 * @throws PortalException if a flight with the primary key could not be found
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Foo getFoo(long fooId) throws PortalException;
+	public Flight getFlight(long flightId) throws PortalException;
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Foo getFooByExternalReferenceCode(
+	public Flight getFlightByExternalReferenceCode(
 			String externalReferenceCode, long companyId)
 		throws PortalException;
 
 	/**
-	 * Returns the foo matching the UUID and group.
+	 * Returns the flight matching the UUID and group.
 	 *
-	 * @param uuid the foo's UUID
+	 * @param uuid the flight's UUID
 	 * @param groupId the primary key of the group
-	 * @return the matching foo
-	 * @throws PortalException if a matching foo could not be found
+	 * @return the matching flight
+	 * @throws PortalException if a matching flight could not be found
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public Foo getFooByUuidAndGroupId(String uuid, long groupId)
+	public Flight getFlightByUuidAndGroupId(String uuid, long groupId)
 		throws PortalException;
 
 	/**
-	 * Returns a range of all the foos.
+	 * Returns a range of all the flights.
 	 *
 	 * <p>
-	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>com.liferay.blade.basic.model.impl.FooModelImpl</code>.
+	 * Useful when paginating results. Returns a maximum of <code>end - start</code> instances. <code>start</code> and <code>end</code> are not primary keys, they are indexes in the result set. Thus, <code>0</code> refers to the first result in the set. Setting both <code>start</code> and <code>end</code> to <code>com.liferay.portal.kernel.dao.orm.QueryUtil#ALL_POS</code> will return the full result set. If <code>orderByComparator</code> is specified, then the query will include the given ORDER BY logic. If <code>orderByComparator</code> is absent, then the query will include the default ORDER BY logic from <code>com.liferay.blade.basic.model.impl.FlightModelImpl</code>.
 	 * </p>
 	 *
-	 * @param start the lower bound of the range of foos
-	 * @param end the upper bound of the range of foos (not inclusive)
-	 * @return the range of foos
+	 * @param start the lower bound of the range of flights
+	 * @param end the upper bound of the range of flights (not inclusive)
+	 * @return the range of flights
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<Foo> getFoos(int start, int end);
+	public List<Flight> getFlights(int start, int end);
 
 	/**
-	 * Returns all the foos matching the UUID and company.
+	 * Returns all the flights matching the UUID and company.
 	 *
-	 * @param uuid the UUID of the foos
+	 * @param uuid the UUID of the flights
 	 * @param companyId the primary key of the company
-	 * @return the matching foos, or an empty list if no matches were found
+	 * @return the matching flights, or an empty list if no matches were found
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<Foo> getFoosByUuidAndCompanyId(String uuid, long companyId);
+	public List<Flight> getFlightsByUuidAndCompanyId(
+		String uuid, long companyId);
 
 	/**
-	 * Returns a range of foos matching the UUID and company.
+	 * Returns a range of flights matching the UUID and company.
 	 *
-	 * @param uuid the UUID of the foos
+	 * @param uuid the UUID of the flights
 	 * @param companyId the primary key of the company
-	 * @param start the lower bound of the range of foos
-	 * @param end the upper bound of the range of foos (not inclusive)
+	 * @param start the lower bound of the range of flights
+	 * @param end the upper bound of the range of flights (not inclusive)
 	 * @param orderByComparator the comparator to order the results by (optionally <code>null</code>)
-	 * @return the range of matching foos, or an empty list if no matches were found
+	 * @return the range of matching flights, or an empty list if no matches were found
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public List<Foo> getFoosByUuidAndCompanyId(
+	public List<Flight> getFlightsByUuidAndCompanyId(
 		String uuid, long companyId, int start, int end,
-		OrderByComparator<Foo> orderByComparator);
+		OrderByComparator<Flight> orderByComparator);
 
 	/**
-	 * Returns the number of foos.
+	 * Returns the number of flights.
 	 *
-	 * @return the number of foos
+	 * @return the number of flights
 	 */
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
-	public int getFoosCount();
+	public int getFlightsCount();
 
 	@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 	public IndexableActionableDynamicQuery getIndexableActionableDynamicQuery();
@@ -306,16 +307,16 @@ public interface FooLocalService
 		throws PortalException;
 
 	/**
-	 * Updates the foo in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
+	 * Updates the flight in the database or adds it if it does not yet exist. Also notifies the appropriate model listeners.
 	 *
 	 * <p>
-	 * <strong>Important:</strong> Inspect FooLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
+	 * <strong>Important:</strong> Inspect FlightLocalServiceImpl for overloaded versions of the method. If provided, use these entry points to the API, as the implementation logic may require the additional parameters defined there.
 	 * </p>
 	 *
-	 * @param foo the foo
-	 * @return the foo that was updated
+	 * @param flight the flight
+	 * @return the flight that was updated
 	 */
 	@Indexable(type = IndexableType.REINDEX)
-	public Foo updateFoo(Foo foo);
+	public Flight updateFlight(Flight flight);
 
 }

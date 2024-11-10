@@ -1,11 +1,10 @@
 package com.liferay.blade.basic.internal.system;
 
-import com.liferay.blade.basic.model.Foo;
-import com.liferay.blade.basic.model.FooTable;
-import com.liferay.blade.basic.service.FooLocalService;
+import com.liferay.blade.basic.model.Flight;
+import com.liferay.blade.basic.model.FlightTable;
+import com.liferay.blade.basic.service.FlightLocalService;
 import com.liferay.counter.kernel.service.CounterLocalService;
 import com.liferay.object.constants.ObjectDefinitionConstants;
-import com.liferay.object.field.builder.IntegerObjectFieldBuilder;
 import com.liferay.object.field.builder.TextObjectFieldBuilder;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.system.BaseSystemObjectDefinitionManager;
@@ -14,11 +13,16 @@ import com.liferay.object.system.SystemObjectDefinitionManager;
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.Table;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.vulcan.pagination.Page;
+import com.liferay.portal.vulcan.pagination.Pagination;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -39,15 +43,16 @@ public class FooSystemObjectDefinitionManager extends
 
 		long increment = _counterLocalService.increment();
 
-		Foo foo = _fooLocalService.createFoo(increment);
+		Flight flight = _flightLocalService.createFlight(increment);
 
-		foo.setExternalReferenceCode(String.valueOf(increment));
-		foo.setField1(GetterUtil.getString(values.get("field1")));
-		foo.setField2(GetterUtil.getBoolean(values.get("field2")));
+		flight.setExternalReferenceCode(String.valueOf(increment));
+		flight.setFlightNumber(GetterUtil.getString(values.get("flightNumber")));
+		flight.setActive(GetterUtil.getBoolean(values.get("active")));
+		flight.setCapacity(GetterUtil.getInteger(values.get("capacity")));
 
-		foo = _fooLocalService.addFoo(foo);
+		flight = _flightLocalService.addFlight(flight);
 
-		return foo.getFooId();
+		return flight.getFlightId();
 
 	}
 
@@ -55,34 +60,36 @@ public class FooSystemObjectDefinitionManager extends
 	public BaseModel<?> deleteBaseModel(BaseModel<?> baseModel)
 		throws PortalException {
 
-			return _fooLocalService.deleteFoo( (Foo) baseModel);
+		return _flightLocalService.deleteFlight((Flight) baseModel);
 	}
 
 	@Override
 	public BaseModel<?> fetchBaseModelByExternalReferenceCode(
 		String externalReferenceCode, long companyId) {
 
-			return _fooLocalService.fetchFooByExternalReferenceCode(externalReferenceCode, companyId);
+		return _flightLocalService.fetchFlightByExternalReferenceCode(externalReferenceCode, companyId);
 	}
 
 	@Override
 	public BaseModel<?> getBaseModelByExternalReferenceCode(
 		String externalReferenceCode, long companyId)
 		throws PortalException {
-		return _fooLocalService.getFooByExternalReferenceCode(externalReferenceCode, companyId);
+
+		return _flightLocalService.getFlightByExternalReferenceCode(externalReferenceCode, companyId);
 	}
 
 	@Override
 	public String getBaseModelExternalReferenceCode(long primaryKey)
 		throws PortalException {
-		Foo foo = _fooLocalService.getFoo(primaryKey);
 
-		return foo.getExternalReferenceCode();
+		Flight flight = _flightLocalService.getFlight(primaryKey);
+
+		return flight.getExternalReferenceCode();
 	}
 
 	@Override
 	public String getExternalReferenceCode() {
-		return "ERC_FOO";
+		return "ERC_FLIGHT";
 	}
 
 	@Override
@@ -95,15 +102,15 @@ public class FooSystemObjectDefinitionManager extends
 	@Override
 	public Map<String, String> getLabelKeys() {
 		return HashMapBuilder.put(
-			"label", "Foo"
+			"label", "Flight"
 		).put(
-			"pluralLabel", "Foos"
+			"pluralLabel", "Flights"
 		).build();
 	}
 
 	@Override
 	public Class<?> getModelClass() {
-		return Foo.class;
+		return Flight.class;
 	}
 
 	@Override
@@ -111,9 +118,9 @@ public class FooSystemObjectDefinitionManager extends
 		return Collections.singletonList(
 			new TextObjectFieldBuilder(
 			).labelMap(
-				createLabelMap("field1")
+				createLabelMap("flightNumber")
 			).name(
-				"field1"
+				"flightNumber"
 			).required(
 				false
 			).system(
@@ -123,7 +130,7 @@ public class FooSystemObjectDefinitionManager extends
 
 	@Override
 	public Column<?, Long> getPrimaryKeyColumn() {
-		return FooTable.INSTANCE.fooId;
+		return FlightTable.INSTANCE.flightId;
 	}
 
 	@Override
@@ -133,7 +140,7 @@ public class FooSystemObjectDefinitionManager extends
 
 	@Override
 	public Table getTable() {
-		return FooTable.INSTANCE;
+		return FlightTable.INSTANCE;
 	}
 
 	@Override
@@ -148,9 +155,23 @@ public class FooSystemObjectDefinitionManager extends
 		//TODO
 	}
 
+	@Override
+	public Page<?> getPage(
+		User user, String search, Filter filter, Pagination pagination,
+		Sort[] sorts)
+		throws Exception {
+
+		return Page.of(_flightLocalService.getFlights(QueryUtil.ALL_POS, QueryUtil.ALL_POS));
+	}
+
+	@Override
+	public String getTitleObjectFieldName() {
+		return "flightNumber";
+	}
+
 	@Reference
 	private CounterLocalService _counterLocalService;
 
 	@Reference
-	private FooLocalService _fooLocalService;
+	private FlightLocalService _flightLocalService;
 }

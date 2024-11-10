@@ -8,5 +8,5 @@ package com.liferay.blade.basic.model.impl;
 /**
  * @author Brian Wing Shun Chan
  */
-public class FooImpl extends FooBaseImpl {
+public class FlightImpl extends FlightBaseImpl {
 }

@@ -5,9 +5,9 @@
 
 package com.liferay.blade.basic.service.persistence.impl;
 
-import com.liferay.blade.basic.model.FooTable;
-import com.liferay.blade.basic.model.impl.FooImpl;
-import com.liferay.blade.basic.model.impl.FooModelImpl;
+import com.liferay.blade.basic.model.FlightTable;
+import com.liferay.blade.basic.model.impl.FlightImpl;
+import com.liferay.blade.basic.model.impl.FlightModelImpl;
 import com.liferay.portal.kernel.dao.orm.ArgumentsResolver;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.model.BaseModel;
@@ -18,19 +18,19 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.osgi.service.component.annotations.Component;
 
 /**
- * The arguments resolver class for retrieving value from Foo.
+ * The arguments resolver class for retrieving value from Flight.
  *
  * @author Brian Wing Shun Chan
  * @generated
  */
 @Component(
 	property = {
-		"class.name=com.liferay.blade.basic.model.impl.FooImpl",
-		"table.name=Foo"
+		"class.name=com.liferay.blade.basic.model.impl.FlightImpl",
+		"table.name=Flight"
 	},
 	service = ArgumentsResolver.class
 )
-public class FooModelArgumentsResolver implements ArgumentsResolver {
+public class FlightModelArgumentsResolver implements ArgumentsResolver {
 
 	@Override
 	public Object[] getArguments(
@@ -47,12 +47,12 @@ public class FooModelArgumentsResolver implements ArgumentsResolver {
 			return null;
 		}
 
-		FooModelImpl fooModelImpl = (FooModelImpl)baseModel;
+		FlightModelImpl flightModelImpl = (FlightModelImpl)baseModel;
 
-		long columnBitmask = fooModelImpl.getColumnBitmask();
+		long columnBitmask = flightModelImpl.getColumnBitmask();
 
 		if (!checkColumn || (columnBitmask == 0)) {
-			return _getValue(fooModelImpl, columnNames, original);
+			return _getValue(flightModelImpl, columnNames, original);
 		}
 
 		Long finderPathColumnBitmask = _finderPathColumnBitmasksCache.get(
@@ -62,13 +62,14 @@ public class FooModelArgumentsResolver implements ArgumentsResolver {
 			finderPathColumnBitmask = 0L;
 
 			for (String columnName : columnNames) {
-				finderPathColumnBitmask |= fooModelImpl.getColumnBitmask(
+				finderPathColumnBitmask |= flightModelImpl.getColumnBitmask(
 					columnName);
 			}
 
 			if (finderPath.isBaseModelResult() &&
-				(FooPersistenceImpl.FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION ==
-					finderPath.getCacheName())) {
+				(FlightPersistenceImpl.
+					FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION ==
+						finderPath.getCacheName())) {
 
 				finderPathColumnBitmask |= _ORDER_BY_COLUMNS_BITMASK;
 			}
@@ -78,7 +79,7 @@ public class FooModelArgumentsResolver implements ArgumentsResolver {
 		}
 
 		if ((columnBitmask & finderPathColumnBitmask) != 0) {
-			return _getValue(fooModelImpl, columnNames, original);
+			return _getValue(flightModelImpl, columnNames, original);
 		}
 
 		return null;
@@ -86,16 +87,17 @@ public class FooModelArgumentsResolver implements ArgumentsResolver {
 
 	@Override
 	public String getClassName() {
-		return FooImpl.class.getName();
+		return FlightImpl.class.getName();
 	}
 
 	@Override
 	public String getTableName() {
-		return FooTable.INSTANCE.getTableName();
+		return FlightTable.INSTANCE.getTableName();
 	}
 
 	private static Object[] _getValue(
-		FooModelImpl fooModelImpl, String[] columnNames, boolean original) {
+		FlightModelImpl flightModelImpl, String[] columnNames,
+		boolean original) {
 
 		Object[] arguments = new Object[columnNames.length];
 
@@ -103,10 +105,11 @@ public class FooModelArgumentsResolver implements ArgumentsResolver {
 			String columnName = columnNames[i];
 
 			if (original) {
-				arguments[i] = fooModelImpl.getColumnOriginalValue(columnName);
+				arguments[i] = flightModelImpl.getColumnOriginalValue(
+					columnName);
 			}
 			else {
-				arguments[i] = fooModelImpl.getColumnValue(columnName);
+				arguments[i] = flightModelImpl.getColumnValue(columnName);
 			}
 		}
 
@@ -121,7 +124,8 @@ public class FooModelArgumentsResolver implements ArgumentsResolver {
 	static {
 		long orderByColumnsBitmask = 0;
 
-		orderByColumnsBitmask |= FooModelImpl.getColumnBitmask("field1");
+		orderByColumnsBitmask |= FlightModelImpl.getColumnBitmask(
+			"flightNumber");
 
 		_ORDER_BY_COLUMNS_BITMASK = orderByColumnsBitmask;
 	}

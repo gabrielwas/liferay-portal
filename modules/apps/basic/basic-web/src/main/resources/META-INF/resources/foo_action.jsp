@@ -21,13 +21,13 @@
 <%
 ResultRow row = (ResultRow)request.getAttribute(WebKeys.SEARCH_CONTAINER_RESULT_ROW);
 
-Foo foo = null;
+Flight flight = null;
 
 if (row != null) {
-	foo = (Foo)row.getObject();
+	flight = (Flight)row.getObject();
 }
 else {
-	foo = (Foo)request.getAttribute("edit_foo.jsp-foo");
+	flight = (Flight)request.getAttribute("edit_foo.jsp-foo");
 }
 %>
 
@@ -35,7 +35,7 @@ else {
 	<portlet:renderURL var="editURL">
 		<portlet:param name="mvcPath" value="/edit_foo.jsp" />
 		<portlet:param name="redirect" value="<%= currentURL %>" />
-		<portlet:param name="fooId" value="<%= String.valueOf(foo.getFooId()) %>" />
+		<portlet:param name="flightId" value="<%= String.valueOf(flight.getFlightId()) %>" />
 	</portlet:renderURL>
 
 	<liferay-ui:icon
@@ -51,7 +51,7 @@ else {
 	<portlet:actionURL var="deleteURL">
 		<portlet:param name="<%= Constants.CMD %>" value="<%= Constants.DELETE %>" />
 		<portlet:param name="redirect" value="<%= (row == null) ? redirectURL : currentURL %>" />
-		<portlet:param name="fooId" value="<%= String.valueOf(foo.getFooId()) %>" />
+		<portlet:param name="flightId" value="<%= String.valueOf(flight.getFlightId()) %>" />
 	</portlet:actionURL>
 
 	<liferay-ui:icon-delete url="<%= deleteURL %>" />

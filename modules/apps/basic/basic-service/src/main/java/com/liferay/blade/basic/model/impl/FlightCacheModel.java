@@ -5,7 +5,7 @@
 
 package com.liferay.blade.basic.model.impl;
 
-import com.liferay.blade.basic.model.Foo;
+import com.liferay.blade.basic.model.Flight;
 import com.liferay.petra.lang.HashUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.model.CacheModel;
@@ -19,13 +19,13 @@ import java.io.ObjectOutput;
 import java.util.Date;
 
 /**
- * The cache model class for representing Foo in entity cache.
+ * The cache model class for representing Flight in entity cache.
  *
  * @author Brian Wing Shun Chan
  * @generated
  */
-public class FooCacheModel
-	implements CacheModel<Foo>, Externalizable, MVCCModel {
+public class FlightCacheModel
+	implements CacheModel<Flight>, Externalizable, MVCCModel {
 
 	@Override
 	public boolean equals(Object object) {
@@ -33,14 +33,14 @@ public class FooCacheModel
 			return true;
 		}
 
-		if (!(object instanceof FooCacheModel)) {
+		if (!(object instanceof FlightCacheModel)) {
 			return false;
 		}
 
-		FooCacheModel fooCacheModel = (FooCacheModel)object;
+		FlightCacheModel flightCacheModel = (FlightCacheModel)object;
 
-		if ((fooId == fooCacheModel.fooId) &&
-			(mvccVersion == fooCacheModel.mvccVersion)) {
+		if ((flightId == flightCacheModel.flightId) &&
+			(mvccVersion == flightCacheModel.mvccVersion)) {
 
 			return true;
 		}
@@ -50,7 +50,7 @@ public class FooCacheModel
 
 	@Override
 	public int hashCode() {
-		int hashCode = HashUtil.hash(0, fooId);
+		int hashCode = HashUtil.hash(0, flightId);
 
 		return HashUtil.hash(hashCode, mvccVersion);
 	}
@@ -67,7 +67,7 @@ public class FooCacheModel
 
 	@Override
 	public String toString() {
-		StringBundler sb = new StringBundler(31);
+		StringBundler sb = new StringBundler(29);
 
 		sb.append("{mvccVersion=");
 		sb.append(mvccVersion);
@@ -75,8 +75,8 @@ public class FooCacheModel
 		sb.append(uuid);
 		sb.append(", externalReferenceCode=");
 		sb.append(externalReferenceCode);
-		sb.append(", fooId=");
-		sb.append(fooId);
+		sb.append(", flightId=");
+		sb.append(flightId);
 		sb.append(", groupId=");
 		sb.append(groupId);
 		sb.append(", companyId=");
@@ -89,94 +89,85 @@ public class FooCacheModel
 		sb.append(createDate);
 		sb.append(", modifiedDate=");
 		sb.append(modifiedDate);
-		sb.append(", field1=");
-		sb.append(field1);
-		sb.append(", field2=");
-		sb.append(field2);
-		sb.append(", field3=");
-		sb.append(field3);
-		sb.append(", field4=");
-		sb.append(field4);
-		sb.append(", field5=");
-		sb.append(field5);
+		sb.append(", flightNumber=");
+		sb.append(flightNumber);
+		sb.append(", active=");
+		sb.append(active);
+		sb.append(", capacity=");
+		sb.append(capacity);
+		sb.append(", flightDate=");
+		sb.append(flightDate);
 		sb.append("}");
 
 		return sb.toString();
 	}
 
 	@Override
-	public Foo toEntityModel() {
-		FooImpl fooImpl = new FooImpl();
+	public Flight toEntityModel() {
+		FlightImpl flightImpl = new FlightImpl();
 
-		fooImpl.setMvccVersion(mvccVersion);
+		flightImpl.setMvccVersion(mvccVersion);
 
 		if (uuid == null) {
-			fooImpl.setUuid("");
+			flightImpl.setUuid("");
 		}
 		else {
-			fooImpl.setUuid(uuid);
+			flightImpl.setUuid(uuid);
 		}
 
 		if (externalReferenceCode == null) {
-			fooImpl.setExternalReferenceCode("");
+			flightImpl.setExternalReferenceCode("");
 		}
 		else {
-			fooImpl.setExternalReferenceCode(externalReferenceCode);
+			flightImpl.setExternalReferenceCode(externalReferenceCode);
 		}
 
-		fooImpl.setFooId(fooId);
-		fooImpl.setGroupId(groupId);
-		fooImpl.setCompanyId(companyId);
-		fooImpl.setUserId(userId);
+		flightImpl.setFlightId(flightId);
+		flightImpl.setGroupId(groupId);
+		flightImpl.setCompanyId(companyId);
+		flightImpl.setUserId(userId);
 
 		if (userName == null) {
-			fooImpl.setUserName("");
+			flightImpl.setUserName("");
 		}
 		else {
-			fooImpl.setUserName(userName);
+			flightImpl.setUserName(userName);
 		}
 
 		if (createDate == Long.MIN_VALUE) {
-			fooImpl.setCreateDate(null);
+			flightImpl.setCreateDate(null);
 		}
 		else {
-			fooImpl.setCreateDate(new Date(createDate));
+			flightImpl.setCreateDate(new Date(createDate));
 		}
 
 		if (modifiedDate == Long.MIN_VALUE) {
-			fooImpl.setModifiedDate(null);
+			flightImpl.setModifiedDate(null);
 		}
 		else {
-			fooImpl.setModifiedDate(new Date(modifiedDate));
+			flightImpl.setModifiedDate(new Date(modifiedDate));
 		}
 
-		if (field1 == null) {
-			fooImpl.setField1("");
+		if (flightNumber == null) {
+			flightImpl.setFlightNumber("");
 		}
 		else {
-			fooImpl.setField1(field1);
+			flightImpl.setFlightNumber(flightNumber);
 		}
 
-		fooImpl.setField2(field2);
-		fooImpl.setField3(field3);
+		flightImpl.setActive(active);
+		flightImpl.setCapacity(capacity);
 
-		if (field4 == Long.MIN_VALUE) {
-			fooImpl.setField4(null);
-		}
-		else {
-			fooImpl.setField4(new Date(field4));
-		}
-
-		if (field5 == null) {
-			fooImpl.setField5("");
+		if (flightDate == Long.MIN_VALUE) {
+			flightImpl.setFlightDate(null);
 		}
 		else {
-			fooImpl.setField5(field5);
+			flightImpl.setFlightDate(new Date(flightDate));
 		}
 
-		fooImpl.resetOriginalValues();
+		flightImpl.resetOriginalValues();
 
-		return fooImpl;
+		return flightImpl;
 	}
 
 	@Override
@@ -185,7 +176,7 @@ public class FooCacheModel
 		uuid = objectInput.readUTF();
 		externalReferenceCode = objectInput.readUTF();
 
-		fooId = objectInput.readLong();
+		flightId = objectInput.readLong();
 
 		groupId = objectInput.readLong();
 
@@ -195,13 +186,12 @@ public class FooCacheModel
 		userName = objectInput.readUTF();
 		createDate = objectInput.readLong();
 		modifiedDate = objectInput.readLong();
-		field1 = objectInput.readUTF();
+		flightNumber = objectInput.readUTF();
 
-		field2 = objectInput.readBoolean();
+		active = objectInput.readBoolean();
 
-		field3 = objectInput.readInt();
-		field4 = objectInput.readLong();
-		field5 = objectInput.readUTF();
+		capacity = objectInput.readInt();
+		flightDate = objectInput.readLong();
 	}
 
 	@Override
@@ -222,7 +212,7 @@ public class FooCacheModel
 			objectOutput.writeUTF(externalReferenceCode);
 		}
 
-		objectOutput.writeLong(fooId);
+		objectOutput.writeLong(flightId);
 
 		objectOutput.writeLong(groupId);
 
@@ -240,40 +230,32 @@ public class FooCacheModel
 		objectOutput.writeLong(createDate);
 		objectOutput.writeLong(modifiedDate);
 
-		if (field1 == null) {
+		if (flightNumber == null) {
 			objectOutput.writeUTF("");
 		}
 		else {
-			objectOutput.writeUTF(field1);
+			objectOutput.writeUTF(flightNumber);
 		}
 
-		objectOutput.writeBoolean(field2);
+		objectOutput.writeBoolean(active);
 
-		objectOutput.writeInt(field3);
-		objectOutput.writeLong(field4);
-
-		if (field5 == null) {
-			objectOutput.writeUTF("");
-		}
-		else {
-			objectOutput.writeUTF(field5);
-		}
+		objectOutput.writeInt(capacity);
+		objectOutput.writeLong(flightDate);
 	}
 
 	public long mvccVersion;
 	public String uuid;
 	public String externalReferenceCode;
-	public long fooId;
+	public long flightId;
 	public long groupId;
 	public long companyId;
 	public long userId;
 	public String userName;
 	public long createDate;
 	public long modifiedDate;
-	public String field1;
-	public boolean field2;
-	public int field3;
-	public long field4;
-	public String field5;
+	public String flightNumber;
+	public boolean active;
+	public int capacity;
+	public long flightDate;
 
 }

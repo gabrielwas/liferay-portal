@@ -24,8 +24,8 @@
 taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %><%@
 taglib uri="http://liferay.com/tld/ui" prefix="liferay-ui" %>
 
-<%@ page import="com.liferay.blade.basic.model.Foo" %><%@
-page import="com.liferay.blade.basic.service.FooLocalService" %><%@
+<%@ page import="com.liferay.blade.basic.model.Flight" %><%@
+page import="com.liferay.blade.basic.service.FlightLocalService" %><%@
 page import="com.liferay.portal.kernel.util.Constants" %><%@
 page import="com.liferay.portal.kernel.util.ParamUtil" %><%@
 page import="com.liferay.portal.kernel.util.WebKeys" %><%@
@@ -43,5 +43,5 @@ PortletURL portletURL = renderResponse.createRenderURL();
 String currentURL = portletURL.toString();
 
 //get service bean
-FooLocalService fooLocalService = (FooLocalService)request.getAttribute("fooLocalService");
+FlightLocalService flightLocalService = (FlightLocalService)request.getAttribute("flightLocalService");
 %>
