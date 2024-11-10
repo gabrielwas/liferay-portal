@@ -12,7 +12,6 @@ import com.liferay.object.system.JaxRsApplicationDescriptor;
 import com.liferay.object.system.SystemObjectDefinitionManager;
 import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.Table;
-import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.BaseModel;
@@ -34,7 +33,7 @@ import java.util.Map;
  * @author Gabriel Albuquerque
  */
 @Component(service = SystemObjectDefinitionManager.class)
-public class FooSystemObjectDefinitionManager extends
+public class FlightSystemObjectDefinitionManager extends
 	BaseSystemObjectDefinitionManager {
 
 	@Override
