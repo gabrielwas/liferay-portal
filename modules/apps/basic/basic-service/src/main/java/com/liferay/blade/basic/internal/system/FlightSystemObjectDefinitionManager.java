@@ -198,8 +198,16 @@ public class FlightSystemObjectDefinitionManager
 			long primaryKey, User user, Map<String, Object> values)
 		throws Exception {
 
-		// TODO
+		Flight flight = _flightLocalService.getFlight(primaryKey);
 
+		flight.setExternalReferenceCode(
+			GetterUtil.getString(values.get("externalReferenceCode")));
+		flight.setActive(GetterUtil.getBoolean(values.get("active")));
+		flight.setCapacity(GetterUtil.getInteger(values.get("capacity")));
+		flight.setFlightNumber(
+			GetterUtil.getString(values.get("flightNumber")));
+
+		_flightLocalService.updateFlight(flight);
 	}
 
 	@Reference
