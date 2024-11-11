@@ -88,7 +88,9 @@ public class FlightResourceImpl extends BaseFlightResourceImpl {
 			{
 				setActive(serviceBuilderFlight::isActive);
 				setCapacity(serviceBuilderFlight::getCapacity);
+				setExternalReferenceCode(serviceBuilderFlight::getExternalReferenceCode);
 				setFlightNumber(serviceBuilderFlight::getFlightNumber);
+				setId(serviceBuilderFlight::getFlightId);
 			}
 		};
 	}
