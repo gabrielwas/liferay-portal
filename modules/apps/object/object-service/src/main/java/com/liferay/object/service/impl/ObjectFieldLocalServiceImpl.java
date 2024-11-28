@@ -72,6 +72,7 @@ import com.liferay.portal.kernel.dao.db.DB;
 import com.liferay.portal.kernel.dao.jdbc.CurrentConnection;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
@@ -1579,7 +1580,8 @@ public class ObjectFieldLocalServiceImpl
 			return;
 		}
 
-		if (!businessType.equals(
+		if (!businessType.equals(ObjectFieldConstants.BUSINESS_TYPE_BOOLEAN) &&
+			!businessType.equals(
 				ObjectFieldConstants.BUSINESS_TYPE_LONG_TEXT) &&
 			!businessType.equals(
 				ObjectFieldConstants.BUSINESS_TYPE_RICH_TEXT) &&
@@ -1587,7 +1589,7 @@ public class ObjectFieldLocalServiceImpl
 
 			throw new ObjectFieldLocalizedException(
 				StringBundler.concat(
-					"Only ", ObjectFieldConstants.BUSINESS_TYPE_LONG_TEXT,
+					"Only ", ObjectFieldConstants.BUSINESS_TYPE_BOOLEAN, ObjectFieldConstants.BUSINESS_TYPE_LONG_TEXT,
 					StringPool.COMMA,
 					ObjectFieldConstants.BUSINESS_TYPE_RICH_TEXT, " and ",
 					ObjectFieldConstants.BUSINESS_TYPE_TEXT,
