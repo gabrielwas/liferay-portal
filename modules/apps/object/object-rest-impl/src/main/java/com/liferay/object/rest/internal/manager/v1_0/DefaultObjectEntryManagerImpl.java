@@ -999,7 +999,7 @@ public class DefaultObjectEntryManagerImpl
 				objectDefinition.getClassName(), _resourceActionLocalService,
 				_resourcePermissionLocalService, _roleLocalService);
 
-		return ServiceContextUtil.createServiceContext(
+		return ServiceContextUtil.createServiceContext(objectDefinition.getCompanyId(),
 			dtoConverterContext.getLocale(), modelPermissions, objectEntry,
 			dtoConverterContext.getUserId());
 	}

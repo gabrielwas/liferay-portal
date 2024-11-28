@@ -22,13 +22,14 @@ import java.util.Locale;
  */
 public class ServiceContextUtil {
 
-	public static ServiceContext createServiceContext(
+	public static ServiceContext createServiceContext(long companyId,
 		Locale locale, ModelPermissions modelPermissions,
 		ObjectEntry objectEntry, long userId) {
 
 		ServiceContext serviceContext = createServiceContext(
 			objectEntry, userId);
 
+		serviceContext.setCompanyId(companyId);
 		serviceContext.setLanguageId(LocaleUtil.toLanguageId(locale));
 		serviceContext.setModelPermissions(modelPermissions);
 
