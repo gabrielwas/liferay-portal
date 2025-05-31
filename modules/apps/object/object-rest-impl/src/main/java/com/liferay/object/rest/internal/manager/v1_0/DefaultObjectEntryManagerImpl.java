@@ -2175,6 +2175,10 @@ public class DefaultObjectEntryManagerImpl
 				objectField.getName(), _getValue(locale, objectField, value));
 		}
 
+		values.put("displayDate", objectEntry.getDisplayDate());
+		values.put("expirationDate", objectEntry.getExpirationDate());
+		values.put("reviewDate", objectEntry.getReviewDate());
+
 		return values;
 	}
 
