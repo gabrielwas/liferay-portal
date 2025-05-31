@@ -1614,9 +1614,12 @@ public class ObjectDefinitionLocalServiceImpl
 			objectDefinition, titleObjectFieldName);
 
 		if (objectDefinition.isUnmodifiableSystemObject()) {
-			_createTable(
+
+			DynamicObjectDefinitionTable extension =
 				DynamicObjectDefinitionTableFactory.createExtension(
-					objectDefinition, _objectFieldLocalService));
+					objectDefinition, _objectFieldLocalService);
+
+			_createTable(extension);
 		}
 
 		return objectDefinition;
@@ -1987,6 +1990,13 @@ public class ObjectDefinitionLocalServiceImpl
 	private void _createTable(
 			DynamicObjectDefinitionTable dynamicObjectDefinitionTable)
 		throws PortalException {
+
+		ObjectDefinition objectDefinition = dynamicObjectDefinitionTable.getObjectDefinition();
+
+		System.out.println("ObjectDefinitionName: " + objectDefinition.getName());
+		System.out.println("companyId: " + objectDefinition.getCompanyId());
+		System.out.println("tableName: " + dynamicObjectDefinitionTable.getTableName());
+		System.out.println("tableSQL: " + dynamicObjectDefinitionTable.getCreateTableSQL());
 
 		runSQL(dynamicObjectDefinitionTable.getCreateTableSQL());
 
