@@ -86,7 +86,7 @@ public class CheckObjectEntrySchedulerJobConfigurationTest {
 				objectFieldName, RandomTestUtil.randomString()
 			).put(
 				"reviewDate",
-				new Date(System.currentTimeMillis() - TimeUnit.DAY.toMillis(1))
+				new Date(System.currentTimeMillis() - TimeUnit.MINUTE.toMillis(1))
 			).build());
 
 		ObjectEntryTestUtil.addObjectEntry(
@@ -95,7 +95,7 @@ public class CheckObjectEntrySchedulerJobConfigurationTest {
 				objectFieldName, RandomTestUtil.randomString()
 			).put(
 				"reviewDate",
-				new Date(System.currentTimeMillis() + TimeUnit.DAY.toMillis(1))
+				new Date(System.currentTimeMillis() + TimeUnit.MINUTE.toMillis(1))
 			).build());
 
 		UnsafeRunnable<Exception> jobExecutorUnsafeRunnable =
