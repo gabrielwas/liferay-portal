@@ -120,6 +120,7 @@ import com.liferay.portal.kernel.dao.orm.DefaultActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
 import com.liferay.portal.kernel.dao.orm.Property;
 import com.liferay.portal.kernel.dao.orm.PropertyFactoryUtil;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dependency.manager.DependencyManagerSyncUtil;
@@ -1510,6 +1511,9 @@ public class ObjectDefinitionLocalServiceImpl
 				user.getCompanyId(), "LPD-17564")) {
 
 			objectDefinition.setEnableObjectEntryVersioning(
+				enableObjectEntrySchedule);
+
+			objectDefinition.setEnableObjectEntryVersioning(
 				enableObjectEntryVersioning);
 		}
 
@@ -2239,6 +2243,39 @@ public class ObjectDefinitionLocalServiceImpl
 		return false;
 	}
 
+	private void _performEnableObjectEntrySchedule(
+		boolean enableObjectEntryDraft, boolean enableObjectEntrySchedule,
+		ObjectDefinition objectDefinition) {
+
+		if (enableObjectEntrySchedule) {
+			return;
+		}
+
+		List<ObjectEntry> objectEntries =
+			_objectEntryLocalService.getObjectEntries(
+				objectDefinition.getCompanyId(),
+				objectDefinition.getObjectDefinitionId(), 7, QueryUtil.ALL_POS,
+				QueryUtil.ALL_POS);
+
+		if (objectEntries.isEmpty()) {
+			return;
+		}
+
+		if (enableObjectEntryDraft) {
+			for (ObjectEntry objectEntry : objectEntries) {
+				objectEntry.setStatus(2);
+
+				_objectEntryLocalService.updateObjectEntry(objectEntry);
+			}
+		}
+
+		for (ObjectEntry objectEntry : objectEntries) {
+			objectEntry.setStatus(0);
+
+			_objectEntryLocalService.updateObjectEntry(objectEntry);
+		}
+	}
+
 	private ObjectDefinition _publishObjectDefinition(
 			long userId, ObjectDefinition objectDefinition)
 		throws PortalException {
@@ -2615,6 +2652,13 @@ public class ObjectDefinitionLocalServiceImpl
 
 		if (FeatureFlagManagerUtil.isEnabled(
 				objectDefinition.getCompanyId(), "LPD-17564")) {
+
+			objectDefinition.setEnableObjectEntrySchedule(
+				enableObjectEntrySchedule);
+
+			_performEnableObjectEntrySchedule(
+				enableObjectEntryDraft, enableObjectEntrySchedule,
+				objectDefinition);
 
 			objectDefinition.setEnableObjectEntryVersioning(
 				enableObjectEntryVersioning);
