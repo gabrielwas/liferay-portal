@@ -693,6 +693,7 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 								return new ObjectEntryRelatedObjectsResourceImpl(
 									_objectDefinitionLocalService,
 									_objectEntryManagerRegistry,
+									_objectFieldLocalService,
 									_objectRelatedModelsProviderRegistry,
 									_objectRelationshipLocalService);
 							}
