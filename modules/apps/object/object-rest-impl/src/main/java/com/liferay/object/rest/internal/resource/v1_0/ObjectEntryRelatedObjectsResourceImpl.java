@@ -6,6 +6,7 @@
 package com.liferay.object.rest.internal.resource.v1_0;
 
 import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.related.models.ObjectRelatedModelsProvider;
 import com.liferay.object.related.models.ObjectRelatedModelsProviderRegistry;
@@ -38,12 +39,14 @@ public class ObjectEntryRelatedObjectsResourceImpl
 		ObjectDefinitionLocalService objectDefinitionLocalService,
 		ObjectEntryLocalService objectEntryLocalService,
 		ObjectEntryManagerRegistry objectEntryManagerRegistry,
+		ObjectFieldLocalService objectFieldLocalService,
 		ObjectRelatedModelsProviderRegistry objectRelatedModelsProviderRegistry,
 		ObjectRelationshipLocalService objectRelationshipLocalService) {
 
 		_objectDefinitionLocalService = objectDefinitionLocalService;
 		_objectEntryLocalService = objectEntryLocalService;
 		_objectEntryManagerRegistry = objectEntryManagerRegistry;
+		_objectFieldLocalService = objectFieldLocalService;
 		_objectRelatedModelsProviderRegistry =
 			objectRelatedModelsProviderRegistry;
 		_objectRelationshipLocalService = objectRelationshipLocalService;
@@ -202,6 +205,42 @@ public class ObjectEntryRelatedObjectsResourceImpl
 				relatedObjectEntryId));
 	}
 
+	@Override
+	public Object putCurrentObjectEntry(
+			Long currentObjectEntryId, String objectRelationshipName,
+			Long relatedObjectEntryId, ObjectEntry objectEntry)
+		throws Exception {
+
+		DefaultObjectEntryManager defaultObjectEntryManager =
+			DefaultObjectEntryManagerProvider.provide(
+				_objectEntryManagerRegistry.getObjectEntryManager(
+					_objectDefinition.getStorageType()));
+
+		_checkRelatedObjectEntry(
+			defaultObjectEntryManager, objectRelationshipName,
+			relatedObjectEntryId);
+
+		ObjectRelationship objectRelationship =
+			_objectRelationshipLocalService.getObjectRelationship(
+				_objectDefinition.getObjectDefinitionId(),
+				objectRelationshipName);
+
+		ObjectField objectField = _objectFieldLocalService.getObjectField(
+			objectRelationship.getObjectFieldId2());
+
+		Map<String, Object> properties = objectEntry.getProperties();
+
+		properties.put(objectField.getName(), relatedObjectEntryId);
+
+		ObjectDefinition relatedObjectDefinition =
+			_objectDefinitionLocalService.getObjectDefinition(
+				objectRelationship.getObjectDefinitionId2());
+
+		return defaultObjectEntryManager.updateObjectEntry(
+			_getDTOConverterContext(relatedObjectEntryId),
+			relatedObjectDefinition, relatedObjectEntryId, objectEntry);
+	}
+
 	private void _checkCurrentObjectEntry(
 			DefaultObjectEntryManager defaultObjectEntryManager,
 			long relatedObjectEntryId)
@@ -286,6 +325,7 @@ public class ObjectEntryRelatedObjectsResourceImpl
 	private final ObjectDefinitionLocalService _objectDefinitionLocalService;
 	private final ObjectEntryLocalService _objectEntryLocalService;
 	private final ObjectEntryManagerRegistry _objectEntryManagerRegistry;
+	private final ObjectFieldLocalService _objectFieldLocalService;
 	private final ObjectRelatedModelsProviderRegistry
 		_objectRelatedModelsProviderRegistry;
 	private final ObjectRelationshipLocalService

@@ -48,6 +48,7 @@ import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 
@@ -483,6 +484,25 @@ public class ObjectEntryOpenAPIContributor extends BaseOpenAPIContributor {
 		return content;
 	}
 
+	private Content _getContent(String schemaName) {
+		Content content = new Content();
+
+		MediaType mediaType = new MediaType();
+
+		if (schemaName != null) {
+			Schema schema = new Schema();
+
+			schema.set$ref(schemaName);
+
+			mediaType.setSchema(schema);
+		}
+
+		content.addMediaType("application/json", mediaType);
+		content.addMediaType("application/xml", mediaType);
+
+		return content;
+	}
+
 	private String _getDescription(ObjectRelationship objectRelationship) {
 		return StringBundler.concat(
 			"Information about the relationship ", objectRelationship.getName(),
@@ -580,6 +600,56 @@ public class ObjectEntryOpenAPIContributor extends BaseOpenAPIContributor {
 					_getObjectRelationshipApiResponses(
 						operation, responseSchemaName));
 				tags(operation.getTags());
+			}
+		};
+	}
+
+	private Operation _getObjectRelationshipPutOperation(
+		ObjectRelationship objectRelationship, Operation operation,
+		String schemaName) {
+
+		// Check here if the relationship is root.
+
+		if (true) {
+			return new Operation() {
+				{
+					operationId(
+						StringBundler.concat(
+							"put", _objectDefinition.getShortName(),
+							StringUtil.upperCaseFirstLetter(
+								objectRelationship.getName()),
+							schemaName));
+					parameters(_getParameters(operation, schemaName));
+					requestBody(_getObjectRelationshipRequestBody(schemaName));
+					responses(
+						_getObjectRelationshipApiResponses(
+							operation, schemaName));
+					tags(operation.getTags());
+				}
+			};
+		}
+
+		return new Operation() {
+			{
+				operationId(
+					StringBundler.concat(
+						"put", _objectDefinition.getShortName(),
+						StringUtil.upperCaseFirstLetter(
+							objectRelationship.getName()),
+						schemaName));
+				parameters(_getParameters(operation, schemaName));
+				responses(
+					_getObjectRelationshipApiResponses(operation, schemaName));
+				tags(operation.getTags());
+			}
+		};
+	}
+
+	private RequestBody _getObjectRelationshipRequestBody(String schemaName) {
+		return new RequestBody() {
+			{
+				setContent(_getContent(schemaName));
+				required(true);
 			}
 		};
 	}

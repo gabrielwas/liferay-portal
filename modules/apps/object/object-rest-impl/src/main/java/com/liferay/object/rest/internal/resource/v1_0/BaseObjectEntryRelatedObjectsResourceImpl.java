@@ -5,6 +5,7 @@
 
 package com.liferay.object.rest.internal.resource.v1_0;
 
+import com.liferay.object.rest.dto.v1_0.ObjectEntry;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.model.User;
@@ -23,6 +24,7 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import jakarta.validation.constraints.NotNull;
 
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.PUT;
@@ -156,6 +158,33 @@ public abstract class BaseObjectEntryRelatedObjectsResourceImpl {
 			@NotNull @Parameter(hidden = true)
 			@PathParam("relatedObjectEntryId")
 			Long relatedObjectEntryId)
+		throws Exception;
+
+	@Consumes({"application/json", "application/xml"})
+	@Parameters(
+		{
+			@Parameter(in = ParameterIn.PATH, name = "currentObjectEntryId"),
+			@Parameter(in = ParameterIn.PATH, name = "objectRelationshipName"),
+			@Parameter(in = ParameterIn.PATH, name = "relatedObjectEntryId")
+		}
+	)
+	@Path(
+		"/{currentObjectEntryId}/{objectRelationshipName}/{relatedObjectEntryId}"
+	)
+	@Produces({"application/json", "application/xml"})
+	@PUT
+	@Tags(@Tag(name = "ObjectEntry"))
+	public abstract Object putCurrentObjectEntry(
+			@NotNull @Parameter(hidden = true)
+			@PathParam("currentObjectEntryId")
+			Long currentObjectEntryId,
+			@NotNull @Parameter(hidden = true)
+			@PathParam("objectRelationshipName")
+			String objectRelationshipName,
+			@NotNull @Parameter(hidden = true)
+			@PathParam("relatedObjectEntryId")
+			Long relatedObjectEntryId,
+			ObjectEntry objectEntry)
 		throws Exception;
 
 	protected <T, R, E extends Throwable> List<R> transform(
