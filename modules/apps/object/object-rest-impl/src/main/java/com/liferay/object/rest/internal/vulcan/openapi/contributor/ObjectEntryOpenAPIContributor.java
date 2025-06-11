@@ -397,10 +397,28 @@ public class ObjectEntryOpenAPIContributor extends BaseOpenAPIContributor {
 					objectRelationship, existingPathItem.getGet(), schemaName));
 		}
 
+		if (operations.containsKey(PathItem.HttpMethod.POST) &&
+			objectRelationship.isEdge()) {
+
+			pathItem.post(
+				_getObjectRelationshipWriteOperation(
+					"post", objectRelationship, existingPathItem.getPost(),
+					schemaName));
+		}
+
 		if (operations.containsKey(PathItem.HttpMethod.PUT)) {
-			pathItem.put(
-				_getObjectRelationshipPutOperation(
-					objectRelationship, existingPathItem.getPut(), schemaName));
+			if (objectRelationship.isEdge()) {
+				pathItem.put(
+					_getObjectRelationshipWriteOperation(
+						"put", objectRelationship, existingPathItem.getPut(),
+						schemaName));
+			}
+			else {
+				pathItem.put(
+					_getObjectRelationshipPutOperation(
+						objectRelationship, existingPathItem.getPut(),
+						schemaName));
+			}
 		}
 
 		return pathItem;
@@ -617,27 +635,6 @@ public class ObjectEntryOpenAPIContributor extends BaseOpenAPIContributor {
 		ObjectRelationship objectRelationship, Operation operation,
 		String schemaName) {
 
-		// Check here if the relationship is root.
-
-		if (true) {
-			return new Operation() {
-				{
-					operationId(
-						StringBundler.concat(
-							"put", _objectDefinition.getShortName(),
-							StringUtil.upperCaseFirstLetter(
-								objectRelationship.getName()),
-							schemaName));
-					parameters(_getParameters(operation, schemaName));
-					requestBody(_getObjectRelationshipRequestBody(schemaName));
-					responses(
-						_getObjectRelationshipApiResponses(
-							operation, schemaName));
-					tags(operation.getTags());
-				}
-			};
-		}
-
 		return new Operation() {
 			{
 				operationId(
@@ -658,7 +655,29 @@ public class ObjectEntryOpenAPIContributor extends BaseOpenAPIContributor {
 		return new RequestBody() {
 			{
 				setContent(_getContent(schemaName));
-				required(true);
+			}
+		};
+	}
+
+	private Operation _getObjectRelationshipWriteOperation(
+		String httpMethodName, ObjectRelationship objectRelationship,
+		Operation operation, String schemaName) {
+
+		// Check here if the relationship is root.
+
+		return new Operation() {
+			{
+				operationId(
+					StringBundler.concat(
+						httpMethodName, _objectDefinition.getShortName(),
+						StringUtil.upperCaseFirstLetter(
+							objectRelationship.getName()),
+						schemaName));
+				parameters(_getParameters(operation, schemaName));
+				requestBody(_getObjectRelationshipRequestBody(schemaName));
+				responses(
+					_getObjectRelationshipApiResponses(operation, schemaName));
+				tags(operation.getTags());
 			}
 		};
 	}
