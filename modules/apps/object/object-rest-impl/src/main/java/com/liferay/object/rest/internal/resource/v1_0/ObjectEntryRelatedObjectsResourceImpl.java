@@ -75,6 +75,13 @@ public class ObjectEntryRelatedObjectsResourceImpl
 			_objectDefinitionLocalService.getObjectDefinition(
 				objectRelationship.getObjectDefinitionId2());
 
+		if (objectRelationship.isEdge()) {
+			defaultObjectEntryManager.deleteObjectEntry(
+				relatedObjectDefinition, relatedObjectEntryId);
+
+			return;
+		}
+
 		if (relatedObjectDefinition.isUnmodifiableSystemObject()) {
 			_checkSystemObjectEntry(
 				relatedObjectEntryId, relatedObjectDefinition);
@@ -171,38 +178,35 @@ public class ObjectEntryRelatedObjectsResourceImpl
 	}
 
 	@Override
-	public Object putCurrentObjectEntry(
+	public Object postCurrentObjectEntry(
 			Long currentObjectEntryId, String objectRelationshipName,
-			Long relatedObjectEntryId)
+			ObjectEntry objectEntry)
 		throws Exception {
-
-		DefaultObjectEntryManager defaultObjectEntryManager =
-			DefaultObjectEntryManagerProvider.provide(
-				_objectEntryManagerRegistry.getObjectEntryManager(
-					_objectDefinition.getStorageType()));
 
 		ObjectRelationship objectRelationship =
 			_objectRelationshipLocalService.getObjectRelationship(
 				_objectDefinition.getObjectDefinitionId(),
 				objectRelationshipName);
 
+		if(!objectRelationship.isEdge()){
+			throw new UnsupportedOperationException();
+		}
+
+		_fillRelationshipObjectField(
+			objectRelationship, objectEntry, currentObjectEntryId);
+
 		ObjectDefinition relatedObjectDefinition =
 			_objectDefinitionLocalService.getObjectDefinition(
 				objectRelationship.getObjectDefinitionId2());
 
-		if (relatedObjectDefinition.isUnmodifiableSystemObject()) {
-			return defaultObjectEntryManager.
-				addSystemObjectRelationshipMappingTableValues(
-					relatedObjectDefinition, objectRelationship,
-					currentObjectEntryId, relatedObjectEntryId);
-		}
+		DefaultObjectEntryManager defaultObjectEntryManager =
+			DefaultObjectEntryManagerProvider.provide(
+				_objectEntryManagerRegistry.getObjectEntryManager(
+					_objectDefinition.getStorageType()));
 
-		return _getRelatedObjectEntry(
-			relatedObjectDefinition,
-			defaultObjectEntryManager.addObjectRelationshipMappingTableValues(
-				_getDTOConverterContext(currentObjectEntryId),
-				objectRelationship, currentObjectEntryId,
-				relatedObjectEntryId));
+		return defaultObjectEntryManager.addObjectEntry(
+			_getDTOConverterContext(null), relatedObjectDefinition, objectEntry,
+			null);
 	}
 
 	@Override
@@ -216,29 +220,25 @@ public class ObjectEntryRelatedObjectsResourceImpl
 				_objectEntryManagerRegistry.getObjectEntryManager(
 					_objectDefinition.getStorageType()));
 
-		_checkRelatedObjectEntry(
-			defaultObjectEntryManager, objectRelationshipName,
-			relatedObjectEntryId);
-
 		ObjectRelationship objectRelationship =
 			_objectRelationshipLocalService.getObjectRelationship(
 				_objectDefinition.getObjectDefinitionId(),
 				objectRelationshipName);
 
-		ObjectField objectField = _objectFieldLocalService.getObjectField(
-			objectRelationship.getObjectFieldId2());
-
-		Map<String, Object> properties = objectEntry.getProperties();
-
-		properties.put(objectField.getName(), relatedObjectEntryId);
-
 		ObjectDefinition relatedObjectDefinition =
 			_objectDefinitionLocalService.getObjectDefinition(
 				objectRelationship.getObjectDefinitionId2());
 
-		return defaultObjectEntryManager.updateObjectEntry(
-			_getDTOConverterContext(relatedObjectEntryId),
-			relatedObjectDefinition, relatedObjectEntryId, objectEntry);
+		if (objectRelationship.isEdge()) {
+			return _putCurrentObjectEntry(
+				currentObjectEntryId, defaultObjectEntryManager, objectEntry,
+				objectRelationship, relatedObjectDefinition,
+				relatedObjectEntryId);
+		}
+
+		return _putCurrentObjectEntry(
+			currentObjectEntryId, defaultObjectEntryManager, objectRelationship,
+			relatedObjectDefinition, relatedObjectEntryId);
 	}
 
 	private void _checkCurrentObjectEntry(
@@ -276,6 +276,19 @@ public class ObjectEntryRelatedObjectsResourceImpl
 					systemObjectDefinition.getClassName());
 
 		persistedModelLocalService.getPersistedModel(objectEntryId);
+	}
+
+	private void _fillRelationshipObjectField(
+			ObjectRelationship objectRelationship, ObjectEntry objectEntry,
+			Long currentObjectEntryId)
+		throws Exception {
+
+		ObjectField objectField = _objectFieldLocalService.getObjectField(
+			objectRelationship.getObjectFieldId2());
+
+		Map<String, Object> properties = objectEntry.getProperties();
+
+		properties.put(objectField.getName(), currentObjectEntryId);
 	}
 
 	private DefaultDTOConverterContext _getDTOConverterContext(
@@ -317,6 +330,47 @@ public class ObjectEntryRelatedObjectsResourceImpl
 		}
 
 		return objectEntry;
+	}
+
+	private ObjectEntry _putCurrentObjectEntry(
+			Long currentObjectEntryId,
+			DefaultObjectEntryManager defaultObjectEntryManager,
+			ObjectEntry objectEntry, ObjectRelationship objectRelationship,
+			ObjectDefinition relatedObjectDefinition, Long relatedObjectEntryId)
+		throws Exception {
+
+		_checkRelatedObjectEntry(
+			defaultObjectEntryManager, objectRelationship.getName(),
+			relatedObjectEntryId);
+
+		_fillRelationshipObjectField(
+			objectRelationship, objectEntry, currentObjectEntryId);
+
+		return defaultObjectEntryManager.updateObjectEntry(
+			_getDTOConverterContext(relatedObjectEntryId),
+			relatedObjectDefinition, relatedObjectEntryId, objectEntry);
+	}
+
+	private Object _putCurrentObjectEntry(
+			Long currentObjectEntryId,
+			DefaultObjectEntryManager defaultObjectEntryManager,
+			ObjectRelationship objectRelationship,
+			ObjectDefinition relatedObjectDefinition, Long relatedObjectEntryId)
+		throws Exception {
+
+		if (relatedObjectDefinition.isUnmodifiableSystemObject()) {
+			return defaultObjectEntryManager.
+				addSystemObjectRelationshipMappingTableValues(
+					relatedObjectDefinition, objectRelationship,
+					currentObjectEntryId, relatedObjectEntryId);
+		}
+
+		return _getRelatedObjectEntry(
+			relatedObjectDefinition,
+			defaultObjectEntryManager.addObjectRelationshipMappingTableValues(
+				_getDTOConverterContext(currentObjectEntryId),
+				objectRelationship, currentObjectEntryId,
+				relatedObjectEntryId));
 	}
 
 	@Context

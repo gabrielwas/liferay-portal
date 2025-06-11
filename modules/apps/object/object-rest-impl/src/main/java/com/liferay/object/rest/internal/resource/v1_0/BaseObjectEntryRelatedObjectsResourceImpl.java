@@ -27,6 +27,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -138,26 +139,22 @@ public abstract class BaseObjectEntryRelatedObjectsResourceImpl {
 	@Parameters(
 		{
 			@Parameter(in = ParameterIn.PATH, name = "currentObjectEntryId"),
-			@Parameter(in = ParameterIn.PATH, name = "objectRelationshipName"),
-			@Parameter(in = ParameterIn.PATH, name = "relatedObjectEntryId")
+			@Parameter(in = ParameterIn.PATH, name = "objectRelationshipName")
 		}
 	)
-	@Path(
-		"/{currentObjectEntryId}/{objectRelationshipName}/{relatedObjectEntryId}"
-	)
+	@Consumes({"application/json", "application/xml"})
+	@Path("/{currentObjectEntryId}/{objectRelationshipName}")
+	@POST
 	@Produces({"application/json", "application/xml"})
-	@PUT
 	@Tags(@Tag(name = "ObjectEntry"))
-	public abstract Object putCurrentObjectEntry(
+	public abstract Object postCurrentObjectEntry(
 			@NotNull @Parameter(hidden = true)
 			@PathParam("currentObjectEntryId")
 			Long currentObjectEntryId,
 			@NotNull @Parameter(hidden = true)
 			@PathParam("objectRelationshipName")
 			String objectRelationshipName,
-			@NotNull @Parameter(hidden = true)
-			@PathParam("relatedObjectEntryId")
-			Long relatedObjectEntryId)
+			ObjectEntry objectEntry)
 		throws Exception;
 
 	@Consumes({"application/json", "application/xml"})
