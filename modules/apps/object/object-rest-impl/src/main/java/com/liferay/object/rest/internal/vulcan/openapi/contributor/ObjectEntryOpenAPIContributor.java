@@ -159,6 +159,13 @@ public class ObjectEntryOpenAPIContributor extends BaseOpenAPIContributor {
 							key, objectRelationship, paths, relatedSchemaName);
 					}
 
+					if (objectRelationship.isEdge() &&
+						(objectRelationship.getObjectDefinitionId2() ==
+							_objectDefinition.getObjectDefinitionId())) {
+
+						continue;
+					}
+
 					if (_addRelatedSchemas && (relatedSchemaName != null)) {
 						_setSchemaDescription(
 							objectRelationship, openAPI, relatedSchemaName);

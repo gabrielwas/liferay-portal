@@ -188,7 +188,7 @@ public class ObjectEntryRelatedObjectsResourceImpl
 				_objectDefinition.getObjectDefinitionId(),
 				objectRelationshipName);
 
-		if(!objectRelationship.isEdge()){
+		if (!objectRelationship.isEdge()) {
 			throw new UnsupportedOperationException();
 		}
 
