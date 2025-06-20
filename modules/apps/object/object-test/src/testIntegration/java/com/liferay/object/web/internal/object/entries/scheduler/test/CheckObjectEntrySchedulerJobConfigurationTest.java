@@ -23,7 +23,6 @@ import com.liferay.portal.kernel.scheduler.TimeUnit;
 import com.liferay.portal.kernel.service.UserNotificationEventLocalService;
 import com.liferay.portal.kernel.test.AssertUtils;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
-import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.rule.Sync;
 import com.liferay.portal.kernel.test.rule.SynchronousDestinationTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
@@ -68,7 +67,6 @@ public class CheckObjectEntrySchedulerJobConfigurationTest {
 
 		_jobExecutorUnsafeRunnable =
 			_schedulerJobConfiguration.getJobExecutorUnsafeRunnable();
-
 		_objectDefinition = ObjectDefinitionTestUtil.publishObjectDefinition(
 			List.of(
 				new TextObjectFieldBuilder(
@@ -115,7 +113,6 @@ public class CheckObjectEntrySchedulerJobConfigurationTest {
 			objectEntry2.getObjectEntryId());
 
 		Assert.assertTrue(objectEntry1.isScheduled());
-
 		Assert.assertTrue(objectEntry2.isApproved());
 	}
 
@@ -228,8 +225,6 @@ public class CheckObjectEntrySchedulerJobConfigurationTest {
 		"a" + RandomTestUtil.randomString();
 
 	private static UnsafeRunnable<Exception> _jobExecutorUnsafeRunnable;
-
-	@DeleteAfterTestRun
 	private static ObjectDefinition _objectDefinition;
 
 	@Inject
