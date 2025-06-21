@@ -1923,9 +1923,7 @@ public class ObjectEntryLocalServiceImpl
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		if ((objectEntry.getStatus() == status) &&
-			(objectEntry.getDisplayDate() == null)) {
-
+		if ((objectEntry.getDisplayDate() == null) && (objectEntry.getStatus() == status)) {
 			return objectEntry;
 		}
 
@@ -2520,7 +2518,7 @@ public class ObjectEntryLocalServiceImpl
 	}
 
 	private void _checkObjectEntriesByDisplayDate(
-			long companyId, Date currentDate)
+			long companyId, Date date)
 		throws PortalException {
 
 		List<ObjectEntry> objectEntries = objectEntryPersistence.dslQuery(
@@ -2535,7 +2533,7 @@ public class ObjectEntryLocalServiceImpl
 					ObjectEntryTable.INSTANCE.displayDate.gte(
 						_companyIdPreviousCheckDate.get(companyId))
 				).and(
-					ObjectEntryTable.INSTANCE.displayDate.lte(currentDate)
+					ObjectEntryTable.INSTANCE.displayDate.lte(date)
 				).and(
 					ObjectEntryTable.INSTANCE.status.eq(
 						WorkflowConstants.STATUS_SCHEDULED)
@@ -5308,18 +5306,13 @@ public class ObjectEntryLocalServiceImpl
 		}
 	}
 
-	private void _setDisplayDate(
-			ObjectDefinition objectDefinition, ObjectEntry objectEntry,
+	private void _setDisplayDate(long companyId, ObjectEntry objectEntry,
 			Map<String, Serializable> values)
 		throws PortalException {
 
-		if (!FeatureFlagManagerUtil.isEnabled(
-				objectDefinition.getCompanyId(), "LPD-17564")) {
-
-			return;
+		if (FeatureFlagManagerUtil.isEnabled(companyId, "LPD-17564")) {
+			objectEntry.setDisplayDate((Date)values.get("displayDate"));
 		}
-
-		objectEntry.setDisplayDate((Date)values.get("displayDate"));
 	}
 
 	private void _setExpirationDate(
