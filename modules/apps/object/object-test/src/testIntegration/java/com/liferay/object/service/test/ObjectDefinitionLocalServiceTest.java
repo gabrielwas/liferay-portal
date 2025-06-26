@@ -3021,7 +3021,7 @@ public class ObjectDefinitionLocalServiceTest {
 		AssertUtils.assertFailure(
 			ObjectDefinitionEnableFriendlyURLCustomizationException.class,
 			"Enable friendly URL customization is not allowed when using the " +
-				"default friendly URL separator",
+				"default friendly URL separatorr",
 			() -> _updateCustomObjectDefinition(
 				null, objectDefinitionId, 0, 0, true, false, false,
 				FriendlyURLResolverConstants.URL_SEPARATOR_Y_OBJECT_ENTRY,
