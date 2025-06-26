@@ -532,7 +532,7 @@ public class SearchResultResourceImpl extends BaseSearchResultResourceImpl {
 							contextUser
 						).build();
 
-					return vulcanCRUDItemDelegate.getItem(entryClassPK);
+					return vulcanCRUDItemDelegate.fetchItem(entryClassPK);
 				});
 		}
 	}

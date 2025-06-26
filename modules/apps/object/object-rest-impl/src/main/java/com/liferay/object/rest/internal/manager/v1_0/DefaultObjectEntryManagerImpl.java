@@ -7,6 +7,7 @@ package com.liferay.object.rest.internal.manager.v1_0;
 
 import com.liferay.account.exception.NoSuchGroupException;
 import com.liferay.batch.engine.attachment.BatchEngineAttachmentManager;
+import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.object.action.engine.ObjectActionEngine;
 import com.liferay.object.constants.ObjectActionTriggerConstants;
@@ -78,6 +79,7 @@ import com.liferay.portal.kernel.model.ExternalReferenceCodeModel;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupedModel;
 import com.liferay.portal.kernel.model.PersistedModel;
+import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.search.BooleanClauseOccur;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Sort;
@@ -121,9 +123,12 @@ import com.liferay.portal.vulcan.fields.NestedFieldsSupplier;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.portal.vulcan.permission.ModelPermissionsUtil;
+import com.liferay.portal.vulcan.permission.Permission;
 import com.liferay.portal.vulcan.util.ActionUtil;
 import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 import com.liferay.portal.vulcan.util.SearchUtil;
+import com.liferay.roles.admin.role.type.contributor.RoleTypeContributor;
+import com.liferay.roles.admin.role.type.contributor.provider.RoleTypeContributorProvider;
 
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.core.MultivaluedMap;
@@ -539,6 +544,21 @@ public class DefaultObjectEntryManagerImpl
 			}
 		}
 
+		Long[] groupIds = null;
+
+		if (StringUtil.equals(
+				objectDefinition.getScope(),
+				ObjectDefinitionConstants.SCOPE_DEPOT)) {
+
+			groupIds = TransformUtil.transformToArray(
+				_depotEntryLocalService.getGroupConnectedDepotEntries(
+					groupId, QueryUtil.ALL_POS, QueryUtil.ALL_POS),
+				depotEntry -> depotEntry.getGroupId(), Long.class);
+		}
+		else {
+			groupIds = new Long[] {groupId};
+		}
+
 		return Page.of(
 			HashMapBuilder.put(
 				"create",
@@ -580,14 +600,14 @@ public class DefaultObjectEntryManagerImpl
 			facets,
 			TransformUtil.transform(
 				objectEntryLocalService.getPrimaryKeys(
-					groupId, companyId, dtoConverterContext.getUserId(),
+					groupIds, companyId, dtoConverterContext.getUserId(),
 					objectDefinition.getObjectDefinitionId(), predicate, search,
 					start, end, sorts),
 				primaryKey -> _getObjectEntry(
 					dtoConverterContext, objectDefinition, primaryKey)),
 			pagination,
 			objectEntryLocalService.getValuesListCount(
-				groupId, companyId, dtoConverterContext.getUserId(),
+				groupIds, companyId, dtoConverterContext.getUserId(),
 				objectDefinition.getObjectDefinitionId(), predicate, search));
 	}
 
@@ -1292,6 +1312,41 @@ public class DefaultObjectEntryManagerImpl
 			String scopeKey)
 		throws Exception {
 
+		if (objectEntry.getPermissions() == null) {
+			return ServiceContextUtil.createServiceContext(
+				objectDefinition.getCompanyId(),
+				getGroupId(objectDefinition, scopeKey),
+				dtoConverterContext.getLocale(), null, objectEntry,
+				dtoConverterContext.getUserId());
+		}
+
+		if (LazyReferencingThreadLocal.isEnabled()) {
+			for (Permission permission : objectEntry.getPermissions()) {
+				if (Validator.isNull(
+						permission.getRoleExternalReferenceCode())) {
+
+					continue;
+				}
+
+				String className = StringPool.BLANK;
+
+				RoleTypeContributor roleTypeContributor =
+					_roleTypeContributorProvider.getRoleTypeContributor(
+						RoleConstants.getLabelType(permission.getRoleType()));
+
+				if (roleTypeContributor != null) {
+					className = roleTypeContributor.getClassName();
+				}
+
+				_roleLocalService.getOrAddIncompleteRole(
+					permission.getRoleExternalReferenceCode(),
+					objectDefinition.getCompanyId(),
+					dtoConverterContext.getUserId(), className, 0,
+					permission.getRoleName(),
+					RoleConstants.getLabelType(permission.getRoleType()));
+			}
+		}
+
 		ModelPermissions modelPermissions =
 			ModelPermissionsUtil.toModelPermissions(
 				objectDefinition.getCompanyId(), objectEntry.getPermissions(),
@@ -1721,8 +1776,8 @@ public class DefaultObjectEntryManagerImpl
 
 	private void _processAttachment(
 			ObjectDefinition objectDefinition, ObjectEntry objectEntry,
-			ObjectField objectField, String scopeKey,
-			ServiceContext serviceContext)
+			ObjectField objectField, Map<String, Object> properties,
+			String scopeKey, ServiceContext serviceContext)
 		throws Exception {
 
 		if (objectField.isLocalized()) {
@@ -1759,7 +1814,10 @@ public class DefaultObjectEntryManagerImpl
 			serviceContext);
 
 		if (fileEntryId > 0) {
-			Map<String, Object> properties = objectEntry.getProperties();
+			Map<String, Object> objectEntryProperties =
+				objectEntry.getProperties();
+
+			objectEntryProperties.put(objectField.getName(), fileEntryId);
 
 			properties.put(objectField.getName(), fileEntryId);
 		}
@@ -2198,8 +2256,8 @@ public class DefaultObjectEntryManagerImpl
 					ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT)) {
 
 				_processAttachment(
-					objectDefinition, objectEntry, objectField, scopeKey,
-					serviceContext);
+					objectDefinition, objectEntry, objectField, properties,
+					scopeKey, serviceContext);
 			}
 
 			Object value = ObjectEntryValuesUtil.getValue(
@@ -2333,6 +2391,9 @@ public class DefaultObjectEntryManagerImpl
 	private BatchEngineAttachmentManager _batchEngineAttachmentManager;
 
 	@Reference
+	private DepotEntryLocalService _depotEntryLocalService;
+
+	@Reference
 	private DLAppLocalService _dlAppLocalService;
 
 	@Reference
@@ -2416,6 +2477,9 @@ public class DefaultObjectEntryManagerImpl
 
 	@Reference
 	private RoleLocalService _roleLocalService;
+
+	@Reference
+	private RoleTypeContributorProvider _roleTypeContributorProvider;
 
 	@Reference
 	private SearchRequestBuilderFactory _searchRequestBuilderFactory;

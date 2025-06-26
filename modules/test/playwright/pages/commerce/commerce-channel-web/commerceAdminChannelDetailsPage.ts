@@ -423,7 +423,7 @@ export class CommerceAdminChannelDetailsPage {
 		).click();
 		await (await this.shippingOptionsTab(tableName)).click();
 		await (await this.sidePanelFrame(tableName))
-			.getByTestId('management-toolbar')
+			.getByTestId('managementToolbar')
 			.locator('[data-testid="fdsCreationActionButton"]')
 			.click();
 		await (await this.sidePanelNestedFrame(tableName))
@@ -569,6 +569,15 @@ export class CommerceAdminChannelDetailsPage {
 					tableName
 				)
 			).click();
+
+			await expect(
+				await this.placeHolderTerm(
+					isNestedFrame,
+					tableName,
+					'Find a Payment Term'
+				)
+			).toBeVisible();
+
 			await (
 				await this.placeHolderTerm(
 					isNestedFrame,
@@ -600,7 +609,15 @@ export class CommerceAdminChannelDetailsPage {
 					tableName
 				)
 			).click();
-			await this.page.waitForLoadState();
+
+			await expect(
+				await this.placeHolderTerm(
+					isNestedFrame,
+					tableName,
+					'Find a Delivery Term'
+				)
+			).toBeVisible();
+
 			await (
 				await this.placeHolderTerm(
 					isNestedFrame,

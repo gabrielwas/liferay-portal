@@ -71,6 +71,7 @@ import {config as frontendTaglibSpaOffConfig} from './tests/frontend-taglib/spa-
 import {config as frontendTheme} from './tests/frontend-theme/main/config';
 import {config as headlessBuilderImplConfig} from './tests/headless-builder-impl/main/config';
 import {config as headlessBuilderWebConfig} from './tests/headless-builder-web/main/config';
+import {config as headlessDiscoveryWebConfig} from './tests/headless-discovery-web/main/config';
 import {config as iframeWebConfig} from './tests/iframe-web/main/config';
 import {config as itemSelectorTaglibConfig} from './tests/item-selector-taglib/main/config';
 import {config as journalWebConfig} from './tests/journal-web/main/config';
@@ -139,6 +140,7 @@ import {config as smokeConfig} from './tests/smoke/main/config';
 import {config as stagingConfig} from './tests/staging-configuration-web/main/config';
 import {config as stylebookWebConfig} from './tests/style-book-web/main/config';
 import {config as templateWebConfig} from './tests/template-web/main/config';
+import {config as usersAdminWebEmailConfig} from './tests/users-admin-web/email/config';
 import {config as usersAdminWebConfig} from './tests/users-admin-web/main/config';
 import {config as usersAdminWebPermissionsConfig} from './tests/users-admin-web/permissions/config';
 import {config as wikiWebConfig} from './tests/wiki-web/main/config';
@@ -227,6 +229,7 @@ export default defineConfig({
 		frontendTheme,
 		headlessBuilderImplConfig,
 		headlessBuilderWebConfig,
+		headlessDiscoveryWebConfig,
 		iframeWebConfig,
 		itemSelectorTaglibConfig,
 		jethr0Config,
@@ -296,6 +299,7 @@ export default defineConfig({
 		stylebookWebConfig,
 		templateWebConfig,
 		usersAdminWebConfig,
+		usersAdminWebEmailConfig,
 		usersAdminWebPermissionsConfig,
 		wikiWebConfig,
 		...setupProjects,

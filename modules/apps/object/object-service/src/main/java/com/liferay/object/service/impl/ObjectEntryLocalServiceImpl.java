@@ -358,8 +358,8 @@ public class ObjectEntryLocalServiceImpl
 			false, serviceContext, null, userId, null, values);
 
 		_addDLFileEntries(
-			dlFileEntriesMap, objectDefinition, objectEntryId, serviceContext,
-			userId, values);
+			dlFileEntriesMap, groupId, objectDefinition, objectEntryId,
+			serviceContext, userId, values);
 
 		Map<String, Serializable> insertedValues = new HashMap<>();
 
@@ -509,8 +509,8 @@ public class ObjectEntryLocalServiceImpl
 				serviceContext, null, userId, null, values);
 
 			_addDLFileEntries(
-				dlFileEntriesMap, objectDefinition, primaryKey, serviceContext,
-				userId, values);
+				dlFileEntriesMap, 0, objectDefinition, primaryKey,
+				serviceContext, userId, values);
 
 			_updateTable(
 				dynamicObjectDefinitionTable, primaryKey, true, values);
@@ -524,8 +524,8 @@ public class ObjectEntryLocalServiceImpl
 				serviceContext, null, userId, null, values);
 
 			_addDLFileEntries(
-				dlFileEntriesMap, objectDefinition, primaryKey, serviceContext,
-				userId, values);
+				dlFileEntriesMap, 0, objectDefinition, primaryKey,
+				serviceContext, userId, values);
 
 			_insertIntoTable(
 				dynamicObjectDefinitionTable, new HashMap<>(), primaryKey,
@@ -1293,9 +1293,9 @@ public class ObjectEntryLocalServiceImpl
 	}
 
 	public List<Long> getPrimaryKeys(
-			long groupId, long companyId, long userId, long objectDefinitionId,
-			Predicate predicate, String search, int start, int end,
-			Sort[] sorts)
+			Long[] groupIds, long companyId, long userId,
+			long objectDefinitionId, Predicate predicate, String search,
+			int start, int end, Sort[] sorts)
 		throws PortalException {
 
 		DynamicObjectDefinitionLocalizationTable
@@ -1339,18 +1339,18 @@ public class ObjectEntryLocalServiceImpl
 				objectDefinitionId
 			).and(
 				() -> {
-					if (groupId == 0) {
+					if (ArrayUtil.isEmpty(groupIds)) {
 						return null;
 					}
 
-					return ObjectEntryTable.INSTANCE.groupId.eq(groupId);
+					return ObjectEntryTable.INSTANCE.groupId.in(groupIds);
 				}
 			).and(
 				Predicate.withParentheses(
 					_fillPredicate(objectDefinitionId, predicate, search))
 			).and(
 				_getPermissionWherePredicate(
-					dynamicObjectDefinitionTable, groupId)
+					dynamicObjectDefinitionTable, groupIds)
 			)
 		).limit(
 			start, end
@@ -1602,15 +1602,14 @@ public class ObjectEntryLocalServiceImpl
 
 		return TransformUtil.transform(
 			getPrimaryKeys(
-				groupId, companyId, userId, objectDefinitionId, predicate,
-				search, start, end, sorts),
+				new Long[] {groupId}, companyId, userId, objectDefinitionId,
+				predicate, search, start, end, sorts),
 			this::getValues);
 	}
 
-	@Override
 	public int getValuesListCount(
-			long groupId, long companyId, long userId, long objectDefinitionId,
-			Predicate predicate, String search)
+			Long[] groupIds, long companyId, long userId,
+			long objectDefinitionId, Predicate predicate, String search)
 		throws PortalException {
 
 		DynamicObjectDefinitionLocalizationTable
@@ -1654,18 +1653,18 @@ public class ObjectEntryLocalServiceImpl
 				objectDefinitionId
 			).and(
 				() -> {
-					if (groupId == 0) {
+					if (ArrayUtil.isEmpty(groupIds)) {
 						return null;
 					}
 
-					return ObjectEntryTable.INSTANCE.groupId.eq(groupId);
+					return ObjectEntryTable.INSTANCE.groupId.in(groupIds);
 				}
 			).and(
 				Predicate.withParentheses(
 					_fillPredicate(objectDefinitionId, predicate, search))
 			).and(
 				_getPermissionWherePredicate(
-					dynamicObjectDefinitionTable, groupId)
+					dynamicObjectDefinitionTable, groupIds)
 			)
 		);
 
@@ -2117,7 +2116,7 @@ public class ObjectEntryLocalServiceImpl
 	protected ConfigurationProvider configurationProvider;
 
 	private void _addDLFileEntries(
-			Map<ObjectField, Set<DLFileEntry>> dlFileEntriesMap,
+			Map<ObjectField, Set<DLFileEntry>> dlFileEntriesMap, long groupId,
 			ObjectDefinition objectDefinition, long objectEntryId,
 			ServiceContext serviceContext, long userId,
 			Map<String, Serializable> values)
@@ -2128,16 +2127,16 @@ public class ObjectEntryLocalServiceImpl
 
 			for (DLFileEntry dlFileEntry : entry.getValue()) {
 				_addDLFileEntry(
-					dlFileEntry, objectDefinition, objectEntryId,
+					dlFileEntry, groupId, objectDefinition, objectEntryId,
 					entry.getKey(), serviceContext, userId, values);
 			}
 		}
 	}
 
 	private void _addDLFileEntry(
-			DLFileEntry dlFileEntry, ObjectDefinition objectDefinition,
-			long objectEntryId, ObjectField objectField,
-			ServiceContext serviceContext, long userId,
+			DLFileEntry dlFileEntry, long groupId,
+			ObjectDefinition objectDefinition, long objectEntryId,
+			ObjectField objectField, ServiceContext serviceContext, long userId,
 			Map<String, Serializable> values)
 		throws PortalException {
 
@@ -2150,9 +2149,13 @@ public class ObjectEntryLocalServiceImpl
 
 		DLFolder dlFileEntryFolder = dlFileEntry.getFolder();
 
+		if (groupId == 0) {
+			groupId = dlFileEntry.getGroupId();
+		}
+
 		DLFolder dlFolder = _attachmentManager.getDLFolder(
-			dlFileEntry.getCompanyId(), dlFileEntry.getGroupId(),
-			objectField.getObjectFieldId(), serviceContext, userId);
+			dlFileEntry.getCompanyId(), groupId, objectField.getObjectFieldId(),
+			serviceContext, userId);
 
 		if (Objects.equals(
 				dlFileEntryFolder.getFolderId(), dlFolder.getFolderId())) {
@@ -3910,6 +3913,28 @@ public class ObjectEntryLocalServiceImpl
 		).withParentheses();
 	}
 
+	private Predicate _getPermissionWherePredicate(
+			DynamicObjectDefinitionTable dynamicObjectDefinitionTable,
+			Long[] groupIds)
+		throws PortalException {
+
+		Predicate permissionWherePredicate = null;
+
+		for (Long groupId : groupIds) {
+			if (permissionWherePredicate == null) {
+				permissionWherePredicate = _getPermissionWherePredicate(
+					dynamicObjectDefinitionTable, groupId);
+			}
+			else {
+				permissionWherePredicate = permissionWherePredicate.or(
+					_getPermissionWherePredicate(
+						dynamicObjectDefinitionTable, groupId));
+			}
+		}
+
+		return permissionWherePredicate;
+	}
+
 	private Column<?, Long> _getPrimaryKeyColumn(
 		DynamicObjectDefinitionTable dynamicObjectDefinitionTable,
 		DynamicObjectDefinitionTable extensionDynamicObjectDefinitionTable,
@@ -5252,7 +5277,8 @@ public class ObjectEntryLocalServiceImpl
 
 			if ((expirationDate != null) && expirationDate.before(new Date())) {
 				throw new ObjectEntryExpirationDateException(
-					"Expiration date must be a future date");
+					"Expiration date must be a future date",
+					"expiration-date-must-be-a-future-date");
 			}
 
 			objectEntry.setExpirationDate(expirationDate);
@@ -5591,8 +5617,8 @@ public class ObjectEntryLocalServiceImpl
 			null, values);
 
 		_addDLFileEntries(
-			dlFileEntriesMap, objectDefinition, objectEntryId, serviceContext,
-			userId, values);
+			dlFileEntriesMap, objectEntry.getGroupId(), objectDefinition,
+			objectEntryId, serviceContext, userId, values);
 
 		int workflowAction = serviceContext.getWorkflowAction();
 
