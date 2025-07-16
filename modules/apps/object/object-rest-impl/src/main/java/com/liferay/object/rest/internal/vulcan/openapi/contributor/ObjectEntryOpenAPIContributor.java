@@ -48,6 +48,7 @@ import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
 import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 
@@ -156,6 +157,13 @@ public class ObjectEntryOpenAPIContributor extends BaseOpenAPIContributor {
 
 						_addObjectRelationshipPathItem(
 							key, objectRelationship, paths, relatedSchemaName);
+					}
+
+					if (objectRelationship.isEdge() &&
+						(objectRelationship.getObjectDefinitionId2() ==
+							_objectDefinition.getObjectDefinitionId())) {
+
+						continue;
 					}
 
 					if (_addRelatedSchemas && (relatedSchemaName != null)) {
@@ -398,11 +406,28 @@ public class ObjectEntryOpenAPIContributor extends BaseOpenAPIContributor {
 					schemaName));
 		}
 
-		if (operations.containsKey(PathItem.HttpMethod.PUT)) {
-			pathItem.put(
-				_getObjectRelationshipOperation(
-					objectRelationship, existingPathItem.getPut(), schemaName,
+		if (operations.containsKey(PathItem.HttpMethod.POST) &&
+			objectRelationship.isEdge()) {
+
+			pathItem.post(
+				_getObjectRelationshipWriteOperation(
+					"post", objectRelationship, existingPathItem.getPost(),
 					schemaName));
+		}
+
+		if (operations.containsKey(PathItem.HttpMethod.PUT)) {
+			if (objectRelationship.isEdge()) {
+				pathItem.put(
+					_getObjectRelationshipWriteOperation(
+						"put", objectRelationship, existingPathItem.getPut(),
+						schemaName));
+			}
+			else {
+				pathItem.put(
+					_getObjectRelationshipOperation(
+						objectRelationship, existingPathItem.getPut(),
+						schemaName, schemaName));
+			}
 		}
 
 		return pathItem;
@@ -479,6 +504,25 @@ public class ObjectEntryOpenAPIContributor extends BaseOpenAPIContributor {
 					}
 				});
 		}
+
+		return content;
+	}
+
+	private Content _getContent(String schemaName) {
+		Content content = new Content();
+
+		MediaType mediaType = new MediaType();
+
+		if (schemaName != null) {
+			Schema schema = new Schema();
+
+			schema.set$ref(schemaName);
+
+			mediaType.setSchema(schema);
+		}
+
+		content.addMediaType("application/json", mediaType);
+		content.addMediaType("application/xml", mediaType);
 
 		return content;
 	}
@@ -579,6 +623,57 @@ public class ObjectEntryOpenAPIContributor extends BaseOpenAPIContributor {
 				responses(
 					_getObjectRelationshipApiResponses(
 						operation, responseSchemaName));
+				tags(operation.getTags());
+			}
+		};
+	}
+
+	private Operation _getObjectRelationshipPutOperation(
+		ObjectRelationship objectRelationship, Operation operation,
+		String schemaName) {
+
+		return new Operation() {
+			{
+				operationId(
+					StringBundler.concat(
+						"put", _objectDefinition.getShortName(),
+						StringUtil.upperCaseFirstLetter(
+							objectRelationship.getName()),
+						schemaName));
+				parameters(_getParameters(operation, schemaName));
+				responses(
+					_getObjectRelationshipApiResponses(operation, schemaName));
+				tags(operation.getTags());
+			}
+		};
+	}
+
+	private RequestBody _getObjectRelationshipRequestBody(String schemaName) {
+		return new RequestBody() {
+			{
+				setContent(_getContent(schemaName));
+			}
+		};
+	}
+
+	private Operation _getObjectRelationshipWriteOperation(
+		String httpMethodName, ObjectRelationship objectRelationship,
+		Operation operation, String schemaName) {
+
+		// Check here if the relationship is root.
+
+		return new Operation() {
+			{
+				operationId(
+					StringBundler.concat(
+						httpMethodName, _objectDefinition.getShortName(),
+						StringUtil.upperCaseFirstLetter(
+							objectRelationship.getName()),
+						schemaName));
+				parameters(_getParameters(operation, schemaName));
+				requestBody(_getObjectRelationshipRequestBody(schemaName));
+				responses(
+					_getObjectRelationshipApiResponses(operation, schemaName));
 				tags(operation.getTags());
 			}
 		};
