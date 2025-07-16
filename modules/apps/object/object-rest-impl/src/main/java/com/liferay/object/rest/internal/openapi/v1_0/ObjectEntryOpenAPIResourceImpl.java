@@ -314,6 +314,10 @@ public class ObjectEntryOpenAPIResourceImpl
 					fetchObjectRelationshipByObjectFieldId2(
 						objectField.getObjectFieldId());
 
+			if (objectRelationship.isEdge()) {
+				return new ArrayList<>();
+			}
+
 			String relationshipName = objectRelationship.getName();
 
 			return Arrays.asList(

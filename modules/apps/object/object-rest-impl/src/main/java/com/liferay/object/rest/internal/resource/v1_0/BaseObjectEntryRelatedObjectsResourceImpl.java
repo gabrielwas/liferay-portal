@@ -5,6 +5,7 @@
 
 package com.liferay.object.rest.internal.resource.v1_0;
 
+import com.liferay.object.rest.dto.v1_0.ObjectEntry;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.model.User;
@@ -23,8 +24,10 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import jakarta.validation.constraints.NotNull;
 
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -97,6 +100,30 @@ public abstract class BaseObjectEntryRelatedObjectsResourceImpl {
 				@Context Pagination pagination)
 		throws Exception;
 
+	@Consumes({"application/json", "application/xml"})
+	@Operation(
+		operationId = "putObjectEntryObjectRelationshipNameRelatedObjectEntry"
+	)
+	@Parameters(
+		{
+			@Parameter(in = ParameterIn.PATH, name = "currentObjectEntryId"),
+			@Parameter(in = ParameterIn.PATH, name = "objectRelationshipName")
+		}
+	)
+	@Path("/{currentObjectEntryId}/{objectRelationshipName}")
+	@POST
+	@Produces({"application/json", "application/xml"})
+	@Tags(@Tag(name = "ObjectEntry"))
+	public abstract Object postCurrentObjectEntry(
+			@NotNull @Parameter(hidden = true)
+			@PathParam("currentObjectEntryId")
+			Long currentObjectEntryId,
+			@NotNull @Parameter(hidden = true)
+			@PathParam("objectRelationshipName")
+			String objectRelationshipName,
+			ObjectEntry objectEntry)
+		throws Exception;
+
 	@Operation(
 		operationId = "putByExternalReferenceCodeObjectEntryObjectRelationshipNameRelatedObjectEntry"
 	)
@@ -130,9 +157,7 @@ public abstract class BaseObjectEntryRelatedObjectsResourceImpl {
 				String relatedExternalReferenceCode)
 		throws Exception;
 
-	@Operation(
-		operationId = "putObjectEntryObjectRelationshipNameRelatedObjectEntry"
-	)
+	@Consumes({"application/json", "application/xml"})
 	@Parameters(
 		{
 			@Parameter(in = ParameterIn.PATH, name = "currentObjectEntryId"),
@@ -155,7 +180,8 @@ public abstract class BaseObjectEntryRelatedObjectsResourceImpl {
 			String objectRelationshipName,
 			@NotNull @Parameter(hidden = true)
 			@PathParam("relatedObjectEntryId")
-			Long relatedObjectEntryId)
+			Long relatedObjectEntryId,
+			ObjectEntry objectEntry)
 		throws Exception;
 
 	protected <T, R, E extends Throwable> List<R> transform(
