@@ -109,6 +109,42 @@ public class CheckObjectEntrySchedulerJobConfigurationTest {
 	}
 
 	@Test
+	public void testCheckObjectEntryDisplayDate() throws Exception {
+		Date date = new Date();
+
+		ObjectEntry objectEntry1 = ObjectEntryTestUtil.addObjectEntry(
+			0, _objectDefinition.getObjectDefinitionId(),
+			HashMapBuilder.<String, Serializable>put(
+				_OBJECT_FIELD_NAME, RandomTestUtil.randomString()
+			).put(
+				"displayDate", date
+			).build());
+
+		Assert.assertTrue(objectEntry1.isScheduled());
+
+		ObjectEntry objectEntry2 = ObjectEntryTestUtil.addObjectEntry(
+			0, _objectDefinition.getObjectDefinitionId(),
+			HashMapBuilder.<String, Serializable>put(
+				_OBJECT_FIELD_NAME, RandomTestUtil.randomString()
+			).put(
+				"displayDate",
+				new Date(date.getTime() + TimeUnit.MINUTE.toMillis(5))
+			).build());
+
+		Assert.assertTrue(objectEntry2.isScheduled());
+
+		_jobExecutorUnsafeRunnable.run();
+
+		objectEntry1 = _objectEntryLocalService.getObjectEntry(
+			objectEntry1.getObjectEntryId());
+		objectEntry2 = _objectEntryLocalService.getObjectEntry(
+			objectEntry2.getObjectEntryId());
+
+		Assert.assertTrue(objectEntry1.isApproved());
+		Assert.assertTrue(objectEntry2.isScheduled());
+	}
+
+	@Test
 	public void testCheckObjectEntryExpirationDate() throws Exception {
 		Date date = new Date();
 

@@ -617,6 +617,8 @@ public class ObjectEntryLocalServiceImpl
 			key -> new Date(
 				date.getTime() - _getObjectEntryCheckInterval(companyId)));
 
+		_checkObjectEntriesByDisplayDate(companyId, date);
+
 		_checkObjectEntriesByExpirationDate(companyId, date);
 
 		_checkObjectEntriesByReviewDate(companyId, date);
@@ -1930,14 +1932,25 @@ public class ObjectEntryLocalServiceImpl
 			ServiceContext serviceContext)
 		throws PortalException {
 
-		if (objectEntry.getStatus() == status) {
+		if ((objectEntry.getDisplayDate() == null) &&
+			(objectEntry.getStatus() == status)) {
+
 			return objectEntry;
 		}
 
 		ObjectEntry originalObjectEntry = (ObjectEntry)objectEntry.clone();
 
 		Date date = new Date();
+		Date displayDate = objectEntry.getDisplayDate();
 		Date expirationDate = objectEntry.getExpirationDate();
+
+		if ((status == WorkflowConstants.STATUS_APPROVED) &&
+			(displayDate != null) && date.before(displayDate)) {
+
+			status = WorkflowConstants.STATUS_SCHEDULED;
+
+			_inactiveLatestObjectEntryVersion(originalObjectEntry);
+		}
 
 		if ((status == WorkflowConstants.STATUS_APPROVED) &&
 			(expirationDate != null) && expirationDate.before(date)) {
@@ -2514,6 +2527,35 @@ public class ObjectEntryLocalServiceImpl
 					setStrictAdd(true);
 				}
 			});
+	}
+
+	private void _checkObjectEntriesByDisplayDate(long companyId, Date date)
+		throws PortalException {
+
+		List<ObjectEntry> objectEntries = objectEntryPersistence.dslQuery(
+			DSLQueryFactoryUtil.select(
+				ObjectEntryTable.INSTANCE
+			).from(
+				ObjectEntryTable.INSTANCE
+			).where(
+				ObjectEntryTable.INSTANCE.companyId.eq(
+					companyId
+				).and(
+					ObjectEntryTable.INSTANCE.displayDate.gte(
+						_companyIdPreviousCheckDate.get(companyId))
+				).and(
+					ObjectEntryTable.INSTANCE.displayDate.lte(date)
+				).and(
+					ObjectEntryTable.INSTANCE.status.eq(
+						WorkflowConstants.STATUS_SCHEDULED)
+				)
+			));
+
+		for (ObjectEntry objectEntry : objectEntries) {
+			updateStatus(
+				objectEntry.getUserId(), objectEntry,
+				WorkflowConstants.STATUS_APPROVED, new ServiceContext());
+		}
 	}
 
 	private void _checkObjectEntriesByExpirationDate(long companyId, Date date)
@@ -4505,6 +4547,29 @@ public class ObjectEntryLocalServiceImpl
 			new ValidationError(objectEntryValuesException.getMessage()));
 	}
 
+	private void _inactiveLatestObjectEntryVersion(ObjectEntry objectEntry)
+		throws PortalException {
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionPersistence.findByPrimaryKey(
+				objectEntry.getObjectDefinitionId());
+
+		ObjectEntryVersion objectEntryVersion =
+			_objectEntryVersionLocalService.getObjectEntryVersion(
+				objectEntry.getObjectEntryId(), objectEntry.getVersion());
+
+		if (!objectDefinition.isEnableObjectEntryVersioning() ||
+			(objectEntryVersion.getDisplayDate() == null)) {
+
+			return;
+		}
+
+		objectEntryVersion.setStatus(WorkflowConstants.STATUS_INACTIVE);
+
+		_objectEntryVersionLocalService.updateObjectEntryVersion(
+			objectEntryVersion);
+	}
+
 	private void _insertIntoLocalizationTable(
 			Map<String, Serializable> insertedValues,
 			ObjectDefinition objectDefinition, long objectEntryId,
@@ -5288,8 +5353,9 @@ public class ObjectEntryLocalServiceImpl
 	}
 
 	private void _setDisplayDate(
-		long companyId, ObjectEntry objectEntry,
-		Map<String, Serializable> values) {
+			long companyId, ObjectEntry objectEntry,
+			Map<String, Serializable> values)
+		throws PortalException {
 
 		if (FeatureFlagManagerUtil.isEnabled(companyId, "LPD-17564")) {
 			objectEntry.setDisplayDate((Date)values.get("displayDate"));
@@ -5686,8 +5752,9 @@ public class ObjectEntryLocalServiceImpl
 			objectDefinition.getCompanyId(), objectEntry, values);
 		_setReviewDate(objectDefinition.getCompanyId(), objectEntry, values);
 
-		if ((workflowAction == WorkflowConstants.ACTION_SAVE_DRAFT) &&
-			!objectEntry.isPending()) {
+		if (((workflowAction == WorkflowConstants.ACTION_SAVE_DRAFT) &&
+			 !objectEntry.isPending()) ||
+			(objectEntry.getDisplayDate() == null)) {
 
 			objectEntry.setStatus(WorkflowConstants.STATUS_DRAFT);
 			objectEntry.setStatusByUserId(user.getUserId());
