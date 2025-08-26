@@ -2284,13 +2284,12 @@ public class DefaultObjectEntryManagerImplTest
 			NoSuchObjectEntryFolderException.class,
 			String.format(
 				"No ObjectEntryFolder exists with the key {externalReference" +
-					"Code=%s, groupId=%s, companyId=%s}",
+					"Code=%s, groupId=%s}",
 				externalReferenceCode, 0, TestPropsValues.getCompanyId()),
 			() ->
 				_objectEntryFolderLocalService.
 					getObjectEntryFolderByExternalReferenceCode(
-						externalReferenceCode, 0,
-						TestPropsValues.getCompanyId()));
+						externalReferenceCode, 0));
 
 		try (SafeCloseable safeCloseable =
 				LazyReferencingThreadLocal.setEnabledWithSafeCloseable(true)) {
@@ -2308,7 +2307,7 @@ public class DefaultObjectEntryManagerImplTest
 		ObjectEntryFolder objectEntryFolder =
 			_objectEntryFolderLocalService.
 				getObjectEntryFolderByExternalReferenceCode(
-					externalReferenceCode, 0, TestPropsValues.getCompanyId());
+					externalReferenceCode, 0);
 
 		AssertUtils.assertEquals(
 			WorkflowConstants.STATUS_EMPTY, objectEntryFolder.getStatus());
