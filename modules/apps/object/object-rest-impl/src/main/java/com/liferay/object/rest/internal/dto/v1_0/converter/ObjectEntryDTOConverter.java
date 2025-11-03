@@ -260,7 +260,7 @@ public class ObjectEntryDTOConverter
 			serviceBuilderObjectEntry);
 
 		if (GetterUtil.getBoolean(
-				dtoConverterContext.getAttribute("simplifiedObjectEntry"))) {
+				dtoConverterContext.getAttribute("simplifiedObjectEntry")) && !serviceBuilderObjectEntry.isRootDescendantNode()) {
 
 			return objectEntry;
 		}

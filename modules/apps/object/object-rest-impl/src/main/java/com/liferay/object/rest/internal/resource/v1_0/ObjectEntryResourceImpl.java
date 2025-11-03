@@ -10,6 +10,7 @@ import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.exception.ObjectEntryValidationException;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectField;
+import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.model.ObjectRelationshipModel;
 import com.liferay.object.rest.dto.v1_0.ObjectEntry;
 import com.liferay.object.rest.dto.v1_0.ValidationError;
@@ -412,11 +413,24 @@ public class ObjectEntryResourceImpl
 
 			@Override
 			public List<String> getNestedFields() {
-				return transform(
+				List<String> transform = transform(
 					_objectRelationshipLocalService.
 						getObjectRelationshipsByObjectDefinitionId2(
 							_objectDefinition.getObjectDefinitionId()),
 					ObjectRelationshipModel::getName);
+
+				if(_objectDefinition.isRootNode() || _objectDefinition.isRootDescendantNode()){
+
+					List<ObjectRelationship> objectRelationships =
+						_objectRelationshipLocalService.getObjectRelationships(
+							_objectDefinition.getObjectDefinitionId(), true);
+
+					transform = ListUtil.concat(transform, transform(
+						_objectRelationshipLocalService.getObjectRelationships(_objectDefinition.getObjectDefinitionId(), true),
+						ObjectRelationshipModel::getName));
+				}
+
+				return transform;
 			}
 
 			@Override
