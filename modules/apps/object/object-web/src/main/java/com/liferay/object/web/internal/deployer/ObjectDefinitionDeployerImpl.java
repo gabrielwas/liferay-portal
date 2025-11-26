@@ -24,6 +24,7 @@ import com.liferay.dynamic.data.mapping.expression.DDMExpressionFactory;
 import com.liferay.friendly.url.info.item.provider.InfoItemFriendlyURLProvider;
 import com.liferay.friendly.url.info.item.updater.InfoItemFriendlyURLUpdater;
 import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
+import com.liferay.frontend.data.set.url.FDSAPIURLResolver;
 import com.liferay.frontend.data.set.view.FDSView;
 import com.liferay.frontend.data.set.view.table.FDSTableSchemaBuilderFactory;
 import com.liferay.info.collection.provider.InfoCollectionProvider;
@@ -69,6 +70,7 @@ import com.liferay.object.info.field.converter.ObjectFieldInfoFieldConverter;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectField;
+import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.related.models.ObjectRelatedModelsProviderRegistry;
 import com.liferay.object.rest.context.path.RESTContextPathResolverRegistry;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManagerRegistry;
@@ -115,6 +117,7 @@ import com.liferay.object.web.internal.notifications.ObjectUserNotificationsDefi
 import com.liferay.object.web.internal.notifications.ObjectUserNotificationsHandler;
 import com.liferay.object.web.internal.object.entries.application.list.ObjectEntriesPanelApp;
 import com.liferay.object.web.internal.object.entries.frontend.data.set.filter.factory.ObjectFieldFDSFilterFactoryRegistry;
+import com.liferay.object.web.internal.object.entries.frontend.data.set.url.ObjectEntryFDSAPIURLResolver;
 import com.liferay.object.web.internal.object.entries.frontend.data.set.view.table.ObjectEntriesTableFDSView;
 import com.liferay.object.web.internal.object.entries.portlet.ObjectEntriesPortlet;
 import com.liferay.object.web.internal.object.entries.portlet.action.AutocompleteAssigneeMVCResourceCommand;
@@ -123,6 +126,7 @@ import com.liferay.object.web.internal.object.entries.portlet.action.EditObjectE
 import com.liferay.object.web.internal.object.entries.portlet.action.EditObjectEntryMVCRenderCommand;
 import com.liferay.object.web.internal.object.entries.portlet.action.EditObjectEntryRelatedModelMVCActionCommand;
 import com.liferay.object.web.internal.object.entries.portlet.action.UploadAttachmentMVCActionCommand;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.bnd.util.ConfigurableUtil;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -254,6 +258,12 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					"company.id", objectDefinition.getCompanyId()
 				).put(
 					"jakarta.portlet.name", objectDefinition.getPortletId()
+				).build()),
+			_bundleContext.registerService(
+				FDSAPIURLResolver.class,
+				new ObjectEntryFDSAPIURLResolver(objectDefinition.getShortName()),
+				HashMapDictionaryBuilder.<String, Object>put(
+					"fds.rest.application.key", StringBundler.concat(objectDefinition.getRESTContextPath(), "/", objectDefinition.getShortName())
 				).build()),
 			_bundleContext.registerService(
 				FDSView.class,
@@ -639,6 +649,35 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					).put(
 						"item.class.name", objectDefinition.getClassName()
 					).build()));
+		}
+
+		if(objectDefinition.isRootDescendantNode()){
+			List<ObjectRelationship> objectRelationships =
+				_objectRelationshipLocalService.
+					getObjectRelationshipsByObjectDefinitionId2(
+						objectDefinition.getObjectDefinitionId(), true);
+
+			for (ObjectRelationship objectRelationship : objectRelationships) {
+
+				ObjectDefinition objectDefinition1;
+
+				try {
+					objectDefinition1 =
+						_objectDefinitionLocalService.getObjectDefinition(
+							objectRelationship.getObjectDefinitionId1());
+				}
+				catch (PortalException e) {
+					throw new RuntimeException(e);
+				}
+
+				serviceRegistrations.add(
+					_bundleContext.registerService(
+						FDSAPIURLResolver.class,
+						new ObjectEntryFDSAPIURLResolver(objectDefinition.getShortName()),
+						HashMapDictionaryBuilder.<String, Object>put(
+							"fds.rest.application.key", StringBundler.concat(objectDefinition1.getRESTContextPath(), "/", objectDefinition.getShortName())
+						).build()));
+			}
 		}
 
 		Collections.addAll(

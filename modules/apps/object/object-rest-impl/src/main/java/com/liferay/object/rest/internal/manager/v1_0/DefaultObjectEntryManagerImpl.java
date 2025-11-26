@@ -2420,9 +2420,9 @@ public class DefaultObjectEntryManagerImpl
 			GetterUtil.getBoolean(
 				dtoConverterContext.getAttribute("preferApproved")),
 			serviceBuilderObjectEntry);
-		_checkObjectEntryObjectDefinitionId(
-			objectDefinition, serviceBuilderObjectEntry);
-		_checkRootDescendantNode(serviceBuilderObjectEntry, false);
+		//_checkObjectEntryObjectDefinitionId(
+		//	objectDefinition, serviceBuilderObjectEntry);
+		//_checkRootDescendantNode(serviceBuilderObjectEntry, false);
 
 		return _toObjectEntry(
 			dtoConverterContext, objectDefinition, serviceBuilderObjectEntry,

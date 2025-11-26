@@ -48,6 +48,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.liferay.subscription.model.Subscription;
+import com.liferay.subscription.service.SubscriptionLocalService;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -129,13 +131,23 @@ public class UserNotificationType extends BaseNotificationType {
 		NotificationRecipient notificationRecipient =
 			notificationTemplate.getNotificationRecipient();
 
-		for (User user :
-				usersProvider.provide(
-					notificationContext,
-					TransformUtil.unsafeTransform(
-						notificationRecipient.
-							getNotificationRecipientSettings(),
-						NotificationRecipientSettingModel::getValue))) {
+
+		List<User> recipients = usersProvider.provide(
+			notificationContext,
+			TransformUtil.unsafeTransform(
+				notificationRecipient.
+					getNotificationRecipientSettings(),
+				NotificationRecipientSettingModel::getValue));
+
+		List<Subscription> subscriptions =
+			_subscriptionLocalService.getSubscriptions(
+				notificationContext.getCompanyId(), notificationContext.getClassName(), notificationContext.getClassPK());
+
+		for (Subscription subscription : subscriptions) {
+			recipients.add(userLocalService.getUser(subscription.getUserId()));
+		}
+
+		for (User user : recipients) {
 
 			boolean deliver = UserNotificationManagerUtil.isDeliver(
 				user.getUserId(), notificationContext.getPortletId(),
@@ -243,6 +255,9 @@ public class UserNotificationType extends BaseNotificationType {
 	@Reference
 	private UserNotificationEventLocalService
 		_userNotificationEventLocalService;
+
+	@Reference
+	private SubscriptionLocalService _subscriptionLocalService;
 
 	private final Map<String, UsersProvider> _usersProviders = new HashMap<>();
 
