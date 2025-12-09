@@ -106,6 +106,9 @@ public class CMSSiteInitializerFDSNames {
 	public static final String VIEW_HISTORY =
 		CMSSiteInitializerConstants.BUNDLE_SYMBOLIC_NAME + "-viewHistory";
 
+	public static final String CMP_PROJECT =
+		CMSSiteInitializerConstants.BUNDLE_SYMBOLIC_NAME + "-cmp-project";
+
 	public static final String VOCABULARIES =
 		CMSSiteInitializerConstants.BUNDLE_SYMBOLIC_NAME + "-vocabularies";
 
