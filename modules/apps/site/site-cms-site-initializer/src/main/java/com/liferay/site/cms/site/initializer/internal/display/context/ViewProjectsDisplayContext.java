@@ -9,9 +9,11 @@ import com.liferay.frontend.data.set.model.FDSActionDropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenuBuilder;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
+import com.liferay.object.constants.ObjectEntryFolderConstants;
 import com.liferay.object.constants.ObjectFolderConstants;
 import com.liferay.object.constants.ObjectPortletKeys;
 import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
@@ -25,6 +27,7 @@ import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.portlet.url.builder.ResourceURLBuilder;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.site.cms.site.initializer.internal.util.ActionUtil;
@@ -41,21 +44,25 @@ import java.util.Map;
  */
 public class ViewProjectsDisplayContext {
 
-	public ViewProjectsDisplayContext(HttpServletRequest httpServletRequest) {
+	public ViewProjectsDisplayContext(HttpServletRequest httpServletRequest, ObjectDefinitionLocalService objectDefinitionLocalService) {
 		_httpServletRequest = httpServletRequest;
+		_objectDefinitionLocalService = objectDefinitionLocalService;
 
 		_themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
 	}
 
-	public String getAPIURL() {
+	public String getAPIURL() throws PortalException {
 
+		//		return "/o/cmp/projects/scopes/37017";
 
-//		return "/o/cmp/projects/scopes/37017";
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.getObjectDefinition(
+				_themeDisplay.getCompanyId(), "CMPProject");
 
 		return StringBundler.concat(
 			"/o/search/v1.0/search?emptySearch=true&",
-			"filter=(objectDefinitionId eq 33196",
+			"filter=(objectDefinitionId eq ", objectDefinition.getObjectDefinitionId(),
 			")&nestedFields=embedded");
 	}
 
@@ -76,27 +83,16 @@ public class ViewProjectsDisplayContext {
 	}
 
 	public CreationMenu getCreationMenu() {
+
+		DropdownItem structuredContentDropdownItem =
+			ActionUtil.getStructuredContentDropdownItem(
+				_httpServletRequest, "forms", "project",
+				"L_CMP_PROJECT", "L_CONTENTS");
+
 		return CreationMenuBuilder.addPrimaryDropdownItem(
-			dropdownItem -> {
-				dropdownItem.setHref(
-					ActionUtil.getBaseStructureBuilderURL(_themeDisplay) +
-						"?objectFolderExternalReferenceCode=" +
-							ObjectFolderConstants.
-								EXTERNAL_REFERENCE_CODE_CONTENT_STRUCTURES);
-				dropdownItem.setLabel(
-					LanguageUtil.get(_httpServletRequest, "content"));
-			}
-		).addPrimaryDropdownItem(
-			dropdownItem -> {
-				dropdownItem.setHref(
-					ActionUtil.getBaseStructureBuilderURL(_themeDisplay) +
-						"?objectFolderExternalReferenceCode=" +
-							ObjectFolderConstants.
-								EXTERNAL_REFERENCE_CODE_FILE_TYPES);
-				dropdownItem.setLabel(
-					LanguageUtil.get(_httpServletRequest, "file"));
-			}
+			structuredContentDropdownItem
 		).build();
+
 	}
 
 	public List<FDSActionDropdownItem> getFDSActionDropdownItems()
@@ -202,6 +198,8 @@ public class ViewProjectsDisplayContext {
 
 		return layout.getName(_themeDisplay.getLocale(), true);
 	}
+
+	private final ObjectDefinitionLocalService _objectDefinitionLocalService;
 
 	private final HttpServletRequest _httpServletRequest;
 	private final ThemeDisplay _themeDisplay;
