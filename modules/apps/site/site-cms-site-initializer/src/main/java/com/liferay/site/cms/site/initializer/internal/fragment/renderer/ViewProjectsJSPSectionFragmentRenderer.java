@@ -5,11 +5,15 @@
 
 package com.liferay.site.cms.site.initializer.internal.fragment.renderer;
 
+import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.fragment.renderer.FragmentRenderer;
+import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.site.cms.site.initializer.internal.display.context.ViewProjectsDisplayContext;
 import com.liferay.site.cms.site.initializer.internal.display.context.ViewStructuresDisplayContext;
 import jakarta.servlet.http.HttpServletRequest;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Sam Ziemer
@@ -32,12 +36,15 @@ public class ViewProjectsJSPSectionFragmentRenderer
 	protected ViewProjectsDisplayContext getDisplayContext(
 		HttpServletRequest httpServletRequest) {
 
-		return new ViewProjectsDisplayContext(httpServletRequest);
+		return new ViewProjectsDisplayContext(httpServletRequest, _objectDefinitionLocalService);
 	}
 
 	@Override
 	protected String getJSPPath() {
 		return "/view_projects.jsp";
 	}
+
+	@Reference
+	private ObjectDefinitionLocalService _objectDefinitionLocalService;
 
 }
