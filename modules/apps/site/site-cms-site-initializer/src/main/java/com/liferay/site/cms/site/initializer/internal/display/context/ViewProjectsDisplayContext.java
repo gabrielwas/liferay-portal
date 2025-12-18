@@ -8,15 +8,10 @@ package com.liferay.site.cms.site.initializer.internal.display.context;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.document.library.configuration.DLConfiguration;
 import com.liferay.frontend.data.set.model.FDSActionDropdownItem;
-import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
-import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenuBuilder;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItemBuilder;
 import com.liferay.headless.asset.library.dto.v1_0.AssetLibrary;
 import com.liferay.headless.asset.library.resource.v1_0.AssetLibraryResource;
-import com.liferay.object.constants.ObjectEntryFolderConstants;
-import com.liferay.object.constants.ObjectFolderConstants;
-import com.liferay.object.constants.ObjectPortletKeys;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntryFolder;
 import com.liferay.object.service.ObjectDefinitionLocalService;
@@ -31,23 +26,13 @@ import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
-import com.liferay.portal.kernel.portlet.LiferayWindowState;
-import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
-import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
-import com.liferay.portal.kernel.portlet.url.builder.ResourceURLBuilder;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
-import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
-import com.liferay.portal.kernel.util.PortalUtil;
-import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
-import com.liferay.site.cms.site.initializer.internal.util.ActionUtil;
-import jakarta.portlet.ActionRequest;
-import jakarta.portlet.PortletRequest;
+
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.ArrayList;
@@ -79,25 +64,8 @@ public class ViewProjectsDisplayContext extends BaseSectionDisplayContext {
 			objectDefinitionSettingLocalService,
 			objectEntryFolderModelResourcePermission, portal);
 
-		_objectDefinitionLocalService = objectDefinitionLocalService;
-
 		_assetLibraryResourceFactory = assetLibraryResourceFactory;
-	}
-
-	private final AssetLibraryResource.Factory _assetLibraryResourceFactory;
-
-	@Override
-	protected String getCMSSectionFilterString() {
-
-		try {
-			ObjectDefinition objectDefinition = _objectDefinitionLocalService.getObjectDefinition(
-				themeDisplay.getCompanyId(), "CMPProject");
-
-			return StringBundler.concat("objectDefinitionId eq ", objectDefinition.getObjectDefinitionId());
-		}
-		catch (PortalException e) {
-			throw new RuntimeException(e);
-		}
+		_objectDefinitionLocalService = objectDefinitionLocalService;
 	}
 
 	public Map<String, Object> getBreadcrumbProps() throws PortalException {
@@ -117,6 +85,68 @@ public class ViewProjectsDisplayContext extends BaseSectionDisplayContext {
 	}
 
 	@Override
+	public List<DropdownItem> getCreationMenuDropdownItems() {
+		try {
+			ObjectDefinition objectDefinition =
+				_objectDefinitionLocalService.getObjectDefinition(
+					themeDisplay.getCompanyId(), "CMPProject");
+
+			AssetLibraryResource.Builder builder =
+				_assetLibraryResourceFactory.create();
+
+			AssetLibraryResource assetLibraryResource = builder.user(
+				themeDisplay.getUser()
+			).build();
+
+			Page<AssetLibrary> assetLibrariesPage =
+				assetLibraryResource.getAssetLibrariesPage(
+					null, null,
+					assetLibraryResource.toFilter("type eq 'Space'"),
+					Pagination.of(1, 5), null);
+
+			Collection<AssetLibrary> items = assetLibrariesPage.getItems();
+
+			AssetLibrary assetLibrary = items.stream(
+			).findFirst(
+			).orElse(
+				null
+			);
+
+			Long id = assetLibrary.getId();
+
+			//			ActionUtil.getStructuredContentDropdownItem(
+			//				httpServletRequest, "forms", "project",
+			//				"L_CMP_PROJECT", "")
+
+			return new ArrayList<>(
+				List.of(
+					DropdownItemBuilder.putData(
+						"objectDefinitionId",
+						String.valueOf(objectDefinition.getObjectDefinitionId())
+					).putData(
+						"action", "createAsset"
+					).setHref(
+						StringBundler.concat(
+							themeDisplay.getPortalURL(),
+							themeDisplay.getPathMain(),
+							GroupConstants.CMS_FRIENDLY_URL,
+							"/add_structured_content_item?objectDefinitionId=",
+							objectDefinition.getObjectDefinitionId(),
+							"&objectEntryFolderExternalReferenceCode=", "",
+							"&plid=", themeDisplay.getPlid(), "&redirect=",
+							themeDisplay.getURLCurrent(), "&groupId=37013")
+					).setIcon(
+						"forms"
+					).setLabel(
+						LanguageUtil.get(httpServletRequest, "project")
+					).build()));
+		}
+		catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	@Override
 	public Map<String, Object> getEmptyState() {
 		return HashMapBuilder.<String, Object>put(
 			"description", ""
@@ -129,59 +159,23 @@ public class ViewProjectsDisplayContext extends BaseSectionDisplayContext {
 
 	@Override
 	public List<FDSActionDropdownItem> getFDSActionDropdownItems() {
-
 		return Collections.emptyList();
-
 	}
 
 	@Override
-	public List<DropdownItem> getCreationMenuDropdownItems() {
-
+	protected String getCMSSectionFilterString() {
 		try {
-			ObjectDefinition objectDefinition = _objectDefinitionLocalService.getObjectDefinition(
-				themeDisplay.getCompanyId(), "CMPProject");
+			ObjectDefinition objectDefinition =
+				_objectDefinitionLocalService.getObjectDefinition(
+					themeDisplay.getCompanyId(), "CMPProject");
 
-			AssetLibraryResource.Builder builder =
-				_assetLibraryResourceFactory.create();
-
-			AssetLibraryResource assetLibraryResource = builder.user(
-				themeDisplay.getUser()
-			).build();
-
-			Page<AssetLibrary> assetLibrariesPage =
-				assetLibraryResource.getAssetLibrariesPage(
-					null, null, assetLibraryResource.toFilter("type eq 'Space'"),
-					Pagination.of(1, 5), null);
-
-			Collection<AssetLibrary> items = assetLibrariesPage.getItems();
-
-			AssetLibrary assetLibrary = items.stream().findFirst().orElse(null);
-
-			Long id = assetLibrary.getId();
-
-//			ActionUtil.getStructuredContentDropdownItem(
-//				httpServletRequest, "forms", "project",
-//				"L_CMP_PROJECT", "")
-
-			return new ArrayList<>(
-				List.of(
-					DropdownItemBuilder.putData("objectDefinitionId",
-						String.valueOf(objectDefinition.getObjectDefinitionId())).putData("action", "createAsset").setHref(StringBundler.concat(
-						themeDisplay.getPortalURL(), themeDisplay.getPathMain(),
-						GroupConstants.CMS_FRIENDLY_URL,
-						"/add_structured_content_item?objectDefinitionId=",
-						objectDefinition.getObjectDefinitionId(),
-						"&objectEntryFolderExternalReferenceCode=",
-						"", "&plid=",
-						themeDisplay.getPlid(), "&redirect=",
-						themeDisplay.getURLCurrent(), "&groupId=37013")).setIcon("forms").setLabel(LanguageUtil.get(httpServletRequest, "project")
-					).build()
-				));
+			return StringBundler.concat(
+				"objectDefinitionId eq ",
+				objectDefinition.getObjectDefinitionId());
 		}
-		catch (Exception e) {
+		catch (PortalException e) {
 			throw new RuntimeException(e);
 		}
-
 	}
 
 	private void _addBreadcrumbItem(
@@ -207,7 +201,7 @@ public class ViewProjectsDisplayContext extends BaseSectionDisplayContext {
 		return layout.getName(themeDisplay.getLocale(), true);
 	}
 
+	private final AssetLibraryResource.Factory _assetLibraryResourceFactory;
 	private final ObjectDefinitionLocalService _objectDefinitionLocalService;
-
 
 }

@@ -43,6 +43,9 @@ public class CMSSiteInitializerFDSNames {
 	public static final String CATEGORY_USAGES =
 		CMSSiteInitializerConstants.BUNDLE_SYMBOLIC_NAME + "-categoryUsages";
 
+	public static final String CMP_PROJECT =
+		CMSSiteInitializerConstants.BUNDLE_SYMBOLIC_NAME + "-cmp-project";
+
 	public static final String CONTENTS_SECTION =
 		CMSSiteInitializerConstants.BUNDLE_SYMBOLIC_NAME + "-contentsSection";
 
@@ -105,9 +108,6 @@ public class CMSSiteInitializerFDSNames {
 
 	public static final String VIEW_HISTORY =
 		CMSSiteInitializerConstants.BUNDLE_SYMBOLIC_NAME + "-viewHistory";
-
-	public static final String CMP_PROJECT =
-		CMSSiteInitializerConstants.BUNDLE_SYMBOLIC_NAME + "-cmp-project";
 
 	public static final String VOCABULARIES =
 		CMSSiteInitializerConstants.BUNDLE_SYMBOLIC_NAME + "-vocabularies";
