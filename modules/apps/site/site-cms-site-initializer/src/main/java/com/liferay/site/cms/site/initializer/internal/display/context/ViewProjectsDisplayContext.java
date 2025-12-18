@@ -20,6 +20,7 @@ import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.LanguageUtil;
+import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.portlet.LiferayWindowState;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
@@ -44,9 +45,10 @@ import java.util.Map;
  */
 public class ViewProjectsDisplayContext {
 
-	public ViewProjectsDisplayContext(HttpServletRequest httpServletRequest, ObjectDefinitionLocalService objectDefinitionLocalService) {
+	public ViewProjectsDisplayContext(long groupId, HttpServletRequest httpServletRequest, ObjectDefinitionLocalService objectDefinitionLocalService) {
 		_httpServletRequest = httpServletRequest;
 		_objectDefinitionLocalService = objectDefinitionLocalService;
+		_groupId = groupId;
 
 		_themeDisplay = (ThemeDisplay)httpServletRequest.getAttribute(
 			WebKeys.THEME_DISPLAY);
@@ -84,14 +86,49 @@ public class ViewProjectsDisplayContext {
 
 	public CreationMenu getCreationMenu() {
 
-		DropdownItem structuredContentDropdownItem =
-			ActionUtil.getStructuredContentDropdownItem(
-				_httpServletRequest, "forms", "project",
-				"L_CMP_PROJECT", "L_CONTENTS");
+		String concat = StringBundler.concat(
+			_themeDisplay.getPathFriendlyURLPublic(),
+			GroupConstants.CMS_FRIENDLY_URL, "/new-space?backURL=",
+			_themeDisplay.getURLCurrent());
 
-		return CreationMenuBuilder.addPrimaryDropdownItem(
-			structuredContentDropdownItem
-		).build();
+		try {
+			ObjectDefinition objectDefinition = _objectDefinitionLocalService.getObjectDefinition(
+				_themeDisplay.getCompanyId(), "CMPProject");
+
+			return CreationMenuBuilder.addPrimaryDropdownItem(
+				dropdownItem -> {
+					dropdownItem.setHref(
+						StringBundler.concat(
+							_themeDisplay.getPortalURL(), _themeDisplay.getPathMain(),
+							GroupConstants.CMS_FRIENDLY_URL,
+							"/add_structured_content_item?objectDefinitionId=",
+							objectDefinition.getObjectDefinitionId(),
+							"&objectEntryFolderExternalReferenceCode=",
+							"", "&plid=",
+							_themeDisplay.getPlid(), "&redirect=",
+							_themeDisplay.getURLCurrent()));
+					dropdownItem.setIcon("forms");
+					dropdownItem.putData("groupId", _groupId);
+					dropdownItem.setLabel( LanguageUtil.get(_httpServletRequest, "project"));
+				}
+			).build();
+
+		}
+		catch (PortalException e) {
+			throw new RuntimeException(e);
+		}
+
+
+
+
+//		DropdownItem structuredContentDropdownItem =
+//			ActionUtil.getStructuredContentDropdownItem(
+//				_httpServletRequest, "forms", "project",
+//				"L_CMP_PROJECT", "L_CONTENTS");
+//
+//		return CreationMenuBuilder.addPrimaryDropdownItem(
+//			structuredContentDropdownItem
+//		).build();
 
 	}
 
@@ -203,5 +240,7 @@ public class ViewProjectsDisplayContext {
 
 	private final HttpServletRequest _httpServletRequest;
 	private final ThemeDisplay _themeDisplay;
+
+	private final long _groupId;
 
 }

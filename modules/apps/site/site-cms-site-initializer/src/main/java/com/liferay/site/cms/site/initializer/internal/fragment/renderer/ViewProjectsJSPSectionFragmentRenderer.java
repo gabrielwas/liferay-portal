@@ -9,8 +9,10 @@ import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.fragment.renderer.FragmentRenderer;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.service.ObjectDefinitionLocalService;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.site.cms.site.initializer.internal.display.context.ViewProjectsDisplayContext;
 import com.liferay.site.cms.site.initializer.internal.display.context.ViewStructuresDisplayContext;
+import com.liferay.site.cms.site.initializer.internal.util.InfoItemUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -36,7 +38,11 @@ public class ViewProjectsJSPSectionFragmentRenderer
 	protected ViewProjectsDisplayContext getDisplayContext(
 		HttpServletRequest httpServletRequest) {
 
-		return new ViewProjectsDisplayContext(httpServletRequest, _objectDefinitionLocalService);
+		long groupId = InfoItemUtil.getGroupId(httpServletRequest);
+
+		//Group group = _groupService.getGroup(groupId);
+
+		return new ViewProjectsDisplayContext(groupId, httpServletRequest, _objectDefinitionLocalService);
 	}
 
 	@Override
