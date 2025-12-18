@@ -87,23 +87,17 @@ public class ViewProjectsDisplayContext extends BaseSectionDisplayContext {
 	private final AssetLibraryResource.Factory _assetLibraryResourceFactory;
 
 	@Override
-	public String getAPIURL(){
-
-		//		return "/o/cmp/projects/scopes/37017";
+	protected String getCMSSectionFilterString() {
 
 		try {
 			ObjectDefinition objectDefinition = _objectDefinitionLocalService.getObjectDefinition(
 				themeDisplay.getCompanyId(), "CMPProject");
 
-			return StringBundler.concat(
-				"/o/search/v1.0/search?emptySearch=true&",
-				"filter=(objectDefinitionId eq ", objectDefinition.getObjectDefinitionId(),
-				")&nestedFields=embedded");
+			return StringBundler.concat("objectDefinitionId eq ", objectDefinition.getObjectDefinitionId());
 		}
 		catch (PortalException e) {
 			throw new RuntimeException(e);
 		}
-
 	}
 
 	public Map<String, Object> getBreadcrumbProps() throws PortalException {
@@ -121,54 +115,6 @@ public class ViewProjectsDisplayContext extends BaseSectionDisplayContext {
 	public List<DropdownItem> getBulkActionDropdownItems() {
 		return Collections.emptyList();
 	}
-
-//	@Override
-//	public CreationMenu getCreationMenu() {
-//
-//		String concat = StringBundler.concat(
-//			themeDisplay.getPathFriendlyURLPublic(),
-//			GroupConstants.CMS_FRIENDLY_URL, "/new-space?backURL=",
-//			themeDisplay.getURLCurrent());
-////
-////		try {
-////			ObjectDefinition objectDefinition = _objectDefinitionLocalService.getObjectDefinition(
-////				themeDisplay.getCompanyId(), "CMPProject");
-////
-////
-////			;
-////
-////			return CreationMenuBuilder.addPrimaryDropdownItem(
-////				dropdownItem -> {
-////					dropdownItem.setHref(
-////						StringBundler.concat(
-////							themeDisplay.getPortalURL(), themeDisplay.getPathMain(),
-////							GroupConstants.CMS_FRIENDLY_URL,
-////							"/add_structured_content_item?objectDefinitionId=",
-////							objectDefinition.getObjectDefinitionId(),
-////							"&objectEntryFolderExternalReferenceCode=",
-////							"", "&plid=",
-////							themeDisplay.getPlid(), "&redirect=",
-////							themeDisplay.getURLCurrent()));
-////					dropdownItem.setIcon("forms");
-////					dropdownItem.setLabel( LanguageUtil.get(httpServletRequest, "project"));
-////				}
-////			).build();
-////
-////		}
-////		catch (PortalException e) {
-////			throw new RuntimeException(e);
-////		}
-////
-////		DropdownItem structuredContentDropdownItem =
-////			ActionUtil.getStructuredContentDropdownItem(
-////				httpServletRequest, "forms", "project",
-////				"L_CMP_PROJECT", "");
-////
-////		return CreationMenuBuilder.addPrimaryDropdownItem(
-////			structuredContentDropdownItem
-////		).build();
-//
-//	}
 
 	@Override
 	public Map<String, Object> getEmptyState() {
@@ -213,11 +159,12 @@ public class ViewProjectsDisplayContext extends BaseSectionDisplayContext {
 
 			Long id = assetLibrary.getId();
 
+//			ActionUtil.getStructuredContentDropdownItem(
+//				httpServletRequest, "forms", "project",
+//				"L_CMP_PROJECT", "")
+
 			return new ArrayList<>(
 				List.of(
-					ActionUtil.getStructuredContentDropdownItem(
-						httpServletRequest, "forms", "project",
-						"L_CMP_PROJECT", ""),
 					DropdownItemBuilder.putData("objectDefinitionId",
 						String.valueOf(objectDefinition.getObjectDefinitionId())).putData("action", "createAsset").setHref(StringBundler.concat(
 						themeDisplay.getPortalURL(), themeDisplay.getPathMain(),
@@ -235,11 +182,6 @@ public class ViewProjectsDisplayContext extends BaseSectionDisplayContext {
 			throw new RuntimeException(e);
 		}
 
-	}
-
-	@Override
-	protected String getCMSSectionFilterString() {
-		return null;
 	}
 
 	private void _addBreadcrumbItem(
