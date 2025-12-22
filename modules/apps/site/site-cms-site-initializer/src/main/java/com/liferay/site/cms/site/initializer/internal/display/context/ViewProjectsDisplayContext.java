@@ -112,8 +112,7 @@ public class ViewProjectsDisplayContext extends BaseSectionDisplayContext {
 				null
 			);
 
-			Long id = assetLibrary.getId();
-
+			//TODO: It should work using this, but it doesn't
 			//			ActionUtil.getStructuredContentDropdownItem(
 			//				httpServletRequest, "forms", "project",
 			//				"L_CMP_PROJECT", "")
@@ -134,7 +133,7 @@ public class ViewProjectsDisplayContext extends BaseSectionDisplayContext {
 							objectDefinition.getObjectDefinitionId(),
 							"&objectEntryFolderExternalReferenceCode=", "",
 							"&plid=", themeDisplay.getPlid(), "&redirect=",
-							themeDisplay.getURLCurrent(), "&groupId=37013")
+							themeDisplay.getURLCurrent(), "&groupId=", assetLibrary.getSiteId())
 					).setIcon(
 						"forms"
 					).setLabel(
