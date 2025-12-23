@@ -45,7 +45,7 @@ public class ViewProjectsJSPSectionFragmentRenderer
 		HttpServletRequest httpServletRequest) {
 
 		return new ViewProjectsDisplayContext(
-			_assetLibraryResourceFactory, _depotEntryLocalService,
+			_depotEntryLocalService,
 			_dlConfiguration, groupLocalService, httpServletRequest, language,
 			_objectDefinitionLocalService, _objectDefinitionService,
 			_objectDefinitionSettingLocalService,
