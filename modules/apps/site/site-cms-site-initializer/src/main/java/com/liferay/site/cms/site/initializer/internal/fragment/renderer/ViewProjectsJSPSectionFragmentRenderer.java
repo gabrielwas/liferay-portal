@@ -17,6 +17,7 @@ import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermi
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.site.cms.site.initializer.internal.display.context.ViewProjectsDisplayContext;
 
+import com.liferay.translation.exporter.TranslationInfoItemFieldValuesExporterRegistry;
 import jakarta.servlet.http.HttpServletRequest;
 
 import org.osgi.service.component.annotations.Component;
@@ -48,8 +49,12 @@ public class ViewProjectsJSPSectionFragmentRenderer
 			_dlConfiguration, groupLocalService, httpServletRequest, language,
 			_objectDefinitionLocalService, _objectDefinitionService,
 			_objectDefinitionSettingLocalService,
-			_objectEntryFolderModelResourcePermission, _portal);
+			_objectEntryFolderModelResourcePermission, _portal, _translationInfoItemFieldValuesExporterRegistry);
 	}
+
+	@Reference
+	private TranslationInfoItemFieldValuesExporterRegistry
+		_translationInfoItemFieldValuesExporterRegistry;
 
 	@Override
 	protected String getJSPPath() {
