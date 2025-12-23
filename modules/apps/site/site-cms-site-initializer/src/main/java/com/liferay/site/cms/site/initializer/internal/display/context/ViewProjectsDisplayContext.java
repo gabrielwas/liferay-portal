@@ -5,6 +5,7 @@
 
 package com.liferay.site.cms.site.initializer.internal.display.context;
 
+import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.document.library.configuration.DLConfiguration;
 import com.liferay.frontend.data.set.model.FDSActionDropdownItem;
@@ -33,6 +34,7 @@ import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
 
+import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.ArrayList;
@@ -47,7 +49,6 @@ import java.util.Map;
 public class ViewProjectsDisplayContext extends BaseSectionDisplayContext {
 
 	public ViewProjectsDisplayContext(
-		AssetLibraryResource.Factory assetLibraryResourceFactory,
 		DepotEntryLocalService depotEntryLocalService,
 		DLConfiguration dlConfiguration, GroupLocalService groupLocalService,
 		HttpServletRequest httpServletRequest, Language language,
@@ -64,7 +65,6 @@ public class ViewProjectsDisplayContext extends BaseSectionDisplayContext {
 			objectDefinitionSettingLocalService,
 			objectEntryFolderModelResourcePermission, portal);
 
-		_assetLibraryResourceFactory = assetLibraryResourceFactory;
 		_objectDefinitionLocalService = objectDefinitionLocalService;
 	}
 
@@ -91,27 +91,6 @@ public class ViewProjectsDisplayContext extends BaseSectionDisplayContext {
 				_objectDefinitionLocalService.getObjectDefinition(
 					themeDisplay.getCompanyId(), "CMPProject");
 
-			AssetLibraryResource.Builder builder =
-				_assetLibraryResourceFactory.create();
-
-			AssetLibraryResource assetLibraryResource = builder.user(
-				themeDisplay.getUser()
-			).build();
-
-			Page<AssetLibrary> assetLibrariesPage =
-				assetLibraryResource.getAssetLibrariesPage(
-					null, null,
-					assetLibraryResource.toFilter("type eq 'Space'"),
-					Pagination.of(1, 5), null);
-
-			Collection<AssetLibrary> items = assetLibrariesPage.getItems();
-
-			AssetLibrary assetLibrary = items.stream(
-			).findFirst(
-			).orElse(
-				null
-			);
-
 			//TODO: It should work using this, but it doesn't
 			//			ActionUtil.getStructuredContentDropdownItem(
 			//				httpServletRequest, "forms", "project",
@@ -129,11 +108,11 @@ public class ViewProjectsDisplayContext extends BaseSectionDisplayContext {
 							themeDisplay.getPortalURL(),
 							themeDisplay.getPathMain(),
 							GroupConstants.CMS_FRIENDLY_URL,
-							"/add_structured_content_item?objectDefinitionId=",
+							"/add_project?objectDefinitionId=",
 							objectDefinition.getObjectDefinitionId(),
 							"&objectEntryFolderExternalReferenceCode=", "",
 							"&plid=", themeDisplay.getPlid(), "&redirect=",
-							themeDisplay.getURLCurrent(), "&groupId=", assetLibrary.getSiteId())
+							themeDisplay.getURLCurrent())
 					).setIcon(
 						"forms"
 					).setLabel(
@@ -200,7 +179,6 @@ public class ViewProjectsDisplayContext extends BaseSectionDisplayContext {
 		return layout.getName(themeDisplay.getLocale(), true);
 	}
 
-	private final AssetLibraryResource.Factory _assetLibraryResourceFactory;
 	private final ObjectDefinitionLocalService _objectDefinitionLocalService;
 
 }
