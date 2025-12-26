@@ -994,54 +994,6 @@
 				}
 			],
 			"objectFolderExternalReferenceCode": "default",
-			"objectRelationships": [
-				{
-					"deletionType": "prevent",
-					"edge": false,
-					"externalReferenceCode": "L_CMP_PROJECT_TO_L_CMP_TASK",
-					"label": {
-						"en_US": "CMP Project to CMP Task"
-					},
-					"name": "cmpProjectToCMPTask",
-					"objectDefinitionExternalReferenceCode1": "L_CMP_PROJECT",
-					"objectDefinitionExternalReferenceCode2": "L_CMP_TASK",
-					"objectDefinitionModifiable2": true,
-					"objectDefinitionName2": "CMPTask",
-					"objectDefinitionScope2": "depot",
-					"objectDefinitionSystem2": true,
-					"objectField": {
-						"DBType": "Long",
-						"businessType": "Relationship",
-						"externalReferenceCode": "CMP_PROJECT_TO_CMP_TASK",
-						"indexed": true,
-						"indexedAsKeyword": false,
-						"label": {
-							"en_US": "CMP Project to CMP Task"
-						},
-						"name": "r_cmpProjectToCMPTask_c_cmpProjectId",
-						"objectFieldSettings": [
-							{
-								"name": "objectDefinition1ShortName",
-								"value": "CMPProject"
-							},
-							{
-								"name": "objectRelationshipERCObjectFieldName",
-								"value": "r_cmpProjectToCMPTask_c_cmpProjectERC"
-							}
-						],
-						"relationshipType": "oneToMany",
-						"required": false,
-						"state": false,
-						"system": true,
-						"type": "Long"
-					},
-					"parameterObjectFieldId": 0,
-					"parameterObjectFieldName": "",
-					"reverse": false,
-					"system": true,
-					"type": "oneToMany"
-				}
-			],
 			"panelCategoryKey": "",
 			"parameterRequired": false,
 			"pluralLabel": { "en_US": "CMP Projects" },
