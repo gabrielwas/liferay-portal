@@ -6,6 +6,7 @@
 package com.liferay.site.cms.site.initializer.internal.display.context;
 
 import com.liferay.depot.constants.DepotConstants;
+import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.document.library.configuration.DLConfiguration;
 import com.liferay.frontend.data.set.model.FDSActionDropdownItem;
@@ -19,6 +20,7 @@ import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectDefinitionService;
 import com.liferay.object.service.ObjectDefinitionSettingLocalService;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
@@ -30,9 +32,12 @@ import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.pagination.Pagination;
+import com.liferay.site.cms.site.initializer.internal.util.ActionUtil;
 import com.liferay.translation.exporter.TranslationInfoItemFieldValuesExporterRegistry;
 
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
@@ -139,7 +144,26 @@ public class ViewProjectsDisplayContext extends BaseSectionDisplayContext {
 
 	@Override
 	public List<FDSActionDropdownItem> getFDSActionDropdownItems() {
-		return Collections.emptyList();
+
+		try {
+			ObjectDefinition objectDefinition =
+				_objectDefinitionLocalService.getObjectDefinition(
+					themeDisplay.getCompanyId(), "CMPProject");
+
+			return ListUtil.fromArray(
+				new FDSActionDropdownItem(
+					StringBundler.concat(
+						themeDisplay.getPathFriendlyURLPublic(),
+						GroupConstants.CMS_FRIENDLY_URL, "/e/project/",
+						PortalUtil.getClassNameId(objectDefinition.getClassName()), StringPool.SLASH, "{embedded.id}"),
+					"cog", "edit",
+					LanguageUtil.get(httpServletRequest, "project"), "get",
+					"update", null)
+			);
+		}
+		catch (PortalException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override

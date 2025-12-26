@@ -21,10 +21,14 @@ import com.liferay.object.rest.dto.v1_0.Status;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManagerRegistry;
 import com.liferay.object.service.ObjectDefinitionService;
+import com.liferay.petra.string.StringBundler;
+import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.security.RandomUtil;
 import com.liferay.portal.kernel.struts.StrutsAction;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ParamUtil;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -118,12 +122,10 @@ public class AddProjectStrutsAction implements StrutsAction {
 			String.valueOf(assetLibrary1.getSiteId()));
 
 		httpServletResponse.sendRedirect(
-			ActionUtil.getEditURL(
-				_formManager, _fragmentEntryLinkListenerRegistry,
-				_fragmentEntryLinkService, _fragmentRendererRegistry,
-				httpServletRequest, String.valueOf(objectEntry.getId()),
-				_infoItemServiceRegistry, _infoSearchClassMapperRegistry,
-				objectDefinition));
+			StringBundler.concat(
+				themeDisplay.getPathFriendlyURLPublic(),
+				GroupConstants.CMS_FRIENDLY_URL, "/e/edit-project/",
+				PortalUtil.getClassNameId(objectDefinition.getClassName()), StringPool.SLASH, objectEntry.getId()));
 
 		return null;
 	}

@@ -1,0 +1,132 @@
+{
+	"pageElement": {
+		"id": "d6afc8a4-237e-faad-85d7-e6ec7466700a",
+		"pageElements": [
+			{
+				"definition": {
+					"indexed": true,
+					"layout": {}
+				},
+				"id": "738e68f7-2dc2-a708-5f5e-94de0b2aea15",
+				"pageElements": [
+					{
+						"definition": {
+							"gutters": true,
+							"indexed": true,
+							"modulesPerRow": 2,
+							"numberOfColumns": 2,
+							"reverseOrder": false,
+							"rowViewports": [
+								{
+									"id": "landscapeMobile",
+									"rowViewportDefinition": { "modulesPerRow": 1 }
+								},
+								{ "id": "portraitMobile", "rowViewportDefinition": {} },
+								{ "id": "tablet", "rowViewportDefinition": {} }
+							],
+							"verticalAlignment": "top"
+						},
+						"id": "2713dff3-936e-7861-c929-df84ef7d67a7",
+						"pageElements": [
+							{
+								"definition": {
+									"columnViewports": [
+										{
+											"columnViewportDefinition": { "size": 12 },
+											"id": "landscapeMobile"
+										},
+										{ "columnViewportDefinition": {}, "id": "portraitMobile" },
+										{ "columnViewportDefinition": {}, "id": "tablet" }
+									],
+									"size": 6
+								},
+								"id": "cf9b3736-cb8e-5dc1-281b-fed3f8d4b699",
+								"pageElements": [
+									{
+										"definition": {
+											"fragment": { "key": "BASIC_COMPONENT-paragraph" },
+											"fragmentConfig": {},
+											"fragmentFields": [
+												{
+													"id": "element-text",
+													"value": {
+														"fragmentLink": {},
+														"text": {
+															"mapping": {
+																"fieldKey": "ObjectField_description",
+																"itemReference": {
+																	"contextSource": "DisplayPageItem"
+																}
+															}
+														}
+													}
+												}
+											],
+											"indexed": true
+										},
+										"id": "1f482538-ec1b-89e0-a14c-f776386ae7a1",
+										"type": "Fragment"
+									}
+								],
+								"type": "Column"
+							},
+							{
+								"definition": {
+									"columnViewports": [
+										{
+											"columnViewportDefinition": { "size": 12 },
+											"id": "landscapeMobile"
+										},
+										{ "columnViewportDefinition": {}, "id": "portraitMobile" },
+										{ "columnViewportDefinition": {}, "id": "tablet" }
+									],
+									"size": 6
+								},
+								"id": "588db951-485a-f790-f796-47d64371e14b",
+								"pageElements": [
+									{
+										"definition": {
+											"fragment": { "key": "BASIC_COMPONENT-heading" },
+											"fragmentConfig": { "headingLevel": "h1" },
+											"fragmentFields": [
+												{
+													"id": "element-text",
+													"value": {
+														"fragmentLink": {},
+														"text": {
+															"mapping": {
+																"fieldKey": "ObjectField_dueDate",
+																"itemReference": {
+																	"contextSource": "DisplayPageItem"
+																}
+															}
+														}
+													}
+												}
+											],
+											"indexed": true
+										},
+										"id": "cb906583-58e1-0d07-74c0-fe00cd5df5d3",
+										"type": "Fragment"
+									}
+								],
+								"type": "Column"
+							}
+						],
+						"type": "Row"
+					}
+				],
+				"type": "Section"
+			}
+		],
+		"type": "Root"
+	},
+	"settings": {
+		"colorSchemeName": "01",
+		"masterPage": {
+			"key": "cms-master"
+		},
+		"themeName": "CMS"
+	},
+	"version": 1.1
+}
