@@ -5,16 +5,22 @@
 
 package com.liferay.site.cms.site.initializer.internal.fragment.renderer;
 
+import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.document.library.configuration.DLConfiguration;
 import com.liferay.fragment.renderer.FragmentRenderer;
 import com.liferay.headless.asset.library.resource.v1_0.AssetLibraryResource;
+import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntryFolder;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectDefinitionService;
 import com.liferay.object.service.ObjectDefinitionSettingLocalService;
+import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
+import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.site.cms.site.initializer.internal.display.context.ViewTasksDisplayContext;
 import com.liferay.translation.exporter.TranslationInfoItemFieldValuesExporterRegistry;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,9 +46,11 @@ public class ViewTasksJSPSectionFragmentRenderer
 
 	@Override
 	protected ViewTasksDisplayContext getDisplayContext(
-		HttpServletRequest httpServletRequest) {
+		HttpServletRequest httpServletRequest) throws PortalException {
 
 		return new ViewTasksDisplayContext(
+			(AssetEntry) httpServletRequest.getAttribute(
+				WebKeys.LAYOUT_ASSET_ENTRY),
 			_depotEntryLocalService,
 			_dlConfiguration, groupLocalService, httpServletRequest, language,
 			_objectDefinitionLocalService, _objectDefinitionService,

@@ -5,6 +5,7 @@
 
 package com.liferay.site.cms.site.initializer.internal.display.context;
 
+import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.document.library.configuration.DLConfiguration;
 import com.liferay.frontend.data.set.model.FDSActionDropdownItem;
@@ -45,6 +46,7 @@ import java.util.Map;
 public class ViewTasksDisplayContext extends BaseSectionDisplayContext {
 
 	public ViewTasksDisplayContext(
+		AssetEntry assetEntry,
 		DepotEntryLocalService depotEntryLocalService,
 		DLConfiguration dlConfiguration, GroupLocalService groupLocalService,
 		HttpServletRequest httpServletRequest, Language language,
@@ -62,6 +64,7 @@ public class ViewTasksDisplayContext extends BaseSectionDisplayContext {
 			objectDefinitionSettingLocalService,
 			objectEntryFolderModelResourcePermission, portal, translationInfoItemFieldValuesExporterRegistry);
 
+		_assetEntry = assetEntry;
 		_objectDefinitionLocalService = objectDefinitionLocalService;
 	}
 
@@ -103,7 +106,7 @@ public class ViewTasksDisplayContext extends BaseSectionDisplayContext {
 							"/add_task?objectDefinitionId=",
 							objectDefinition.getObjectDefinitionId(),
 							"&objectEntryFolderExternalReferenceCode=", "",
-							"&plid=", themeDisplay.getPlid(), "&redirect=",
+							"&plid=", themeDisplay.getPlid(), "&projectGroupId=", _assetEntry.getGroupId(), "&redirect=",
 							themeDisplay.getURLCurrent())
 					).setIcon(
 						"forms"
@@ -189,6 +192,8 @@ public class ViewTasksDisplayContext extends BaseSectionDisplayContext {
 
 		return layout.getName(themeDisplay.getLocale(), true);
 	}
+
+	private final AssetEntry _assetEntry;
 
 	private final ObjectDefinitionLocalService _objectDefinitionLocalService;
 
