@@ -28,8 +28,6 @@ test(
 	'LPD-78504 Can trigger action with unmodifiable system object definition using client extension',
 	{tag: '@LPD-78504'},
 	async ({apiHelpers, editObjectActionPage, page, viewObjectActionsPage}) => {
-		// Corresponds to Poshi test: CanTriggerActionWithUnmodifiableSystemObjectDefinition
-
 		const notificationTemplate =
 			await apiHelpers.notification.postRandomNotificationTemplate(
 				'notificationTemplate' + getRandomInt()
@@ -40,11 +38,7 @@ test(
 			type: 'notificationTemplate',
 		});
 
-		// Navigate to a system object's actions page (User is an unmodifiable system object)
-
 		await viewObjectActionsPage.goto('User');
-
-		// Add a new action using notification type on the system object
 
 		await editObjectActionPage.addNewAction({
 			notificationTemplateName: notificationTemplate.name,
@@ -52,8 +46,6 @@ test(
 			whenOption: 'On After Add',
 		});
 
-		// Verify the action was created by checking it appears in the actions list
-
-		await expect(page.getByText('On After Add')).toBeVisible();
+		await expect(page.getByText('On After Add').first()).toBeVisible();
 	}
 );
