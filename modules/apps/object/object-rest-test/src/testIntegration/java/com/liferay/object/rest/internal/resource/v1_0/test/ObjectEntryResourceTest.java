@@ -192,6 +192,7 @@ import com.liferay.portal.kernel.util.PropsValues;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.SystemProperties;
 import com.liferay.portal.kernel.util.TempFileEntryUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.URLCodec;
@@ -227,6 +228,7 @@ import jakarta.ws.rs.container.ContainerResponseFilter;
 import jakarta.ws.rs.core.Feature;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.Serializable;
 
@@ -257,6 +259,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.hibernate.SessionFactory;
 
@@ -8561,6 +8565,101 @@ public class ObjectEntryResourceTest {
 			jsonObject.getLong("scopeId"),
 			jsonObject.getJSONArray("taxonomyCategoryBriefs"), true,
 			taxonomyCategory1, taxonomyCategory2);
+	}
+
+	@FeatureFlag("LPD-17564")
+	@Test
+	public void testGetObjectEntryTranslation()
+		throws Exception {
+
+		_objectEntry5 = ObjectEntryTestUtil.addObjectEntry(
+			_objectDefinition4,
+			HashMapBuilder.<String, Serializable>put(
+				_OBJECT_FIELD_NAME_LOCALIZED_TEXT, "text_english"
+			).put(
+				_OBJECT_FIELD_NAME_LOCALIZED_TEXT + "_i18n",
+				HashMapBuilder.<String, Serializable>put(
+					"en_US", "text_english"
+				).put(
+					"es_ES", "text_spanish"
+				).build()
+			).build());
+
+		File tempDir = new File(SystemProperties.get("java.io.tmpdir"));
+
+		File[] tempFilesBefore = tempDir.listFiles();
+
+		try (InputStream inputStream = HTTPTestUtil.invokeToInputStream(
+				null,
+				StringBundler.concat(
+					_objectDefinition4.getRESTContextPath(), StringPool.SLASH,
+					_objectEntry5.getObjectEntryId(),
+					"/translations?sourceLanguageId=en_US",
+					"&targetLanguageIds=es_ES"),
+				Http.Method.GET)) {
+
+			Assert.assertNotNull(inputStream);
+
+			try (ZipInputStream zipInputStream =
+					new ZipInputStream(inputStream)) {
+
+				ZipEntry zipEntry = zipInputStream.getNextEntry();
+
+				Assert.assertNotNull(zipEntry);
+				Assert.assertTrue(zipEntry.getName().endsWith(".xlf"));
+			}
+		}
+
+		File[] tempFilesAfter = tempDir.listFiles();
+
+		Assert.assertTrue(
+			"Temp files were not cleaned up after translation export",
+			tempFilesAfter.length <= tempFilesBefore.length);
+	}
+
+	@FeatureFlag("LPD-17564")
+	@Test
+	public void testGetObjectEntryTranslationLanguage()
+		throws Exception {
+
+		_objectEntry5 = ObjectEntryTestUtil.addObjectEntry(
+			_objectDefinition4,
+			HashMapBuilder.<String, Serializable>put(
+				_OBJECT_FIELD_NAME_LOCALIZED_TEXT, "text_english"
+			).put(
+				_OBJECT_FIELD_NAME_LOCALIZED_TEXT + "_i18n",
+				HashMapBuilder.<String, Serializable>put(
+					"en_US", "text_english"
+				).put(
+					"es_ES", "text_spanish"
+				).build()
+			).build());
+
+		File tempDir = new File(SystemProperties.get("java.io.tmpdir"));
+
+		File[] tempFilesBefore = tempDir.listFiles();
+
+		try (InputStream inputStream = HTTPTestUtil.invokeToInputStream(
+				null,
+				StringBundler.concat(
+					_objectDefinition4.getRESTContextPath(), StringPool.SLASH,
+					_objectEntry5.getObjectEntryId(),
+					"/translations/en_US?targetLanguageId=es_ES"),
+				Http.Method.GET)) {
+
+			Assert.assertNotNull(inputStream);
+
+			byte[] bytes = FileUtil.getBytes(inputStream);
+
+			Assert.assertTrue(
+				"Expected XLIFF content", bytes.length > 0);
+		}
+
+		File[] tempFilesAfter = tempDir.listFiles();
+
+		Assert.assertTrue(
+			"Temp files were not cleaned up after translation export",
+			tempFilesAfter.length <= tempFilesBefore.length);
 	}
 
 	@Test
