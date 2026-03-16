@@ -34,6 +34,7 @@ import com.liferay.object.tree.Node;
 import com.liferay.object.tree.ObjectDefinitionTreeFactory;
 import com.liferay.object.tree.Tree;
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.petra.io.StreamUtil;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -84,8 +85,10 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MultivaluedMap;
 import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.StreamingOutput;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.Serializable;
 
 import java.util.ArrayList;
@@ -663,8 +666,19 @@ public class ObjectEntryResourceImpl
 			contextAcceptLanguage.getPreferredLocale(), sourceLanguageId,
 			StringUtil.split(targetLanguageIds, CharPool.COMMA));
 
+		StreamingOutput streamingOutput = outputStream -> {
+			try (FileInputStream fileInputStream =
+					new FileInputStream(xliffZipFile)) {
+
+				StreamUtil.transfer(fileInputStream, outputStream);
+			}
+			finally {
+				_deleteTempFile(xliffZipFile);
+			}
+		};
+
 		return Response.ok(
-			xliffZipFile
+			streamingOutput
 		).header(
 			"content-disposition",
 			"attachment; filename=\"" + xliffZipFile.getName() + "\""
@@ -685,8 +699,19 @@ public class ObjectEntryResourceImpl
 			contextAcceptLanguage.getPreferredLocale(), languageId,
 			targetLanguageId);
 
+		StreamingOutput streamingOutput = outputStream -> {
+			try (FileInputStream fileInputStream =
+					new FileInputStream(xliffFile)) {
+
+				StreamUtil.transfer(fileInputStream, outputStream);
+			}
+			finally {
+				_deleteTempFile(xliffFile);
+			}
+		};
+
 		return Response.ok(
-			xliffFile
+			streamingOutput
 		).header(
 			"content-disposition",
 			"attachment; filename=\"" + xliffFile.getName() + "\""
@@ -1492,6 +1517,22 @@ public class ObjectEntryResourceImpl
 				_objectDefinition.getCompanyId(), "LPD-17564")) {
 
 			throw new UnsupportedOperationException();
+		}
+	}
+
+	private void _deleteTempFile(File file) {
+		if ((file != null) && file.exists()) {
+			file.delete();
+		}
+
+		File parentDir = file.getParentFile();
+
+		if ((parentDir != null) && parentDir.exists()) {
+			String[] children = parentDir.list();
+
+			if ((children == null) || (children.length == 0)) {
+				parentDir.delete();
+			}
 		}
 	}
 
