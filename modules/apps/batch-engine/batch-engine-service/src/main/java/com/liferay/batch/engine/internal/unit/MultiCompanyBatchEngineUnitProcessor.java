@@ -32,6 +32,9 @@ import org.osgi.service.component.annotations.Reference;
 public class MultiCompanyBatchEngineUnitProcessor {
 
 	public CompletableFuture<Void> processBatchEngineUnits(Company company) {
+		_portalInstanceLifecycleProcessedCompanyIds.add(
+			company.getCompanyId());
+
 		List<CompletableFuture<Void>> completableFutures = new ArrayList<>();
 
 		for (Bundle bundle : _bundleBatchEngineUnits.keySet()) {
@@ -48,7 +51,13 @@ public class MultiCompanyBatchEngineUnitProcessor {
 		_bundleBatchEngineUnits.put(bundle, batchEngineUnits);
 
 		_companyLocalService.forEachCompany(
-			company -> _processBatchEngineUnits(bundle, company));
+			company -> {
+				if (_portalInstanceLifecycleProcessedCompanyIds.contains(
+						company.getCompanyId())) {
+
+					_processBatchEngineUnits(bundle, company);
+				}
+			});
 	}
 
 	public void unregister(Bundle bundle) {
@@ -57,6 +66,9 @@ public class MultiCompanyBatchEngineUnitProcessor {
 	}
 
 	public void unregister(Company company) {
+		_portalInstanceLifecycleProcessedCompanyIds.remove(
+			company.getCompanyId());
+
 		for (Set<Long> companyIds : _bundleProcessedCompanies.values()) {
 			companyIds.remove(company.getCompanyId());
 		}
@@ -66,6 +78,7 @@ public class MultiCompanyBatchEngineUnitProcessor {
 	protected void deactivate() {
 		_bundleBatchEngineUnits.clear();
 		_bundleProcessedCompanies.clear();
+		_portalInstanceLifecycleProcessedCompanyIds.clear();
 	}
 
 	private CompletableFuture<Void> _processBatchEngineUnits(
@@ -94,6 +107,8 @@ public class MultiCompanyBatchEngineUnitProcessor {
 		new HashMap<>();
 	private final Map<Bundle, Set<Long>> _bundleProcessedCompanies =
 		new HashMap<>();
+	private final Set<Long> _portalInstanceLifecycleProcessedCompanyIds =
+		new HashSet<>();
 
 	@Reference
 	private CompanyLocalService _companyLocalService;
