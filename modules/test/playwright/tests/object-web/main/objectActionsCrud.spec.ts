@@ -27,8 +27,7 @@ const test = mergeTests(
 );
 
 test(
-	'LPD-78504 Can activate or deactivate an action',
-	{tag: '@LPD-78504'},
+	'Can activate or deactivate an action',
 	async ({apiHelpers, page, viewObjectActionsPage}) => {
 
 		// Migrated from: CanActivateOrDeactivateAction
@@ -110,8 +109,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can add account entry after creating account entry via action',
-	{tag: '@LPD-78504'},
+	'Can add account entry after creating account entry via action',
 	async () => {
 
 		// Migrated from: CanAddAccountEntryAfterCreatingAccountEntry
@@ -125,8 +123,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can add account entry after creating custom object entry via action',
-	{tag: '@LPD-78504'},
+	'Can add account entry after creating custom object entry via action',
 	async () => {
 
 		// Migrated from: CanAddAccountEntryAfterCreatingCustomObjectEntry
@@ -140,8 +137,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can add account entry after deleting custom object entry via action',
-	{tag: '@LPD-78504'},
+	'Can add account entry after deleting custom object entry via action',
 	async () => {
 
 		// Migrated from: CanAddAccountEntryAfterDeletingCustomObjectEntry
@@ -155,8 +151,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can add account entry after updating custom object entry via action',
-	{tag: '@LPD-78504'},
+	'Can add account entry after updating custom object entry via action',
 	async () => {
 
 		// Migrated from: CanAddAccountEntryAfterUpdatingCustomObjectEntry
@@ -170,8 +165,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can add commerce product group entry after deleting commerce product entry via action',
-	{tag: '@LPD-78504'},
+	'Can add commerce product group entry after deleting commerce product entry via action',
 	async () => {
 
 		// Migrated from: CanAddCommerceProductGroupEntryAfterDeletingCommerceProductEntry
@@ -185,8 +179,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can add user after creating commerce product entry via action',
-	{tag: '@LPD-78504'},
+	'Can add user after creating commerce product entry via action',
 	async () => {
 
 		// Migrated from: CanAddUserAfterCreatingCommerceProductEntry
@@ -200,8 +193,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can create a webhook action with expression builder condition',
-	{tag: '@LPD-78504'},
+	'Can create a webhook action with expression builder condition',
 	async ({apiHelpers, editObjectActionPage, page, viewObjectActionsPage}) => {
 
 		// Migrated from: CanCreateActionWithExpressionBuilder
@@ -275,8 +267,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can create an action with Groovy Script',
-	{tag: '@LPD-78504'},
+	'Can create an action with Groovy Script',
 	async () => {
 
 		// Migrated from: CanCreateActionWithGroovyScript
@@ -290,8 +281,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can create an object entry using actions',
-	{tag: '@LPD-78504'},
+	'Can create an object entry using actions',
 	async () => {
 
 		// Migrated from: CanCreateEntryWithActions
@@ -305,8 +295,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can delete an action',
-	{tag: '@LPD-78504'},
+	'Can delete an action',
 	async ({apiHelpers, page, viewObjectActionsPage}) => {
 
 		// Migrated from: CanDeleteAction
@@ -369,8 +358,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can edit an action name',
-	{tag: '@LPD-78504'},
+	'Can edit an action name',
 	async ({apiHelpers, page, viewObjectActionsPage}) => {
 
 		// Migrated from: CanEditActionName
@@ -450,8 +438,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can edit an action with Groovy Script',
-	{tag: '@LPD-78504'},
+	'Can edit an action with Groovy Script',
 	async () => {
 
 		// Migrated from: CanEditActionWithGroovyScript
@@ -465,8 +452,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can enable and disable condition on an action',
-	{tag: '@LPD-78504'},
+	'Can enable and disable condition on an action',
 	async ({apiHelpers, editObjectActionPage, page, viewObjectActionsPage}) => {
 
 		// Migrated from: CanEnableAndDisableCondition
@@ -552,8 +538,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can use formula field with user notification action',
-	{tag: '@LPD-78504'},
+	'Can use formula field with user notification action',
 	async () => {
 
 		// Migrated from: CanFormulaFieldBeUsedWithUserNotification
@@ -567,8 +552,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can manage standalone permissions in roles',
-	{tag: '@LPD-78504'},
+	'Can manage standalone permissions in roles',
 	async () => {
 
 		// Migrated from: CanManageStandalonePermissionsInRoles
@@ -582,8 +566,7 @@ test(
 );
 
 test(
-	'LPD-78504 Cannot leave action name, when and then fields blank',
-	{tag: '@LPD-78504'},
+	'Cannot leave action name, when and then fields blank',
 	async ({apiHelpers, editObjectActionPage, page, viewObjectActionsPage}) => {
 
 		// Migrated from: CannotLeaveActionNameBlank
@@ -642,8 +625,7 @@ test(
 );
 
 test(
-	'LPD-78504 Cannot leave URL blank when webhook is selected',
-	{tag: '@LPD-78504'},
+	'Cannot leave URL blank when webhook is selected',
 	async ({apiHelpers, editObjectActionPage, page, viewObjectActionsPage}) => {
 
 		// Migrated from: CannotLeaveURLBlank
@@ -692,8 +674,7 @@ test(
 );
 
 test(
-	'LPD-78504 Cannot save action without expression builder value',
-	{tag: '@LPD-78504'},
+	'Cannot save action without expression builder value',
 	async ({apiHelpers, editObjectActionPage, page, viewObjectActionsPage}) => {
 
 		// Migrated from: CannotSaveWithoutExpressionBuilder
@@ -759,8 +740,7 @@ test(
 );
 
 test(
-	'LPD-78504 Cannot see deactivated standalone action in dropdown menu',
-	{tag: '@LPD-78504'},
+	'Cannot see deactivated standalone action in dropdown menu',
 	async () => {
 
 		// Migrated from: CanNotSeeDeactivatedStandaloneAction
@@ -774,8 +754,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can search for an action',
-	{tag: '@LPD-78504'},
+	'Can search for an action',
 	async ({apiHelpers, page, viewObjectActionsPage}) => {
 
 		// Migrated from: CanSearchAction
@@ -864,8 +843,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can trigger action after disabling expression condition',
-	{tag: '@LPD-78504'},
+	'Can trigger action after disabling expression condition',
 	async () => {
 
 		// Migrated from: CanTriggerActionAfterDisablingExpression
@@ -879,8 +857,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can trigger action with expression by adding an entry',
-	{tag: '@LPD-78504'},
+	'Can trigger action with expression by adding an entry',
 	async () => {
 
 		// Migrated from: CanTriggerActionWithExpressionByAddingEntry
@@ -894,8 +871,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can trigger action with expression by deleting an entry',
-	{tag: '@LPD-78504'},
+	'Can trigger action with expression by deleting an entry',
 	async () => {
 
 		// Migrated from: CanTriggerActionWithExpressionByDeletingEntry
@@ -909,8 +885,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can trigger action with expression by updating an entry',
-	{tag: '@LPD-78504'},
+	'Can trigger action with expression by updating an entry',
 	async () => {
 
 		// Migrated from: CanTriggerActionWithExpressionByUpdatingEntry
@@ -924,8 +899,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can trigger standalone action for site scoped object',
-	{tag: '@LPD-78504'},
+	'Can trigger standalone action for site scoped object',
 	async () => {
 
 		// Migrated from: CanTriggerStandaloneActionForSiteScopedObject
@@ -939,8 +913,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can trigger standalone action with permission',
-	{tag: '@LPD-78504'},
+	'Can trigger standalone action with permission',
 	async () => {
 
 		// Migrated from: CanTriggerStandaloneActionWithPermission
@@ -954,8 +927,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can update account entry after creating account entry via action',
-	{tag: '@LPD-78504'},
+	'Can update account entry after creating account entry via action',
 	async () => {
 
 		// Migrated from: CanUpdateAccountEntryAfterCreatingAccountEntry
@@ -969,8 +941,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can update commerce product group entry after creating commerce product entry via action',
-	{tag: '@LPD-78504'},
+	'Can update commerce product group entry after creating commerce product entry via action',
 	async () => {
 
 		// Migrated from: CanUpdateCommerceProductGroupEntryAfterCreatingCommerceProductEntry
@@ -984,8 +955,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can use expression with Groovy Script action',
-	{tag: '@LPD-78504'},
+	'Can use expression with Groovy Script action',
 	async () => {
 
 		// Migrated from: CanUseExpressionWithGroovyScript
@@ -999,8 +969,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can use expression with webhook action',
-	{tag: '@LPD-78504'},
+	'Can use expression with webhook action',
 	async ({apiHelpers, page, viewObjectActionsPage}) => {
 
 		// Migrated from: CanUseExpressionWithWebhook
@@ -1075,8 +1044,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can verify unpublished object with standalone action does not show in permissions',
-	{tag: '@LPD-78504'},
+	'Can verify unpublished object with standalone action does not show in permissions',
 	async () => {
 
 		// Migrated from: CheckStandaloneActionPermissionOfUnpublishedObject
@@ -1090,8 +1058,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can verify condition card is hidden when using on subscription status update trigger',
-	{tag: '@LPD-78504'},
+	'Can verify condition card is hidden when using on subscription status update trigger',
 	async ({editObjectActionPage, page, viewObjectActionsPage}) => {
 
 		// Migrated from: VerifyTheConditionCardAreHidden
