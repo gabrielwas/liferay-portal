@@ -979,6 +979,8 @@ test(
 		).toBeVisible();
 
 		await expect(page.getByText('Yes')).toBeVisible();
+
+		await expect(page.getByText('Success')).toBeVisible();
 	}
 );
 
