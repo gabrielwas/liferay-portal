@@ -192,63 +192,7 @@ test(
 );
 
 test(
-	'LPD-78504 Can create an action with webhook',
-	{tag: '@LPD-78504'},
-	async ({apiHelpers, editObjectActionPage, page, viewObjectActionsPage}) => {
-
-		// Migrated from: CanCreateAction
-		// LPS-139008 - Verify it is possible to create an Action
-
-		const objectDefinition =
-			await apiHelpers.objectAdmin.postRandomObjectDefinition({
-				status: {code: 0},
-			});
-
-		apiHelpers.data.push({
-			id: objectDefinition.id,
-			type: 'objectDefinition',
-		});
-
-		await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
-
-		await viewObjectActionsPage.openObjectActionSidePanel();
-
-		const iframe = page.frameLocator('iframe');
-
-		await iframe.getByPlaceholder('Text to translate').fill('Action Label');
-
-		await editObjectActionPage.openActionBuilderTab();
-
-		await editObjectActionPage.inputWhenCombo.click();
-		await iframe.getByRole('option', {name: 'On After Add'}).click();
-
-		await editObjectActionPage.inputThenCombo.click();
-		await iframe.getByRole('option', {name: 'Webhook'}).click();
-
-		await iframe.locator('input[name="url"]').fill('http://localhost:8080');
-
-		await iframe.getByRole('button', {name: 'Save'}).click();
-
-		await expect(
-			page.getByText(
-				'Success:The object action was created successfully.'
-			)
-		).toBeVisible();
-
-		await page.goBack();
-
-		await viewObjectActionsPage.actionsTabItem.click();
-
-		await expect(
-			page.getByRole('link', {name: 'Action Label'})
-		).toBeVisible();
-
-		await expect(page.getByText('Yes')).toBeVisible();
-	}
-);
-
-test(
-	'LPD-78504 Can create an action with expression builder condition',
+	'LPD-78504 Can create a webhook action with expression builder condition',
 	{tag: '@LPD-78504'},
 	async ({apiHelpers, editObjectActionPage, page, viewObjectActionsPage}) => {
 
