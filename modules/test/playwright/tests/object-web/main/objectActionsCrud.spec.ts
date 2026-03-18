@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {ObjectActionAPI} from '@liferay/object-admin-rest-client-js';
+import {ObjectActionAPI, ObjectDefinition} from '@liferay/object-admin-rest-client-js';
 import {expect, mergeTests} from '@playwright/test';
 
 import {dataApiHelpersTest} from '../../../fixtures/dataApiHelpersTest';
@@ -38,66 +38,74 @@ test(
 			objectFieldBusinessTypes: ['Text'],
 		});
 
-		const objectDefinition =
-			await apiHelpers.objectAdmin.postRandomObjectDefinition({
-				objectFields,
-				status: {code: 0},
+		let objectDefinition: ObjectDefinition;
+
+		await test.step('Given an object with an active action is created', async () => {
+			objectDefinition =
+				await apiHelpers.objectAdmin.postRandomObjectDefinition({
+					objectFields,
+					status: {code: 0},
+				});
+
+			apiHelpers.data.push({
+				id: objectDefinition.id,
+				type: 'objectDefinition',
 			});
 
-		apiHelpers.data.push({
-			id: objectDefinition.id,
-			type: 'objectDefinition',
+			const objectActionAPIClient =
+				await apiHelpers.buildRestClient(ObjectActionAPI);
+
+			const actionName = 'action' + getRandomInt();
+
+			const {body: objectAction} =
+				await objectActionAPIClient.postObjectDefinitionByExternalReferenceCodeObjectAction(
+					objectDefinition.externalReferenceCode!,
+					{
+						active: true,
+						label: {en_US: 'Custom Action'},
+						name: actionName,
+						objectActionExecutorKey: 'webhook',
+						objectActionTriggerKey: 'onAfterAdd',
+						parameters: {
+							url: 'http://localhost:8080',
+						},
+					}
+				);
+
+			apiHelpers.data.push({id: objectAction.id, type: 'objectAction'});
 		});
 
-		const objectActionAPIClient =
-			await apiHelpers.buildRestClient(ObjectActionAPI);
+		await test.step('When the action is verified as active', async () => {
+			await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
 
-		const actionName = 'action' + getRandomInt();
+			await expect(
+				page.getByRole('link', {name: 'Custom Action'})
+			).toBeVisible();
 
-		const {body: objectAction} =
-			await objectActionAPIClient.postObjectDefinitionByExternalReferenceCodeObjectAction(
-				objectDefinition.externalReferenceCode!,
-				{
-					active: true,
-					label: {en_US: 'Custom Action'},
-					name: actionName,
-					objectActionExecutorKey: 'webhook',
-					objectActionTriggerKey: 'onAfterAdd',
-					parameters: {
-						url: 'http://localhost:8080',
-					},
-				}
-			);
+			await expect(page.getByText('Yes')).toBeVisible();
+		});
 
-		apiHelpers.data.push({id: objectAction.id, type: 'objectAction'});
+		await test.step('Then the action can be deactivated', async () => {
+			await page.getByRole('link', {name: 'Custom Action'}).click();
 
-		await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
+			const iframe = page.frameLocator('iframe');
 
-		await expect(
-			page.getByRole('link', {name: 'Custom Action'})
-		).toBeVisible();
+			await iframe.getByLabel('Active', {exact: true}).uncheck();
 
-		await expect(page.getByText('Yes')).toBeVisible();
+			await iframe.getByRole('button', {name: 'Save'}).click();
 
-		await page.getByRole('link', {name: 'Custom Action'}).click();
+			await expect(
+				page.getByText(
+					'Success:The object action was updated successfully.'
+				)
+			).toBeVisible();
 
-		const iframe = page.frameLocator('iframe');
+			await page.goBack();
 
-		await iframe.getByLabel('Active', {exact: true}).uncheck();
+			await viewObjectActionsPage.actionsTabItem.click();
 
-		await iframe.getByRole('button', {name: 'Save'}).click();
-
-		await expect(
-			page.getByText(
-				'Success:The object action was updated successfully.'
-			)
-		).toBeVisible();
-
-		await page.goBack();
-
-		await viewObjectActionsPage.actionsTabItem.click();
-
-		await expect(page.getByText('No')).toBeVisible();
+			await expect(page.getByText('No')).toBeVisible();
+		});
 	}
 );
 
@@ -203,58 +211,66 @@ test(
 			objectFieldBusinessTypes: ['Text'],
 		});
 
-		const objectDefinition =
-			await apiHelpers.objectAdmin.postRandomObjectDefinition({
-				objectFields,
-				status: {code: 0},
-			});
+		let objectDefinition: ObjectDefinition;
 
-		apiHelpers.data.push({
-			id: objectDefinition.id,
-			type: 'objectDefinition',
+		await test.step('Given an object with a field is created', async () => {
+			objectDefinition =
+				await apiHelpers.objectAdmin.postRandomObjectDefinition({
+					objectFields,
+					status: {code: 0},
+				});
+
+			apiHelpers.data.push({
+				id: objectDefinition.id,
+				type: 'objectDefinition',
+			});
 		});
 
-		await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
+		await test.step('When an action is created with a condition using the expression builder', async () => {
+			await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
 
-		await viewObjectActionsPage.openObjectActionSidePanel();
+			await viewObjectActionsPage.openObjectActionSidePanel();
 
-		const iframe = page.frameLocator('iframe');
+			const iframe = page.frameLocator('iframe');
 
-		await iframe
-			.getByPlaceholder('Text to translate')
-			.fill('Custom Action');
+			await iframe
+				.getByPlaceholder('Text to translate')
+				.fill('Custom Action');
 
-		await editObjectActionPage.openActionBuilderTab();
+			await editObjectActionPage.openActionBuilderTab();
 
-		await editObjectActionPage.inputWhenCombo.click();
-		await iframe.getByRole('option', {name: 'On After Add'}).click();
+			await editObjectActionPage.inputWhenCombo.click();
+			await iframe.getByRole('option', {name: 'On After Add'}).click();
 
-		await editObjectActionPage.fillExpression(
-			objectFields[0].name + " == 'Entry Test'"
-		);
+			await editObjectActionPage.fillExpression(
+				objectFields[0].name + " == 'Entry Test'"
+			);
 
-		await editObjectActionPage.inputThenCombo.click();
-		await iframe.getByRole('option', {name: 'Webhook'}).click();
+			await editObjectActionPage.inputThenCombo.click();
+			await iframe.getByRole('option', {name: 'Webhook'}).click();
 
-		await iframe.locator('input[name="url"]').fill('http://localhost:8080');
+			await iframe.locator('input[name="url"]').fill('http://localhost:8080');
 
-		await iframe.getByRole('button', {name: 'Save'}).click();
+			await iframe.getByRole('button', {name: 'Save'}).click();
 
-		await expect(
-			page.getByText(
-				'Success:The object action was created successfully.'
-			)
-		).toBeVisible();
+			await expect(
+				page.getByText(
+					'Success:The object action was created successfully.'
+				)
+			).toBeVisible();
+		});
 
-		await page.goBack();
+		await test.step('Then the action is listed as active', async () => {
+			await page.goBack();
 
-		await viewObjectActionsPage.actionsTabItem.click();
+			await viewObjectActionsPage.actionsTabItem.click();
 
-		await expect(
-			page.getByRole('link', {name: 'Custom Action'})
-		).toBeVisible();
+			await expect(
+				page.getByRole('link', {name: 'Custom Action'})
+			).toBeVisible();
 
-		await expect(page.getByText('Yes')).toBeVisible();
+			await expect(page.getByText('Yes')).toBeVisible();
+		});
 	}
 );
 
@@ -296,51 +312,59 @@ test(
 		// Migrated from: CanDeleteAction
 		// LPS-139008 - Verify it is possible to delete an Action
 
-		const objectDefinition =
-			await apiHelpers.objectAdmin.postRandomObjectDefinition({
-				status: {code: 0},
+		let objectDefinition: ObjectDefinition;
+
+		await test.step('Given an object with an action is created', async () => {
+			objectDefinition =
+				await apiHelpers.objectAdmin.postRandomObjectDefinition({
+					status: {code: 0},
+				});
+
+			apiHelpers.data.push({
+				id: objectDefinition.id,
+				type: 'objectDefinition',
 			});
 
-		apiHelpers.data.push({
-			id: objectDefinition.id,
-			type: 'objectDefinition',
+			const objectActionAPIClient =
+				await apiHelpers.buildRestClient(ObjectActionAPI);
+
+			const actionName = 'action' + getRandomInt();
+
+			await objectActionAPIClient.postObjectDefinitionByExternalReferenceCodeObjectAction(
+				objectDefinition.externalReferenceCode!,
+				{
+					active: true,
+					label: {en_US: 'Action Label'},
+					name: actionName,
+					objectActionExecutorKey: 'webhook',
+					objectActionTriggerKey: 'onAfterAdd',
+					parameters: {
+						url: 'http://localhost:8080',
+					},
+				}
+			);
 		});
 
-		const objectActionAPIClient =
-			await apiHelpers.buildRestClient(ObjectActionAPI);
+		await test.step('When the action is deleted', async () => {
+			await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
 
-		const actionName = 'action' + getRandomInt();
+			await expect(
+				page.getByRole('link', {name: 'Action Label'})
+			).toBeVisible();
 
-		await objectActionAPIClient.postObjectDefinitionByExternalReferenceCodeObjectAction(
-			objectDefinition.externalReferenceCode!,
-			{
-				active: true,
-				label: {en_US: 'Action Label'},
-				name: actionName,
-				objectActionExecutorKey: 'webhook',
-				objectActionTriggerKey: 'onAfterAdd',
-				parameters: {
-					url: 'http://localhost:8080',
-				},
-			}
-		);
+			await page
+				.getByRole('row', {name: 'Action Label'})
+				.getByRole('button', {name: 'Actions'})
+				.click();
 
-		await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
+			await page.getByRole('menuitem', {name: 'Delete'}).click();
+		});
 
-		await expect(
-			page.getByRole('link', {name: 'Action Label'})
-		).toBeVisible();
-
-		await page
-			.getByRole('row', {name: 'Action Label'})
-			.getByRole('button', {name: 'Actions'})
-			.click();
-
-		await page.getByRole('menuitem', {name: 'Delete'}).click();
-
-		await expect(
-			page.getByRole('link', {name: 'Action Label'})
-		).toBeHidden();
+		await test.step('Then the action is no longer visible', async () => {
+			await expect(
+				page.getByRole('link', {name: 'Action Label'})
+			).toBeHidden();
+		});
 	}
 );
 
@@ -352,68 +376,76 @@ test(
 		// Migrated from: CanEditActionName
 		// LPS-145665 - Verify that you can edit the Action name
 
-		const objectDefinition =
-			await apiHelpers.objectAdmin.postRandomObjectDefinition({
-				status: {code: 0},
+		let objectDefinition: ObjectDefinition;
+
+		await test.step('Given an object with an action is created', async () => {
+			objectDefinition =
+				await apiHelpers.objectAdmin.postRandomObjectDefinition({
+					status: {code: 0},
+				});
+
+			apiHelpers.data.push({
+				id: objectDefinition.id,
+				type: 'objectDefinition',
 			});
 
-		apiHelpers.data.push({
-			id: objectDefinition.id,
-			type: 'objectDefinition',
+			const objectActionAPIClient =
+				await apiHelpers.buildRestClient(ObjectActionAPI);
+
+			const actionName = 'action' + getRandomInt();
+
+			const {body: objectAction} =
+				await objectActionAPIClient.postObjectDefinitionByExternalReferenceCodeObjectAction(
+					objectDefinition.externalReferenceCode!,
+					{
+						active: true,
+						label: {en_US: 'Custom Action'},
+						name: actionName,
+						objectActionExecutorKey: 'webhook',
+						objectActionTriggerKey: 'onAfterAdd',
+						parameters: {
+							url: 'http://www.liferay.com',
+						},
+					}
+				);
+
+			apiHelpers.data.push({id: objectAction.id, type: 'objectAction'});
 		});
 
-		const objectActionAPIClient =
-			await apiHelpers.buildRestClient(ObjectActionAPI);
+		await test.step('When the action name is edited and deactivated', async () => {
+			await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
 
-		const actionName = 'action' + getRandomInt();
+			await page.getByRole('link', {name: 'Custom Action'}).click();
 
-		const {body: objectAction} =
-			await objectActionAPIClient.postObjectDefinitionByExternalReferenceCodeObjectAction(
-				objectDefinition.externalReferenceCode!,
-				{
-					active: true,
-					label: {en_US: 'Custom Action'},
-					name: actionName,
-					objectActionExecutorKey: 'webhook',
-					objectActionTriggerKey: 'onAfterAdd',
-					parameters: {
-						url: 'http://www.liferay.com',
-					},
-				}
-			);
+			const iframe = page.frameLocator('iframe');
 
-		apiHelpers.data.push({id: objectAction.id, type: 'objectAction'});
+			await iframe.getByPlaceholder('Text to translate').clear();
+			await iframe
+				.getByPlaceholder('Text to translate')
+				.fill('New Action Update');
 
-		await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
+			await iframe.getByLabel('Active', {exact: true}).uncheck();
 
-		await page.getByRole('link', {name: 'Custom Action'}).click();
+			await iframe.getByRole('button', {name: 'Save'}).click();
 
-		const iframe = page.frameLocator('iframe');
+			await expect(
+				page.getByText(
+					'Success:The object action was updated successfully.'
+				)
+			).toBeVisible();
+		});
 
-		await iframe.getByPlaceholder('Text to translate').clear();
-		await iframe
-			.getByPlaceholder('Text to translate')
-			.fill('New Action Update');
+		await test.step('Then the updated action name is displayed', async () => {
+			await page.goBack();
 
-		await iframe.getByLabel('Active', {exact: true}).uncheck();
+			await viewObjectActionsPage.actionsTabItem.click();
 
-		await iframe.getByRole('button', {name: 'Save'}).click();
+			await expect(
+				page.getByRole('link', {name: 'New Action Update'})
+			).toBeVisible();
 
-		await expect(
-			page.getByText(
-				'Success:The object action was updated successfully.'
-			)
-		).toBeVisible();
-
-		await page.goBack();
-
-		await viewObjectActionsPage.actionsTabItem.click();
-
-		await expect(
-			page.getByRole('link', {name: 'New Action Update'})
-		).toBeVisible();
-
-		await expect(page.getByText('No')).toBeVisible();
+			await expect(page.getByText('No')).toBeVisible();
+		});
 	}
 );
 
@@ -444,70 +476,78 @@ test(
 			objectFieldBusinessTypes: ['Text'],
 		});
 
-		const objectDefinition =
-			await apiHelpers.objectAdmin.postRandomObjectDefinition({
-				objectFields,
-				status: {code: 0},
+		let objectDefinition: ObjectDefinition;
+
+		await test.step('Given an object with an action with condition is created', async () => {
+			objectDefinition =
+				await apiHelpers.objectAdmin.postRandomObjectDefinition({
+					objectFields,
+					status: {code: 0},
+				});
+
+			apiHelpers.data.push({
+				id: objectDefinition.id,
+				type: 'objectDefinition',
 			});
 
-		apiHelpers.data.push({
-			id: objectDefinition.id,
-			type: 'objectDefinition',
+			const objectActionAPIClient =
+				await apiHelpers.buildRestClient(ObjectActionAPI);
+
+			const actionName = 'action' + getRandomInt();
+
+			const {body: objectAction} =
+				await objectActionAPIClient.postObjectDefinitionByExternalReferenceCodeObjectAction(
+					objectDefinition.externalReferenceCode!,
+					{
+						active: true,
+						conditionExpression:
+							objectFields[0].name + " == 'Entry with condition'",
+						label: {en_US: 'Custom Action'},
+						name: actionName,
+						objectActionExecutorKey: 'webhook',
+						objectActionTriggerKey: 'onAfterAdd',
+						parameters: {
+							url: 'http://localhost:8080',
+						},
+					}
+				);
+
+			apiHelpers.data.push({id: objectAction.id, type: 'objectAction'});
 		});
 
-		const objectActionAPIClient =
-			await apiHelpers.buildRestClient(ObjectActionAPI);
+		await test.step('When the condition is disabled', async () => {
+			await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
 
-		const actionName = 'action' + getRandomInt();
+			await page.getByRole('link', {name: 'Custom Action'}).click();
 
-		const {body: objectAction} =
-			await objectActionAPIClient.postObjectDefinitionByExternalReferenceCodeObjectAction(
-				objectDefinition.externalReferenceCode!,
-				{
-					active: true,
-					conditionExpression:
-						objectFields[0].name + " == 'Entry with condition'",
-					label: {en_US: 'Custom Action'},
-					name: actionName,
-					objectActionExecutorKey: 'webhook',
-					objectActionTriggerKey: 'onAfterAdd',
-					parameters: {
-						url: 'http://localhost:8080',
-					},
-				}
-			);
+			const iframe = page.frameLocator('iframe');
 
-		apiHelpers.data.push({id: objectAction.id, type: 'objectAction'});
+			await editObjectActionPage.openActionBuilderTab();
 
-		await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
+			await expect(iframe.getByLabel('Enable Condition')).toBeChecked();
 
-		await page.getByRole('link', {name: 'Custom Action'}).click();
+			await iframe.getByLabel('Enable Condition').uncheck();
 
-		const iframe = page.frameLocator('iframe');
+			await iframe.getByRole('button', {name: 'Save'}).click();
 
-		await editObjectActionPage.openActionBuilderTab();
+			await expect(
+				page.getByText(
+					'Success:The object action was updated successfully.'
+				)
+			).toBeVisible();
+		});
 
-		await expect(iframe.getByLabel('Enable Condition')).toBeChecked();
+		await test.step('Then the action remains active without condition', async () => {
+			await page.goBack();
 
-		await iframe.getByLabel('Enable Condition').uncheck();
+			await viewObjectActionsPage.actionsTabItem.click();
 
-		await iframe.getByRole('button', {name: 'Save'}).click();
+			await expect(
+				page.getByRole('link', {name: 'Custom Action'})
+			).toBeVisible();
 
-		await expect(
-			page.getByText(
-				'Success:The object action was updated successfully.'
-			)
-		).toBeVisible();
-
-		await page.goBack();
-
-		await viewObjectActionsPage.actionsTabItem.click();
-
-		await expect(
-			page.getByRole('link', {name: 'Custom Action'})
-		).toBeVisible();
-
-		await expect(page.getByText('Yes')).toBeVisible();
+			await expect(page.getByText('Yes')).toBeVisible();
+		});
 	}
 );
 
@@ -549,41 +589,55 @@ test(
 		// Migrated from: CannotLeaveActionNameBlank
 		// LPS-139008 - Verify it is not possible to leave the Action Name field blank
 
-		const objectDefinition =
-			await apiHelpers.objectAdmin.postRandomObjectDefinition({
-				status: {code: 0},
-			});
+		let objectDefinition: ObjectDefinition;
 
-		apiHelpers.data.push({
-			id: objectDefinition.id,
-			type: 'objectDefinition',
+		await test.step('Given an object definition is created', async () => {
+			objectDefinition =
+				await apiHelpers.objectAdmin.postRandomObjectDefinition({
+					status: {code: 0},
+				});
+
+			apiHelpers.data.push({
+				id: objectDefinition.id,
+				type: 'objectDefinition',
+			});
 		});
 
-		await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
+		await test.step('When saving an action without a name', async () => {
+			await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
 
-		await viewObjectActionsPage.openObjectActionSidePanel();
+			await viewObjectActionsPage.openObjectActionSidePanel();
 
-		const iframe = page.frameLocator('iframe');
+			const iframe = page.frameLocator('iframe');
 
-		await iframe.getByRole('button', {name: 'Save'}).click();
+			await iframe.getByRole('button', {name: 'Save'}).click();
 
-		await expect(iframe.getByText('Required').first()).toBeVisible();
+			await expect(iframe.getByText('Required').first()).toBeVisible();
+		});
 
-		await iframe.getByPlaceholder('Text to translate').fill('Action Label');
+		await test.step('Then saving without when field shows required error', async () => {
+			const iframe = page.frameLocator('iframe');
 
-		await iframe.getByRole('button', {name: 'Save'}).click();
+			await iframe.getByPlaceholder('Text to translate').fill('Action Label');
 
-		await editObjectActionPage.openActionBuilderTab();
+			await iframe.getByRole('button', {name: 'Save'}).click();
 
-		await expect(iframe.getByText('Required').first()).toBeVisible();
+			await editObjectActionPage.openActionBuilderTab();
 
-		await editObjectActionPage.inputWhenCombo.click();
+			await expect(iframe.getByText('Required').first()).toBeVisible();
+		});
 
-		await iframe.getByRole('option', {name: 'On After Add'}).click();
+		await test.step('And saving without then field shows required error', async () => {
+			const iframe = page.frameLocator('iframe');
 
-		await iframe.getByRole('button', {name: 'Save'}).click();
+			await editObjectActionPage.inputWhenCombo.click();
 
-		await expect(iframe.getByText('Required')).toBeVisible();
+			await iframe.getByRole('option', {name: 'On After Add'}).click();
+
+			await iframe.getByRole('button', {name: 'Save'}).click();
+
+			await expect(iframe.getByText('Required')).toBeVisible();
+		});
 	}
 );
 
@@ -595,35 +649,45 @@ test(
 		// Migrated from: CannotLeaveURLBlank
 		// LPS-139008 - Verify it is not possible to leave the URL field blank when Webhook is selected
 
-		const objectDefinition =
-			await apiHelpers.objectAdmin.postRandomObjectDefinition({
-				status: {code: 0},
-			});
+		let objectDefinition: ObjectDefinition;
 
-		apiHelpers.data.push({
-			id: objectDefinition.id,
-			type: 'objectDefinition',
+		await test.step('Given an object definition is created', async () => {
+			objectDefinition =
+				await apiHelpers.objectAdmin.postRandomObjectDefinition({
+					status: {code: 0},
+				});
+
+			apiHelpers.data.push({
+				id: objectDefinition.id,
+				type: 'objectDefinition',
+			});
 		});
 
-		await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
+		await test.step('When a webhook action is configured without a URL', async () => {
+			await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
 
-		await viewObjectActionsPage.openObjectActionSidePanel();
+			await viewObjectActionsPage.openObjectActionSidePanel();
 
-		const iframe = page.frameLocator('iframe');
+			const iframe = page.frameLocator('iframe');
 
-		await iframe.getByPlaceholder('Text to translate').fill('Action Label');
+			await iframe.getByPlaceholder('Text to translate').fill('Action Label');
 
-		await editObjectActionPage.openActionBuilderTab();
+			await editObjectActionPage.openActionBuilderTab();
 
-		await editObjectActionPage.inputWhenCombo.click();
-		await iframe.getByRole('option', {name: 'On After Add'}).click();
+			await editObjectActionPage.inputWhenCombo.click();
+			await iframe.getByRole('option', {name: 'On After Add'}).click();
 
-		await editObjectActionPage.inputThenCombo.click();
-		await iframe.getByRole('option', {name: 'Webhook'}).click();
+			await editObjectActionPage.inputThenCombo.click();
+			await iframe.getByRole('option', {name: 'Webhook'}).click();
 
-		await iframe.getByRole('button', {name: 'Save'}).click();
+			await iframe.getByRole('button', {name: 'Save'}).click();
+		});
 
-		await expect(iframe.getByText('Required')).toBeVisible();
+		await test.step('Then a required error is shown for the URL field', async () => {
+			const iframe = page.frameLocator('iframe');
+
+			await expect(iframe.getByText('Required')).toBeVisible();
+		});
 	}
 );
 
@@ -639,48 +703,58 @@ test(
 			objectFieldBusinessTypes: ['Text'],
 		});
 
-		const objectDefinition =
-			await apiHelpers.objectAdmin.postRandomObjectDefinition({
-				objectFields,
-				status: {code: 0},
-			});
+		let objectDefinition: ObjectDefinition;
 
-		apiHelpers.data.push({
-			id: objectDefinition.id,
-			type: 'objectDefinition',
+		await test.step('Given an object with a field is created', async () => {
+			objectDefinition =
+				await apiHelpers.objectAdmin.postRandomObjectDefinition({
+					objectFields,
+					status: {code: 0},
+				});
+
+			apiHelpers.data.push({
+				id: objectDefinition.id,
+				type: 'objectDefinition',
+			});
 		});
 
-		await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
+		await test.step('When an action is configured with condition enabled but no expression', async () => {
+			await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
 
-		await viewObjectActionsPage.openObjectActionSidePanel();
+			await viewObjectActionsPage.openObjectActionSidePanel();
 
-		const iframe = page.frameLocator('iframe');
+			const iframe = page.frameLocator('iframe');
 
-		await iframe
-			.getByPlaceholder('Text to translate')
-			.fill('Custom Action');
+			await iframe
+				.getByPlaceholder('Text to translate')
+				.fill('Custom Action');
 
-		await editObjectActionPage.openActionBuilderTab();
+			await editObjectActionPage.openActionBuilderTab();
 
-		await editObjectActionPage.inputWhenCombo.click();
-		await iframe.getByRole('option', {name: 'On After Add'}).click();
+			await editObjectActionPage.inputWhenCombo.click();
+			await iframe.getByRole('option', {name: 'On After Add'}).click();
 
-		await iframe.getByLabel('Enable Condition').check();
+			await iframe.getByLabel('Enable Condition').check();
 
-		await editObjectActionPage.inputThenCombo.click();
-		await iframe.getByRole('option', {name: 'Webhook'}).click();
+			await editObjectActionPage.inputThenCombo.click();
+			await iframe.getByRole('option', {name: 'Webhook'}).click();
 
-		await iframe.locator('input[name="url"]').fill('http://localhost:8080');
+			await iframe.locator('input[name="url"]').fill('http://localhost:8080');
 
-		await iframe.getByRole('button', {name: 'Save'}).click();
+			await iframe.getByRole('button', {name: 'Save'}).click();
+		});
 
-		await expect(iframe.getByText('Required')).toBeVisible();
+		await test.step('Then a required error is shown and the action is not saved', async () => {
+			const iframe = page.frameLocator('iframe');
 
-		await page.reload();
+			await expect(iframe.getByText('Required')).toBeVisible();
 
-		await viewObjectActionsPage.actionsTabItem.click();
+			await page.reload();
 
-		await expect(page.getByText('No Results Found')).toBeVisible();
+			await viewObjectActionsPage.actionsTabItem.click();
+
+			await expect(page.getByText('No Results Found')).toBeVisible();
+		});
 	}
 );
 
@@ -707,77 +781,85 @@ test(
 		// Migrated from: CanSearchAction
 		// LPS-139008 - Verify it is possible to search for an Action
 
-		const objectDefinition =
-			await apiHelpers.objectAdmin.postRandomObjectDefinition({
-				status: {code: 0},
+		let objectDefinition: ObjectDefinition;
+
+		await test.step('Given an object with two actions is created', async () => {
+			objectDefinition =
+				await apiHelpers.objectAdmin.postRandomObjectDefinition({
+					status: {code: 0},
+				});
+
+			apiHelpers.data.push({
+				id: objectDefinition.id,
+				type: 'objectDefinition',
 			});
 
-		apiHelpers.data.push({
-			id: objectDefinition.id,
-			type: 'objectDefinition',
+			const objectActionAPIClient =
+				await apiHelpers.buildRestClient(ObjectActionAPI);
+
+			const actionName1 = 'actionOne' + getRandomInt();
+			const actionName2 = 'actionTwo' + getRandomInt();
+
+			const {body: objectAction1} =
+				await objectActionAPIClient.postObjectDefinitionByExternalReferenceCodeObjectAction(
+					objectDefinition.externalReferenceCode!,
+					{
+						active: true,
+						label: {en_US: 'Action Label 1'},
+						name: actionName1,
+						objectActionExecutorKey: 'webhook',
+						objectActionTriggerKey: 'onAfterAdd',
+						parameters: {
+							url: 'http://localhost:8080',
+						},
+					}
+				);
+
+			apiHelpers.data.push({id: objectAction1.id, type: 'objectAction'});
+
+			const {body: objectAction2} =
+				await objectActionAPIClient.postObjectDefinitionByExternalReferenceCodeObjectAction(
+					objectDefinition.externalReferenceCode!,
+					{
+						active: true,
+						label: {en_US: 'Action Label 2'},
+						name: actionName2,
+						objectActionExecutorKey: 'webhook',
+						objectActionTriggerKey: 'onAfterAdd',
+						parameters: {
+							url: 'http://localhost:8080',
+						},
+					}
+				);
+
+			apiHelpers.data.push({id: objectAction2.id, type: 'objectAction'});
 		});
 
-		const objectActionAPIClient =
-			await apiHelpers.buildRestClient(ObjectActionAPI);
+		await test.step('When searching for an action by name', async () => {
+			await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
 
-		const actionName1 = 'actionOne' + getRandomInt();
-		const actionName2 = 'actionTwo' + getRandomInt();
+			await expect(
+				page.getByRole('link', {name: 'Action Label 1'})
+			).toBeVisible();
 
-		const {body: objectAction1} =
-			await objectActionAPIClient.postObjectDefinitionByExternalReferenceCodeObjectAction(
-				objectDefinition.externalReferenceCode!,
-				{
-					active: true,
-					label: {en_US: 'Action Label 1'},
-					name: actionName1,
-					objectActionExecutorKey: 'webhook',
-					objectActionTriggerKey: 'onAfterAdd',
-					parameters: {
-						url: 'http://localhost:8080',
-					},
-				}
-			);
+			await expect(
+				page.getByRole('link', {name: 'Action Label 2'})
+			).toBeVisible();
 
-		apiHelpers.data.push({id: objectAction1.id, type: 'objectAction'});
+			await page.getByPlaceholder('Search').fill('1');
 
-		const {body: objectAction2} =
-			await objectActionAPIClient.postObjectDefinitionByExternalReferenceCodeObjectAction(
-				objectDefinition.externalReferenceCode!,
-				{
-					active: true,
-					label: {en_US: 'Action Label 2'},
-					name: actionName2,
-					objectActionExecutorKey: 'webhook',
-					objectActionTriggerKey: 'onAfterAdd',
-					parameters: {
-						url: 'http://localhost:8080',
-					},
-				}
-			);
+			await page.keyboard.press('Enter');
+		});
 
-		apiHelpers.data.push({id: objectAction2.id, type: 'objectAction'});
+		await test.step('Then only the matching action is displayed', async () => {
+			await expect(
+				page.getByRole('link', {name: 'Action Label 1'})
+			).toBeVisible();
 
-		await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
-
-		await expect(
-			page.getByRole('link', {name: 'Action Label 1'})
-		).toBeVisible();
-
-		await expect(
-			page.getByRole('link', {name: 'Action Label 2'})
-		).toBeVisible();
-
-		await page.getByPlaceholder('Search').fill('1');
-
-		await page.keyboard.press('Enter');
-
-		await expect(
-			page.getByRole('link', {name: 'Action Label 1'})
-		).toBeVisible();
-
-		await expect(
-			page.getByRole('link', {name: 'Action Label 2'})
-		).toBeHidden();
+			await expect(
+				page.getByRole('link', {name: 'Action Label 2'})
+			).toBeHidden();
+		});
 	}
 );
 
@@ -928,59 +1010,67 @@ test(
 			objectFieldBusinessTypes: ['Text'],
 		});
 
-		const objectDefinition =
-			await apiHelpers.objectAdmin.postRandomObjectDefinition({
-				objectFields,
-				status: {code: 0},
-			});
+		let objectDefinition: ObjectDefinition;
 
-		apiHelpers.data.push({
-			id: objectDefinition.id,
-			type: 'objectDefinition',
+		await test.step('Given an object with a field is created', async () => {
+			objectDefinition =
+				await apiHelpers.objectAdmin.postRandomObjectDefinition({
+					objectFields,
+					status: {code: 0},
+				});
+
+			apiHelpers.data.push({
+				id: objectDefinition.id,
+				type: 'objectDefinition',
+			});
 		});
 
-		const objectActionAPIClient =
-			await apiHelpers.buildRestClient(ObjectActionAPI);
+		await test.step('When an action is created with an expression using webhooks', async () => {
+			const objectActionAPIClient =
+				await apiHelpers.buildRestClient(ObjectActionAPI);
 
-		const actionName = 'action' + getRandomInt();
+			const actionName = 'action' + getRandomInt();
 
-		const {body: objectAction} =
-			await objectActionAPIClient.postObjectDefinitionByExternalReferenceCodeObjectAction(
-				objectDefinition.externalReferenceCode!,
-				{
-					active: true,
-					conditionExpression:
-						objectFields[0].name + " == 'Entry Test'",
-					label: {en_US: 'Action Label'},
-					name: actionName,
-					objectActionExecutorKey: 'webhook',
-					objectActionTriggerKey: 'onAfterAdd',
-					parameters: {
-						url: 'http://localhost:8080',
-					},
-				}
+			const {body: objectAction} =
+				await objectActionAPIClient.postObjectDefinitionByExternalReferenceCodeObjectAction(
+					objectDefinition.externalReferenceCode!,
+					{
+						active: true,
+						conditionExpression:
+							objectFields[0].name + " == 'Entry Test'",
+						label: {en_US: 'Action Label'},
+						name: actionName,
+						objectActionExecutorKey: 'webhook',
+						objectActionTriggerKey: 'onAfterAdd',
+						parameters: {
+							url: 'http://localhost:8080',
+						},
+					}
+				);
+
+			apiHelpers.data.push({id: objectAction.id, type: 'objectAction'});
+		});
+
+		await test.step('Then the action will resolve when the condition is met', async () => {
+			const applicationName =
+				'c/' + objectDefinition.name!.toLowerCase() + 's';
+			const fieldName = objectFields[0].name!;
+
+			await apiHelpers.objectEntry.postObjectEntry(
+				{[fieldName]: 'Entry Test'},
+				applicationName
 			);
 
-		apiHelpers.data.push({id: objectAction.id, type: 'objectAction'});
+			await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
 
-		const applicationName =
-			'c/' + objectDefinition.name!.toLowerCase() + 's';
-		const fieldName = objectFields[0].name!;
+			await expect(
+				page.getByRole('link', {name: 'Action Label'})
+			).toBeVisible();
 
-		await apiHelpers.objectEntry.postObjectEntry(
-			{[fieldName]: 'Entry Test'},
-			applicationName
-		);
+			await expect(page.getByText('Yes')).toBeVisible();
 
-		await viewObjectActionsPage.goto(objectDefinition.label['en_US']);
-
-		await expect(
-			page.getByRole('link', {name: 'Action Label'})
-		).toBeVisible();
-
-		await expect(page.getByText('Yes')).toBeVisible();
-
-		await expect(page.getByText('Success')).toBeVisible();
+			await expect(page.getByText('Success')).toBeVisible();
+		});
 	}
 );
 
@@ -1007,24 +1097,32 @@ test(
 		// Migrated from: VerifyTheConditionCardAreHidden
 		// LPS-171802 - Verify if the Condition card is hidden when using the trigger On Subscription Status Update
 
-		await viewObjectActionsPage.goto('Commerce Order');
+		await test.step('Given the Commerce Order system object definition', async () => {
+			await viewObjectActionsPage.goto('Commerce Order');
+		});
 
-		await viewObjectActionsPage.openObjectActionSidePanel();
+		await test.step('When an action using the trigger On Subscription Status Update is created', async () => {
+			await viewObjectActionsPage.openObjectActionSidePanel();
 
-		const iframe = page.frameLocator('iframe');
+			const iframe = page.frameLocator('iframe');
 
-		await iframe.getByPlaceholder('Text to translate').fill('Action Label');
+			await iframe.getByPlaceholder('Text to translate').fill('Action Label');
 
-		await editObjectActionPage.openActionBuilderTab();
+			await editObjectActionPage.openActionBuilderTab();
 
-		await editObjectActionPage.inputWhenCombo.click();
+			await editObjectActionPage.inputWhenCombo.click();
 
-		await iframe
-			.getByRole('option', {name: 'On Subscription Status Update'})
-			.click();
+			await iframe
+				.getByRole('option', {name: 'On Subscription Status Update'})
+				.click();
+		});
 
-		await expect(
-			iframe.getByRole('heading', {name: 'Condition'})
-		).toBeHidden();
+		await test.step('Then the condition card is not present', async () => {
+			const iframe = page.frameLocator('iframe');
+
+			await expect(
+				iframe.getByRole('heading', {name: 'Condition'})
+			).toBeHidden();
+		});
 	}
 );
