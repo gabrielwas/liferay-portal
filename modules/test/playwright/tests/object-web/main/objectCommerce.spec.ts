@@ -5,6 +5,7 @@
 
 import {
 	ObjectActionAPI,
+	ObjectDefinition,
 	ObjectRelationshipAPI,
 } from '@liferay/object-admin-rest-client-js';
 import {expect, mergeTests} from '@playwright/test';
@@ -14,6 +15,7 @@ import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
 import {isolatedSiteTest} from '../../../fixtures/isolatedSiteTest';
 import {loginTest} from '../../../fixtures/loginTest';
 import {objectPagesTest} from '../../../fixtures/objectPagesTest';
+import {TProduct} from '../../../helpers/HeadlessCommerceAdminCatalogApiHelper';
 import {getRandomInt} from '../../../utils/getRandomInt';
 import getRandomString from '../../../utils/getRandomString';
 import {waitForAlert} from '../../../utils/waitForAlert';
@@ -30,156 +32,178 @@ const test = mergeTests(
 );
 
 test(
-	'LPD-78504 Can create an object entry related to Commerce Product Group',
-	{tag: '@LPD-78504'},
-	async ({apiHelpers, page, site, viewObjectEntriesPage}) => {
-		// Corresponds to Poshi test: CanCreateEntryRelatedToCommerceProductGroup
+	'can create an object entry related to Commerce Product Group',
+	{tag: '@LPS-151766'},
+	async ({apiHelpers, page, viewObjectEntriesPage}) => {
+		let objectDefinition: ObjectDefinition;
 
-		const objectFields = generateObjectFields({
-			objectFieldBusinessTypes: ['Text'],
-		});
+		await test.step('Create a custom object', async () => {
+			objectDefinition =
+				await apiHelpers.objectAdmin.postRandomObjectDefinition({
+					status: {code: 0},
+				});
 
-		const objectDefinition =
-			await apiHelpers.objectAdmin.postRandomObjectDefinition({
-				objectFields,
-				status: {code: 0},
+			apiHelpers.data.push({
+				id: objectDefinition.id,
+				type: 'objectDefinition',
 			});
-
-		apiHelpers.data.push({
-			id: objectDefinition.id,
-			type: 'objectDefinition',
 		});
 
-		// Create a relationship from Commerce Product Group to the custom object
+		let objectRelationship;
 
-		const objectRelationshipAPIClient =
-			await apiHelpers.buildRestClient(ObjectRelationshipAPI);
+		await test.step('Create a relationship from Commerce Product Group to the custom object', async () => {
+			const objectRelationshipAPIClient =
+				await apiHelpers.buildRestClient(ObjectRelationshipAPI);
 
-		const relationshipLabel = 'Relationship' + getRandomInt();
-		const relationshipName = 'relationship' + getRandomInt();
+			const {body: objectRelationshipBody} =
+				await objectRelationshipAPIClient.postObjectDefinitionByExternalReferenceCodeObjectRelationship(
+					'L_COMMERCE_PRODUCT_GROUP',
+					{
+						label: {en_US: 'Relationship' + getRandomInt()},
+						name: 'relationship' + getRandomInt(),
+						objectDefinitionExternalReferenceCode1:
+							'L_COMMERCE_PRODUCT_GROUP',
+						objectDefinitionExternalReferenceCode2:
+							objectDefinition.externalReferenceCode,
+						type: 'oneToMany',
+					}
+				);
 
-		const {body: objectRelationship} =
-			await objectRelationshipAPIClient.postObjectDefinitionByExternalReferenceCodeObjectRelationship(
-				'L_COMMERCE_PRODUCT_GROUP',
+			objectRelationship = objectRelationshipBody;
+		});
+
+		let productGroup;
+
+		await test.step('Create a Commerce Product Group', async () => {
+			productGroup = await apiHelpers.post(
+				`${apiHelpers.baseUrl}headless-commerce-admin-catalog/v1.0/product-groups/`,
 				{
-					label: {en_US: relationshipLabel},
-					name: relationshipName,
-					objectDefinitionExternalReferenceCode1:
-						'L_COMMERCE_PRODUCT_GROUP',
-					objectDefinitionExternalReferenceCode2:
-						objectDefinition.externalReferenceCode,
-					type: 'oneToMany',
+					data: {
+						title: {
+							en_US: 'ProductGroup' + getRandomString(),
+						},
+					},
+					failOnStatusCode: true,
 				}
 			);
-
-		apiHelpers.data.push({
-			id: objectRelationship.id,
-			type: 'objectRelationship',
 		});
 
-		// Create an entry for the custom object via API
+		await test.step('Navigate to object entries and create an entry associated to the Product Group', async () => {
+			await viewObjectEntriesPage.goto(objectDefinition.className);
 
-		const applicationName =
-			'c/' + objectDefinition.name.toLowerCase() + 's';
-		const fieldName = objectFields[0].name!;
-		const fieldValue = getRandomString();
+			await viewObjectEntriesPage.clickAddObjectEntry(
+				objectDefinition.label['en_US']
+			);
 
-		const entry = await apiHelpers.objectEntry.postObjectEntry(
-			{[fieldName]: fieldValue},
-			applicationName
-		);
+			await page.getByRole('textbox', {name: 'Search'}).click();
 
-		// Verify the entry was created successfully
+			await page
+				.getByRole('menuitem', {name: productGroup.title.en_US})
+				.click();
 
-		expect(entry.id).toBeDefined();
-		expect(entry[fieldName]).toBe(fieldValue);
+			await viewObjectEntriesPage.saveObjectEntryButton.click();
+
+			await waitForAlert(page);
+
+			await viewObjectEntriesPage.backButton.click();
+
+			await expect(
+				page.getByText(productGroup.title.en_US)
+			).toBeVisible();
+		});
+
+		await test.step('Cleanup', async () => {
+			expect(
+				await apiHelpers.delete(
+					`${apiHelpers.baseUrl}object-admin/v1.0/object-relationships/${objectRelationship.id}`
+				)
+			).toBeOK();
+
+			expect(
+				await apiHelpers.delete(
+					`${apiHelpers.baseUrl}headless-commerce-admin-catalog/v1.0/product-groups/${productGroup.id}`
+				)
+			).toBeOK();
+		});
 	}
 );
 
 test(
-	'LPD-78504 Can create an object entry related to Commerce Products',
-	{tag: '@LPD-78504'},
-	async ({apiHelpers, page, site, viewObjectEntriesPage}) => {
-		// Corresponds to Poshi test: CanCreateEntryRelatedToCommerceProducts
+	'can create an object entry related to Commerce Products',
+	{tag: '@LPS-152408'},
+	async ({apiHelpers, page, viewObjectEntriesPage}) => {
+		let objectDefinition: ObjectDefinition;
 
-		const objectFields = generateObjectFields({
-			objectFieldBusinessTypes: ['Text'],
-		});
+		await test.step('Create a custom object', async () => {
+			objectDefinition =
+				await apiHelpers.objectAdmin.postRandomObjectDefinition({
+					status: {code: 0},
+				});
 
-		const objectDefinition =
-			await apiHelpers.objectAdmin.postRandomObjectDefinition({
-				objectFields,
-				status: {code: 0},
+			apiHelpers.data.push({
+				id: objectDefinition.id,
+				type: 'objectDefinition',
 			});
-
-		apiHelpers.data.push({
-			id: objectDefinition.id,
-			type: 'objectDefinition',
 		});
 
-		// Create a relationship from Commerce Product Definition to the custom object
+		await test.step('Create a relationship from Commerce Product Definition to the custom object', async () => {
+			const objectRelationshipAPIClient =
+				await apiHelpers.buildRestClient(ObjectRelationshipAPI);
 
-		const objectRelationshipAPIClient =
-			await apiHelpers.buildRestClient(ObjectRelationshipAPI);
+			const {body: objectRelationship} =
+				await objectRelationshipAPIClient.postObjectDefinitionByExternalReferenceCodeObjectRelationship(
+					'L_COMMERCE_PRODUCT_DEFINITION',
+					{
+						label: {en_US: 'Relationship' + getRandomInt()},
+						name: 'relationship' + getRandomInt(),
+						objectDefinitionExternalReferenceCode1:
+							'L_COMMERCE_PRODUCT_DEFINITION',
+						objectDefinitionExternalReferenceCode2:
+							objectDefinition.externalReferenceCode,
+						type: 'oneToMany',
+					}
+				);
 
-		const relationshipLabel = 'Relationship' + getRandomInt();
-		const relationshipName = 'relationship' + getRandomInt();
+			apiHelpers.data.push({
+				id: objectRelationship.id,
+				type: 'objectRelationship',
+			});
+		});
 
-		const {body: objectRelationship} =
-			await objectRelationshipAPIClient.postObjectDefinitionByExternalReferenceCodeObjectRelationship(
-				'L_COMMERCE_PRODUCT_DEFINITION',
+		let product: TProduct;
+
+		await test.step('Create a commerce catalog and product', async () => {
+			const catalog =
+				await apiHelpers.headlessCommerceAdminCatalog.postCatalog();
+
+			product = await apiHelpers.headlessCommerceAdminCatalog.postProduct(
 				{
-					label: {en_US: relationshipLabel},
-					name: relationshipName,
-					objectDefinitionExternalReferenceCode1:
-						'L_COMMERCE_PRODUCT_DEFINITION',
-					objectDefinitionExternalReferenceCode2:
-						objectDefinition.externalReferenceCode,
-					type: 'oneToMany',
+					catalogId: catalog.id,
 				}
 			);
-
-		apiHelpers.data.push({
-			id: objectRelationship.id,
-			type: 'objectRelationship',
 		});
 
-		// Create a commerce catalog and product
+		await test.step('Navigate to object entries page and create an entry associated to the product', async () => {
+			await viewObjectEntriesPage.goto(objectDefinition.className);
 
-		const catalog =
-			await apiHelpers.headlessCommerceAdminCatalog.postCatalog();
+			await viewObjectEntriesPage.clickAddObjectEntry(
+				objectDefinition.label['en_US']
+			);
 
-		const product =
-			await apiHelpers.headlessCommerceAdminCatalog.postProduct({
-				catalogId: catalog.id,
-			});
+			await page.getByRole('textbox', {name: 'Search'}).click();
 
-		// Navigate to entries page and create an entry
+			await page
+				.getByRole('menuitem', {name: product.name.en_US})
+				.click();
 
-		await viewObjectEntriesPage.goto(objectDefinition.className);
+			await viewObjectEntriesPage.saveObjectEntryButton.click();
 
-		await viewObjectEntriesPage.clickAddObjectEntry(
-			objectDefinition.label['en_US']
-		);
+			await waitForAlert(page);
 
-		const fieldLabel = objectFields[0].label['en_US'];
-		const fieldValue = getRandomString();
+			await viewObjectEntriesPage.backButton.click();
 
-		await viewObjectEntriesPage.fillObjectEntry({
-			objectFieldBusinessType: 'Text',
-			objectFieldLabel: fieldLabel,
-			objectFieldValue: fieldValue,
+			await expect(page.getByText(product.name.en_US)).toBeVisible();
 		});
-
-		await viewObjectEntriesPage.saveObjectEntryButton.click();
-
-		await waitForAlert(page);
-
-		await viewObjectEntriesPage.backButton.click();
-
-		// Verify the entry was created
-
-		await expect(page.getByText(fieldValue)).toBeVisible();
 	}
 );
 
