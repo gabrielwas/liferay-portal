@@ -26,7 +26,7 @@ const salesforcePassword = process.env.SALESFORCE_PASSWORD;
 const test = mergeTests(
 	dataApiHelpersTest,
 	featureFlagsTest({
-		'LPS-178052': {enabled: true},
+		'LPS-135430': {enabled: true},
 	}),
 	instanceSettingsPagesTest,
 	isolatedSiteTest,
