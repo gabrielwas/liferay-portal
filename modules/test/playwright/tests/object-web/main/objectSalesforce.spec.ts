@@ -8,6 +8,7 @@ import {expect, mergeTests} from '@playwright/test';
 
 import {dataApiHelpersTest} from '../../../fixtures/dataApiHelpersTest';
 import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
+import {instanceSettingsPagesTest} from '../../../fixtures/instanceSettingsPagesTest';
 import {isolatedSiteTest} from '../../../fixtures/isolatedSiteTest';
 import {loginTest} from '../../../fixtures/loginTest';
 import {objectPagesTest} from '../../../fixtures/objectPagesTest';
@@ -16,20 +17,71 @@ import getRandomString from '../../../utils/getRandomString';
 import {waitForAlert} from '../../../utils/waitForAlert';
 import {generateObjectFields} from './utils/generateObjectFields';
 
+const salesforceLoginURL = process.env.SALESFORCE_LOGIN_URL;
+const salesforceConsumerKey = process.env.SALESFORCE_CONSUMER_KEY;
+const salesforceConsumerSecret = process.env.SALESFORCE_CONSUMER_SECRET;
+const salesforceUsername = process.env.SALESFORCE_USERNAME;
+const salesforcePassword = process.env.SALESFORCE_PASSWORD;
+
 const test = mergeTests(
 	dataApiHelpersTest,
 	featureFlagsTest({
 		'LPS-178052': {enabled: true},
 	}),
+	instanceSettingsPagesTest,
 	isolatedSiteTest,
 	loginTest(),
 	objectPagesTest
 );
 
-test.beforeEach(({page}) => {
-	test.skip(true, 'Requires Salesforce storage type configuration');
+test.beforeEach(async ({instanceSettingsPage, page}) => {
+	test.skip(
+		!salesforceLoginURL ||
+			!salesforceConsumerKey ||
+			!salesforceConsumerSecret ||
+			!salesforceUsername ||
+			!salesforcePassword,
+		'Requires Salesforce environment variables: SALESFORCE_LOGIN_URL, SALESFORCE_CONSUMER_KEY, SALESFORCE_CONSUMER_SECRET, SALESFORCE_USERNAME, SALESFORCE_PASSWORD'
+	);
 
 	page.setViewportSize({height: 1080, width: 1920});
+
+	await instanceSettingsPage.goToInstanceSetting(
+		'Third Party',
+		'Salesforce Integration'
+	);
+
+	await page
+		.locator(
+			'div.ddm-field[data-field-name="loginURL"] textarea'
+		)
+		.fill(salesforceLoginURL!);
+
+	await page
+		.locator(
+			'div.ddm-field[data-field-name="consumerKey"] textarea'
+		)
+		.fill(salesforceConsumerKey!);
+
+	await page
+		.locator(
+			'div.ddm-field[data-field-name="consumerSecret"] textarea'
+		)
+		.fill(salesforceConsumerSecret!);
+
+	await page
+		.locator(
+			'div.ddm-field[data-field-name="username"] textarea'
+		)
+		.fill(salesforceUsername!);
+
+	await page
+		.locator(
+			'div.ddm-field[data-field-name="password"] input[type="password"]'
+		)
+		.fill(salesforcePassword!);
+
+	await instanceSettingsPage.saveAndWaitForAlert();
 });
 
 test(
