@@ -85,33 +85,38 @@ test.beforeEach(async ({instanceSettingsPage, page}) => {
 });
 
 test(
-	'LPD-78504 Assert CRUD with created custom object using Salesforce storage type',
-	{tag: '@LPD-78504'},
+	'LPS-162131 Assert CRUD with created custom object using Salesforce storage type',
+	{tag: '@LPS-162131'},
 	async ({apiHelpers, page, site, viewObjectEntriesPage}) => {
-		// Corresponds to Poshi test: AssertCRUDWithCreatedCustomObject
 
 		const objectDefinitionAPIClient =
 			await apiHelpers.buildRestClient(ObjectDefinitionAPI);
 
 		const objectFields = generateObjectFields({
-			objectFieldBusinessTypes: ['Text'],
-		});
-
-		const objectDefinitionName = 'Name' + getRandomInt();
-		const objectDefinitionLabel = getRandomString();
+        objectFieldBusinessTypes: [
+				{
+					businessType: 'Text',
+					externalReferenceCode: 'Title__c',
+					label: {
+						en_US: 'Title',
+					},
+					name: 'title',
+				},
+        	],
+    	});
 
 		const {body: objectDefinition} =
 			await objectDefinitionAPIClient.postObjectDefinition({
 				active: true,
-				externalReferenceCode: getRandomString(),
+				externalReferenceCode: 'Poshi_Test__c',
 				label: {
-					en_US: objectDefinitionLabel,
+					en_US: "Poshi Test",
 				},
-				name: objectDefinitionName,
+				name: "PoshiTest",
 				objectFields,
 				panelCategoryKey: 'control_panel.object',
 				pluralLabel: {
-					en_US: objectDefinitionLabel + 's',
+					en_US: "Poshi Tests",
 				},
 				portlet: true,
 				scope: 'company',
@@ -127,7 +132,6 @@ test(
 		});
 
 		const fieldLabel = objectFields[0].label['en_US'];
-		const fieldName = objectFields[0].name!;
 
 		// Create
 
@@ -154,15 +158,12 @@ test(
 		// Read
 
 		await expect(
-			page
-				.locator(`.cell-${fieldLabel}`)
-				.nth(1)
-				.getByText(createValue)
+			page.getByRole('cell', { name: createValue })
 		).toBeVisible();
 
 		// Update
 
-		await page.getByRole('button', {name: 'Actions'}).click();
+		await page.getByRole('button', {name: 'Actions'}).last().click();
 
 		await page.getByRole('menuitem', {name: 'View'}).click();
 
@@ -181,15 +182,12 @@ test(
 		await viewObjectEntriesPage.backButton.click();
 
 		await expect(
-			page
-				.locator(`.cell-${fieldLabel}`)
-				.nth(1)
-				.getByText(updateValue)
+			page.getByRole('cell', { name: updateValue })
 		).toBeVisible();
 
 		// Delete
 
-		await viewObjectEntriesPage.frontendDatasetActions.click();
+		await viewObjectEntriesPage.frontendDatasetActions.last().click();
 
 		await viewObjectEntriesPage.frontendDatasetDeleteAction.click();
 
@@ -200,10 +198,7 @@ test(
 			.click();
 
 		await expect(
-			page
-				.locator(`.cell-${fieldLabel}`)
-				.nth(1)
-				.getByText(updateValue, {exact: true})
+			page.getByRole('cell', { name: updateValue })
 		).toBeAttached({attached: false});
 	}
 );
@@ -227,15 +222,15 @@ test(
 		const {body: objectDefinition} =
 			await objectDefinitionAPIClient.postObjectDefinition({
 				active: true,
-				externalReferenceCode: getRandomString(),
+				externalReferenceCode: "Contact",
 				label: {
-					en_US: objectDefinitionLabel,
+					en_US: "Contact",
 				},
-				name: objectDefinitionName,
+				name: "Contact",
 				objectFields,
 				panelCategoryKey: 'control_panel.object',
 				pluralLabel: {
-					en_US: objectDefinitionLabel + 's',
+					en_US: "Contacts",
 				},
 				portlet: true,
 				scope: 'company',
