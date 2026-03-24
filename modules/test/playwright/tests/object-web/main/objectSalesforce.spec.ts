@@ -204,20 +204,51 @@ test(
 );
 
 test(
-	'LPD-78504 Assert CRUD with created standard object using Salesforce storage type',
-	{tag: '@LPD-78504'},
+	'LPS-185429 Assert CRUD with created standard object using Salesforce storage type',
+	{tag: '@LPS-185429'},
 	async ({apiHelpers, page, site, viewObjectEntriesPage}) => {
-		// Corresponds to Poshi test: AssertCRUDWithCreatedStandardObject
 
 		const objectDefinitionAPIClient =
 			await apiHelpers.buildRestClient(ObjectDefinitionAPI);
 
 		const objectFields = generateObjectFields({
-			objectFieldBusinessTypes: ['Text'],
+			        objectFieldBusinessTypes: [
+				{
+					businessType: 'Text',
+					externalReferenceCode: 'Email',
+					label: {
+						en_US: 'Email',
+					},
+					name: 'email',
+				},
+				{
+					businessType: 'Text',
+					externalReferenceCode: 'FirstName',
+					label: {
+						en_US: 'First Name',
+					},
+					name: 'firstName',
+				},
+				{
+					businessType: 'Text',
+					externalReferenceCode: 'LastName',
+					label: {
+						en_US: 'Last Name',
+					},
+					name: 'lastName',
+					required: true
+				},
+				{
+					businessType: 'Text',
+					externalReferenceCode: 'Phone',
+					label: {
+						en_US: 'Phone',
+					},
+					name: 'phone',
+				},
+        	],
 		});
 
-		const objectDefinitionName = 'Name' + getRandomInt();
-		const objectDefinitionLabel = getRandomString();
 
 		const {body: objectDefinition} =
 			await objectDefinitionAPIClient.postObjectDefinition({
@@ -245,8 +276,7 @@ test(
 			type: 'objectDefinition',
 		});
 
-		const fieldLabel = objectFields[0].label['en_US'];
-		const fieldName = objectFields[0].name!;
+		const fieldLabel = objectFields[2].label['en_US'];
 
 		// Create
 
@@ -256,7 +286,7 @@ test(
 			objectDefinition.label['en_US']
 		);
 
-		const createValue = getRandomString();
+		const createValue = "Last Name " + getRandomInt();
 
 		await viewObjectEntriesPage.fillObjectEntry({
 			objectFieldBusinessType: 'Text',
@@ -273,19 +303,16 @@ test(
 		// Read
 
 		await expect(
-			page
-				.locator(`.cell-${fieldLabel}`)
-				.nth(1)
-				.getByText(createValue)
+			page.getByRole('cell', { name: createValue })
 		).toBeVisible();
 
 		// Update
 
-		await page.getByRole('button', {name: 'Actions'}).click();
+		await page.getByRole('button', {name: 'Actions'}).last().click();
 
 		await page.getByRole('menuitem', {name: 'View'}).click();
 
-		const updateValue = getRandomString();
+		const updateValue ="Last Name Updated " + getRandomInt();;
 
 		await viewObjectEntriesPage.fillObjectEntry({
 			objectFieldBusinessType: 'Text',
@@ -300,15 +327,12 @@ test(
 		await viewObjectEntriesPage.backButton.click();
 
 		await expect(
-			page
-				.locator(`.cell-${fieldLabel}`)
-				.nth(1)
-				.getByText(updateValue)
+			page.getByRole('cell', { name: updateValue })
 		).toBeVisible();
 
 		// Delete
 
-		await viewObjectEntriesPage.frontendDatasetActions.click();
+		await viewObjectEntriesPage.frontendDatasetActions.last().click();
 
 		await viewObjectEntriesPage.frontendDatasetDeleteAction.click();
 
@@ -319,10 +343,8 @@ test(
 			.click();
 
 		await expect(
-			page
-				.locator(`.cell-${fieldLabel}`)
-				.nth(1)
-				.getByText(updateValue, {exact: true})
+			page.getByRole('cell', { name: updateValue })
 		).toBeAttached({attached: false});
 	}
 );
+
