@@ -24,327 +24,174 @@ const salesforceUsername = process.env.SALESFORCE_USERNAME;
 const salesforcePassword = process.env.SALESFORCE_PASSWORD;
 
 const test = mergeTests(
-	dataApiHelpersTest,
-	featureFlagsTest({
-		'LPS-135430': {enabled: true},
-	}),
-	instanceSettingsPagesTest,
-	isolatedSiteTest,
-	loginTest(),
-	objectPagesTest
+    dataApiHelpersTest,
+    featureFlagsTest({
+        'LPS-135430': {enabled: true},
+    }),
+    instanceSettingsPagesTest,
+    isolatedSiteTest,
+    loginTest(),
+    objectPagesTest
 );
 
 test.beforeEach(async ({instanceSettingsPage, page}) => {
-	test.skip(
-		!salesforceLoginURL ||
-			!salesforceConsumerKey ||
-			!salesforceConsumerSecret ||
-			!salesforceUsername ||
-			!salesforcePassword,
-		'Requires Salesforce environment variables: SALESFORCE_LOGIN_URL, SALESFORCE_CONSUMER_KEY, SALESFORCE_CONSUMER_SECRET, SALESFORCE_USERNAME, SALESFORCE_PASSWORD'
-	);
+    test.skip(
+        !salesforceLoginURL ||
+            !salesforceConsumerKey ||
+            !salesforceConsumerSecret ||
+            !salesforceUsername ||
+            !salesforcePassword,
+        'Requires Salesforce environment variables.'
+    );
 
-	page.setViewportSize({height: 1080, width: 1920});
+    page.setViewportSize({height: 1080, width: 1920});
 
-	await instanceSettingsPage.goToInstanceSetting(
-		'Third Party',
-		'Salesforce Integration'
-	);
+    await instanceSettingsPage.goToInstanceSetting(
+        'Third Party',
+        'Salesforce Integration'
+    );
 
-	await page
-		.locator(
-			'div.ddm-field[data-field-name="loginURL"] textarea'
-		)
-		.fill(salesforceLoginURL!);
+    await page.locator('div.ddm-field[data-field-name="loginURL"] textarea').fill(salesforceLoginURL!);
+    await page.locator('div.ddm-field[data-field-name="consumerKey"] textarea').fill(salesforceConsumerKey!);
+    await page.locator('div.ddm-field[data-field-name="consumerSecret"] textarea').fill(salesforceConsumerSecret!);
+    await page.locator('div.ddm-field[data-field-name="username"] textarea').fill(salesforceUsername!);
+    await page.locator('div.ddm-field[data-field-name="password"] input[type="password"]').fill(salesforcePassword!);
 
-	await page
-		.locator(
-			'div.ddm-field[data-field-name="consumerKey"] textarea'
-		)
-		.fill(salesforceConsumerKey!);
-
-	await page
-		.locator(
-			'div.ddm-field[data-field-name="consumerSecret"] textarea'
-		)
-		.fill(salesforceConsumerSecret!);
-
-	await page
-		.locator(
-			'div.ddm-field[data-field-name="username"] textarea'
-		)
-		.fill(salesforceUsername!);
-
-	await page
-		.locator(
-			'div.ddm-field[data-field-name="password"] input[type="password"]'
-		)
-		.fill(salesforcePassword!);
-
-	await instanceSettingsPage.saveAndWaitForAlert();
+    await instanceSettingsPage.saveAndWaitForAlert();
 });
 
+async function runSalesforceCRUDTest({
+    apiHelpers,
+    page,
+	fieldIndex = 0,
+	objectConfig,
+    viewObjectEntriesPage,
+    isStandardObject = false
+}) {
+    const objectDefinitionAPIClient = await apiHelpers.buildRestClient(ObjectDefinitionAPI);
+
+    const {body: objectDefinition} = await objectDefinitionAPIClient.postObjectDefinition(objectConfig);
+
+    apiHelpers.data.push({
+        id: objectDefinition.id,
+        type: 'objectDefinition',
+    });
+
+    const fieldLabel = objectConfig.objectFields[fieldIndex].label['en_US'];
+
+    // Create
+    await viewObjectEntriesPage.goto(objectDefinition.className);
+    await viewObjectEntriesPage.clickAddObjectEntry(objectDefinition.label['en_US']);
+
+    const createValue = isStandardObject ? `Last Name ${getRandomInt()}` : getRandomString();
+
+    await viewObjectEntriesPage.fillObjectEntry({
+        objectFieldBusinessType: 'Text',
+        objectFieldLabel: fieldLabel,
+        objectFieldValue: createValue,
+    });
+
+    await viewObjectEntriesPage.saveObjectEntryButton.click();
+    await waitForAlert(page);
+    await viewObjectEntriesPage.backButton.click();
+
+    // Read
+    await expect(page.getByRole('cell', { name: createValue })).toBeVisible();
+
+    // Update
+    await page.getByRole('button', {name: 'Actions'}).last().click();
+    await page.getByRole('menuitem', {name: 'View'}).click();
+
+    const updateValue = isStandardObject ? `Last Name Updated ${getRandomInt()}` : getRandomString();
+
+    await viewObjectEntriesPage.fillObjectEntry({
+        objectFieldBusinessType: 'Text',
+        objectFieldLabel: fieldLabel,
+        objectFieldValue: updateValue,
+    });
+
+    await viewObjectEntriesPage.saveObjectEntryButton.click();
+    await expect(viewObjectEntriesPage.successMessage).toBeVisible();
+    await viewObjectEntriesPage.backButton.click();
+
+    await expect(page.getByRole('cell', { name: updateValue })).toBeVisible();
+
+    // Delete
+    await viewObjectEntriesPage.frontendDatasetActions.last().click();
+    await viewObjectEntriesPage.frontendDatasetDeleteAction.click();
+    await viewObjectEntriesPage.deletionConfirmationModal
+        .getByRole('button', { name: 'Delete' })
+        .click();
+
+    await expect(page.getByRole('cell', { name: updateValue })).toBeAttached({attached: false});
+}
+
 test(
-	'LPS-162131 Assert CRUD with created custom object using Salesforce storage type',
-	{tag: '@LPS-162131'},
-	async ({apiHelpers, page, site, viewObjectEntriesPage}) => {
+    'LPS-162131 Assert CRUD with created custom object using Salesforce storage type',
+    {tag: '@LPS-162131'},
+    async ({apiHelpers, page, viewObjectEntriesPage}) => {
+        const objectFields = generateObjectFields({
+            objectFieldBusinessTypes: [{
+                businessType: 'Text',
+                externalReferenceCode: 'Title__c',
+                label: { en_US: 'Title' },
+                name: 'title',
+            }],
+        });
 
-		const objectDefinitionAPIClient =
-			await apiHelpers.buildRestClient(ObjectDefinitionAPI);
-
-		const objectFields = generateObjectFields({
-        objectFieldBusinessTypes: [
-				{
-					businessType: 'Text',
-					externalReferenceCode: 'Title__c',
-					label: {
-						en_US: 'Title',
-					},
-					name: 'title',
-				},
-        	],
-    	});
-
-		const {body: objectDefinition} =
-			await objectDefinitionAPIClient.postObjectDefinition({
-				active: true,
-				externalReferenceCode: 'Poshi_Test__c',
-				label: {
-					en_US: "Poshi Test",
-				},
-				name: "PoshiTest",
-				objectFields,
-				panelCategoryKey: 'control_panel.object',
-				pluralLabel: {
-					en_US: "Poshi Tests",
-				},
-				portlet: true,
-				scope: 'company',
-				status: {
-					code: 0,
-				},
-				storageType: 'salesforce',
-			});
-
-		apiHelpers.data.push({
-			id: objectDefinition.id,
-			type: 'objectDefinition',
-		});
-
-		const fieldLabel = objectFields[0].label['en_US'];
-
-		// Create
-
-		await viewObjectEntriesPage.goto(objectDefinition.className);
-
-		await viewObjectEntriesPage.clickAddObjectEntry(
-			objectDefinition.label['en_US']
-		);
-
-		const createValue = getRandomString();
-
-		await viewObjectEntriesPage.fillObjectEntry({
-			objectFieldBusinessType: 'Text',
-			objectFieldLabel: fieldLabel,
-			objectFieldValue: createValue,
-		});
-
-		await viewObjectEntriesPage.saveObjectEntryButton.click();
-
-		await waitForAlert(page);
-
-		await viewObjectEntriesPage.backButton.click();
-
-		// Read
-
-		await expect(
-			page.getByRole('cell', { name: createValue })
-		).toBeVisible();
-
-		// Update
-
-		await page.getByRole('button', {name: 'Actions'}).last().click();
-
-		await page.getByRole('menuitem', {name: 'View'}).click();
-
-		const updateValue = getRandomString();
-
-		await viewObjectEntriesPage.fillObjectEntry({
-			objectFieldBusinessType: 'Text',
-			objectFieldLabel: fieldLabel,
-			objectFieldValue: updateValue,
-		});
-
-		await viewObjectEntriesPage.saveObjectEntryButton.click();
-
-		await expect(viewObjectEntriesPage.successMessage).toBeVisible();
-
-		await viewObjectEntriesPage.backButton.click();
-
-		await expect(
-			page.getByRole('cell', { name: updateValue })
-		).toBeVisible();
-
-		// Delete
-
-		await viewObjectEntriesPage.frontendDatasetActions.last().click();
-
-		await viewObjectEntriesPage.frontendDatasetDeleteAction.click();
-
-		await viewObjectEntriesPage.deletionConfirmationModal
-			.getByRole('button', {
-				name: 'Delete',
-			})
-			.click();
-
-		await expect(
-			page.getByRole('cell', { name: updateValue })
-		).toBeAttached({attached: false});
-	}
+        await runSalesforceCRUDTest({
+            apiHelpers,
+            page,
+            objectConfig: {
+                active: true,
+                externalReferenceCode: 'Poshi_Test__c',
+                label: { en_US: "Poshi Test" },
+                name: "PoshiTest",
+                objectFields,
+                panelCategoryKey: 'control_panel.object',
+                pluralLabel: { en_US: "Poshi Tests" },
+                portlet: true,
+                scope: 'company',
+                status: { code: 0 },
+                storageType: 'salesforce',
+            },
+			viewObjectEntriesPage
+        });
+    }
 );
 
 test(
-	'LPS-185429 Assert CRUD with created standard object using Salesforce storage type',
-	{tag: '@LPS-185429'},
-	async ({apiHelpers, page, site, viewObjectEntriesPage}) => {
+    'LPS-185429 Assert CRUD with created standard object using Salesforce storage type',
+    {tag: '@LPS-185429'},
+    async ({apiHelpers, page, viewObjectEntriesPage}) => {
+        const objectFields = generateObjectFields({
+            objectFieldBusinessTypes: [
+                { businessType: 'Text', externalReferenceCode: 'Email', label: { en_US: 'Email' }, name: 'email' },
+                { businessType: 'Text', externalReferenceCode: 'FirstName', label: { en_US: 'First Name' }, name: 'firstName' },
+                { businessType: 'Text', externalReferenceCode: 'LastName', label: { en_US: 'Last Name' }, name: 'lastName', required: true },
+                { businessType: 'Text', externalReferenceCode: 'Phone', label: { en_US: 'Phone' }, name: 'phone' },
+            ],
+        });
 
-		const objectDefinitionAPIClient =
-			await apiHelpers.buildRestClient(ObjectDefinitionAPI);
-
-		const objectFields = generateObjectFields({
-			        objectFieldBusinessTypes: [
-				{
-					businessType: 'Text',
-					externalReferenceCode: 'Email',
-					label: {
-						en_US: 'Email',
-					},
-					name: 'email',
-				},
-				{
-					businessType: 'Text',
-					externalReferenceCode: 'FirstName',
-					label: {
-						en_US: 'First Name',
-					},
-					name: 'firstName',
-				},
-				{
-					businessType: 'Text',
-					externalReferenceCode: 'LastName',
-					label: {
-						en_US: 'Last Name',
-					},
-					name: 'lastName',
-					required: true
-				},
-				{
-					businessType: 'Text',
-					externalReferenceCode: 'Phone',
-					label: {
-						en_US: 'Phone',
-					},
-					name: 'phone',
-				},
-        	],
-		});
-
-
-		const {body: objectDefinition} =
-			await objectDefinitionAPIClient.postObjectDefinition({
+        await runSalesforceCRUDTest({
+            apiHelpers,
+            page,
+            fieldIndex: 2,
+			objectConfig: {
 				active: true,
 				externalReferenceCode: "Contact",
-				label: {
-					en_US: "Contact",
-				},
+				label: { en_US: "Contact" },
 				name: "Contact",
 				objectFields,
 				panelCategoryKey: 'control_panel.object',
-				pluralLabel: {
-					en_US: "Contacts",
-				},
+				pluralLabel: { en_US: "Contacts" },
 				portlet: true,
 				scope: 'company',
-				status: {
-					code: 0,
-				},
+				status: { code: 0 },
 				storageType: 'salesforce',
-			});
-
-		apiHelpers.data.push({
-			id: objectDefinition.id,
-			type: 'objectDefinition',
-		});
-
-		const fieldLabel = objectFields[2].label['en_US'];
-
-		// Create
-
-		await viewObjectEntriesPage.goto(objectDefinition.className);
-
-		await viewObjectEntriesPage.clickAddObjectEntry(
-			objectDefinition.label['en_US']
-		);
-
-		const createValue = "Last Name " + getRandomInt();
-
-		await viewObjectEntriesPage.fillObjectEntry({
-			objectFieldBusinessType: 'Text',
-			objectFieldLabel: fieldLabel,
-			objectFieldValue: createValue,
-		});
-
-		await viewObjectEntriesPage.saveObjectEntryButton.click();
-
-		await waitForAlert(page);
-
-		await viewObjectEntriesPage.backButton.click();
-
-		// Read
-
-		await expect(
-			page.getByRole('cell', { name: createValue })
-		).toBeVisible();
-
-		// Update
-
-		await page.getByRole('button', {name: 'Actions'}).last().click();
-
-		await page.getByRole('menuitem', {name: 'View'}).click();
-
-		const updateValue ="Last Name Updated " + getRandomInt();;
-
-		await viewObjectEntriesPage.fillObjectEntry({
-			objectFieldBusinessType: 'Text',
-			objectFieldLabel: fieldLabel,
-			objectFieldValue: updateValue,
-		});
-
-		await viewObjectEntriesPage.saveObjectEntryButton.click();
-
-		await expect(viewObjectEntriesPage.successMessage).toBeVisible();
-
-		await viewObjectEntriesPage.backButton.click();
-
-		await expect(
-			page.getByRole('cell', { name: updateValue })
-		).toBeVisible();
-
-		// Delete
-
-		await viewObjectEntriesPage.frontendDatasetActions.last().click();
-
-		await viewObjectEntriesPage.frontendDatasetDeleteAction.click();
-
-		await viewObjectEntriesPage.deletionConfirmationModal
-			.getByRole('button', {
-				name: 'Delete',
-			})
-			.click();
-
-		await expect(
-			page.getByRole('cell', { name: updateValue })
-		).toBeAttached({attached: false});
-	}
+			},
+            viewObjectEntriesPage,
+            isStandardObject: true
+        });
+    }
 );
-
