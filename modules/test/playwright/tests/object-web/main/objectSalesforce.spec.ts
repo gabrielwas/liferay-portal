@@ -12,9 +12,12 @@ import {instanceSettingsPagesTest} from '../../../fixtures/instanceSettingsPages
 import {isolatedSiteTest} from '../../../fixtures/isolatedSiteTest';
 import {loginTest} from '../../../fixtures/loginTest';
 import {objectPagesTest} from '../../../fixtures/objectPagesTest';
+import {pageEditorPagesTest} from '../../../fixtures/pageEditorPagesTest';
 import {getRandomInt} from '../../../utils/getRandomInt';
 import getRandomString from '../../../utils/getRandomString';
 import {waitForAlert} from '../../../utils/waitForAlert';
+import getFormContainerDefinition from '../../layout-content-page-editor-web/main/utils/getFormContainerDefinition';
+import getPageDefinition from '../../layout-content-page-editor-web/main/utils/getPageDefinition';
 import {generateObjectFields} from './utils/generateObjectFields';
 
 const salesforceLoginURL = process.env.SALESFORCE_LOGIN_URL;
@@ -27,11 +30,13 @@ const test = mergeTests(
     dataApiHelpersTest,
     featureFlagsTest({
         'LPS-135430': {enabled: true},
+        'LPS-178052': {enabled: true},
     }),
     instanceSettingsPagesTest,
     isolatedSiteTest,
     loginTest(),
-    objectPagesTest
+    objectPagesTest,
+    pageEditorPagesTest
 );
 
 test.beforeEach(async ({instanceSettingsPage, page}) => {
@@ -194,4 +199,109 @@ test(
             isStandardObject: true
         });
     }
+);
+
+test(
+	'LPD-78504 Assert CRUD with form container using Salesforce storage type',
+	{tag: '@LPD-78504'},
+	async ({apiHelpers, page, pageEditorPage, site, viewObjectEntriesPage}) => {
+		const objectDefinitionAPIClient =
+			await apiHelpers.buildRestClient(ObjectDefinitionAPI);
+
+		const objectFields = generateObjectFields({
+			objectFieldBusinessTypes: [
+				{
+					businessType: 'Text',
+					externalReferenceCode: 'Title__c',
+					label: {en_US: 'Title'},
+					name: 'title',
+				},
+			],
+		});
+
+		const {body: objectDefinition} =
+			await objectDefinitionAPIClient.postObjectDefinition({
+				active: true,
+				enableFormContainer: true,
+				externalReferenceCode: 'Poshi_Test__c',
+				label: {en_US: 'Poshi Test'},
+				name: 'PoshiTest' + getRandomInt(),
+				objectFields,
+				panelCategoryKey: 'control_panel.object',
+				pluralLabel: {en_US: 'Poshi Tests'},
+				portlet: true,
+				scope: 'company',
+				status: {code: 0},
+				storageType: 'salesforce',
+			});
+
+		apiHelpers.data.push({
+			id: objectDefinition.id,
+			type: 'objectDefinition',
+		});
+
+		// Create a content page with a form container fragment
+
+		const formId = getRandomString();
+
+		const formDefinition = getFormContainerDefinition({id: formId});
+
+		const layout = await apiHelpers.headlessDelivery.createSitePage({
+			pageDefinition: getPageDefinition([formDefinition]),
+			siteId: site.id,
+			title: getRandomString(),
+		});
+
+		// Map the form container to the Salesforce object
+
+		await pageEditorPage.goto(layout, site.friendlyUrlPath);
+
+		await pageEditorPage.mapFormFragment(
+			formId,
+			objectDefinition.label['en_US'],
+			['Title']
+		);
+
+		await pageEditorPage.publishPage();
+
+		// Navigate to the published page and create an entry via the form
+
+		await page.goto(
+			`/web${site.friendlyUrlPath}${layout.friendlyUrlPath}`
+		);
+
+		const entryValue = 'Entry added on form container';
+
+		await page.getByRole('textbox', {name: 'Title'}).fill(entryValue);
+
+		await page.getByRole('button', {name: 'Submit'}).click();
+
+		await expect(
+			page.getByText(
+				'Thank you. Your information was successfully received.'
+			)
+		).toBeVisible();
+
+		// Verify the entry exists in the object admin
+
+		await viewObjectEntriesPage.goto(objectDefinition.className);
+
+		await expect(
+			page.getByRole('cell', {name: entryValue})
+		).toBeVisible();
+
+		// Delete the entry and verify it is removed
+
+		await viewObjectEntriesPage.frontendDatasetActions.click();
+
+		await viewObjectEntriesPage.frontendDatasetDeleteAction.click();
+
+		await viewObjectEntriesPage.deletionConfirmationModal
+			.getByRole('button', {name: 'Delete'})
+			.click();
+
+		await expect(
+			page.getByRole('cell', {name: entryValue})
+		).toBeAttached({attached: false});
+	}
 );
