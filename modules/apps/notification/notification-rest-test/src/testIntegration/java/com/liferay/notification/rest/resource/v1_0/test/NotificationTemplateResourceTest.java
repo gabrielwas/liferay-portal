@@ -104,6 +104,103 @@ public class NotificationTemplateResourceTest
 
 	@Override
 	@Test
+	public void testPatchNotificationTemplate() throws Exception {
+		super.testPatchNotificationTemplate();
+
+		// Patch notification template with email recipients
+
+		String fromName = RandomTestUtil.randomString();
+		String to = RandomTestUtil.randomString();
+
+		JSONObject recipientJSONObject = JSONUtil.put(
+			"from", RandomTestUtil.randomString()
+		).put(
+			"fromName", JSONUtil.put("en_US", fromName)
+		).put(
+			"to", JSONUtil.put("en_US", to)
+		).put(
+			"toType", NotificationRecipientConstants.TYPE_EMAIL
+		);
+
+		JSONObject postJSONObject = JSONUtil.put(
+			"editorType", NotificationTemplateConstants.EDITOR_TYPE_RICH_TEXT
+		).put(
+			"name", RandomTestUtil.randomString()
+		).put(
+			"recipients", JSONUtil.putAll(recipientJSONObject)
+		).put(
+			"subject",
+			JSONUtil.put(
+				LocaleUtil.toLanguageId(LocaleUtil.getDefault()),
+				RandomTestUtil.randomString())
+		).put(
+			"type", NotificationConstants.TYPE_EMAIL
+		);
+
+		JSONObject postResponseJSONObject =
+			HTTPTestUtil.invokeToJSONObject(
+				postJSONObject.toString(),
+				"notification/v1.0/notification-templates",
+				Http.Method.POST);
+
+		long notificationTemplateId = postResponseJSONObject.getLong("id");
+
+		_notificationTemplates.add(
+			_notificationTemplateLocalService.fetchNotificationTemplate(
+				notificationTemplateId));
+
+		// Patch recipients with updated localized fields
+
+		String updatedFromName = RandomTestUtil.randomString();
+		String updatedTo = RandomTestUtil.randomString();
+		String updatedFrom = RandomTestUtil.randomString();
+
+		JSONObject updatedRecipientJSONObject = JSONUtil.put(
+			"from", updatedFrom
+		).put(
+			"fromName", JSONUtil.put("en_US", updatedFromName)
+		).put(
+			"to", JSONUtil.put("en_US", updatedTo)
+		).put(
+			"toType", NotificationRecipientConstants.TYPE_EMAIL
+		);
+
+		JSONObject patchJSONObject = JSONUtil.put(
+			"recipients", JSONUtil.putAll(updatedRecipientJSONObject));
+
+		JSONObject patchResponseJSONObject =
+			HTTPTestUtil.invokeToJSONObject(
+				patchJSONObject.toString(),
+				"notification/v1.0/notification-templates/" +
+					notificationTemplateId,
+				Http.Method.PATCH);
+
+		JSONAssert.assertEquals(
+			updatedRecipientJSONObject.toString(),
+			JSONUtil.getValueAsString(
+				patchResponseJSONObject, "JSONArray/recipients",
+				"JSONObject/0"),
+			JSONCompareMode.LENIENT);
+
+		// Verify the patched values persist with a GET
+
+		JSONObject getResponseJSONObject =
+			HTTPTestUtil.invokeToJSONObject(
+				null,
+				"notification/v1.0/notification-templates/" +
+					notificationTemplateId,
+				Http.Method.GET);
+
+		JSONAssert.assertEquals(
+			updatedRecipientJSONObject.toString(),
+			JSONUtil.getValueAsString(
+				getResponseJSONObject, "JSONArray/recipients",
+				"JSONObject/0"),
+			JSONCompareMode.LENIENT);
+	}
+
+	@Override
+	@Test
 	public void testPostNotificationTemplate() throws Exception {
 		super.testPostNotificationTemplate();
 
