@@ -105,8 +105,7 @@
 					},
 					"localized": true,
 					"name": "title",
-					"objectFieldSettings": [
-					],
+					"objectFieldSettings": [],
 					"readOnly": "false",
 					"readOnlyConditionExpression": "",
 					"required": true,
@@ -756,6 +755,336 @@
 			},
 			"system": true,
 			"titleObjectFieldName": "title"
+		},
+		{
+			"className": "com.liferay.object.model.ObjectDefinition#D1N2",
+			"enableCategorization": true,
+			"enableComments": false,
+			"enableFormContainer": true,
+			"enableFriendlyURLCustomization": false,
+			"enableIndexSearch": true,
+			"enableLocalization": true,
+			"enableObjectEntryDraft": false,
+			"enableObjectEntryHistory": false,
+			"enableObjectEntrySchedule": false,
+			"enableObjectEntrySubscription": false,
+			"enableObjectEntryVersioning": false,
+			"externalReferenceCode": "407ea6ff-41ae-04a4-83be-3511f8867e98",
+			"label": {
+				"en_US": "Team"
+			},
+			"modifiable": true,
+			"name": "Team",
+			"objectActions": [],
+			"objectDefinitionSettings": [],
+			"objectFields": [
+				{
+					"indexed": false,
+					"defaultValue": "null",
+					"localized": false,
+					"objectFieldSettings": [],
+					"readOnly": "true",
+					"DBType": "String",
+					"label": {
+						"en_US": "Author"
+					},
+					"type": "String",
+					"required": false,
+					"externalReferenceCode": "6e63e0e6-2736-ccaa-edb1-ad9c4c7ebe7d",
+					"indexedAsKeyword": false,
+					"system": true,
+					"indexedLanguageId": "",
+					"unique": false,
+					"name": "creator",
+					"state": false,
+					"businessType": "Text",
+					"readOnlyConditionExpression": ""
+				},
+				{
+					"indexed": false,
+					"defaultValue": "null",
+					"localized": false,
+					"objectFieldSettings": [],
+					"readOnly": "true",
+					"DBType": "Date",
+					"label": {
+						"en_US": "Create Date"
+					},
+					"type": "Date",
+					"required": false,
+					"externalReferenceCode": "c732e34d-6320-efc0-37a3-d10df281a4a2",
+					"indexedAsKeyword": false,
+					"system": true,
+					"indexedLanguageId": "",
+					"unique": false,
+					"name": "createDate",
+					"state": false,
+					"businessType": "Date",
+					"readOnlyConditionExpression": ""
+				},
+				{
+					"indexed": false,
+					"defaultValue": "null",
+					"localized": false,
+					"objectFieldSettings": [],
+					"readOnly": "false",
+					"DBType": "String",
+					"label": {
+						"en_US": "External Reference Code"
+					},
+					"type": "String",
+					"required": false,
+					"externalReferenceCode": "f8576386-1e93-e029-8da6-848091409b71",
+					"indexedAsKeyword": false,
+					"system": true,
+					"indexedLanguageId": "",
+					"unique": false,
+					"name": "externalReferenceCode",
+					"state": false,
+					"businessType": "Text",
+					"readOnlyConditionExpression": ""
+				},
+				{
+					"indexed": false,
+					"defaultValue": "null",
+					"localized": false,
+					"objectFieldSettings": [
+						{
+							"name": "timeStorage",
+							"value": "convertToUTC"
+						}
+					],
+					"readOnly": "false",
+					"DBType": "DateTime",
+					"label": {
+						"en_US": "Display Date"
+					},
+					"type": "DateTime",
+					"required": false,
+					"externalReferenceCode": "dde5ae74-df05-d16d-d1e1-1222359f37ab",
+					"indexedAsKeyword": false,
+					"system": true,
+					"indexedLanguageId": "",
+					"unique": false,
+					"name": "displayDate",
+					"state": false,
+					"businessType": "DateTime",
+					"readOnlyConditionExpression": ""
+				},
+				{
+					"indexed": false,
+					"defaultValue": "null",
+					"localized": false,
+					"objectFieldSettings": [
+						{
+							"name": "timeStorage",
+							"value": "convertToUTC"
+						}
+					],
+					"readOnly": "false",
+					"DBType": "DateTime",
+					"label": {
+						"en_US": "Expiration Date"
+					},
+					"type": "DateTime",
+					"required": false,
+					"externalReferenceCode": "1867cdd8-9da6-0487-3d5d-4ddcbfef199c",
+					"indexedAsKeyword": false,
+					"system": true,
+					"indexedLanguageId": "",
+					"unique": false,
+					"name": "expirationDate",
+					"state": false,
+					"businessType": "DateTime",
+					"readOnlyConditionExpression": ""
+				},
+				{
+					"indexed": false,
+					"defaultValue": "null",
+					"localized": false,
+					"objectFieldSettings": [
+						{
+							"name": "timeStorage",
+							"value": "convertToUTC"
+						}
+					],
+					"readOnly": "false",
+					"DBType": "DateTime",
+					"label": {
+						"en_US": "Review Date"
+					},
+					"type": "DateTime",
+					"required": false,
+					"externalReferenceCode": "ea5ac464-027b-62aa-8536-6c8c12540e48",
+					"indexedAsKeyword": false,
+					"system": true,
+					"indexedLanguageId": "",
+					"unique": false,
+					"name": "reviewDate",
+					"state": false,
+					"businessType": "DateTime",
+					"readOnlyConditionExpression": ""
+				},
+				{
+					"indexed": true,
+					"defaultValue": "null",
+					"localized": false,
+					"objectFieldSettings": [],
+					"readOnly": "true",
+					"DBType": "Long",
+					"label": {
+						"en_US": "ID"
+					},
+					"type": "Long",
+					"required": false,
+					"externalReferenceCode": "894c5412-542d-392e-ffde-dc19b63728db",
+					"indexedAsKeyword": true,
+					"system": true,
+					"indexedLanguageId": "",
+					"unique": false,
+					"name": "id",
+					"state": false,
+					"businessType": "LongInteger",
+					"readOnlyConditionExpression": ""
+				},
+				{
+					"indexed": false,
+					"defaultValue": "null",
+					"localized": false,
+					"objectFieldSettings": [],
+					"readOnly": "true",
+					"DBType": "Date",
+					"label": {
+						"en_US": "Modified Date"
+					},
+					"type": "Date",
+					"required": false,
+					"externalReferenceCode": "f710122a-113b-b428-24e8-44fbdfc13499",
+					"indexedAsKeyword": false,
+					"system": true,
+					"indexedLanguageId": "",
+					"unique": false,
+					"name": "modifiedDate",
+					"state": false,
+					"businessType": "Date",
+					"readOnlyConditionExpression": ""
+				},
+				{
+					"indexed": false,
+					"defaultValue": "null",
+					"localized": false,
+					"objectFieldSettings": [],
+					"readOnly": "true",
+					"DBType": "Integer",
+					"label": {
+						"en_US": "Status"
+					},
+					"type": "Integer",
+					"required": false,
+					"externalReferenceCode": "3049fec6-be7a-42d4-213f-6696593d069e",
+					"indexedAsKeyword": false,
+					"system": true,
+					"indexedLanguageId": "",
+					"unique": false,
+					"name": "status",
+					"state": false,
+					"businessType": "Text",
+					"readOnlyConditionExpression": ""
+				},
+				{
+					"indexed": true,
+					"defaultValue": "null",
+					"localized": false,
+					"objectFieldSettings": [
+						{
+							"name": "showCounter",
+							"value": false
+						}
+					],
+					"readOnly": "false",
+					"DBType": "String",
+					"label": {
+						"en_US": "Title"
+					},
+					"type": "String",
+					"required": false,
+					"externalReferenceCode": "4ec653fd-309e-0a79-16e1-9d8ab8d5f35f",
+					"indexedAsKeyword": false,
+					"system": false,
+					"indexedLanguageId": "en_US",
+					"unique": false,
+					"name": "title",
+					"state": false,
+					"businessType": "Text",
+					"readOnlyConditionExpression": ""
+				},
+				{
+					"indexed": true,
+					"defaultValue": "null",
+					"localized": false,
+					"objectFieldSettings": [
+						{
+							"name": "showCounter",
+							"value": false
+						}
+					],
+					"readOnly": "false",
+					"DBType": "Clob",
+					"label": {
+						"en_US": "Description"
+					},
+					"type": "Clob",
+					"required": false,
+					"externalReferenceCode": "13966dc5-b364-ae53-bdd3-842ecb8272fb",
+					"indexedAsKeyword": false,
+					"system": false,
+					"indexedLanguageId": "en_US",
+					"unique": false,
+					"name": "description",
+					"state": false,
+					"businessType": "LongText",
+					"readOnlyConditionExpression": ""
+				},
+				{
+					"indexed": true,
+					"defaultValue": "null",
+					"localized": false,
+					"objectFieldSettings": [],
+					"readOnly": "false",
+					"DBType": "Integer",
+					"label": {
+						"en_US": "Size"
+					},
+					"type": "Integer",
+					"required": false,
+					"externalReferenceCode": "22358ec6-6d2b-fd68-fb3a-821056265cd6",
+					"indexedAsKeyword": false,
+					"system": false,
+					"indexedLanguageId": "",
+					"unique": false,
+					"name": "size",
+					"state": false,
+					"businessType": "Integer",
+					"readOnlyConditionExpression": ""
+				}
+			],
+			"objectFolderExternalReferenceCode": "default",
+			"objectRelationships": [],
+			"objectValidationRules": [],
+			"panelCategoryKey": "",
+			"parameterRequired": false,
+			"pluralLabel": {
+				"en_US": "Team"
+			},
+			"portlet": true,
+			"scope": "company",
+			"status": {
+				"label_i18n": "Approved",
+				"code": 0,
+				"label": "approved"
+			},
+			"system": false,
+			"titleObjectFieldName": "externalReferenceCode"
 		}
 	]
 }
