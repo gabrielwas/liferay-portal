@@ -881,6 +881,308 @@ test.describe('Email notification template', () => {
 			});
 		}
 	);
+
+	test(
+		'can add attachment to notification template',
+		{tag: '@LPD-78504'},
+		async ({
+			apiHelpers,
+			emailNotificationTemplatePage,
+			notificationTemplatesPage,
+			page,
+		}) => {
+			const objectName = 'ObjectAttach' + getRandomInt();
+
+			const attachmentObjectDefinition =
+				await apiHelpers.objectAdmin.postRandomObjectDefinition({
+					objectDefinitionExternalReferenceCode: objectName,
+					objectFields: [
+						{
+							DBType: 'Long',
+							businessType: 'Attachment',
+							externalReferenceCode: 'attachmentField',
+							indexed: true,
+							indexedAsKeyword: false,
+							indexedLanguageId: '',
+							label: {en_US: 'From Computer And Show Files In DM'},
+							listTypeDefinitionId: 0,
+							localized: false,
+							name: 'attachmentField',
+							objectFieldSettings: [
+								{
+									name: 'acceptedFileExtensions',
+									value: 'jpeg, jpg, pdf, png' as unknown as object,
+								},
+								{
+									name: 'fileSource',
+									value: 'userComputer' as unknown as object,
+								},
+								{
+									name: 'maximumFileSize',
+									value: 100 as unknown as object,
+								},
+							],
+							required: false,
+							system: false,
+							type: 'Long',
+						},
+					],
+					status: {code: 0},
+				});
+
+			apiHelpers.data.push({
+				id: attachmentObjectDefinition.id,
+				type: 'objectDefinition',
+			});
+
+			await emailNotificationTemplatePage.goto();
+
+			const templateName = 'Notification Template ' + getRandomInt();
+
+			await emailNotificationTemplatePage.basicInfoName.fill(templateName);
+			await emailNotificationTemplatePage.senderEmailAddress.fill(
+				'test@liferay.com'
+			);
+			await emailNotificationTemplatePage.senderName.fill('Test Test');
+			await emailNotificationTemplatePage.contentSubject.fill('Subject');
+
+			await page.getByLabel('Data Source').click();
+			await page.getByRole('option', {name: objectName}).click();
+
+			await page.getByPlaceholder('Select a Field').click();
+			await page
+				.getByRole('option', {
+					name: 'From Computer And Show Files In DM',
+				})
+				.click();
+
+			await emailNotificationTemplatePage.saveButton.click();
+
+			await waitForAlert(page);
+
+			await notificationTemplatesPage.goto();
+
+			await notificationTemplatesPage
+				.getFrontEndDatasetItemLocator(templateName)
+				.click();
+
+			await expect(page.getByLabel('Data Source')).toContainText(
+				objectName
+			);
+
+			await expect(
+				page.getByText('From Computer And Show Files In DM')
+			).toBeVisible();
+		}
+	);
+
+	test(
+		'can change notification template data source',
+		{tag: '@LPD-78504'},
+		async ({apiHelpers, emailNotificationTemplatePage, page}) => {
+			const dataSourceObjectDefinitions: ObjectDefinition[] = [];
+
+			for (const letter of ['A', 'B']) {
+				const objectName = `ObjectDS${letter}${getRandomInt()}`;
+
+				const dataSourceObjectDefinition =
+					await apiHelpers.objectAdmin.postRandomObjectDefinition({
+						objectDefinitionExternalReferenceCode: objectName,
+						objectFields: [
+							{
+								DBType: 'Long',
+								businessType: 'Attachment',
+								externalReferenceCode: `attachmentField${letter}`,
+								indexed: true,
+								indexedAsKeyword: false,
+								indexedLanguageId: '',
+								label: {
+									en_US: `Custom Attachment Field ${letter}`,
+								},
+								listTypeDefinitionId: 0,
+								localized: false,
+								name: `customAttachmentField${letter}`,
+								objectFieldSettings: [
+									{
+										name: 'acceptedFileExtensions',
+										value: 'jpeg, jpg, pdf, png' as unknown as object,
+									},
+									{
+										name: 'fileSource',
+										value: 'userComputer' as unknown as object,
+									},
+									{
+										name: 'maximumFileSize',
+										value: 100 as unknown as object,
+									},
+								],
+								required: false,
+								system: false,
+								type: 'Long',
+							},
+						],
+						status: {code: 0},
+					});
+
+				apiHelpers.data.push({
+					id: dataSourceObjectDefinition.id,
+					type: 'objectDefinition',
+				});
+
+				dataSourceObjectDefinitions.push(dataSourceObjectDefinition);
+			}
+
+			const objectNameA = dataSourceObjectDefinitions[0].name;
+			const objectNameB = dataSourceObjectDefinitions[1].name;
+
+			await emailNotificationTemplatePage.goto();
+
+			await page.getByLabel('Data Source').click();
+			await page.getByRole('option', {name: objectNameA}).click();
+
+			await page.getByPlaceholder('Select a Field').click();
+			await page
+				.getByRole('option', {name: 'Custom Attachment Field A'})
+				.click();
+
+			await page.getByLabel('Data Source').click();
+			await page.getByRole('option', {name: objectNameB}).click();
+
+			await page.getByPlaceholder('Select a Field').click();
+
+			await expect(
+				page.getByRole('option', {name: 'Custom Attachment Field B'})
+			).toBeVisible();
+		}
+	);
+
+	test(
+		'can delete attachment from notification template',
+		{tag: '@LPD-78504'},
+		async ({
+			apiHelpers,
+			emailNotificationTemplatePage,
+			notificationTemplatesPage,
+			page,
+		}) => {
+			const objectName = 'ObjectDelAttach' + getRandomInt();
+
+			const attachmentObjectDefinition =
+				await apiHelpers.objectAdmin.postRandomObjectDefinition({
+					objectDefinitionExternalReferenceCode: objectName,
+					objectFields: [
+						{
+							DBType: 'Long',
+							businessType: 'Attachment',
+							externalReferenceCode: 'attachmentField',
+							indexed: true,
+							indexedAsKeyword: false,
+							indexedLanguageId: '',
+							label: {en_US: 'From Computer And Show Files In DM'},
+							listTypeDefinitionId: 0,
+							localized: false,
+							name: 'attachmentField',
+							objectFieldSettings: [
+								{
+									name: 'acceptedFileExtensions',
+									value: 'jpeg, jpg, pdf, png' as unknown as object,
+								},
+								{
+									name: 'fileSource',
+									value: 'userComputer' as unknown as object,
+								},
+								{
+									name: 'maximumFileSize',
+									value: 100 as unknown as object,
+								},
+							],
+							required: false,
+							system: false,
+							type: 'Long',
+						},
+					],
+					status: {code: 0},
+				});
+
+			apiHelpers.data.push({
+				id: attachmentObjectDefinition.id,
+				type: 'objectDefinition',
+			});
+
+			await emailNotificationTemplatePage.goto();
+
+			const templateName = 'Notification Template ' + getRandomInt();
+
+			await emailNotificationTemplatePage.basicInfoName.fill(templateName);
+			await emailNotificationTemplatePage.senderEmailAddress.fill(
+				'test@liferay.com'
+			);
+			await emailNotificationTemplatePage.senderName.fill('Test Test');
+			await emailNotificationTemplatePage.contentSubject.fill('Subject');
+
+			await page.getByLabel('Data Source').click();
+			await page.getByRole('option', {name: objectName}).click();
+
+			await page.getByPlaceholder('Select a Field').click();
+			await page
+				.getByRole('option', {
+					name: 'From Computer And Show Files In DM',
+				})
+				.click();
+
+			await emailNotificationTemplatePage.saveButton.click();
+
+			await waitForAlert(page);
+
+			await notificationTemplatesPage.goto();
+
+			await notificationTemplatesPage
+				.getFrontEndDatasetItemLocator(templateName)
+				.click();
+
+			await page.getByRole('button', {name: 'Delete'}).last().click();
+
+			await expect(
+				page.getByPlaceholder('Select a Field')
+			).toBeVisible();
+		}
+	);
+
+	test(
+		'can delete email notification template',
+		{tag: '@LPD-78504'},
+		async ({apiHelpers, notificationTemplatesPage, page}) => {
+			const templateName = 'Notification Template ' + getRandomInt();
+
+			await apiHelpers.notification.postRandomNotificationTemplate(
+				templateName
+			);
+
+			await notificationTemplatesPage.goto();
+
+			await expect(
+				notificationTemplatesPage.getFrontEndDatasetItemLocator(
+					templateName
+				)
+			).toBeVisible();
+
+			const actionButton = page
+				.getByRole('row', {name: templateName})
+				.getByRole('button', {name: 'Actions'});
+
+			await actionButton.click();
+
+			await notificationTemplatesPage.frontEndDatasetItemActionDelete.click();
+
+			await waitForAlert(page);
+
+			await expect(
+				notificationTemplatesPage.getFrontEndDatasetItemLocator(
+					templateName
+				)
+			).not.toBeVisible();
+		}
+	);
 });
 
 ckEditor5Test.describe('Content template with CKEditor5', () => {
