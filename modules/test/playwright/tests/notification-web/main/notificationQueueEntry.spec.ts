@@ -9,9 +9,15 @@ import {expect, mergeTests} from '@playwright/test';
 import {apiHelpersTest} from '../../../fixtures/apiHelpersTest';
 import {dataApiHelpersTest} from '../../../fixtures/dataApiHelpersTest';
 import {loginTest} from '../../../fixtures/loginTest';
+import {smtpPagesTest} from '../../../fixtures/smtpPagesTest';
 import {getRandomInt} from '../../../utils/getRandomInt';
 
-const test = mergeTests(apiHelpersTest, dataApiHelpersTest, loginTest());
+const test = mergeTests(
+	apiHelpersTest,
+	dataApiHelpersTest,
+	loginTest(),
+	smtpPagesTest
+);
 
 test.describe('Notification queue entry', () => {
 	test(
@@ -105,11 +111,43 @@ test.describe('Notification queue entry', () => {
 	test(
 		'can add email notification to queue via API',
 		{tag: '@LPD-78504'},
-		async () => {
-			// This test requires a mock SMTP server which is not available
-			// in the Playwright test infrastructure
+		async ({apiHelpers, mockMockPage}) => {
+			await mockMockPage.deleteAllEmails();
 
-			test.fixme();
+			const body = 'The quick brown fox jumps over the lazy dog';
+			const subject = 'Pangram Test ' + getRandomInt();
+			const toAddress = 'pangram' + getRandomInt() + '@liferay.com';
+
+			const queueEntry = await apiHelpers.post(
+				`${apiHelpers.baseUrl}notification/v1.0/notification-queue-entries`,
+				{
+					data: {
+						body,
+						fromName: 'Liferay',
+						recipients: [
+							{
+								from: 'noreply@example.com',
+								fromName: {en_US: 'Liferay'},
+								to: {en_US: toAddress},
+								toType: 'email',
+							},
+						],
+						subject,
+						type: 'email',
+					},
+				}
+			);
+
+			apiHelpers.data.push({
+				id: queueEntry.id,
+				type: 'notificationQueueEntry',
+			});
+
+			await mockMockPage.assertEmail({
+				body,
+				subject,
+				to: toAddress,
+			});
 		}
 	);
 });
