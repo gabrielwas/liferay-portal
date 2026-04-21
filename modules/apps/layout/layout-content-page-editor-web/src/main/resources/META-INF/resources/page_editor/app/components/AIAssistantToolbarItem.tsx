@@ -8,15 +8,14 @@ import {
 	ChatContext,
 } from '@liferay/ai-hub-cell-js-components-web';
 import {fetch} from 'frontend-js-web';
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef} from 'react';
 
-import {config} from '../../../app/config/index';
+import {config} from '../config/index';
 
 const HEADLESS_ADMIN_SITE_V1 = '/o/headless-admin-site/v1.0';
 
-export default function AIAssistantSidebar() {
+export default function AIAssistantToolbarItem() {
 	const currentPageRef = useRef<unknown>(null);
-	const [ready, setReady] = useState(false);
 
 	const {layoutExternalReferenceCode, siteExternalReferenceCode} = config;
 
@@ -43,25 +42,17 @@ export default function AIAssistantSidebar() {
 
 				if (!cancelled) {
 					currentPageRef.current = data;
-					setReady(true);
 				}
 			}
 			catch (error) {
 				console.warn(
-					`AIAssistantSidebar: ${(error as Error).message}`
+					`AIAssistantToolbarItem: ${(error as Error).message}`
 				);
-
-				if (!cancelled) {
-					setReady(true);
-				}
 			}
 		}
 
 		if (siteExternalReferenceCode && layoutExternalReferenceCode) {
 			loadCurrentPage();
-		}
-		else {
-			setReady(true);
 		}
 
 		return () => {
@@ -78,13 +69,5 @@ export default function AIAssistantSidebar() {
 		};
 	}
 
-	if (!ready) {
-		return null;
-	}
-
-	return (
-		<div className="p-3">
-			<AIAssistantChat getContext={getContext} />
-		</div>
-	);
+	return <AIAssistantChat getContext={getContext} />;
 }
