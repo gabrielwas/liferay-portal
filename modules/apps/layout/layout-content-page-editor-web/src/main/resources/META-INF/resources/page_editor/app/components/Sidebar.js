@@ -11,7 +11,6 @@ import {useId, useSessionState} from 'frontend-js-components-web';
 import {sub} from 'frontend-js-web';
 import React, {useRef} from 'react';
 
-import AIAssistantSidebar from '../../plugins/ai_assistant/components/AIAssistantSidebar';
 import BrowserSidebar from '../../plugins/browser/components/BrowserSidebar';
 import CommentsSidebar from '../../plugins/comments/components/CommentsSidebar';
 import FragmentsSidebar from '../../plugins/fragments_and_widgets/components/FragmentsSidebar';
@@ -338,7 +337,6 @@ export default function Sidebar() {
 }
 
 const PANEL_COMPONENTS = {
-	ai_assistant: AIAssistantSidebar,
 	browser: BrowserSidebar,
 	comments: CommentsSidebar,
 	fragments_and_widgets: FragmentsSidebar,
