@@ -11,6 +11,7 @@ import com.liferay.oauth2.provider.service.OAuth2ApplicationLocalServiceUtil;
 import com.liferay.oauth2.provider.service.OAuth2AuthorizationLocalServiceUtil;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.reflect.ReflectionUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.util.ContentTypes;
@@ -28,9 +29,7 @@ import dev.langchain4j.agent.tool.Tool;
  */
 public class SitePageTools {
 
-	public SitePageTools(
-		String accessToken, long companyId, String userToken) {
-
+	public SitePageTools(String accessToken, long companyId, String userToken) {
 		_accessToken = accessToken;
 		_companyId = companyId;
 		_userToken = userToken;
@@ -41,10 +40,10 @@ public class SitePageTools {
 			"customer's Liferay environment."
 	)
 	public String getSitePage(
-		@P("Site external reference code, e.g. L_GUEST")
-		String siteExternalReferenceCode,
-		@P("Site page external reference code")
-		String sitePageExternalReferenceCode) {
+		@P("Site external reference code, e.g. L_GUEST") String
+			siteExternalReferenceCode,
+		@P("Site page external reference code") String
+			sitePageExternalReferenceCode) {
 
 		try (SafeCloseable safeCloseable =
 				CompanyThreadLocal.setCompanyIdWithSafeCloseable(_companyId)) {
@@ -77,12 +76,11 @@ public class SitePageTools {
 			OAuth2ApplicationLocalServiceUtil.getOAuth2Application(
 				oAuth2Authorization.getOAuth2ApplicationId());
 
-		String location =
-			oAuth2Application.getHomePageURL() +
-				"/o/headless-admin-site/v1.0/sites/" +
-					URLCodec.encodeURL(siteExternalReferenceCode) +
-						"/site-pages/" +
-							URLCodec.encodeURL(sitePageExternalReferenceCode);
+		String location = StringBundler.concat(
+			oAuth2Application.getHomePageURL(),
+			"/o/headless-admin-site/v1.0/sites/",
+			URLCodec.encodeURL(siteExternalReferenceCode), "/site-pages/",
+			URLCodec.encodeURL(sitePageExternalReferenceCode));
 
 		location = HttpComponentsUtil.addParameter(
 			location, "nestedFields", "pageSpecifications");
