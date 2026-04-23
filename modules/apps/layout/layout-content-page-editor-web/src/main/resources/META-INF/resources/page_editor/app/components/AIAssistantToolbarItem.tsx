@@ -17,8 +17,8 @@ export default function AIAssistantToolbarItem() {
 	function getContext(): ChatContext {
 		return {
 			context: {
-				page_external_reference_code: layoutExternalReferenceCode,
-				site_external_reference_code: siteExternalReferenceCode,
+				siteExternalReferenceCode,
+				sitePageExternalReferenceCode: layoutExternalReferenceCode,
 			},
 			instructionDefinitionScope: 'pageEditor',
 		};
