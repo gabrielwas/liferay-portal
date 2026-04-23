@@ -35,13 +35,9 @@ public class SitePageTools {
 		_userToken = userToken;
 	}
 
-	@Tool(
-		"Retrieve a site page and its page specifications from the " +
-			"customer's Liferay environment."
-	)
+	@Tool("Retrieve a site page and its page specifications")
 	public String getSitePage(
-		@P("Site external reference code, e.g. L_GUEST") String
-			siteExternalReferenceCode,
+		@P("Site external reference code") String siteExternalReferenceCode,
 		@P("Site page external reference code") String
 			sitePageExternalReferenceCode) {
 
