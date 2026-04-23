@@ -25,7 +25,8 @@ export default function AIAssistantToolbarItem() {
 	}
 
 	function handleExternalEvent(type: string) {
-		if (type === 'PageUpdate') {
+		// TEMP: testing — reload on assistant reply instead of PageUpdate.
+		if (type === 'Chat Message Sent') {
 			window.location.reload();
 		}
 	}
@@ -33,7 +34,7 @@ export default function AIAssistantToolbarItem() {
 	return (
 		<AIAssistantChat
 			compact
-			externalEventTypes={['PageUpdate']}
+			externalEventTypes={['Chat Message Sent']}
 			getContext={getContext}
 			onExternalEvent={handleExternalEvent}
 		/>
