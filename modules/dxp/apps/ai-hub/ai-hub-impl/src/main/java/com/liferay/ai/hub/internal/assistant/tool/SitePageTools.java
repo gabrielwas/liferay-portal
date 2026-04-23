@@ -281,17 +281,14 @@ public class SitePageTools {
 					". Response body: ", responseBody));
 
 			return StringBundler.concat(
-				"HTTP ", responseCode, _RETRY_HINT_PREFIX, body,
-				"\n\nError response:\n", responseBody);
+				"HTTP ", responseCode,
+				". The update failed. Do not retry updateSitePage. Report ",
+				"the failure to the user and stop.\n\nError response:\n",
+				responseBody);
 		}
 
 		return responseBody;
 	}
-
-	private static final String _RETRY_HINT_PREFIX =
-		". The server rejected the request. Compare the body you sent with " +
-			"the error response below, correct the body, and call " +
-				"updateSitePage again.\n\nRequest body sent:\n";
 
 	private static final Log _log = LogFactoryUtil.getLog(SitePageTools.class);
 
