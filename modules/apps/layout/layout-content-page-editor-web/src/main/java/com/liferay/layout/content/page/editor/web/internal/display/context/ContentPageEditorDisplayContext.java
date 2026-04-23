@@ -618,8 +618,23 @@ public class ContentPageEditorDisplayContext {
 					portletRequest, "layoutConversionWarningMessages")
 			).put(
 				"layoutExternalReferenceCode",
-				GetterUtil.getString(
-					themeDisplay.getLayout().getExternalReferenceCode())
+				() -> {
+					Layout layout = themeDisplay.getLayout();
+
+					if (layout.isDraftLayout()) {
+						Layout publishedLayout =
+							_layoutLocalService.fetchLayout(
+								layout.getClassPK());
+
+						if (publishedLayout != null) {
+							return GetterUtil.getString(
+								publishedLayout.getExternalReferenceCode());
+						}
+					}
+
+					return GetterUtil.getString(
+						layout.getExternalReferenceCode());
+				}
 			).put(
 				"layoutItemSelectorURL", _getLayoutItemSelectorURL()
 			).put(
