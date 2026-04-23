@@ -392,13 +392,17 @@ export class PageEditorPage {
 		await field.waitFor();
 
 		if (valueFromStylebook) {
-			await field
-				.getByLabel('Value from Stylebook', {exact: true})
+			await field.getByLabel('Select Color', {exact: true}).click();
+
+			await this.page
+				.getByRole('tab', {name: 'Value from Stylebook'})
 				.click();
 
-			const valueButton = this.page.getByTitle(value as string, {
-				exact: true,
-			});
+			const valueButton = this.page
+				.locator('.show')
+				.getByTitle(value as string, {
+					exact: true,
+				});
 
 			await valueButton.click();
 		}
@@ -453,10 +457,10 @@ export class PageEditorPage {
 		if (unit) {
 			await this.page
 				.locator('.page-editor__spacing-selector__dropdown')
-				.getByRole('button', {name: 'Select a unit'})
+				.getByRole('combobox', {name: 'Select a unit'})
 				.click();
 
-			await this.page.getByRole('menuitem', {name: unit}).click();
+			await this.page.getByRole('option', {name: unit}).click();
 
 			const input = this.page.getByRole(
 				unit === 'custom' ? 'textbox' : 'spinbutton',
@@ -1396,7 +1400,12 @@ export class PageEditorPage {
 		await this.selectFragment(fragmentId);
 		await this.goToConfigurationTab('Styles');
 
-		await this.page.getByLabel(spacingType, {exact: true}).click();
+		await clickAndExpectToBeVisible({
+			target: this.page
+				.locator('.dropdown-menu')
+				.getByText('Existing tokens'),
+			trigger: this.page.getByLabel(spacingType, {exact: true}),
+		});
 	}
 
 	async pasteFragment(fragmentId: string) {
@@ -2015,6 +2024,10 @@ export class PageEditorPage {
 		await this.page.goto(
 			`/web${siteUrl || '/guest'}/${layoutName}?${editMode ? 'p_l_mode=edit' : ''}`
 		);
+
+		// Prevent unintended hover effects on the page
+
+		await this.page.getByLabel('Control Menu').hover();
 
 		if (editMode) {
 			await this.page.waitForFunction((sidebarWidth) => {

@@ -5,6 +5,7 @@
 
 package com.liferay.headless.commerce.delivery.cart.internal.resource.v1_0;
 
+import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.headless.commerce.delivery.cart.dto.v1_0.CartTransition;
 import com.liferay.headless.commerce.delivery.cart.resource.v1_0.CartTransitionResource;
 import com.liferay.petra.function.UnsafeBiConsumer;
@@ -378,6 +379,15 @@ public abstract class BaseCartTransitionResourceImpl
 			@Override
 			public Locale getPreferredLocale() {
 				return LocaleUtil.fromLanguageId(languageId);
+			}
+
+			@Override
+			public boolean isAcceptAllLanguages() {
+				if (ExportImportThreadLocal.isExportInProcess()) {
+					return true;
+				}
+
+				return AcceptLanguage.super.isAcceptAllLanguages();
 			}
 
 		};
@@ -963,3 +973,4 @@ public abstract class BaseCartTransitionResourceImpl
 		LogFactoryUtil.getLog(BaseCartTransitionResourceImpl.class);
 
 }
+// LIFERAY-REST-BUILDER-HASH:1026100882

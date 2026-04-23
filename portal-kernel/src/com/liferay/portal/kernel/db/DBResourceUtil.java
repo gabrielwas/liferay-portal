@@ -30,6 +30,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -281,6 +282,10 @@ public class DBResourceUtil {
 
 	private static Map<String, String[]> _getTablesPrimaryKeyColumnNames(
 		String sql) {
+
+		if (sql == null) {
+			return Collections.emptyMap();
+		}
 
 		return HashMapBuilder.putAll(
 			_getTablesPrimaryKeyColumnNames(_composedPrimaryKeyPattern, sql)

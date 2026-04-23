@@ -66,7 +66,7 @@ public class OAuthClientASLocalMetadataLocalServiceImpl
 			_parseAuthorizationServerMetadata(metadataJSON, wellKnownURISuffix);
 
 		return addOAuthClientASLocalMetadata(
-			userId,
+			null, userId,
 			String.valueOf(
 				authorizationServerMetadata.getAuthorizationEndpointURI()),
 			String.valueOf(authorizationServerMetadata.getIssuer()),
@@ -87,11 +87,12 @@ public class OAuthClientASLocalMetadataLocalServiceImpl
 	}
 
 	public OAuthClientASLocalMetadata addOAuthClientASLocalMetadata(
-			long userId, String authorizationEndpoint, String issuer,
-			String jwksURI, boolean localWellKnownEnabled,
-			String registrationEndpoint, String[] supportedGrantTypes,
-			String[] supportedScopes, String[] supportedSubjectTypes,
-			String tokenEndpoint, String userInfoEndpoint)
+			String externalReferenceCode, long userId,
+			String authorizationEndpoint, String issuer, String jwksURI,
+			boolean localWellKnownEnabled, String registrationEndpoint,
+			String[] supportedGrantTypes, String[] supportedScopes,
+			String[] supportedSubjectTypes, String tokenEndpoint,
+			String userInfoEndpoint)
 		throws PortalException {
 
 		User user = _userLocalService.getUser(userId);
@@ -108,6 +109,8 @@ public class OAuthClientASLocalMetadataLocalServiceImpl
 			oAuthClientASLocalMetadataPersistence.create(
 				counterLocalService.increment());
 
+		oAuthClientASLocalMetadata.setExternalReferenceCode(
+			externalReferenceCode);
 		oAuthClientASLocalMetadata.setCompanyId(user.getCompanyId());
 		oAuthClientASLocalMetadata.setUserId(user.getUserId());
 		oAuthClientASLocalMetadata.setUserName(user.getFullName());
@@ -157,6 +160,18 @@ public class OAuthClientASLocalMetadataLocalServiceImpl
 
 	@Override
 	public OAuthClientASLocalMetadata deleteOAuthClientASLocalMetadata(
+			long companyId, String localWellKnownURI)
+		throws PortalException {
+
+		OAuthClientASLocalMetadata oAuthClientASLocalMetadata =
+			oAuthClientASLocalMetadataPersistence.findByC_LWKURI(
+				companyId, localWellKnownURI);
+
+		return deleteOAuthClientASLocalMetadata(oAuthClientASLocalMetadata);
+	}
+
+	@Override
+	public OAuthClientASLocalMetadata deleteOAuthClientASLocalMetadata(
 			OAuthClientASLocalMetadata oAuthClientASLocalMetadata)
 		throws PortalException {
 
@@ -171,18 +186,6 @@ public class OAuthClientASLocalMetadataLocalServiceImpl
 			oAuthClientASLocalMetadata.getOAuthClientASLocalMetadataId());
 
 		return oAuthClientASLocalMetadata;
-	}
-
-	@Override
-	public OAuthClientASLocalMetadata deleteOAuthClientASLocalMetadata(
-			String localWellKnownURI)
-		throws PortalException {
-
-		OAuthClientASLocalMetadata oAuthClientASLocalMetadata =
-			oAuthClientASLocalMetadataPersistence.findByLocalWellKnownURI(
-				localWellKnownURI);
-
-		return deleteOAuthClientASLocalMetadata(oAuthClientASLocalMetadata);
 	}
 
 	@Override
@@ -203,11 +206,12 @@ public class OAuthClientASLocalMetadataLocalServiceImpl
 	}
 
 	@Override
-	public OAuthClientASLocalMetadata fetchOAuthClientASLocalMetadata(
-		String localWellKnownURI) {
+	public OAuthClientASLocalMetadata
+		fetchOAuthClientASLocalMetadataByLocalWellKnownURI(
+			long companyId, String localWellKnownURI) {
 
-		return oAuthClientASLocalMetadataPersistence.fetchByLocalWellKnownURI(
-			localWellKnownURI);
+		return oAuthClientASLocalMetadataPersistence.fetchByC_LWKURI(
+			companyId, localWellKnownURI);
 	}
 
 	@Override
@@ -228,11 +232,11 @@ public class OAuthClientASLocalMetadataLocalServiceImpl
 
 	@Override
 	public OAuthClientASLocalMetadata getOAuthClientASLocalMetadata(
-			String localWellKnownURI)
+			long companyId, String localWellKnownURI)
 		throws PortalException {
 
-		return oAuthClientASLocalMetadataPersistence.findByLocalWellKnownURI(
-			localWellKnownURI);
+		return oAuthClientASLocalMetadataPersistence.findByC_LWKURI(
+			companyId, localWellKnownURI);
 	}
 
 	@Override
@@ -496,8 +500,8 @@ public class OAuthClientASLocalMetadataLocalServiceImpl
 
 		if (oldOAuthClientASLocalMetadata == null) {
 			OAuthClientASLocalMetadata oAuthClientASLocalMetadata =
-				oAuthClientASLocalMetadataPersistence.fetchByLocalWellKnownURI(
-					localWellKnownURI);
+				oAuthClientASLocalMetadataPersistence.fetchByC_LWKURI(
+					companyId, localWellKnownURI);
 
 			if (oAuthClientASLocalMetadata != null) {
 				throw new DuplicateOAuthClientASLocalMetadataException();

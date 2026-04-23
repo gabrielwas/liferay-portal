@@ -5,8 +5,8 @@
 
 import {expect, mergeTests} from '@playwright/test';
 
-import {applicationsMenuPageTest} from '../../../fixtures/applicationsMenuPageTest';
 import {dataApiHelpersTest} from '../../../fixtures/dataApiHelpersTest';
+import {globalMenuPagesTest} from '../../../fixtures/globalMenuPagesTest';
 import {loginTest} from '../../../fixtures/loginTest';
 import {pageEditorPagesTest} from '../../../fixtures/pageEditorPagesTest';
 import {pagesAdminPagesTest} from '../../../fixtures/pagesAdminPagesTest';
@@ -18,7 +18,7 @@ import {reloadUntilVisible} from '../../../utils/reloadUntilVisible';
 import createSiteTemplate from './utils/createSiteTemplate';
 
 export const test = mergeTests(
-	applicationsMenuPageTest,
+	globalMenuPagesTest,
 	dataApiHelpersTest,
 	loginTest(),
 	pageEditorPagesTest,
@@ -33,7 +33,7 @@ test(
 	{tag: ['@LPD-49053', '@LPS-131903', '@LPS-132256']},
 	async ({
 		apiHelpers,
-		applicationsMenuPage,
+		globalMenuPage,
 		page,
 		pageEditorPage,
 		pagesAdminPage,
@@ -73,17 +73,17 @@ test(
 
 		// Create a site using the site template
 
-		await applicationsMenuPage.goToSites();
+		await globalMenuPage.goToControlPanel('Sites');
 
 		const siteName: string = 'Site-' + getRandomString();
 
-		const siteId = await sitesPage.createSite({
+		const {externalReferenceCode, siteId} = await sitesPage.createSite({
 			isCustom: true,
 			siteName,
 			templateName: siteTemplateName,
 		});
 
-		apiHelpers.data.push({id: siteId, type: 'site'});
+		apiHelpers.data.push({id: externalReferenceCode, type: 'site'});
 
 		// Check the Edit button of the dropdown is not visible
 
@@ -112,9 +112,7 @@ test(
 
 		await page.goto(href);
 
-		expect(await page.title()).toBe(
-			`${pageName} - ${siteName} - Liferay DXP`
-		);
+		expect(await page.title()).toBe(`${pageName} - ${siteName} - Liferay`);
 
 		await page
 			.locator('.control-menu-nav-item')
@@ -147,9 +145,7 @@ test(
 
 		await pageEditorPage.goto(layout, `/${siteName.toLowerCase()}`);
 
-		expect(await page.title()).toBe(
-			`${pageName} - ${siteName} - Liferay DXP`
-		);
+		expect(await page.title()).toBe(`${pageName} - ${siteName} - Liferay`);
 	}
 );
 
@@ -158,7 +154,7 @@ test(
 	{tag: '@LPD-70284'},
 	async ({
 		apiHelpers,
-		applicationsMenuPage,
+		globalMenuPage,
 		page,
 		pagesAdminPage,
 		productMenuPage,
@@ -196,17 +192,17 @@ test(
 
 		// Create site based on that template
 
-		await applicationsMenuPage.goToSites();
+		await globalMenuPage.goToControlPanel('Sites');
 
 		const siteName = 'Site-' + getRandomString();
 
-		const siteId = await sitesPage.createSite({
+		const {externalReferenceCode} = await sitesPage.createSite({
 			isCustom: true,
 			siteName,
 			templateName: siteTemplateName,
 		});
 
-		apiHelpers.data.push({id: siteId, type: 'site'});
+		apiHelpers.data.push({id: externalReferenceCode, type: 'site'});
 
 		// Add new page on created site
 

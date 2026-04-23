@@ -13,6 +13,10 @@ import shareAction from './actions/shareAction';
 import AuthorRenderer from './cell_renderers/AuthorRenderer';
 import SharedItemRenderer from './cell_renderers/SharedItemRenderer';
 import VisibleRenderer from './cell_renderers/VisibleRenderer';
+import {
+	setSharedWithMeAdditionalProps,
+	transformSharedItem,
+} from './utils/openSharedItemViewModal';
 
 export default function SharedWithMeFDSPropsTransformer({
 	additionalProps,
@@ -23,6 +27,8 @@ export default function SharedWithMeFDSPropsTransformer({
 	itemsActions?: any[];
 	otherProps: any;
 }) {
+	setSharedWithMeAdditionalProps(additionalProps);
+
 	return {
 		...otherProps,
 		customRenderers: {
@@ -70,10 +76,23 @@ export default function SharedWithMeFDSPropsTransformer({
 						),
 				};
 			}
+			else if (action?.data?.id === 'actionLinkFolder') {
+				return {
+					...action,
+					isVisible: (item: any) => Boolean(item?.visible),
+				};
+			}
 			else if (action?.data?.id === 'download') {
 				return {
 					...action,
-					isVisible: (item: any) => Boolean(item?.file?.link?.href),
+					isVisible: (item: any) =>
+						Boolean(item?.file?.link?.href && item?.visible),
+				};
+			}
+			else if (action?.data?.id === 'download-folder') {
+				return {
+					...action,
+					isVisible: (item: any) => Boolean(item?.visible),
 				};
 			}
 			else if (action?.data?.id === 'edit-folder') {
@@ -98,7 +117,9 @@ export default function SharedWithMeFDSPropsTransformer({
 					isVisible: (item: any) =>
 						Boolean(
 							item?.className !==
-								OBJECT_ENTRY_FOLDER_CLASS_NAME && !item?.file
+								OBJECT_ENTRY_FOLDER_CLASS_NAME &&
+								!item?.file &&
+								item?.visible
 						),
 				};
 			}
@@ -108,7 +129,9 @@ export default function SharedWithMeFDSPropsTransformer({
 					isVisible: (item: any) =>
 						Boolean(
 							item?.className !==
-								OBJECT_ENTRY_FOLDER_CLASS_NAME && item?.file
+								OBJECT_ENTRY_FOLDER_CLASS_NAME &&
+								item?.file &&
+								item?.visible
 						),
 				};
 			}
@@ -131,6 +154,8 @@ export default function SharedWithMeFDSPropsTransformer({
 
 				shareAction({
 					autocompleteURL,
+					canManageCollaborators:
+						itemData?.actionIds?.includes('UPDATE'),
 					collaboratorURL: collaboratorURLs[itemData.className],
 					creator: itemData.creator,
 					entryClassName: itemData.className,
@@ -153,15 +178,7 @@ export default function SharedWithMeFDSPropsTransformer({
 					(item: any) => item.id === itemData.id
 				);
 
-				const transformedItems = filteredItems.map((item: any) => ({
-					...item,
-					embedded: {
-						file: item.file ?? undefined,
-						id: item.classPK,
-						title: item.title,
-					},
-					entryClassName: item.className,
-				}));
+				const transformedItems = filteredItems.map(transformSharedItem);
 
 				openCMSModal({
 					contentComponent: () =>

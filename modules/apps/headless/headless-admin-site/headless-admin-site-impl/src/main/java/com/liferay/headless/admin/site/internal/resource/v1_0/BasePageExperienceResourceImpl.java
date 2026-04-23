@@ -5,6 +5,7 @@
 
 package com.liferay.headless.admin.site.internal.resource.v1_0;
 
+import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.headless.admin.site.dto.v1_0.PageExperience;
 import com.liferay.headless.admin.site.resource.v1_0.PageExperienceResource;
 import com.liferay.petra.function.UnsafeBiConsumer;
@@ -596,6 +597,15 @@ public abstract class BasePageExperienceResourceImpl
 				return LocaleUtil.fromLanguageId(languageId);
 			}
 
+			@Override
+			public boolean isAcceptAllLanguages() {
+				if (ExportImportThreadLocal.isExportInProcess()) {
+					return true;
+				}
+
+				return AcceptLanguage.super.isAcceptAllLanguages();
+			}
+
 		};
 	}
 
@@ -1175,3 +1185,4 @@ public abstract class BasePageExperienceResourceImpl
 		LogFactoryUtil.getLog(BasePageExperienceResourceImpl.class);
 
 }
+// LIFERAY-REST-BUILDER-HASH:-1833959290

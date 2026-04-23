@@ -6,7 +6,6 @@
 import {expect, mergeTests} from '@playwright/test';
 
 import {accountsPagesTest} from '../../../fixtures/accountsPagesTest';
-import {applicationsMenuPageTest} from '../../../fixtures/applicationsMenuPageTest';
 import {commercePagesTest} from '../../../fixtures/commercePagesTest';
 import {dataApiHelpersTest} from '../../../fixtures/dataApiHelpersTest';
 import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
@@ -26,7 +25,6 @@ import getWidgetDefinition from '../../layout-content-page-editor-web/main/utils
 
 export const test = mergeTests(
 	accountsPagesTest,
-	applicationsMenuPageTest,
 	commercePagesTest,
 	dataApiHelpersTest,
 	featureFlagsTest({
@@ -264,7 +262,7 @@ test(
 			name: getRandomString(),
 		});
 
-		apiHelpers.data.push({id: site2.id, type: 'site'});
+		apiHelpers.data.push({id: site2.externalReferenceCode, type: 'site'});
 
 		const layout2 = await createWidgetPage(apiHelpers, site2.id);
 

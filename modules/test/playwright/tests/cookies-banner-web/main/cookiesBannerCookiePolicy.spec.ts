@@ -5,7 +5,7 @@
 
 import {expect, mergeTests} from '@playwright/test';
 
-import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
+import {consentManagerConfigurationPageTest} from '../../../fixtures/consentManagerConfigurationPageTest';
 import {loginTest} from '../../../fixtures/loginTest';
 import {systemSettingsPageTest} from '../../../fixtures/systemSettingsPageTest';
 import {waitForAlert} from '../../../utils/waitForAlert';
@@ -22,9 +22,7 @@ const hideableCookieTypes = [
 ];
 
 export const test = mergeTests(
-	featureFlagsTest({
-		'LPD-75032': {enabled: true},
-	}),
+	consentManagerConfigurationPageTest,
 	loginTest(),
 	systemSettingsPageTest
 );
@@ -35,20 +33,26 @@ test.afterEach(async ({systemSettingsPage}) => {
 	});
 
 	await test.step('Clear Consent Cookies if present', async () => {
-		await clearConsentCookies(systemSettingsPage);
+		await clearConsentCookies(systemSettingsPage.page);
 	});
 });
 
-test('LPD-30561 Cookie Banner Cookie Policy Page', async ({page}) => {
+test('LPD-30561 Cookie Banner Cookie Policy Page', async ({
+	consentManagerConfigurationPage,
+	page,
+}) => {
 	await test.step('Enable Consent Manager with Explicit Cookie Consent Mode', async () => {
-		await updateConsentManagerConfiguration(page, {
-			enabled: true,
-			explicitCookieConsentMode: true,
-			forceReload: true,
-		});
+		await updateConsentManagerConfiguration(
+			consentManagerConfigurationPage.page,
+			{
+				enabled: true,
+				explicitCookieConsentMode: true,
+				forceReload: true,
+			}
+		);
 
 		await expect(
-			page.getByLabel('Explicit Cookie Consent Mode')
+			consentManagerConfigurationPage.explicitCookieConsentModeCheckbox
 		).toBeChecked();
 	});
 
@@ -56,9 +60,7 @@ test('LPD-30561 Cookie Banner Cookie Policy Page', async ({page}) => {
 		await page.goto('/');
 
 		await page
-			.locator(
-				'#p_p_id_com_liferay_cookies_banner_web_portlet_CookiesBannerPortlet_'
-			)
+			.getByRole('dialog', {name: 'banner cookies'})
 			.waitFor({state: 'visible'});
 
 		const cookiesBannerContainer = page.locator(
@@ -121,9 +123,9 @@ test(
 			});
 		});
 
-		const cookiesBanner = await page.locator(
-			'#p_p_id_com_liferay_cookies_banner_web_portlet_CookiesBannerPortlet_'
-		);
+		const cookiesBanner = page.getByRole('dialog', {
+			name: 'banner cookies',
+		});
 
 		// Accept All cookies so the Cookies Banner doesn't break the test
 
@@ -167,7 +169,7 @@ test(
 			await waitForAlert(page);
 
 			for (const hideFromEndUserCheckbox of await hideFromEndUserCheckboxes.all()) {
-				await expect(await hideFromEndUserCheckbox).toBeChecked();
+				await expect(hideFromEndUserCheckbox).toBeChecked();
 			}
 
 			await expectCookiesBannerTypes(browser);
@@ -183,7 +185,7 @@ test(
 			await waitForAlert(page);
 
 			for (const hideFromEndUserCheckbox of await hideFromEndUserCheckboxes.all()) {
-				await expect(await hideFromEndUserCheckbox).not.toBeChecked();
+				await expect(hideFromEndUserCheckbox).not.toBeChecked();
 			}
 
 			await expectCookiesBannerTypes(browser, hideableCookieTypes, false);

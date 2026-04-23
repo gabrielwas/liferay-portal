@@ -75,6 +75,7 @@ import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
@@ -118,14 +119,14 @@ public abstract class BaseSectionDisplayContextTestCase
 			"getAdditionalProps", new Class<?>[0]);
 	}
 
-	public HashMap<String, Object> getBaseAdditionalProps()
-		throws PortalException {
-
+	public HashMap<String, Object> getBaseAdditionalProps() throws Exception {
 		ThemeDisplay themeDisplay =
 			(ThemeDisplay)mockHttpServletRequest.getAttribute(
 				WebKeys.THEME_DISPLAY);
 
 		return HashMapBuilder.<String, Object>put(
+			"additionalAPIURLParameters", getAdditionalAPIURLParameters()
+		).put(
 			"assetLibraries", _getDepotEntriesJSONArray()
 		).put(
 			"autocompleteURL",
@@ -141,7 +142,7 @@ public abstract class BaseSectionDisplayContextTestCase
 					getTranslationInfoItemFieldValuesExporters(),
 				this::_getExportFileFormatJSONObject)
 		).put(
-			"availableTargetLocales",
+			"availableLocales",
 			_getLocalesJSONArray(
 				themeDisplay.getLocale(),
 				LanguageUtil.getAvailableLocales(themeDisplay.getSiteGroupId()))
@@ -160,6 +161,8 @@ public abstract class BaseSectionDisplayContextTestCase
 			"brokenLinksCheckerEnabled",
 			GetterUtil.getBoolean(
 				PropsUtil.get(PropsKeys.CMS_BROKEN_LINKS_CHECKER_ENABLED))
+		).put(
+			"candidateAssetLibraries", _getDepotEntriesJSONArray()
 		).put(
 			"cmsGroupId",
 			() -> {
@@ -339,33 +342,44 @@ public abstract class BaseSectionDisplayContextTestCase
 		DepotEntry depotEntry1 = addDepotEntry(
 			StringUtil.randomString(), TestPropsValues.getUserId());
 
-		User user = UserTestUtil.addUser(
-			companyLocalService.getCompany(TestPropsValues.getCompanyId()),
-			RoleConstants.CMS_ADMINISTRATOR);
-
 		DepotEntry depotEntry2 = addDepotEntry(
-			StringUtil.randomString(), user.getUserId());
+			StringUtil.randomString(), TestPropsValues.getUserId());
+
+		User regularUser = UserTestUtil.addUser();
+
+		groupLocalService.addUserGroup(
+			regularUser.getUserId(), depotEntry1.getGroupId());
+
+		setUser(regularUser);
 
 		Object displayContext = getSectionDisplayContext(
-			getMockHttpServletRequest(TestPropsValues.getUser()));
+			getMockHttpServletRequest(regularUser));
 
 		String filterString = getCMSSectionFilterString(displayContext);
 
 		Assert.assertTrue(
+			filterString,
 			filterString.contains(
 				"groupIds/any(g:g in (" + depotEntry1.getGroupId() + "))"));
 
+		User cmsAdministratorUser = UserTestUtil.addUser(
+			companyLocalService.getCompany(TestPropsValues.getCompanyId()),
+			RoleConstants.CMS_ADMINISTRATOR);
+
+		setUser(cmsAdministratorUser);
+
 		displayContext = getSectionDisplayContext(
-			getMockHttpServletRequest(user));
+			getMockHttpServletRequest(cmsAdministratorUser));
 
 		filterString = getCMSSectionFilterString(displayContext);
 
-		Assert.assertFalse(filterString.contains("groupIds/any"));
+		Assert.assertFalse(filterString, filterString.contains("groupIds/any"));
 
 		_depotEntryLocalService.deleteDepotEntry(depotEntry1);
 		_depotEntryLocalService.deleteDepotEntry(depotEntry2);
 
-		_userLocalService.deleteUser(user);
+		_userLocalService.deleteUser(regularUser);
+		_userLocalService.deleteUser(cmsAdministratorUser);
 	}
 
 	@Test
@@ -391,14 +405,16 @@ public abstract class BaseSectionDisplayContextTestCase
 				"Folder", StringPool.BLANK);
 		}
 
-		setUser(adminUser);
+		User user1 = UserTestUtil.addUser();
 
-		_assertCreationMenu(getCreationMenu(adminUser), Collections.emptyMap());
+		setUser(user1);
+
+		_assertCreationMenu(getCreationMenu(user1), Collections.emptyMap());
+
+		setUser(adminUser);
 
 		DepotEntry depotEntry1 = addDepotEntry(
 			StringUtil.randomString(), TestPropsValues.getUserId());
-
-		User user1 = UserTestUtil.addUser();
 
 		User user2 = UserTestUtil.addUser();
 
@@ -485,10 +501,6 @@ public abstract class BaseSectionDisplayContextTestCase
 			WorkflowConstants.STATUS_APPROVED);
 
 		addCustomObjectDefinition(
-			objectFolder.getObjectFolderId(), true, true,
-			ObjectDefinitionConstants.SCOPE_COMPANY,
-			WorkflowConstants.STATUS_APPROVED);
-		addCustomObjectDefinition(
 			objectFolder.getObjectFolderId(), false, true,
 			ObjectDefinitionConstants.SCOPE_DEPOT,
 			WorkflowConstants.STATUS_APPROVED);
@@ -500,10 +512,6 @@ public abstract class BaseSectionDisplayContextTestCase
 			objectFolder.getObjectFolderId(), true, true,
 			ObjectDefinitionConstants.SCOPE_DEPOT,
 			WorkflowConstants.STATUS_DRAFT);
-		addCustomObjectDefinition(
-			objectFolder.getObjectFolderId(), true, true,
-			ObjectDefinitionConstants.SCOPE_SITE,
-			WorkflowConstants.STATUS_APPROVED);
 
 		_assertCreationMenu(
 			getCreationMenu(adminUser),
@@ -609,7 +617,7 @@ public abstract class BaseSectionDisplayContextTestCase
 		Assert.assertEquals(name, depotGroup.getGroupKey());
 
 		_testGetDepotEntriesJSONArray(
-			depotEntries, null, String.valueOf(depotGroup.getGroupId()));
+			List.of(depotEntry), null, String.valueOf(depotGroup.getGroupId()));
 
 		_testGetDepotEntriesJSONArray(depotEntries, null, null);
 
@@ -674,6 +682,31 @@ public abstract class BaseSectionDisplayContextTestCase
 				group.getGroupId(), userId));
 	}
 
+	protected String appendGroupIds(String filterString) throws Exception {
+		return StringBundler.concat(
+			filterString, " and groupIds/any(g:g in (",
+			com.liferay.petra.string.StringUtil.merge(
+				_depotEntryLocalService.getDepotEntryGroupIds(
+					group.getCompanyId(), TestPropsValues.getUserId(),
+					DepotConstants.TYPE_SPACE),
+				StringPool.COMMA),
+			"))");
+	}
+
+	protected String appendStatus(String filterString) {
+		return filterString + " and status in (0, 2, 3, 1, 7)";
+	}
+
+	protected String getAdditionalAPIURLParameters() throws Exception {
+		return StringBundler.concat(
+			"emptySearch=true&filter=",
+			appendStatus(appendGroupIds(getFilterString())),
+			"&nestedFields=embedded,embeddedTaxonomyCategory,",
+			"file.metadata,file.previewURL,file.thumbnailURL,",
+			"numberOfObjectEntries,numberOfObjectEntryFolders,",
+			"systemProperties.objectDefinitionBrief");
+	}
+
 	protected String getCMSSectionFilterString(Object displayContext) {
 		return ReflectionTestUtil.invoke(
 			displayContext, "getCMSSectionFilterString", new Class<?>[0],
@@ -709,6 +742,10 @@ public abstract class BaseSectionDisplayContextTestCase
 		return ReflectionTestUtil.invoke(
 			getSectionDisplayContext(getMockHttpServletRequest()),
 			"getFDSActionDropdownItems", new Class<?>[0]);
+	}
+
+	protected String getFilterString() {
+		return StringPool.BLANK;
 	}
 
 	@Override
@@ -883,11 +920,15 @@ public abstract class BaseSectionDisplayContextTestCase
 		JSONArray assetLibrariesJSONArray = (JSONArray)dropdownItemData.get(
 			"assetLibraries");
 
-		Assert.assertTrue(
+		Assert.assertEquals(
 			assetLibrariesJSONArray.toString() + " does not equal " +
 				expectedAssetLibrariesJSONArray.toString(),
-			JSONUtil.equals(
-				expectedAssetLibrariesJSONArray, assetLibrariesJSONArray));
+			SetUtil.fromList(
+				JSONUtil.toList(
+					expectedAssetLibrariesJSONArray, JSONObject::toString)),
+			SetUtil.fromList(
+				JSONUtil.toList(
+					assetLibrariesJSONArray, JSONObject::toString)));
 	}
 
 	private void _assertCreationMenuNotContainsDropdownItem(
@@ -913,7 +954,8 @@ public abstract class BaseSectionDisplayContextTestCase
 	}
 
 	private void _assertEquals(
-		Map<String, ?> expectedMap, Map<String, ?> actualMap) {
+			Map<String, ?> expectedMap, Map<String, ?> actualMap)
+		throws Exception {
 
 		Assert.assertEquals(
 			actualMap.toString(), expectedMap.size(), actualMap.size());
@@ -1019,6 +1061,8 @@ public abstract class BaseSectionDisplayContextTestCase
 				}
 			).build()
 		).put(
+			"allowPropagate", false
+		).put(
 			"roles",
 			() -> TransformUtil.transformToArray(
 				RoleLocalServiceUtil.getGroupRolesAndTeamRoles(
@@ -1042,7 +1086,7 @@ public abstract class BaseSectionDisplayContextTestCase
 		).build();
 	}
 
-	private JSONArray _getDepotEntriesJSONArray() throws PortalException {
+	private JSONArray _getDepotEntriesJSONArray() throws Exception {
 		return _getDepotEntriesJSONArray(
 			_depotEntryLocalService.getDepotEntryGroupIds(
 				group.getCompanyId(), TestPropsValues.getUserId(),
@@ -1130,13 +1174,26 @@ public abstract class BaseSectionDisplayContextTestCase
 		JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
 
 		locales.forEach(
-			currentLocale -> jsonArray.put(
-				JSONUtil.put(
-					"displayName",
-					LocaleUtil.getLocaleDisplayName(currentLocale, locale)
-				).put(
-					"languageId", LocaleUtil.toLanguageId(currentLocale)
-				)));
+			currentLocale -> {
+				String w3cLanguageId = LocaleUtil.toW3cLanguageId(
+					currentLocale);
+
+				jsonArray.put(
+					JSONUtil.put(
+						"displayName",
+						LocaleUtil.getLocaleDisplayName(currentLocale, locale)
+					).put(
+						"id", LocaleUtil.toLanguageId(currentLocale)
+					).put(
+						"label", w3cLanguageId
+					).put(
+						"languageId", LocaleUtil.toLanguageId(currentLocale)
+					).put(
+						"name", currentLocale.getDisplayName()
+					).put(
+						"symbol", StringUtil.toLowerCase(w3cLanguageId)
+					));
+			});
 
 		return jsonArray;
 	}

@@ -46,9 +46,8 @@ public class JournalConverterImplTest {
 	public void testUpdateContentDynamicElement() {
 		_testUpdateContentDynamicElement(StringPool.BLANK, null);
 
-		String value = RandomTestUtil.randomString();
-
-		_testUpdateContentDynamicElement(value, value);
+		_testUpdateContentDynamicElement(
+			RandomTestUtil.randomString(), RandomTestUtil.randomString());
 
 		_testUpdateContentDynamicElementWithCheckBox();
 		_testUpdateContentDynamicElementWithOptions();

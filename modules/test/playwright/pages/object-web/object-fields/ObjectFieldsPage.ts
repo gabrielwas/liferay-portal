@@ -49,9 +49,11 @@ export class ObjectFieldsPage {
 		this.externalReferenceCodeField = page
 			.frameLocator('iframe')
 			.locator('[name="externalReferenceCode"]');
-		this.fieldsTabItem = page.locator('.nav-item .nav-link').filter({
-			hasText: 'Fields',
-		});
+		this.fieldsTabItem = page
+			.locator('#main-content .nav-item .nav-link')
+			.filter({
+				hasText: 'Fields',
+			});
 		this.maximumFileSize = page
 			.frameLocator('iframe')
 			.getByLabel('Maximum File Size' + 'Mandatory');
@@ -257,10 +259,12 @@ export class ObjectFieldsPage {
 
 			await this.useDefaultValueToggle.check({timeout: 1000});
 
-			if (objectFieldBusinessType === 'Boolean') {
+			if (
+				objectFieldBusinessType === 'Boolean' ||
+				objectFieldBusinessType === 'Picklist'
+			) {
 				await this.selectDefaultValue(defaultValue);
 			}
-
 			if (objectFieldBusinessType === 'Date') {
 				await this.iframeLocator
 					.getByPlaceholder('__/__/____')

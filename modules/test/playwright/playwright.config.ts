@@ -7,6 +7,7 @@ import {ReporterDescription, defineConfig, devices} from '@playwright/test';
 
 import 'dotenv/config';
 
+import {liferayConfig} from './liferay.config';
 import {config as accessibilityMenuWeb} from './tests/accessibility-menu-web/main/config';
 import {config as accountAdminWebConfig} from './tests/account-admin-web/main/config';
 import {config as addressWebConfig} from './tests/address-web/main/config';
@@ -40,6 +41,7 @@ import {config as commerceFragmentImplConfig} from './tests/commerce/commerce-fr
 import {config as commerceInitializerUtilConfig} from './tests/commerce/commerce-initializer-util/main/config';
 import {config as commerceInventoryWebConfig} from './tests/commerce/commerce-inventory-web/main/config';
 import {config as commerceOrderContentWebConfig} from './tests/commerce/commerce-order-content-web/main/config';
+import {config as commerceOrderManagementConfig} from './tests/commerce/commerce-order-management/main/config';
 import {config as commerceOrderWebConfig} from './tests/commerce/commerce-order-web/main/config';
 import {config as commercePaymentsWebConfig} from './tests/commerce/commerce-payment-web/main/config';
 import {config as commercePricingWebConfig} from './tests/commerce/commerce-pricing-web/main/config';
@@ -77,6 +79,7 @@ import {config as fragmentWebConfig} from './tests/fragment-web/main/config';
 import {config as friendlyURLConfig} from './tests/friendly-url-web/main/config';
 import {config as frontendCssCadminWebConfig} from './tests/frontend-css-cadmin-web/main/config';
 import {config as frontendDataSetAdminWebConfig} from './tests/frontend-data-set-admin-web/main/config';
+import {config as frontendDataSetFragmentWebConfig} from './tests/frontend-data-set-fragment-web/main/config';
 import {config as frontendDataSetWebConfig} from './tests/frontend-data-set-web/main/config';
 import {config as frontendEditorAlloyEditorWebConfig} from './tests/frontend-editor-alloyeditor-web/main/config';
 import {config as frontendEditorCKEditorWebConfig} from './tests/frontend-editor-ckeditor-web/main/config';
@@ -116,7 +119,22 @@ import {config as nestedPortletsWebConfig} from './tests/nested-portlets-web/mai
 import {config as notificationWebConfig} from './tests/notification-web/main/config';
 import {config as notificationsWebConfig} from './tests/notifications-web/main/config';
 import {config as oauthClientAdministrationConfig} from './tests/oauth-client-administration/main/config';
-import {config as objectWebConfig} from './tests/object-web/main/config';
+import {config as objectActionWebConfig} from './tests/object-web/action/config';
+import {config as objectClientExtensionWebConfig} from './tests/object-web/client-extension/config';
+import {config as objectEntryWebConfig} from './tests/object-web/entry/config';
+import {config as objectExportImportWebConfig} from './tests/object-web/export-import/config';
+import {config as objectFieldWebConfig} from './tests/object-web/field/config';
+import {config as objectFolderWebConfig} from './tests/object-web/folder/config';
+import {config as objectFormsIntegrationWebConfig} from './tests/object-web/forms-integration/config';
+import {config as objectHierarchyWebConfig} from './tests/object-web/hierarchy/config';
+import {config as objectLayoutWebConfig} from './tests/object-web/layout/config';
+import {config as listTypeDefinitionsWebConfig} from './tests/object-web/list-type-definition/config';
+import {config as objectDefinitionWebConfig} from './tests/object-web/main/config';
+import {config as objectRelationshipWebConfig} from './tests/object-web/relationship/config';
+import {config as objectSalesforceWebConfig} from './tests/object-web/salesforce/config';
+import {config as objectValidationWebConfig} from './tests/object-web/validation/config';
+import {config as objectViewWebConfig} from './tests/object-web/view/config';
+import {config as objectWorkflowWebConfig} from './tests/object-web/workflow/config';
 import {config as openIdLinkConfig} from './tests/openid-link/main/config';
 import {config as osbFaroWebConfig} from './tests/osb-faro-web/main/config';
 import {config as passwordPoliciesAdminWebFirstLoginConfig} from './tests/password-policies-admin-web/first-login/config';
@@ -185,6 +203,7 @@ import {config as trashWebConfig} from './tests/trash-web/main/config';
 import {config as usersAdminWebEmailConfig} from './tests/users-admin-web/email/config';
 import {config as usersAdminWebConfig} from './tests/users-admin-web/main/config';
 import {config as usersAdminWebPermissionsConfig} from './tests/users-admin-web/permissions/config';
+import {config as usersAdminWebPropertiesConfig} from './tests/users-admin-web/properties/config';
 import {config as utilTaglibConfig} from './tests/util-taglib/main/config';
 import {config as wikiWebConfig} from './tests/wiki-web/main/config';
 import {config as customerConfig} from './tests/workspaces/liferay-customer-workspace/main/config';
@@ -240,6 +259,7 @@ export default defineConfig({
 		commerceFragmentImplConfig,
 		commerceInitializerUtilConfig,
 		commerceInventoryWebConfig,
+		commerceOrderManagementConfig,
 		commerceOrderWebConfig,
 		commerceOrderContentWebConfig,
 		commercePaymentsWebConfig,
@@ -279,6 +299,7 @@ export default defineConfig({
 		friendlyURLConfig,
 		frontendCssCadminWebConfig,
 		frontendDataSetAdminWebConfig,
+		frontendDataSetFragmentWebConfig,
 		frontendDataSetWebConfig,
 		frontendEditorAlloyEditorWebConfig,
 		frontendEditorCKEditorWebConfig,
@@ -320,7 +341,22 @@ export default defineConfig({
 		notificationWebConfig,
 		notificationsWebConfig,
 		oauthClientAdministrationConfig,
-		objectWebConfig,
+		listTypeDefinitionsWebConfig,
+		objectActionWebConfig,
+		objectClientExtensionWebConfig,
+		objectDefinitionWebConfig,
+		objectEntryWebConfig,
+		objectExportImportWebConfig,
+		objectFieldWebConfig,
+		objectFolderWebConfig,
+		objectFormsIntegrationWebConfig,
+		objectHierarchyWebConfig,
+		objectLayoutWebConfig,
+		objectRelationshipWebConfig,
+		objectSalesforceWebConfig,
+		objectValidationWebConfig,
+		objectViewWebConfig,
+		objectWorkflowWebConfig,
 		openIdLinkConfig,
 		osbFaroWebConfig,
 		passwordPoliciesAdminWebConfig,
@@ -386,6 +422,7 @@ export default defineConfig({
 		usersAdminWebConfig,
 		usersAdminWebEmailConfig,
 		usersAdminWebPermissionsConfig,
+		usersAdminWebPropertiesConfig,
 		utilTaglibConfig,
 		wikiWebConfig,
 		...setupProjects,
@@ -422,9 +459,7 @@ export default defineConfig({
 	timeout: 90 * 1000,
 	use: {
 		...devices['Desktop Chrome'],
-		baseURL: process.env.PORTAL_URL
-			? process.env.PORTAL_URL
-			: 'http://localhost:8080',
+		baseURL: liferayConfig.environment.baseUrl,
 		screenshot: 'only-on-failure',
 		trace: 'retain-on-failure',
 	},

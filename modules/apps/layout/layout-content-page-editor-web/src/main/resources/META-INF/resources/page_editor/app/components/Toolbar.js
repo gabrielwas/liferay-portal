@@ -9,9 +9,12 @@ import ClayIcon from '@clayui/icon';
 import ClayLayout from '@clayui/layout';
 import ClayLink from '@clayui/link';
 import {ReactPortal, useIsMounted} from '@liferay/frontend-js-react-web';
-import {EnterpriseFeatureIndicator} from '@liferay/site-cms-site-initializer';
 import classNames from 'classnames';
-import {openConfirmModal, openToast} from 'frontend-js-components-web';
+import {
+	FeatureIndicator,
+	openConfirmModal,
+	openToast,
+} from 'frontend-js-components-web';
 import {fetch} from 'frontend-js-web';
 import React, {useEffect, useState} from 'react';
 
@@ -25,6 +28,7 @@ import {useEditableProcessorUniqueId} from '../contexts/EditableProcessorContext
 import {useDispatch, useSelector} from '../contexts/StoreContext';
 import selectCanPublish from '../selectors/selectCanPublish';
 import {useDropClear} from '../utils/drag_and_drop/useDragAndDrop';
+import AIAssistantToolbarItem from './AIAssistantToolbarItem';
 import DiscardDraftButton from './DiscardDraftButton';
 import EditModeSelector from './EditModeSelector';
 import ExperimentsLabel from './ExperimentsLabel';
@@ -148,10 +152,7 @@ function ToolbarBody({className}) {
 				) : null}
 
 				{isCMSFreeTier && (
-					<EnterpriseFeatureIndicator
-						alignPosition="bottom-left"
-						showTooltip
-					/>
+					<FeatureIndicator interactive type="enterprise" />
 				)}
 
 				<li className="nav-item">
@@ -197,6 +198,12 @@ function ToolbarBody({className}) {
 				<li className="nav-item">
 					<NetworkStatusBar {...network} />
 				</li>
+
+				{Liferay.FeatureFlags['LPD-62272'] && (
+					<li className="nav-item">
+						<AIAssistantToolbarItem />
+					</li>
+				)}
 
 				<li className="d-lg-flex d-none nav-item">
 					<Undo />

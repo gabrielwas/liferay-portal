@@ -5,6 +5,7 @@
 
 package com.liferay.headless.commerce.admin.inventory.internal.resource.v1_0;
 
+import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.headless.commerce.admin.inventory.dto.v1_0.WarehouseItem;
 import com.liferay.headless.commerce.admin.inventory.resource.v1_0.WarehouseItemResource;
 import com.liferay.petra.function.UnsafeBiConsumer;
@@ -840,6 +841,15 @@ public abstract class BaseWarehouseItemResourceImpl
 				return LocaleUtil.fromLanguageId(languageId);
 			}
 
+			@Override
+			public boolean isAcceptAllLanguages() {
+				if (ExportImportThreadLocal.isExportInProcess()) {
+					return true;
+				}
+
+				return AcceptLanguage.super.isAcceptAllLanguages();
+			}
+
 		};
 	}
 
@@ -1451,3 +1461,4 @@ public abstract class BaseWarehouseItemResourceImpl
 		LogFactoryUtil.getLog(BaseWarehouseItemResourceImpl.class);
 
 }
+// LIFERAY-REST-BUILDER-HASH:1745744076

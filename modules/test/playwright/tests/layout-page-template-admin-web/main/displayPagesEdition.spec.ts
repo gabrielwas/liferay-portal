@@ -9,10 +9,10 @@ import {
 } from '@liferay/object-admin-rest-client-js';
 import {expect, mergeTests} from '@playwright/test';
 
-import {applicationsMenuPageTest} from '../../../fixtures/applicationsMenuPageTest';
 import {dataApiHelpersTest} from '../../../fixtures/dataApiHelpersTest';
 import {displayPageTemplatesPagesTest} from '../../../fixtures/displayPageTemplatesPagesTest';
 import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
+import {globalMenuPagesTest} from '../../../fixtures/globalMenuPagesTest';
 import {isolatedSiteTest} from '../../../fixtures/isolatedSiteTest';
 import {loginTest} from '../../../fixtures/loginTest';
 import {pageEditorPagesTest} from '../../../fixtures/pageEditorPagesTest';
@@ -31,7 +31,7 @@ import {getObjectERC} from '../../setup/page-management-site/main/utils/getObjec
 import {goToObjectEntity} from '../../setup/page-management-site/main/utils/goToObjectEntity';
 
 const test = mergeTests(
-	applicationsMenuPageTest,
+	globalMenuPagesTest,
 	dataApiHelpersTest,
 	displayPageTemplatesPagesTest,
 	featureFlagsTest({
@@ -991,8 +991,8 @@ test.describe('Object Display page', () => {
 		{tag: '@LPS-165556'},
 		async ({
 			apiHelpers,
-			applicationsMenuPage,
 			displayPageTemplatesPage,
+			globalMenuPage,
 			page,
 			pageEditorPage,
 			site,
@@ -1169,7 +1169,7 @@ test.describe('Object Display page', () => {
 
 			// Check object entry was created
 
-			await applicationsMenuPage.goToControlPanel();
+			await globalMenuPage.goToControlPanel();
 
 			page.getByRole('menuitem', {
 				exact: true,

@@ -3,7 +3,10 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {SystemSettingsPage} from '../../../../pages/configuration-admin-web/SystemSettingsPage';
+import {Page} from '@playwright/test';
+
+import {ApiHelpers} from '../../../../helpers/ApiHelpers';
+import {ConsentManagerConfigurationPage} from '../../../../pages/cookies-banner-web/ConsentManagerConfigurationPage';
 import {clickAndExpectToBeVisible} from '../../../../utils/clickAndExpectToBeVisible';
 import {reloadUntilVisible} from '../../../../utils/reloadUntilVisible';
 import {waitForAlert} from '../../../../utils/waitForAlert';
@@ -16,19 +19,22 @@ interface ConsentManagerConfiguration {
 	storeConsent?: boolean;
 }
 
-export async function clearConsentCookies(systemSettingsPage) {
-	await systemSettingsPage.page
-		.context()
-		.clearCookies({name: /^CONSENT_TYPE_/});
-	await systemSettingsPage.page
-		.context()
-		.clearCookies({name: /^USER_CONSENT_CONFIGURED/});
+export async function clearConsentCookies(page) {
+	const apiHelpers = new ApiHelpers(page);
+
+	await apiHelpers.cookies.deleteCookiesConsentPreferences();
+
+	await page.context().clearCookies({name: /^CONSENT_TYPE_/});
+	await page.context().clearCookies({name: /^USER_CONSENT_CONFIGURED/});
 }
 
 export async function resetAllConsentManagerConfigurations(systemSettingsPage) {
 	await systemSettingsPage.goToSystemSetting('Privacy', 'Consent Manager');
 
-	const menuItems = await systemSettingsPage.page.getByRole('menuitem').all();
+	const menuItems = await systemSettingsPage.page
+		.locator('#main-content')
+		.getByRole('menuitem')
+		.all();
 
 	for (const menuItem of menuItems.reverse()) {
 		await menuItem.click();
@@ -84,69 +90,7 @@ export async function resetConsentManagerConfiguration(systemSettingsPage) {
 	await resetConfiguration(true, systemSettingsPage);
 }
 
-export async function updateConsentManagerConfiguration(
-	page,
-	{
-		consentRenewalPeriod,
-		enabled,
-		explicitCookieConsentMode,
-		forceReload,
-		storeConsent,
-	}: ConsentManagerConfiguration
-) {
-	if (forceReload) {
-		const systemSettingsPage = new SystemSettingsPage(page);
-		await systemSettingsPage.goToSystemSetting(
-			'Privacy',
-			'Consent Manager'
-		);
-	}
-
-	const enabledCheckbox = page.getByLabel('Enabled', {exact: true});
-
-	await enabledCheckbox.waitFor({state: 'visible'});
-
-	let dialog = await enabledCheckbox.isChecked();
-
-	if (enabled === true) {
-		await enabledCheckbox.setChecked(true);
-	}
-	else if (enabled === false) {
-		dialog = false;
-
-		await enabledCheckbox.setChecked(false);
-	}
-
-	if (await enabledCheckbox.isChecked()) {
-		const explicitCookieConsentModeLocator = await page.getByLabel(
-			'Explicit Cookie Consent Mode'
-		);
-
-		while (await explicitCookieConsentModeLocator.isDisabled()) {
-			await page.waitForTimeout(250);
-		}
-
-		if (explicitCookieConsentMode !== undefined) {
-			await explicitCookieConsentModeLocator.setChecked(
-				explicitCookieConsentMode
-			);
-		}
-
-		if (consentRenewalPeriod) {
-			await page
-				.getByLabel('Consent Renewal Period')
-				.fill(consentRenewalPeriod);
-		}
-
-		if (storeConsent !== undefined) {
-			await page.getByLabel('Store Consent').setChecked(storeConsent);
-		}
-	}
-
-	await saveOrUpdateConfiguration(dialog, page);
-}
-
-async function saveOrUpdateConfiguration(dialog: boolean, page) {
+export async function saveOrUpdateConfiguration(dialog: boolean, page) {
 	if (dialog) {
 		page.once('dialog', async (dialogWindow) => {
 			await dialogWindow.accept();
@@ -183,4 +127,79 @@ async function saveOrUpdateConfiguration(dialog: boolean, page) {
 			throw error;
 		}
 	}
+}
+
+export async function updateConsentManagerConfiguration(
+	page: Page,
+	{
+		consentRenewalPeriod,
+		enabled,
+		explicitCookieConsentMode,
+		forceReload,
+		storeConsent,
+	}: ConsentManagerConfiguration
+) {
+	const consentManagerConfigurationPage = new ConsentManagerConfigurationPage(
+		page
+	);
+
+	if (forceReload) {
+		await consentManagerConfigurationPage.goTo();
+	}
+
+	await consentManagerConfigurationPage.enabledCheckbox.waitFor({
+		state: 'visible',
+	});
+
+	let dialog = false;
+
+	if (enabled === false) {
+		await consentManagerConfigurationPage.enabledCheckbox.setChecked(false);
+	}
+	else {
+		if (
+			(await consentManagerConfigurationPage.enabledCheckbox.isChecked()) &&
+			consentRenewalPeriod &&
+			consentRenewalPeriod !==
+				(await consentManagerConfigurationPage.consentRenewalPeriodInput.getAttribute(
+					'value'
+				))
+		) {
+			dialog = true;
+		}
+
+		if (enabled === true) {
+			await consentManagerConfigurationPage.enabledCheckbox.setChecked(
+				true
+			);
+		}
+	}
+
+	if (await consentManagerConfigurationPage.enabledCheckbox.isChecked()) {
+		while (
+			await consentManagerConfigurationPage.explicitCookieConsentModeCheckbox.isDisabled()
+		) {
+			await page.waitForTimeout(250);
+		}
+
+		if (explicitCookieConsentMode !== undefined) {
+			await consentManagerConfigurationPage.explicitCookieConsentModeCheckbox.setChecked(
+				explicitCookieConsentMode
+			);
+		}
+
+		if (consentRenewalPeriod) {
+			await consentManagerConfigurationPage.consentRenewalPeriodInput.fill(
+				consentRenewalPeriod
+			);
+		}
+
+		if (storeConsent !== undefined) {
+			await consentManagerConfigurationPage.storeConsentCheckbox.setChecked(
+				storeConsent
+			);
+		}
+	}
+
+	await saveOrUpdateConfiguration(dialog, page);
 }

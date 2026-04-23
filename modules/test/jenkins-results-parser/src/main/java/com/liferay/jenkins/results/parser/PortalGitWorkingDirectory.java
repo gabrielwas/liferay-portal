@@ -34,6 +34,38 @@ import org.json.JSONObject;
  */
 public class PortalGitWorkingDirectory extends GitWorkingDirectory {
 
+	@Override
+	public File archive(String fileName) {
+		File archiveFile = super.archive(fileName);
+
+		String upstreamBranchName = getUpstreamBranchName();
+
+		if (!JenkinsResultsParserUtil.isCloudCINode() ||
+			upstreamBranchName.startsWith("ee-")) {
+
+			return archiveFile;
+		}
+
+		setUpYarn();
+
+		GitUtil.ExecutionResult executionResult = executeBashCommands(
+			3, GitUtil.MILLIS_RETRY_DELAY, 1000 * 60 * 10,
+			JenkinsResultsParserUtil.combine(
+				"zip -r -y ", fileName,
+				" $(git ls-files --directory --no-empty-directory --others | ",
+				"grep -v \\\\.gradle/) modules/yarn.lock"));
+
+		if (executionResult.getExitValue() != 0) {
+			throw new GitWorkingDirectoryRuntimeException(
+				this,
+				JenkinsResultsParserUtil.combine(
+					"Failed to add build/node to ", fileName, "\n",
+					executionResult.getStandardError()));
+		}
+
+		return archiveFile;
+	}
+
 	public Properties getAppServerProperties() {
 		if (_appServerProperties != null) {
 			return _appServerProperties;
@@ -62,7 +94,13 @@ public class PortalGitWorkingDirectory extends GitWorkingDirectory {
 	}
 
 	public List<File> getModifiedModuleDirsList() throws IOException {
-		return getModifiedModuleDirsList(null, null);
+		if (_modifiedModuleDirs != null) {
+			return _modifiedModuleDirs;
+		}
+
+		_modifiedModuleDirs = getModifiedModuleDirsList(null, null);
+
+		return _modifiedModuleDirs;
 	}
 
 	public List<File> getModifiedModuleDirsList(
@@ -70,9 +108,22 @@ public class PortalGitWorkingDirectory extends GitWorkingDirectory {
 			List<PathMatcher> includesPathMatchers)
 		throws IOException {
 
-		return JenkinsResultsParserUtil.getDirectoriesContainingFiles(
-			getModuleDirsList(excludesPathMatchers, includesPathMatchers),
-			getModifiedFilesList());
+		if ((excludesPathMatchers == null) && (includesPathMatchers == null) &&
+			(_modifiedModuleDirs != null)) {
+
+			return _modifiedModuleDirs;
+		}
+
+		List<File> modifiedModuleDirsList =
+			JenkinsResultsParserUtil.getDirectoriesContainingFiles(
+				getModuleDirsList(excludesPathMatchers, includesPathMatchers),
+				getModifiedFilesList());
+
+		if ((excludesPathMatchers == null) && (includesPathMatchers == null)) {
+			_modifiedModuleDirs = modifiedModuleDirsList;
+		}
+
+		return modifiedModuleDirsList;
 	}
 
 	public List<File> getModifiedNonposhiModules() throws IOException {
@@ -283,12 +334,21 @@ public class PortalGitWorkingDirectory extends GitWorkingDirectory {
 	}
 
 	public PluginsGitWorkingDirectory getPluginsGitWorkingDirectory() {
-		String lpPluginsDir = JenkinsResultsParserUtil.getProperty(
-			getReleaseProperties(), "lp.plugins.dir");
+		Properties buildProperties = null;
+
+		try {
+			buildProperties = JenkinsResultsParserUtil.getBuildProperties();
+		}
+		catch (IOException ioException) {
+			throw new RuntimeException(ioException);
+		}
+
+		String pluginsDir = JenkinsResultsParserUtil.getProperty(
+			buildProperties, "plugins.dir", getUpstreamBranchName());
 
 		GitWorkingDirectory pluginsGitWorkingDirectory =
 			GitWorkingDirectoryFactory.newGitWorkingDirectory(
-				getUpstreamBranchName(), new File(lpPluginsDir),
+				getUpstreamBranchName(), new File(pluginsDir),
 				"liferay-plugins-ee");
 
 		if (pluginsGitWorkingDirectory instanceof PluginsGitWorkingDirectory) {
@@ -351,6 +411,8 @@ public class PortalGitWorkingDirectory extends GitWorkingDirectory {
 			Properties properties = new Properties();
 
 			String[] propertyNames = {
+				"build.binaries.cache.dir",
+				"build.binaries.cache.repository.name",
 				"nodejs.npm.ci.registry", "nodejs.node.env", "nodejs.npm.args",
 				"nodejs.npm.ci.sass.binary.site"
 			};
@@ -537,6 +599,7 @@ public class PortalGitWorkingDirectory extends GitWorkingDirectory {
 
 	private Properties _appServerProperties;
 	private List<File> _jsUnitFiles;
+	private List<File> _modifiedModuleDirs;
 	private Properties _releaseProperties;
 	private Properties _testProperties;
 

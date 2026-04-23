@@ -5,6 +5,7 @@
 
 package com.liferay.headless.object.internal.resource.v1_0;
 
+import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.headless.object.dto.v1_0.ObjectEntryFolder;
 import com.liferay.headless.object.resource.v1_0.ObjectEntryFolderResource;
 import com.liferay.petra.function.UnsafeBiConsumer;
@@ -1355,6 +1356,15 @@ public abstract class BaseObjectEntryFolderResourceImpl
 				return LocaleUtil.fromLanguageId(languageId);
 			}
 
+			@Override
+			public boolean isAcceptAllLanguages() {
+				if (ExportImportThreadLocal.isExportInProcess()) {
+					return true;
+				}
+
+				return AcceptLanguage.super.isAcceptAllLanguages();
+			}
+
 		};
 	}
 
@@ -2145,3 +2155,4 @@ public abstract class BaseObjectEntryFolderResourceImpl
 		LogFactoryUtil.getLog(BaseObjectEntryFolderResourceImpl.class);
 
 }
+// LIFERAY-REST-BUILDER-HASH:-83758135

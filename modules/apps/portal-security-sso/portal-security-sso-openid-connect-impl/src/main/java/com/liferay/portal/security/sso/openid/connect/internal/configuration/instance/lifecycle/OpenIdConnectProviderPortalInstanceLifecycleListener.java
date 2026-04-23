@@ -10,8 +10,8 @@ import com.liferay.oauth.client.persistence.model.OAuthClientASLocalMetadata;
 import com.liferay.oauth.client.persistence.model.OAuthClientEntry;
 import com.liferay.oauth.client.persistence.service.OAuthClientASLocalMetadataLocalService;
 import com.liferay.oauth.client.persistence.service.OAuthClientEntryLocalService;
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.configuration.module.configuration.BaseManagedServiceFactory;
 import com.liferay.portal.instance.lifecycle.BasePortalInstanceLifecycleListener;
 import com.liferay.portal.instance.lifecycle.EveryNodeEveryStartup;
 import com.liferay.portal.instance.lifecycle.PortalInstanceLifecycleListener;
@@ -26,7 +26,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.model.Release;
-import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -103,12 +102,13 @@ public class OpenIdConnectProviderPortalInstanceLifecycleListener
 	}
 
 	private void _addOAuthClientEntry(
-			Dictionary<String, ?> properties, long guestUserId)
+			long companyId, Dictionary<String, ?> properties, long guestUserId)
 		throws Exception {
 
 		_oAuthClientEntryLocalService.addOAuthClientEntry(
-			guestUserId, _generateAuthRequestParametersJSON(properties),
-			_updateOAuthClientASLocalMetadata(guestUserId, properties),
+			null, guestUserId, _generateAuthRequestParametersJSON(properties),
+			_updateOAuthClientASLocalMetadata(
+				companyId, guestUserId, properties),
 			_generateCustomClaimsJSON(properties),
 			_generateInfoJSON(properties),
 			GetterUtil.getString(properties.get("matcherField")),
@@ -119,7 +119,7 @@ public class OpenIdConnectProviderPortalInstanceLifecycleListener
 	}
 
 	private String _deleteOAuthClientASLocalMetadata(
-			Dictionary<String, ?> properties)
+			long companyId, Dictionary<String, ?> properties)
 		throws Exception {
 
 		String discoveryEndpoint = _getPropertyAsString(
@@ -135,7 +135,7 @@ public class OpenIdConnectProviderPortalInstanceLifecycleListener
 				_getPropertyAsString("tokenEndpoint", properties));
 
 		_oAuthClientASLocalMetadataLocalService.
-			deleteOAuthClientASLocalMetadata(localWellKnownURI);
+			deleteOAuthClientASLocalMetadata(companyId, localWellKnownURI);
 
 		return localWellKnownURI;
 	}
@@ -160,7 +160,7 @@ public class OpenIdConnectProviderPortalInstanceLifecycleListener
 
 		try {
 			String authServerWellKnownURI = _deleteOAuthClientASLocalMetadata(
-				properties);
+				companyId, properties);
 
 			_oAuthClientEntryLocalService.deleteOAuthClientEntry(
 				companyId, authServerWellKnownURI,
@@ -381,7 +381,7 @@ public class OpenIdConnectProviderPortalInstanceLifecycleListener
 	}
 
 	private String _updateOAuthClientASLocalMetadata(
-			long guestUserId, Dictionary<String, ?> properties)
+			long companyId, long guestUserId, Dictionary<String, ?> properties)
 		throws Exception {
 
 		String discoveryEndpoint = _getPropertyAsString(
@@ -398,7 +398,8 @@ public class OpenIdConnectProviderPortalInstanceLifecycleListener
 
 		OAuthClientASLocalMetadata oAuthClientASLocalMetadata =
 			_oAuthClientASLocalMetadataLocalService.
-				fetchOAuthClientASLocalMetadata(localWellKnownURI);
+				fetchOAuthClientASLocalMetadataByLocalWellKnownURI(
+					companyId, localWellKnownURI);
 
 		if (oAuthClientASLocalMetadata == null) {
 			_oAuthClientASLocalMetadataLocalService.
@@ -438,7 +439,7 @@ public class OpenIdConnectProviderPortalInstanceLifecycleListener
 			if (oldProperties != null) {
 				String oldAuthServerWellKnownURI =
 					_updateOAuthClientASLocalMetadata(
-						guestUserId, oldProperties);
+						companyId, guestUserId, oldProperties);
 
 				OAuthClientEntry oldOAuthClientEntry =
 					_oAuthClientEntryLocalService.fetchOAuthClientEntry(
@@ -451,7 +452,7 @@ public class OpenIdConnectProviderPortalInstanceLifecycleListener
 						oldOAuthClientEntry.getOAuthClientEntryId(),
 						_generateAuthRequestParametersJSON(properties),
 						_updateOAuthClientASLocalMetadata(
-							guestUserId, properties),
+							companyId, guestUserId, properties),
 						_generateCustomClaimsJSON(properties),
 						_generateInfoJSON(properties),
 						GetterUtil.getString(properties.get("matcherField")),
@@ -461,11 +462,11 @@ public class OpenIdConnectProviderPortalInstanceLifecycleListener
 						_generateTokenRequestParametersJSON(properties));
 				}
 				else {
-					_addOAuthClientEntry(properties, guestUserId);
+					_addOAuthClientEntry(companyId, properties, guestUserId);
 				}
 			}
 			else {
-				_addOAuthClientEntry(properties, guestUserId);
+				_addOAuthClientEntry(companyId, properties, guestUserId);
 			}
 
 			OpenIdConnectProviderUtil.removeOAuthClientEntryIdsByCompanyId(
@@ -513,26 +514,7 @@ public class OpenIdConnectProviderPortalInstanceLifecycleListener
 	private UserLocalService _userLocalService;
 
 	private class OpenIdConnectProviderManagedServiceFactory
-		implements ManagedServiceFactory {
-
-		@Override
-		public void deleted(String pid) {
-			Dictionary<String, ?> properties = _properties.remove(pid);
-
-			long companyId = GetterUtil.getLong(properties.get("companyId"));
-
-			if (companyId == CompanyConstants.SYSTEM) {
-				_deleteOAuthClientEntries(properties);
-			}
-			else {
-				try (SafeCloseable safeCloseable =
-						CompanyThreadLocal.setCompanyIdWithSafeCloseable(
-							companyId)) {
-
-					_deleteOAuthClientEntry(companyId, properties);
-				}
-			}
-		}
+		extends BaseManagedServiceFactory {
 
 		@Override
 		public String getName() {
@@ -540,17 +522,29 @@ public class OpenIdConnectProviderPortalInstanceLifecycleListener
 		}
 
 		@Override
-		public void updated(String pid, Dictionary<String, ?> properties) {
-			long companyId = GetterUtil.getLong(properties.get("companyId"));
+		protected void doDeleted(long companyId, String pid) {
+			Dictionary<String, ?> properties = _properties.remove(pid);
 
-			Dictionary<String, ?> oldProperties = _properties.put(
-				pid, properties);
+			if (companyId == CompanyConstants.SYSTEM) {
+				_deleteOAuthClientEntries(properties);
+			}
+			else {
+				_deleteOAuthClientEntry(companyId, properties);
+			}
+		}
+
+		@Override
+		protected void doUpdated(
+			long companyId, Dictionary<String, ?> dictionary, String pid) {
+
+			Dictionary<String, ?> oldDictionary = _properties.put(
+				pid, dictionary);
 
 			if (companyId == CompanyConstants.SYSTEM) {
 				try {
 					_companyLocalService.forEachCompanyId(
 						curCompanyId -> _updateOAuthClientEntry(
-							curCompanyId, oldProperties, properties));
+							curCompanyId, oldDictionary, dictionary));
 				}
 				catch (Exception exception) {
 					if (_log.isDebugEnabled()) {
@@ -561,12 +555,7 @@ public class OpenIdConnectProviderPortalInstanceLifecycleListener
 				return;
 			}
 
-			try (SafeCloseable safeCloseable =
-					CompanyThreadLocal.setCompanyIdWithSafeCloseable(
-						companyId)) {
-
-				_updateOAuthClientEntry(companyId, oldProperties, properties);
-			}
+			_updateOAuthClientEntry(companyId, oldDictionary, dictionary);
 		}
 
 	}

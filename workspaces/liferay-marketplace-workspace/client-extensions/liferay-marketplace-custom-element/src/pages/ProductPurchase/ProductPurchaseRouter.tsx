@@ -32,6 +32,7 @@ import PaymentMethod from './pages/App/PaymentMethod';
 import OrderSummary from './pages/App/PaymentMethod/OrderSummary/OrderSummary';
 import AIHubForm from './pages/LiferayProduct/AIHubForm/AIHubForm';
 import ActivationKeyForm from './pages/LiferayProduct/ActivationKeyForm';
+import LDPInformation from './pages/LiferayProduct/LDPInformation';
 import LDPOrderSummary from './pages/LiferayProduct/LDPOrderSummary';
 import LDPProvisioning from './pages/LiferayProduct/LDPProvisioningForm';
 import ProjectSelection from './pages/LiferayProduct/Project';
@@ -140,11 +141,15 @@ export const productTypeRoutes = {
 						path: 'project',
 						title: i18n.translate('project'),
 					},
-
 					{
 						element: LDPProvisioning,
 						path: 'provisioning',
 						title: i18n.translate('provisioning'),
+					},
+					{
+						element: LDPInformation,
+						path: 'information',
+						title: i18n.translate('information'),
 					},
 					{
 						element: LDPOrderSummary,

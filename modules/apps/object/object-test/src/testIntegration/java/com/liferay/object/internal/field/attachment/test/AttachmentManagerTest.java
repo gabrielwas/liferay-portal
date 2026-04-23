@@ -12,6 +12,7 @@ import com.liferay.document.library.kernel.exception.FileExtensionException;
 import com.liferay.document.library.kernel.exception.FileMimeTypeException;
 import com.liferay.document.library.kernel.exception.FileSizeException;
 import com.liferay.document.library.kernel.model.DLFolder;
+import com.liferay.document.library.test.util.DLTestUtil;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectFieldSettingConstants;
 import com.liferay.object.field.attachment.AttachmentManager;
@@ -109,7 +110,7 @@ public class AttachmentManagerTest {
 	@Test
 	public void testGetOrAddFileEntry() throws Exception {
 		FileEntry tempFileEntry = _addTempFileEntry(
-			RandomTestUtil.randomString(), ".txt",
+			DLTestUtil.randomTextFileBytes(), ".txt",
 			RandomTestUtil.randomString(), ContentTypes.TEXT_PLAIN,
 			_objectDefinition);
 
@@ -141,7 +142,7 @@ public class AttachmentManagerTest {
 
 		try {
 			tempFileEntry = _addTempFileEntry(
-				RandomTestUtil.randomString(), ".bmp",
+				RandomTestUtil.randomBytes(), ".bmp",
 				RandomTestUtil.randomString(), ContentTypes.IMAGE_BMP,
 				_objectDefinition);
 
@@ -163,9 +164,8 @@ public class AttachmentManagerTest {
 		ObjectDefinition objectDefinition = _addObjectDefinition("*");
 
 		tempFileEntry = _addTempFileEntry(
-			RandomTestUtil.randomString(), ".bmp",
-			RandomTestUtil.randomString(), ContentTypes.IMAGE_BMP,
-			objectDefinition);
+			RandomTestUtil.randomBytes(), ".bmp", RandomTestUtil.randomString(),
+			ContentTypes.IMAGE_BMP, objectDefinition);
 
 		folder = tempFileEntry.getFolder();
 
@@ -192,7 +192,7 @@ public class AttachmentManagerTest {
 					).build())) {
 
 			tempFileEntry = _addTempFileEntry(
-				RandomTestUtil.randomString(), ".txt",
+				DLTestUtil.randomTextFileBytes(), ".txt",
 				RandomTestUtil.randomString(), ContentTypes.TEXT_PLAIN,
 				_objectDefinition);
 
@@ -221,7 +221,7 @@ public class AttachmentManagerTest {
 						).build())) {
 
 			tempFileEntry = _addTempFileEntry(
-				RandomTestUtil.randomString(), ".txt",
+				DLTestUtil.randomTextFileBytes(), ".txt",
 				RandomTestUtil.randomString(), ContentTypes.TEXT_PLAIN,
 				_objectDefinition);
 
@@ -249,7 +249,7 @@ public class AttachmentManagerTest {
 					).build())) {
 
 			tempFileEntry = _addTempFileEntry(
-				RandomTestUtil.randomString(1000), ".txt",
+				DLTestUtil.randomTextFileBytes(1000), ".txt",
 				RandomTestUtil.randomString(), ContentTypes.TEXT_PLAIN,
 				_objectDefinition);
 
@@ -307,7 +307,7 @@ public class AttachmentManagerTest {
 	}
 
 	private FileEntry _addTempFileEntry(
-			String content, String extension, String fileName, String mimeType,
+			byte[] content, String extension, String fileName, String mimeType,
 			ObjectDefinition objectDefinition)
 		throws Exception {
 
@@ -315,7 +315,7 @@ public class AttachmentManagerTest {
 			TestPropsValues.getGroupId(), TestPropsValues.getUserId(),
 			objectDefinition.getPortletId(),
 			TempFileEntryUtil.getTempFileName(fileName + extension),
-			FileUtil.createTempFile(content.getBytes()), mimeType);
+			FileUtil.createTempFile(content), mimeType);
 	}
 
 	@Inject

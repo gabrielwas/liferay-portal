@@ -19,8 +19,9 @@ ViewDesignLibraryAdminDisplayContext viewDesignLibraryAdminDisplayContext = new 
 		/>
 	</div>
 
-	<div class="design-library-fds-wrapper">
+	<div class="design-library-fds-wrapper design-library-fds-wrapper--landing">
 		<frontend-data-set:headless-display
+			additionalProps="<%= viewDesignLibraryAdminDisplayContext.getFDSAdditionalProps() %>"
 			apiURL="<%= viewDesignLibraryAdminDisplayContext.getAPIURL() %>"
 			emptyState="<%= viewDesignLibraryAdminDisplayContext.getEmptyState() %>"
 			fdsActionDropdownItems="<%= viewDesignLibraryAdminDisplayContext.getFDSActionDropdownItems() %>"

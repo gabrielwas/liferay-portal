@@ -5,7 +5,7 @@
 
 export {default as InstallFragmentModal} from '././components/marketplace/InstallFragmentModal';
 export {default as CardStyleModal} from '././components/modals/CardStyleModal';
-export {default as CopyFragmentModal} from '././components/modals/CopyFragmentModal';
+export {default as FragmentSetModal} from '././components/modals/FragmentSetModal';
 export {
 	default as ColorPicker,
 	DEFAULT_TOKEN_LABEL,
@@ -43,6 +43,7 @@ export {
 } from './contexts/StyleErrorsContext';
 export {default as useDragAndDrop} from './hooks/drag_and_drop/useDragAndDrop';
 export {default as useControlledState} from './hooks/useControlledState';
+export type {default as ConfigurationCustomComponentProps} from './types/ConfigurationCustomComponentProps';
 export {default as SegmentExperience} from './types/SegmentExperience';
 export {default as convertRGBtoHex} from './utils/convertRGBtoHex';
 export {default as isCtrlOrMeta} from './utils/isCtrlOrMeta';

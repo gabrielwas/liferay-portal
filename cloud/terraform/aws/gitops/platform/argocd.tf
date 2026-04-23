@@ -40,6 +40,9 @@ resource "helm_release" "argocd" {
 						"resource.customizations.ignoreDifferences.aws.liferay.com_LiferayInfrastructure"=yamlencode(
 							{
 								jsonPointers=[
+									"/spec/database/snapshotIdentifier",
+									"/spec/restorePhase",
+									"/spec/targetActiveDataPlane",
 									"/status/atProvider",
 									"/status/internalMetadata",
 								]
@@ -140,7 +143,7 @@ resource "helm_release" "argocd" {
 				}
 			}),
 	]
-	version="9.1.5"
+	version=var.argocd_helm_chart_version
 	wait=true
 }
 resource "kubernetes_namespace" "argocd" {

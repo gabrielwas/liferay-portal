@@ -10,13 +10,13 @@ import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.fragment.renderer.FragmentRenderer;
 import com.liferay.frontend.data.set.model.FDSActionDropdownItem;
+import com.liferay.frontend.data.set.test.util.FrontendDataSetTestUtil;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
 import com.liferay.object.constants.ObjectFolderConstants;
 import com.liferay.object.model.ObjectEntryFolder;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
-import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.User;
@@ -98,14 +98,6 @@ public class ViewRecycleBinSectionDisplayContextTest
 	@Override
 	@Test
 	public void testGetCMSSectionFilterString() throws Exception {
-		Object displayContext = getSectionDisplayContext(
-			getMockHttpServletRequest(TestPropsValues.getUser()));
-
-		String filterString = getCMSSectionFilterString(displayContext);
-
-		Assert.assertTrue(
-			filterString.contains("status eq " + WorkflowConstants.STATUS_ANY));
-
 		DepotEntry depotEntry1 = _addDepotEntry(
 			false, TestPropsValues.getUserId());
 
@@ -116,69 +108,72 @@ public class ViewRecycleBinSectionDisplayContextTest
 
 		_assertTrashEnabled(depotEntry2, true);
 
-		User user1 = UserTestUtil.addUser(
-			companyLocalService.getCompany(TestPropsValues.getCompanyId()),
-			RoleConstants.CMS_ADMINISTRATOR);
-
-		DepotEntry depotEntry3 = _addDepotEntry(true, user1.getUserId());
+		DepotEntry depotEntry3 = _addDepotEntry(
+			true, TestPropsValues.getUserId());
 
 		_assertTrashEnabled(depotEntry3, true);
 
-		setUser(adminUser);
+		User cmsAdministratorUser = UserTestUtil.addUser(
+			companyLocalService.getCompany(TestPropsValues.getCompanyId()),
+			RoleConstants.CMS_ADMINISTRATOR);
 
-		filterString = getCMSSectionFilterString(
-			getSectionDisplayContext(getMockHttpServletRequest(adminUser)));
+		setUser(cmsAdministratorUser);
 
-		Assert.assertTrue(
-			filterString.contains(
-				_getExpectedFilterString(
-					depotEntry2.getGroupId(), depotEntry3.getGroupId())) ||
-			filterString.contains(
-				_getExpectedFilterString(
-					depotEntry3.getGroupId(), depotEntry2.getGroupId())));
-
-		setUser(user1);
-
-		filterString = getCMSSectionFilterString(
-			getSectionDisplayContext(getMockHttpServletRequest(user1)));
+		String filterString = getCMSSectionFilterString(
+			getSectionDisplayContext(
+				getMockHttpServletRequest(cmsAdministratorUser)));
 
 		Assert.assertTrue(
+			filterString,
+			filterString.contains("groupIds/any") &&
+			filterString.contains(String.valueOf(depotEntry2.getGroupId())) &&
+			filterString.contains(String.valueOf(depotEntry3.getGroupId())) &&
 			filterString.contains(
-				_getExpectedFilterString(
-					depotEntry2.getGroupId(), depotEntry3.getGroupId())) ||
-			filterString.contains(
-				_getExpectedFilterString(
-					depotEntry3.getGroupId(), depotEntry2.getGroupId())));
+				"status eq " + WorkflowConstants.STATUS_IN_TRASH));
 
-		User user2 = UserTestUtil.addUser();
+		User regularUser = UserTestUtil.addUser();
+
+		setUser(regularUser);
+
+		Object displayContext = getSectionDisplayContext(
+			getMockHttpServletRequest(regularUser));
+
+		filterString = getCMSSectionFilterString(displayContext);
+
+		Assert.assertTrue(
+			filterString,
+			filterString.contains("status eq " + WorkflowConstants.STATUS_ANY));
 
 		groupLocalService.addUserGroup(
-			user2.getUserId(), depotEntry1.getGroup());
-
+			regularUser.getUserId(), depotEntry1.getGroupId());
 		groupLocalService.addUserGroup(
-			user2.getUserId(), depotEntry2.getGroup());
+			regularUser.getUserId(), depotEntry2.getGroupId());
 
-		setUser(user2);
+		setUser(regularUser);
 
 		filterString = getCMSSectionFilterString(
-			getSectionDisplayContext(getMockHttpServletRequest(user2)));
+			getSectionDisplayContext(getMockHttpServletRequest(regularUser)));
 
 		Assert.assertTrue(
 			filterString,
 			filterString.contains(
 				_getExpectedFilterString(depotEntry2.getGroupId())));
+		Assert.assertFalse(
+			filterString,
+			filterString.contains(
+				_getExpectedFilterString(depotEntry3.getGroupId())));
 
 		_depotEntryLocalService.deleteDepotEntry(depotEntry1);
 		_depotEntryLocalService.deleteDepotEntry(depotEntry2);
 		_depotEntryLocalService.deleteDepotEntry(depotEntry3);
 
-		_userLocalService.deleteUser(user1);
-		_userLocalService.deleteUser(user2);
+		_userLocalService.deleteUser(cmsAdministratorUser);
+		_userLocalService.deleteUser(regularUser);
 	}
 
 	@Override
 	@Test
-	public void testGetCreationMenu() throws Exception {
+	public void testGetCreationMenu() {
 	}
 
 	@Test
@@ -190,32 +185,41 @@ public class ViewRecycleBinSectionDisplayContextTest
 			fdsActionDropdownItems.toString(), 3,
 			fdsActionDropdownItems.size());
 
-		assertFDSActionDropdownItem(
-			fdsActionDropdownItems.get(0), "view", "actionLinkFolder",
-			"view-folder", "get", "item",
+		FrontendDataSetTestUtil.assertFDSActionDropdownItem(
+			"view", "actionLinkFolder", "View Folder", "get",
 			HashMapBuilder.<String, Object>put(
 				"entryClassName", ObjectEntryFolder.class.getName()
-			).build());
-		assertFDSActionDropdownItem(
-			fdsActionDropdownItems.get(1), "trash", "delete", "delete",
-			"delete", "item", null);
-		assertFDSActionDropdownItem(
-			fdsActionDropdownItems.get(2), "restore", "restore", "restore",
-			"restore", "item", null);
+			).build(),
+			fdsActionDropdownItems.get(0));
+		FrontendDataSetTestUtil.assertFDSActionDropdownItem(
+			"trash", "delete", "Delete", "delete",
+			fdsActionDropdownItems.get(1));
+		FrontendDataSetTestUtil.assertFDSActionDropdownItem(
+			"restore", "restore", "Restore", "restore",
+			fdsActionDropdownItems.get(2));
 	}
 
 	@Override
-	protected CreationMenu getCreationMenu(ObjectEntryFolder objectEntryFolder)
-		throws Exception {
+	protected String appendStatus(String filterString) {
+		return filterString + " and status eq 8";
+	}
+
+	@Override
+	protected CreationMenu getCreationMenu(
+		ObjectEntryFolder objectEntryFolder) {
 
 		return null;
 	}
 
 	@Override
-	protected Map<String, String> getExpectedCreationMenuItems()
-		throws PortalException {
-
+	protected Map<String, String> getExpectedCreationMenuItems() {
 		return Collections.emptyMap();
+	}
+
+	@Override
+	protected String getFilterString() {
+		return "cmsRoot eq true and (cmsSection eq 'contents' or cmsSection " +
+			"eq 'files')";
 	}
 
 	@Override

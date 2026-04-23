@@ -30,7 +30,9 @@ import {PersonalMenuPage} from '../pages/users-admin-web/PersonalMenuPage';
 import {SMTPMockServerPage} from '../pages/users-admin-web/SMTPMockServerPage';
 import {ServiceAccountsPage} from '../pages/users-admin-web/ServiceAccountsPage';
 import {TeamsPage} from '../pages/users-admin-web/TeamsPage';
+import {UserLoginPage} from '../pages/users-admin-web/UserLoginPage';
 import {UserPersonalSitePage} from '../pages/users-admin-web/UserPersonalSitePage';
+import {UserRegistrationPage} from '../pages/users-admin-web/UserRegistrationPage';
 import {UserSettingsPage} from '../pages/users-admin-web/UserSettingsPage';
 import {UsersAndOrganizationsPage} from '../pages/users-admin-web/UsersAndOrganizationsPage';
 import {DocumentLibraryPage} from '../pages/users-admin-web/document-library-web/DocumentLibraryPage';
@@ -70,7 +72,9 @@ const usersAndOrganizationsPagesTest = test.extend<{
 	userAssociatedDataSiteStagingPage: UserAssociatedDataSiteStagingPage;
 	userDocumentLibraryPage: DocumentLibraryPage;
 	userLocaleOptionsPage: UserLocaleOptionsPage;
+	userLoginPage: UserLoginPage;
 	userPersonalSitePage: UserPersonalSitePage;
+	userRegistrationPage: UserRegistrationPage;
 	userSettingsPage: UserSettingsPage;
 	usersAndOrganizationsPage: UsersAndOrganizationsPage;
 }>({
@@ -164,8 +168,14 @@ const usersAndOrganizationsPagesTest = test.extend<{
 	userLocaleOptionsPage: async ({page}, use) => {
 		await use(new UserLocaleOptionsPage(page));
 	},
+	userLoginPage: async ({page}, use) => {
+		await use(new UserLoginPage(page));
+	},
 	userPersonalSitePage: async ({page}, use) => {
 		await use(new UserPersonalSitePage(page));
+	},
+	userRegistrationPage: async ({page}, use) => {
+		await use(new UserRegistrationPage(page));
 	},
 	userSettingsPage: async ({page}, use) => {
 		await use(new UserSettingsPage(page));

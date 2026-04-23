@@ -220,7 +220,12 @@ public class GroupImpl extends GroupBaseImpl {
 			Company company = CompanyLocalServiceUtil.getCompany(
 				getCompanyId());
 
-			name = company.getName();
+			if (Objects.equals(company.getName(), "Liferay")) {
+				name = LanguageUtil.get(locale, "liferay-dxp-site");
+			}
+			else {
+				name = company.getName();
+			}
 		}
 		else if (isLayout()) {
 			Layout layout = LayoutLocalServiceUtil.getLayout(getClassPK());
@@ -1004,6 +1009,13 @@ public class GroupImpl extends GroupBaseImpl {
 		}
 
 		return false;
+	}
+
+	@Override
+	public boolean isMaintenanceMode() {
+		return GetterUtil.getBoolean(
+			getTypeSettingsProperty(
+				GroupConstants.TYPE_SETTINGS_KEY_MAINTENANCE_MODE));
 	}
 
 	@Override

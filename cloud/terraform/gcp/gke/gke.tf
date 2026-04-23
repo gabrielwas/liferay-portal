@@ -120,7 +120,10 @@ resource "google_gke_hub_membership" "membership" {
 	authority {
     	issuer = "https://container.googleapis.com/v1/${google_container_cluster.primary.id}"
   	}
-	depends_on=[google_container_cluster.primary]
+	depends_on=[
+		google_container_cluster.primary,
+		google_container_node_pool.general_purpose,
+	]
 	endpoint {
 		gke_cluster {
 			resource_link="//container.googleapis.com/${google_container_cluster.primary.id}"
@@ -130,17 +133,9 @@ resource "google_gke_hub_membership" "membership" {
 	project=var.project_id
 }
 resource "google_project_iam_member" "node_permissions" {
-	for_each=toset(
-		[
-			"roles/artifactregistry.reader",
-			"roles/gkehub.gatewayAdmin",
-			"roles/gkehub.viewer",
-			"roles/logging.logWriter",
-			"roles/monitoring.metricWriter",
-		])
 	member="serviceAccount:${google_service_account.node_sa.email}"
 	project=var.project_id
-	role=each.key
+	role="roles/container.defaultNodeServiceAccount"
 }
 resource "google_service_account" "node_sa" {
 	account_id="${var.deployment_name}-node-sa"

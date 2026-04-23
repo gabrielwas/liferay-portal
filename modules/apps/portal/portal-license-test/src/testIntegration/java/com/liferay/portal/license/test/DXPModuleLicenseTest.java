@@ -6,25 +6,22 @@
 package com.liferay.portal.license.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
-import com.liferay.portal.kernel.license.util.LicenseManagerUtil;
+import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.kernel.module.util.SystemBundleUtil;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.AssumeTestRule;
-import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 
 import java.io.File;
-import java.io.InputStream;
 
 import java.util.Objects;
-
-import net.bytebuddy.agent.builder.ResettableClassFileTransformer;
 
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.Assume;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -53,51 +50,24 @@ public class DXPModuleLicenseTest extends BaseLicenseTestCase {
 
 	@BeforeClass
 	public static void setUpClass() {
-		_disableKeyValidatorResettableClassFileTransformer = disableValidate();
-		_setVersionResettableClassFileTransformer = setVersion("2026.Q1.0");
+		_disableKeyValidatorSafeCloseable = disableValidateWithSafeCloseable();
+		_setVersionSafeCloseable = setVersionWithSafeCloseable("2026.Q1.0 LTS");
 	}
 
 	@AfterClass
 	public static void tearDownClass() {
-		resetClassFileTransformer(
-			_disableKeyValidatorResettableClassFileTransformer);
-		resetClassFileTransformer(_setVersionResettableClassFileTransformer);
+		_disableKeyValidatorSafeCloseable.close();
+		_setVersionSafeCloseable.close();
+	}
+
+	@Before
+	public void setUp() throws Exception {
+		_safeCloseable = resetLicenseDataWithSafeCloseble();
 	}
 
 	@After
-	public void tearDown() throws Exception {
-		resetLicenseData();
-		resetLifecycleAction();
-	}
-
-	@Test
-	public void testEmptyBundlesFile() throws Exception {
-		ClassLoader classLoader = PortalClassLoaderUtil.getClassLoader();
-
-		PortalClassLoaderUtil.setClassLoader(
-			new WrapperClassLoader(classLoader) {
-
-				@Override
-				public InputStream getResourceAsStream(String name) {
-					if (name.equals(_getBundlesFilePath())) {
-						return InputStream.nullInputStream();
-					}
-
-					return classLoader.getResourceAsStream(name);
-				}
-
-			});
-
-		try {
-			assertLicenseNotRegistered();
-
-			deployFreeTierLicense(Time.HOUR);
-
-			assertLicenseInvalid();
-		}
-		finally {
-			PortalClassLoaderUtil.setClassLoader(classLoader);
-		}
+	public void tearDown() {
+		_safeCloseable.close();
 	}
 
 	@Test
@@ -107,23 +77,23 @@ public class DXPModuleLicenseTest extends BaseLicenseTestCase {
 		assertBundlesExisted(
 			_getDxpOnlyModuleSymbolicName(), _getEnterpriseAppSymbolicName());
 
-		assertLicenseNotRegistered();
+		assertPortalLicenseNotRegistered();
 
 		assertBundlesExisted(
 			_getDxpOnlyModuleSymbolicName(), _getEnterpriseAppSymbolicName());
 
-		File binaryFile = deployFreeTierLicense(Time.HOUR);
+		File binaryFile = deployFreeTierPortalLicense(Time.HOUR);
 
 		assertLicensePropertiesExisted(getPortalProductId());
 
-		assertLicenseRegistered();
+		assertPortalLicenseRegistered();
 
 		assertBundlesNotExisted(
 			_getDxpOnlyModuleSymbolicName(), _getEnterpriseAppSymbolicName());
 
 		binaryFile.delete();
 
-		LicenseManagerUtil.checkLicense(getPortalProductId());
+		checkLicense(getPortalProductId());
 
 		assertLicensePropertiesNotExisted(getPortalProductId());
 
@@ -132,7 +102,7 @@ public class DXPModuleLicenseTest extends BaseLicenseTestCase {
 		assertBundlesExisted(
 			_getDxpOnlyModuleSymbolicName(), _getEnterpriseAppSymbolicName());
 
-		assertLicenseNotRegistered();
+		assertPortalLicenseNotRegistered();
 	}
 
 	@Test
@@ -168,16 +138,16 @@ public class DXPModuleLicenseTest extends BaseLicenseTestCase {
 		Assert.assertEquals(Bundle.ACTIVE, dxpOnlyBundle.getState());
 		Assert.assertEquals(Bundle.ACTIVE, enterpriseAppBundle.getState());
 
-		assertLicenseNotRegistered();
+		assertPortalLicenseNotRegistered();
 
 		Assert.assertEquals(Bundle.ACTIVE, dxpOnlyBundle.getState());
 		Assert.assertEquals(Bundle.ACTIVE, enterpriseAppBundle.getState());
 
-		deployFreeTierLicense(Time.HOUR);
+		deployFreeTierPortalLicense(Time.HOUR);
 
 		assertLicensePropertiesExisted(getPortalProductId());
 
-		assertLicenseRegistered();
+		assertPortalLicenseRegistered();
 
 		Assert.assertEquals(Bundle.UNINSTALLED, dxpOnlyBundle.getState());
 		Assert.assertEquals(Bundle.UNINSTALLED, enterpriseAppBundle.getState());
@@ -189,53 +159,33 @@ public class DXPModuleLicenseTest extends BaseLicenseTestCase {
 
 		try {
 			dxpOnlyBundle.start();
-			enterpriseAppBundle.start();
 
 			Assert.assertEquals(Bundle.ACTIVE, dxpOnlyBundle.getState());
+
+			resetCheckInterval();
+
+			assertPortalLicenseInvalid(
+				"Bundle " + _getDxpOnlyModuleSymbolicName() +
+					" is not allowed");
+		}
+		finally {
+			dxpOnlyBundle.uninstall();
+		}
+
+		try {
+			enterpriseAppBundle.start();
+
 			Assert.assertEquals(Bundle.ACTIVE, enterpriseAppBundle.getState());
 
 			resetCheckInterval();
 
-			assertLicenseInvalid();
+			assertPortalLicenseInvalid(
+				"Bundle " + _getEnterpriseAppSymbolicName() +
+					" is not allowed");
 		}
 		finally {
-			dxpOnlyBundle.uninstall();
 			enterpriseAppBundle.uninstall();
 		}
-	}
-
-	@Test
-	public void testMissingBundlesFile() throws Exception {
-		ClassLoader classLoader = PortalClassLoaderUtil.getClassLoader();
-
-		PortalClassLoaderUtil.setClassLoader(
-			new WrapperClassLoader(classLoader) {
-
-				@Override
-				public InputStream getResourceAsStream(String name) {
-					if (name.equals(_getBundlesFilePath())) {
-						return null;
-					}
-
-					return classLoader.getResourceAsStream(name);
-				}
-
-			});
-
-		try {
-			assertLicenseNotRegistered();
-
-			deployFreeTierLicense(Time.HOUR);
-
-			assertLicenseInvalid();
-		}
-		finally {
-			PortalClassLoaderUtil.setClassLoader(classLoader);
-		}
-	}
-
-	private String _getBundlesFilePath() {
-		return getProperty("bundles.file.path");
 	}
 
 	private String _getDxpOnlyModuleSymbolicName() {
@@ -246,29 +196,9 @@ public class DXPModuleLicenseTest extends BaseLicenseTestCase {
 		return getProperty("enterprise.app.symbolic.name");
 	}
 
-	private static ResettableClassFileTransformer
-		_disableKeyValidatorResettableClassFileTransformer;
-	private static ResettableClassFileTransformer
-		_setVersionResettableClassFileTransformer;
+	private static SafeCloseable _disableKeyValidatorSafeCloseable;
+	private static SafeCloseable _setVersionSafeCloseable;
 
-	private static class WrapperClassLoader extends ClassLoader {
-
-		public WrapperClassLoader(ClassLoader classLoader) {
-			_classLoader = classLoader;
-		}
-
-		@Override
-		public boolean equals(Object object) {
-			return _classLoader.equals(object);
-		}
-
-		@Override
-		public int hashCode() {
-			return _classLoader.hashCode();
-		}
-
-		private final ClassLoader _classLoader;
-
-	}
+	private SafeCloseable _safeCloseable;
 
 }

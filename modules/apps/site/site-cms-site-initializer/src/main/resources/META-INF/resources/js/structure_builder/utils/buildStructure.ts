@@ -44,6 +44,7 @@ export default function buildStructure({
 		id: mainObjectDefinition.id,
 		label: mainObjectDefinition.label,
 		name: mainObjectDefinition.name ?? '',
+		path: mainObjectDefinition.restContextPath ?? '',
 		spaces: getSpaces(mainObjectDefinition),
 		status: isPublished ? 'published' : 'draft',
 		system: mainObjectDefinition.system ?? false,
@@ -74,7 +75,12 @@ export function buildChildren({
 	}
 
 	for (const objectField of objectFields) {
-		if (!isCustomObjectField(objectField)) {
+		if (
+			!isCustomObjectField(
+				objectField,
+				objectDefinition.externalReferenceCode
+			)
+		) {
 			continue;
 		}
 

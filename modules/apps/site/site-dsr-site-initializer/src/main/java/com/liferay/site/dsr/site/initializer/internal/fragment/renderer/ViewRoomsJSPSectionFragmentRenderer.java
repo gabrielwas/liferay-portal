@@ -6,6 +6,7 @@
 package com.liferay.site.dsr.site.initializer.internal.fragment.renderer;
 
 import com.liferay.fragment.renderer.FragmentRenderer;
+import com.liferay.fragment.renderer.FragmentRendererContext;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -35,7 +36,13 @@ public class ViewRoomsJSPSectionFragmentRenderer
 	}
 
 	@Override
+	protected String getConfigurationPath() {
+		return "dependencies/rooms_configuration.json";
+	}
+
+	@Override
 	protected ViewRoomsSectionDisplayContext getDisplayContext(
+		FragmentRendererContext fragmentRendererContext,
 		HttpServletRequest httpServletRequest) {
 
 		ThemeDisplay themeDisplay =
@@ -43,6 +50,7 @@ public class ViewRoomsJSPSectionFragmentRenderer
 				WebKeys.THEME_DISPLAY);
 
 		return new ViewRoomsSectionDisplayContext(
+			getConfigurationValuesMap(fragmentRendererContext),
 			httpServletRequest,
 			_objectDefinitionLocalService.
 				fetchObjectDefinitionByExternalReferenceCode(

@@ -20,7 +20,6 @@ import com.liferay.info.type.WebImage;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -54,17 +53,27 @@ public class BackgroundImageDocumentFragmentEntryProcessor
 
 	@Override
 	public void processFragmentEntryLinkHTML(
-			FragmentEntryLink fragmentEntryLink, Document document,
+			Document document, FragmentEntryLink fragmentEntryLink,
 			FragmentEntryProcessorContext fragmentEntryProcessorContext)
 		throws PortalException {
 
-		JSONObject jsonObject = fragmentEntryLink.getEditableValuesJSONObject();
+		processFragmentEntryLinkHTML(
+			document, fragmentEntryLink.getEditableValuesJSONObject(),
+			fragmentEntryLink, fragmentEntryProcessorContext);
+	}
 
-		JSONObject editableValuesJSONObject = jsonObject.getJSONObject(
+	@Override
+	public void processFragmentEntryLinkHTML(
+			Document document, JSONObject editableValuesJSONObject,
+			FragmentEntryLink fragmentEntryLink,
+			FragmentEntryProcessorContext fragmentEntryProcessorContext)
+		throws PortalException {
+
+		JSONObject jsonObject = editableValuesJSONObject.getJSONObject(
 			FragmentEntryProcessorConstants.
 				KEY_BACKGROUND_IMAGE_FRAGMENT_ENTRY_PROCESSOR);
 
-		if (editableValuesJSONObject == null) {
+		if (jsonObject == null) {
 			return;
 		}
 
@@ -77,12 +86,11 @@ public class BackgroundImageDocumentFragmentEntryProcessor
 
 			String id = element.attr("data-lfr-background-image-id");
 
-			if (!editableValuesJSONObject.has(id)) {
+			if (!jsonObject.has(id)) {
 				continue;
 			}
 
-			JSONObject editableValueJSONObject =
-				editableValuesJSONObject.getJSONObject(id);
+			JSONObject editableValueJSONObject = jsonObject.getJSONObject(id);
 
 			String value = StringPool.BLANK;
 
@@ -168,10 +176,7 @@ public class BackgroundImageDocumentFragmentEntryProcessor
 				element.removeAttr("data-lfr-background-image-id");
 			}
 
-			if (FeatureFlagManagerUtil.isEnabled(
-					fragmentEntryLink.getCompanyId(), "LPD-39437") &&
-				fragmentEntryProcessorContext.isViewMode()) {
-
+			if (fragmentEntryProcessorContext.isViewMode()) {
 				AnalyticsAttributesUtil.addAnalyticsAttributes(
 					editableValueJSONObject, element,
 					fragmentEntryProcessorContext,

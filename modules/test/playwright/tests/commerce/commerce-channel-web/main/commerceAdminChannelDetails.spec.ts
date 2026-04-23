@@ -117,7 +117,7 @@ test('LPD-30466 Verify users without edit permission cannot click on channel nam
 		name: getRandomString(),
 	});
 
-	apiHelpers.data.push({id: site.id, type: 'site'});
+	apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 	const channel = await apiHelpers.headlessCommerceAdminChannel.postChannel({
 		siteGroupId: site.id,
@@ -176,7 +176,7 @@ test('LPD-30466 Verify users without edit permission cannot click on channel nam
 
 	await performLogin(page, userAccount.alternateName);
 
-	await commerceAdminChannelDetailsPage.goto(false);
+	await commerceAdminChannelDetailsPage.goto();
 
 	try {
 		await expect(page.getByText(channel.name)).toBeVisible();

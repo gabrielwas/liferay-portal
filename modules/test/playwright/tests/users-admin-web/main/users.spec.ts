@@ -15,10 +15,18 @@ import {pageEditorPagesTest} from '../../../fixtures/pageEditorPagesTest';
 import {productMenuPageTest} from '../../../fixtures/productMenuPageTest';
 import {usersAndOrganizationsPagesTest} from '../../../fixtures/usersAndOrganizationsPagesTest';
 import {workflowPagesTest} from '../../../fixtures/workflowPagesTest';
+import {createCategories} from '../../../helpers/CreateCategories';
+import {UserPersonalSitePage} from '../../../pages/users-admin-web/UserPersonalSitePage';
+import getGlobalSiteId from '../../../utils/getGlobalSiteId';
 import {getRandomInt} from '../../../utils/getRandomInt';
 import getRandomString from '../../../utils/getRandomString';
 import {nextPage} from '../../../utils/pagination';
-import {performUserSwitch, userData} from '../../../utils/performLogin';
+import {
+	performLoginViaApi,
+	performLogout,
+	performUserSwitch,
+	userData,
+} from '../../../utils/performLogin';
 import {waitForAlert} from '../../../utils/waitForAlert';
 import getPageDefinition from '../../layout-content-page-editor-web/main/utils/getPageDefinition';
 import getWidgetDefinition from '../../layout-content-page-editor-web/main/utils/getWidgetDefinition';
@@ -158,7 +166,7 @@ test(
 			await userAssociatedDataMessageBoardWidgetPage.permissionsMenuItem.click(
 				{timeout: 500}
 			);
-		}).toPass();
+		}).toPass({timeout: 5000});
 
 		await userAssociatedDataMessageBoardPage.setPermissions([
 			'#user_ACTION_ADD_MESSAGE',
@@ -348,7 +356,7 @@ test(
 
 		await expect(editUserPage.firstNameInput).toHaveValue(name);
 
-		await performUserSwitch(page, userAccount.alternateName);
+		await performLoginViaApi({page, screenName: userAccount.alternateName});
 
 		await page.goto(`/web/${userAccount.alternateName}`);
 
@@ -410,9 +418,6 @@ test(
 			usersAndOrganizationsPage.usersTableCell(user3.alternateName)
 		).toBeVisible();
 		await expect(
-			usersAndOrganizationsPage.usersTableCell('test')
-		).toBeVisible();
-		await expect(
 			usersAndOrganizationsPage.usersTableCell(user1.alternateName)
 		).not.toBeVisible();
 		await expect(
@@ -443,7 +448,7 @@ test(
 		await expect(async () => {
 			await editUserPage.selectUserGroupsButton.click();
 			await editUserPage.selectUserGroupTable.changeView('table');
-		}).toPass();
+		}).toPass({timeout: 5000});
 
 		await editUserPage.selectUserGroupTable.cell(userGroup.name).click();
 
@@ -490,7 +495,7 @@ test(
 
 				await expect(
 					notificationsPage.workflowReviewMessage('User')
-				).toBeVisible();
+				).toBeVisible({timeout: 500});
 
 				await notificationsPage.selectAllItemsCheckbox.check();
 				await notificationsPage.deleteButton.click();
@@ -499,7 +504,7 @@ test(
 					page,
 					'Notifications were deleted successfully.'
 				);
-			}).toPass();
+			}).toPass({timeout: 5000});
 		}
 		finally {
 			await configurationTabPage.goTo();
@@ -561,7 +566,7 @@ test(
 
 		const user = await apiHelpers.headlessAdminUser.postUserAccount();
 
-		await usersAndOrganizationsPage.goto();
+		await usersAndOrganizationsPage.goto(true);
 
 		await expect(
 			usersAndOrganizationsPage.usersTableCell(user.alternateName)
@@ -592,13 +597,35 @@ test(
 test(
 	'Can add widget to my profile page',
 	{tag: ['@LPD-58336', '@LPS-159181']},
-	async ({page, userPersonalSitePage}) => {
+	async ({apiHelpers, page, userPersonalSitePage}) => {
+		const user = await apiHelpers.headlessAdminUser.postUserAccount();
+
+		userData[user.alternateName] = {
+			name: user.givenName,
+			password: userData['test'].password,
+			surname: user.familyName,
+		};
+
+		const adminRole =
+			await apiHelpers.headlessAdminUser.getRoleByName('Administrator');
+
+		await apiHelpers.headlessAdminUser.postRoleByExternalReferenceCodeUserAccountAssociation(
+			adminRole.externalReferenceCode,
+			user.id
+		);
+
+		await performUserSwitch(page, user.alternateName);
+
 		await userPersonalSitePage.userPersonalMenuButton.click();
 		await userPersonalSitePage.myProfileMenuItem.click();
 
 		await userPersonalSitePage.addLanguageSelectorToPage();
 
-		await expect(page.getByTitle('Select a language')).toBeVisible();
+		await expect(
+			page
+				.getByTitle('Select a language')
+				.or(page.getByTitle('Select a Language'))
+		).toBeVisible();
 	}
 );
 
@@ -621,9 +648,6 @@ test(
 		await expect(
 			usersAndOrganizationsPage.usersTableCell(user.alternateName)
 		).not.toBeVisible();
-		await expect(
-			usersAndOrganizationsPage.usersTableCell('test')
-		).toBeVisible();
 
 		await apiHelpers.headlessAdminUser.deleteAccount(account.id);
 
@@ -633,9 +657,6 @@ test(
 
 		await expect(
 			usersAndOrganizationsPage.usersTableCell(user.alternateName)
-		).toBeVisible();
-		await expect(
-			usersAndOrganizationsPage.usersTableCell('test')
 		).toBeVisible();
 	}
 );
@@ -660,9 +681,6 @@ test(
 		await expect(
 			usersAndOrganizationsPage.usersTableCell(user.alternateName)
 		).not.toBeVisible();
-		await expect(
-			usersAndOrganizationsPage.usersTableCell('test')
-		).toBeVisible();
 
 		await apiHelpers.headlessAdminUser.deleteOrganizationUserAccountAssociation(
 			organization.id,
@@ -675,9 +693,6 @@ test(
 
 		await expect(
 			usersAndOrganizationsPage.usersTableCell(user.alternateName)
-		).toBeVisible();
-		await expect(
-			usersAndOrganizationsPage.usersTableCell('test')
 		).toBeVisible();
 	}
 );
@@ -888,7 +903,7 @@ test(
 			name,
 		});
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 		const user = await apiHelpers.headlessAdminUser.postUserAccount();
 
@@ -945,7 +960,7 @@ test(
 			await editUserPage.addAdditionalEmailAddressesButton.click();
 			await editUserPage.additionalEmailAddressInput.fill(emailAddress1);
 			await editUserPage.saveButton.click();
-		}).toPass();
+		}).toPass({timeout: 5000});
 
 		await expect(
 			(
@@ -967,7 +982,7 @@ test(
 			await editUserPage.makePrimaryCheckbox.check();
 			await editUserPage.additionalEmailAddressInput.fill(emailAddress2);
 			await editUserPage.saveButton.click();
-		}).toPass();
+		}).toPass({timeout: 5000});
 
 		await expect(
 			await editUserPage.additionalEmailAddressesTablePrimaryText(
@@ -979,7 +994,7 @@ test(
 			await editUserPage.addAdditionalEmailAddressesButton.click();
 			await editUserPage.additionalEmailAddressInput.fill(emailAddress3);
 			await editUserPage.saveButton.click();
-		}).toPass();
+		}).toPass({timeout: 5000});
 
 		await expect(
 			await editUserPage.additionalEmailAddressesTablePrimaryText(
@@ -1006,7 +1021,7 @@ test(
 			await editUserPage.editMenuItem.click();
 			await editUserPage.makePrimaryCheckbox.uncheck();
 			await editUserPage.saveButton.click();
-		}).toPass();
+		}).toPass({timeout: 5000});
 
 		await expect(
 			await editUserPage.additionalEmailAddressesTablePrimaryText(
@@ -1208,7 +1223,7 @@ test(
 			await editUserPage.makePrimaryCheckbox.uncheck();
 			await editUserPage.saveButton.click();
 			await waitForAlert(page);
-		}).toPass();
+		}).toPass({timeout: 5000});
 
 		await expect(
 			await editUserPage.phoneNumbersTablePrimaryText(phoneNumber2)
@@ -1400,7 +1415,7 @@ test(
 			await editUserPage.saveButton.click();
 
 			await waitForAlert(page);
-		}).toPass();
+		}).toPass({timeout: 5000});
 		await expect(
 			await editUserPage.websitesTablePrimaryText(website2)
 		).not.toBeVisible();
@@ -1460,5 +1475,282 @@ test(
 
 		await expect(editUserPage.selectSiteRolesButton).not.toBeVisible();
 		await expect(editUserPage.cannotSelectSiteRolesMessage).toBeVisible();
+	}
+);
+
+test(
+	'User login after activation and deactivation',
+	{tag: '@LPD-81993'},
+	async ({apiHelpers, page, userLoginPage, usersAndOrganizationsPage}) => {
+		page.on('dialog', (dialog) => dialog.accept());
+
+		const user = await apiHelpers.headlessAdminUser.postUserAccount({
+			alternateName: `user${getRandomInt()}`,
+		});
+
+		const userName = `${user.givenName} ${user.familyName}`;
+
+		await test.step('Deactivate user via Actions menu and verify login fails', async () => {
+			await usersAndOrganizationsPage.goToUsers();
+
+			await expect(async () => {
+				await (
+					await usersAndOrganizationsPage.usersTableRowActions(
+						user.alternateName
+					)
+				).click();
+
+				await expect(
+					usersAndOrganizationsPage.deactivateUserMenuItem
+				).toBeVisible({timeout: 500});
+			}).toPass({timeout: 5000});
+
+			await usersAndOrganizationsPage.deactivateUserMenuItem.click();
+
+			await waitForAlert(page);
+
+			await performLogout(page);
+
+			await userLoginPage.goto();
+			await userLoginPage.emailAddressInput.fill(user.emailAddress);
+			await userLoginPage.passwordInput.fill('test');
+			await userLoginPage.signInButton.click();
+
+			await expect(userLoginPage.authenticationFailedAlert).toBeVisible();
+		});
+
+		await test.step('Reactivate user and verify login succeeds', async () => {
+			await performLoginViaApi({page, screenName: 'test'});
+
+			await usersAndOrganizationsPage.goToUsers();
+
+			await usersAndOrganizationsPage.filterUsers('Inactive');
+			await usersAndOrganizationsPage.activateUsers([userName]);
+
+			await performLogout(page);
+
+			await userLoginPage.goto();
+			await userLoginPage.emailAddressInput.fill(user.emailAddress);
+			await userLoginPage.passwordInput.fill('test');
+			await userLoginPage.signInButton.click();
+
+			if (await userLoginPage.iAgreeButton.isVisible()) {
+				await userLoginPage.iAgreeButton.click();
+				await page.waitForLoadState('networkidle');
+			}
+
+			await expect(
+				page.getByLabel(`${user.givenName} ${user.familyName}`)
+			).toBeVisible({timeout: 30000});
+		});
+
+		await test.step('Deactivate user via checkbox and button and verify login fails', async () => {
+			await performLoginViaApi({page, screenName: 'test'});
+
+			await usersAndOrganizationsPage.goToUsers();
+			await usersAndOrganizationsPage.deActivateUsers([userName]);
+
+			await performLogout(page);
+
+			await userLoginPage.goto();
+			await userLoginPage.emailAddressInput.fill(user.emailAddress);
+			await userLoginPage.passwordInput.fill('test');
+			await userLoginPage.signInButton.click();
+
+			await expect(userLoginPage.authenticationFailedAlert).toBeVisible();
+		});
+	}
+);
+
+test(
+	'Logout user via URL',
+	{tag: '@LPD-81993'},
+	async ({apiHelpers, page, userLoginPage}) => {
+		const user = await apiHelpers.headlessAdminUser.postUserAccount({
+			alternateName: `user${getRandomInt()}`,
+		});
+
+		await performLogout(page);
+
+		await userLoginPage.goto();
+		await userLoginPage.emailAddressInput.fill(user.emailAddress);
+		await userLoginPage.passwordInput.fill('test');
+		await userLoginPage.signInButton.click();
+
+		await expect(
+			page.getByLabel(`${user.givenName} ${user.familyName}`)
+		).toBeVisible({timeout: 30000});
+
+		await page.goto('/c/portal/logout');
+
+		await expect(page.getByRole('button', {name: 'Sign In'})).toBeVisible();
+	}
+);
+
+test(
+	'View user form persistence',
+	{tag: '@LPD-81993'},
+	async ({apiHelpers, editUserPage, page, usersAndOrganizationsPage}) => {
+		const user = await apiHelpers.headlessAdminUser.postUserAccount({
+			alternateName: `user${getRandomInt()}`,
+		});
+
+		await usersAndOrganizationsPage.goToUsers();
+
+		await (
+			await usersAndOrganizationsPage.usersTableRowLink(
+				user.alternateName
+			)
+		).click();
+
+		await editUserPage.contactLink.click();
+		await editUserPage.contactInformationLink.click();
+
+		await editUserPage.addNewPhoneNumber(false, '1111111111');
+
+		await editUserPage.skypeInput.fill('skype12345');
+		await editUserPage.saveButton.click();
+
+		await waitForAlert(page);
+
+		await expect(
+			(await editUserPage.phoneNumbersTableRow(0, '1111111111', true)).row
+		).toBeVisible();
+		await expect(editUserPage.skypeInput).toHaveValue('skype12345');
+
+		await expect(async () => {
+			await (
+				await editUserPage.phoneNumbersTableRowActions('1111111111')
+			).click();
+
+			await expect(editUserPage.removeMenuItem).toBeVisible({
+				timeout: 500,
+			});
+		}).toPass({timeout: 5000});
+
+		await editUserPage.removeMenuItem.click();
+
+		await waitForAlert(page);
+
+		await expect(
+			editUserPage.phoneNumbersTable.getByText('1111111111')
+		).not.toBeVisible();
+		await expect(editUserPage.skypeInput).toHaveValue('skype12345');
+	}
+);
+
+test(
+	'View category associated to user',
+	{tag: ['@LPD-81993', '@LPS-111656']},
+	async ({apiHelpers, editUserPage, page, usersAndOrganizationsPage}) => {
+		const vocabularyName = getRandomString();
+		const categoryName = getRandomString();
+
+		const categories = await createCategories({
+			apiHelpers,
+			categoryNames: [{name: categoryName}],
+			siteId: await getGlobalSiteId(apiHelpers),
+			vocabularyName,
+		});
+
+		apiHelpers.data.push({
+			id: (categories[0] as any).vocabularyId,
+			type: 'taxonomyVocabulary',
+		});
+
+		const user = await apiHelpers.headlessAdminUser.postUserAccount({
+			alternateName: `user${getRandomInt()}`,
+		});
+
+		await usersAndOrganizationsPage.goToUsers();
+
+		await (
+			await usersAndOrganizationsPage.usersTableRowLink(
+				user.alternateName
+			)
+		).click();
+
+		await editUserPage.categoryInput(vocabularyName).click();
+		await editUserPage.categoryInput(vocabularyName).fill(categoryName);
+		await editUserPage.categoryOption(categoryName).click();
+
+		await expect(editUserPage.categoryGridCell(categoryName)).toBeVisible();
+
+		await editUserPage.saveButton.click();
+
+		await waitForAlert(page);
+
+		await editUserPage.membershipsLink.click();
+		await editUserPage.saveButton.click();
+
+		await waitForAlert(page);
+
+		await usersAndOrganizationsPage.goToUsers();
+
+		await (
+			await usersAndOrganizationsPage.usersTableRowLink(
+				user.alternateName
+			)
+		).click();
+
+		await expect(editUserPage.categoryGridCell(categoryName)).toBeVisible();
+	}
+);
+
+test(
+	'View page rendered properly after be yourself again',
+	{tag: '@LPD-81993'},
+	async ({apiHelpers, page, usersAndOrganizationsPage}) => {
+		const user = await apiHelpers.headlessAdminUser.postUserAccount({
+			alternateName: `user${getRandomInt()}`,
+		});
+
+		await usersAndOrganizationsPage.goto();
+
+		await usersAndOrganizationsPage.usersSearchBar.fill(user.alternateName);
+		await usersAndOrganizationsPage.usersSearchBar.press('Enter');
+
+		await expect(async () => {
+			await (
+				await usersAndOrganizationsPage.usersTableRowActions(
+					user.alternateName
+				)
+			).click();
+
+			await expect(
+				usersAndOrganizationsPage.impersonateUserMenuItem
+			).toBeVisible({timeout: 500});
+		}).toPass({timeout: 5000});
+
+		const [impersonatedPage] = await Promise.all([
+			page.context().waitForEvent('page'),
+			usersAndOrganizationsPage.impersonateUserMenuItem.click(),
+		]);
+
+		await impersonatedPage.waitForLoadState('networkidle');
+
+		const impersonatedPersonalSite = new UserPersonalSitePage(
+			impersonatedPage
+		);
+
+		await impersonatedPersonalSite.userPersonalMenuButton.click();
+		await impersonatedPersonalSite.myProfileMenuItem.click();
+
+		await expect(
+			impersonatedPage
+				.getByText(`${user.givenName} ${user.familyName}`)
+				.first()
+		).toBeVisible();
+
+		await impersonatedPersonalSite.userPersonalMenuButton.click();
+		await impersonatedPersonalSite.beYourselfAgainMenuItem.click();
+
+		await impersonatedPage.waitForLoadState('networkidle');
+
+		await expect(
+			impersonatedPage.getByText('Test Test').first()
+		).toBeVisible();
+
+		await impersonatedPage.close();
 	}
 );

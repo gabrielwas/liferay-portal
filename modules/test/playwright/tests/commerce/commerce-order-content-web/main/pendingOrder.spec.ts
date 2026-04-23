@@ -6,11 +6,11 @@
 import {ObjectActionAPI} from '@liferay/object-admin-rest-client-js';
 import {expect, mergeTests} from '@playwright/test';
 
-import {applicationsMenuPageTest} from '../../../../fixtures/applicationsMenuPageTest';
 import {commercePagesTest} from '../../../../fixtures/commercePagesTest';
 import {dataApiHelpersTest} from '../../../../fixtures/dataApiHelpersTest';
 import {displayPageTemplatesPagesTest} from '../../../../fixtures/displayPageTemplatesPagesTest';
 import {featureFlagsTest} from '../../../../fixtures/featureFlagsTest';
+import {globalMenuPagesTest} from '../../../../fixtures/globalMenuPagesTest';
 import {isolatedSiteTest} from '../../../../fixtures/isolatedSiteTest';
 import {loginTest} from '../../../../fixtures/loginTest';
 import {notificationPagesTest} from '../../../../fixtures/notificationPagesTest';
@@ -37,7 +37,7 @@ import {
 } from '../../utils/commerce';
 
 export const test = mergeTests(
-	applicationsMenuPageTest,
+	globalMenuPagesTest,
 	commercePagesTest,
 	dataApiHelpersTest,
 	displayPageTemplatesPagesTest,
@@ -377,9 +377,9 @@ test('LPD-13627 Edit pending order item without UOM', async ({
 
 test('LPD-4174 Sales agent can receive email notifications for new orders placed to their accounts', async ({
 	apiHelpers,
-	applicationsMenuPage,
 	checkoutPage,
 	commerceMiniCartPage,
+	globalMenuPage,
 	page,
 	queuePage,
 }) => {
@@ -467,7 +467,7 @@ test('LPD-4174 Sales agent can receive email notifications for new orders placed
 		type: 'objectAction',
 	});
 
-	await applicationsMenuPage.goToSite(site.name);
+	await globalMenuPage.goToSite(site.name);
 
 	try {
 		await commerceMiniCartPage.miniCartButton.waitFor();
@@ -489,7 +489,7 @@ test('LPD-4174 Sales agent can receive email notifications for new orders placed
 
 		await expect(checkoutPage.orderSuccessMessage).toBeVisible();
 
-		await applicationsMenuPage.goToQueue();
+		await globalMenuPage.goToControlPanel('Queue');
 
 		await expect(queuePage.pageTitle).toBeVisible();
 		await expect(

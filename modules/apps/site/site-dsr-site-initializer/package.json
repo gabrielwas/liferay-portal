@@ -9,6 +9,7 @@
 		"@clayui/color-picker": "^3.159.0",
 		"@clayui/core": "^3.159.0",
 		"@clayui/data-provider": "^3.159.0",
+		"@clayui/date-picker": "^3.159.0",
 		"@clayui/drop-down": "^3.159.0",
 		"@clayui/empty-state": "^3.159.0",
 		"@clayui/form": "^3.159.0",
@@ -39,12 +40,14 @@
 		"eventsource": "^4.0.0",
 		"fetch-mock": "^5.13.1",
 		"formik": "2.1.4",
+		"frontend-editor-ckeditor-web": "*",
 		"frontend-js-components-web": "*",
 		"frontend-js-web": "*",
 		"moment": "2.29.4",
 		"react": "18.2.0",
 		"react-dom": "18.2.0",
 		"react-dropzone": "11.2.4",
+		"recharts": "^2.8.0",
 		"resize-observer-polyfill": "^1.5.1",
 		"uuid": "^9.0.1"
 	},
@@ -69,5 +72,5 @@
 		"format": "node-scripts format",
 		"test": "node-scripts test"
 	},
-	"version": "1.0.3"
+	"version": "1.0.4"
 }

@@ -9,7 +9,7 @@ import {loginTest} from '../../../fixtures/loginTest';
 import {systemSettingsPageTest} from '../../../fixtures/systemSettingsPageTest';
 import {waitForAlert} from '../../../utils/waitForAlert';
 
-const test = mergeTests(systemSettingsPageTest, loginTest());
+const test = mergeTests(loginTest(), systemSettingsPageTest);
 
 test.beforeEach(async ({systemSettingsPage}) => {
 	await systemSettingsPage.goToSystemSetting('Assets', 'Asset Auto Tagging');

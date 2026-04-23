@@ -24,8 +24,7 @@ import com.liferay.portal.kernel.model.WorkflowedModel;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.IndexWriterHelper;
 import com.liferay.portal.kernel.search.SearchException;
-import com.liferay.portal.kernel.service.CompanyLocalServiceUtil;
-import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -113,6 +112,9 @@ public class IndexerWriterImpl<T extends BaseModel<?>>
 			_batchIndexingHelper.getBulkSize(
 				_modelSearchSettings.getClassName()));
 
+		_modelIndexerWriterContributor.customize(
+			indexableActionableDynamicQuery, _indexerDocumentBuilder);
+
 		return indexableActionableDynamicQuery;
 	}
 
@@ -167,64 +169,6 @@ public class IndexerWriterImpl<T extends BaseModel<?>>
 	}
 
 	@Override
-	public void reindex(String[] ids) {
-		if (!isEnabled() || ArrayUtil.isEmpty(ids)) {
-			return;
-		}
-
-		long[] companyIds = new long[ids.length];
-
-		for (int i = 0; i < ids.length; i++) {
-			companyIds[i] = GetterUtil.getLong(ids[i]);
-		}
-
-		CompanyLocalServiceUtil.forEachCompanyId(
-			companyId -> {
-				if (!_modelIndexerWriterContributor.shouldRun(companyId)) {
-					return;
-				}
-
-				for (long ctCollectionId : _getCTCollectionIds(companyId)) {
-					try (SafeCloseable safeCloseable1 =
-							CTSQLModeThreadLocal.setCTSQLModeWithSafeCloseable(
-								CTSQLModeThreadLocal.CTSQLMode.CT_ONLY);
-						SafeCloseable safeCloseable2 =
-							CTCollectionThreadLocal.
-								setCTCollectionIdWithSafeCloseable(
-									ctCollectionId)) {
-
-						IndexableActionableDynamicQuery
-							indexableActionableDynamicQuery =
-								getIndexableActionableDynamicQuery();
-
-						indexableActionableDynamicQuery.setCompanyId(companyId);
-
-						_modelIndexerWriterContributor.customize(
-							indexableActionableDynamicQuery,
-							_indexerDocumentBuilder);
-
-						try {
-							indexableActionableDynamicQuery.performActions();
-						}
-						catch (Exception exception) {
-							if (_log.isWarnEnabled()) {
-								_log.warn(
-									StringBundler.concat(
-										"Unable to reindex ",
-										_modelSearchSettings.getClassName(),
-										" for change tracking collection ID ",
-										ctCollectionId, " and company ID ",
-										companyId),
-									exception);
-							}
-						}
-					}
-				}
-			},
-			companyIds);
-	}
-
-	@Override
 	public void reindex(T baseModel) {
 		reindex(baseModel, true);
 	}
@@ -259,6 +203,21 @@ public class IndexerWriterImpl<T extends BaseModel<?>>
 
 		if (notify) {
 			_modelIndexerWriterContributor.modelIndexed(baseModel);
+		}
+	}
+
+	@Override
+	public void reindexCompany(long companyId) {
+		if (!isEnabled() ||
+			!_modelIndexerWriterContributor.shouldRun(companyId)) {
+
+			return;
+		}
+
+		try (SafeCloseable safeCloseable =
+				CompanyThreadLocal.setCompanyIdWithSafeCloseable(companyId)) {
+
+			_reindexCompany(companyId);
 		}
 	}
 
@@ -315,6 +274,39 @@ public class IndexerWriterImpl<T extends BaseModel<?>>
 		}
 
 		return IndexerWriterMode.UPDATE;
+	}
+
+	private void _reindexCompany(long companyId) {
+		for (long ctCollectionId : _getCTCollectionIds(companyId)) {
+			try (SafeCloseable safeCloseable1 =
+					CTSQLModeThreadLocal.setCTSQLModeWithSafeCloseable(
+						CTSQLModeThreadLocal.CTSQLMode.CT_ONLY);
+				SafeCloseable safeCloseable2 =
+					CTCollectionThreadLocal.setCTCollectionIdWithSafeCloseable(
+						ctCollectionId)) {
+
+				IndexableActionableDynamicQuery
+					indexableActionableDynamicQuery =
+						getIndexableActionableDynamicQuery();
+
+				indexableActionableDynamicQuery.setCompanyId(companyId);
+
+				try {
+					indexableActionableDynamicQuery.performActions();
+				}
+				catch (Exception exception) {
+					if (_log.isWarnEnabled()) {
+						_log.warn(
+							StringBundler.concat(
+								"Unable to reindex ",
+								_modelSearchSettings.getClassName(),
+								" for change tracking collection ID ",
+								ctCollectionId, " and company ID ", companyId),
+							exception);
+					}
+				}
+			}
+		}
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

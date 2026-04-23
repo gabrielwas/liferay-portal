@@ -49,7 +49,7 @@ const LiferayProductsOutlet = () => (
 					?.APP_BETA;
 
 			if (
-				[OrderTypes.CMP, OrderTypes.DXP].includes(
+				[OrderTypes.AI_HUB, OrderTypes.CMP, OrderTypes.DXP].includes(
 					props?.placedOrder
 						?.orderTypeExternalReferenceCode as OrderTypes
 				)
@@ -72,18 +72,21 @@ const LiferayProductsOutlet = () => (
 							</ClayButton>
 						)}
 
-						<ClayButton
-							displayType="primary"
-							onClick={() => {
-								Liferay.Util.navigate(
-									`${getSiteURL()}/product-purchase?productId=${props?.product?.productId}#/activation-key-form`
-								);
-							}}
-							outline
-							size={appBeta ? 'sm' : 'regular'}
-						>
-							{i18n.translate('new-activation-key')}
-						</ClayButton>
+						{props?.placedOrder?.orderTypeExternalReferenceCode !==
+							OrderTypes.AI_HUB && (
+							<ClayButton
+								displayType="primary"
+								onClick={() => {
+									Liferay.Util.navigate(
+										`${getSiteURL()}/product-purchase?productId=${props?.product?.productId}#/activation-key-form`
+									);
+								}}
+								outline
+								size={appBeta ? 'sm' : 'regular'}
+							>
+								{i18n.translate('new-activation-key')}
+							</ClayButton>
+						)}
 					</div>
 				);
 			}

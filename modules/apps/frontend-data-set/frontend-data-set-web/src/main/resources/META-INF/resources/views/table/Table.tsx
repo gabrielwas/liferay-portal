@@ -24,9 +24,9 @@ import FrontendDataSetContext, {
 	IFrontendDataSetContext,
 } from '../../FrontendDataSetContext';
 import Actions from '../../actions/Actions';
-import {getInternalCellRenderer} from '../../cell_renderers/getInternalCellRenderer';
 import FDSDndProvider from '../../dnd/FDSDndProvider';
 import useFDSDrop from '../../dnd/useFDSDrop';
+import {getInternalRenderer} from '../../renderers/getInternalRenderer';
 import {
 	ILocalizedItemDetails,
 	getLocalizedValue,
@@ -529,10 +529,16 @@ function HeadCellResizer({
 	}, [columnName, resizeColumn, updateDraggingColumnName]);
 
 	function initializeDrag() {
+		const originalUserSelect = document.body.style.userSelect;
+
+		document.body.style.userSelect = 'none';
+
 		window.addEventListener('mousemove', handleDrag);
 		window.addEventListener(
 			'mouseup',
 			() => {
+				document.body.style.userSelect = originalUserSelect;
+
 				updateDraggingAllowed(true);
 				updateDraggingColumnName(null);
 				window.removeEventListener('mousemove', handleDrag);
@@ -682,7 +688,7 @@ function CellRenderer({
 			};
 		}
 
-		return getInternalCellRenderer(contentRenderer);
+		return getInternalRenderer(contentRenderer);
 	}, [customDataRenderers, customRenderers, field, modifiedFields]);
 
 	if (cellRenderer?.type === 'clientExtension') {

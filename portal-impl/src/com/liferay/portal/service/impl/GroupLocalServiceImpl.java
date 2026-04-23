@@ -2602,6 +2602,29 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		return liveGroup.isActive();
 	}
 
+	@Override
+	@Transactional(enabled = false)
+	public boolean isMaintenanceMode(Group group) {
+		if ((group == null) ||
+			!FeatureFlagManagerUtil.isEnabled(
+				group.getCompanyId(), "LPD-82960")) {
+
+			return false;
+		}
+
+		if (group.isStagingGroup()) {
+			Group liveGroup = group.getLiveGroup();
+
+			if (liveGroup == null) {
+				return false;
+			}
+
+			return liveGroup.isMaintenanceMode();
+		}
+
+		return group.isMaintenanceMode();
+	}
+
 	/**
 	 * Returns the group with the matching group key by first searching the
 	 * system groups and then using the finder cache.
@@ -3857,9 +3880,11 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		if ((classNameId <= 0) || (type == GroupConstants.TYPE_DEPOT) ||
 			className.equals(Group.class.getName())) {
 
-			validateGroupKey(
-				group.getGroupId(), group.getCompanyId(), groupKey,
-				group.getType(), group.isSite());
+			if (!Objects.equals(group.getGroupKey(), groupKey)) {
+				validateGroupKey(
+					group.getGroupId(), group.getCompanyId(), groupKey,
+					group.getType(), group.isSite());
+			}
 		}
 		else if (className.equals(Organization.class.getName())) {
 			Organization organization =
@@ -3908,6 +3933,34 @@ public class GroupLocalServiceImpl extends GroupLocalServiceBaseImpl {
 		group.setMembershipRestriction(membershipRestriction);
 		group.setFriendlyURL(friendlyURL);
 		group.setInheritContent(inheritContent);
+
+		if (FeatureFlagManagerUtil.isEnabled(
+				group.getCompanyId(), "LPD-82960")) {
+
+			UnicodeProperties typeSettingsUnicodeProperties =
+				UnicodePropertiesBuilder.create(
+					true
+				).fastLoad(
+					Validator.isNotNull(typeSettings) ? typeSettings :
+						group.getTypeSettings()
+				).build();
+
+			boolean maintenanceMode = GetterUtil.getBoolean(
+				typeSettingsUnicodeProperties.getProperty(
+					GroupConstants.TYPE_SETTINGS_KEY_MAINTENANCE_MODE));
+
+			if (!group.isActive() && active) {
+				String property = typeSettingsUnicodeProperties.remove(
+					GroupConstants.TYPE_SETTINGS_KEY_MAINTENANCE_MODE);
+
+				if (property != null) {
+					typeSettings = typeSettingsUnicodeProperties.toString();
+				}
+			}
+			else if (!group.isMaintenanceMode() && maintenanceMode) {
+				active = false;
+			}
+		}
 
 		if (group.isActive() != active) {
 			group.setActive(active);

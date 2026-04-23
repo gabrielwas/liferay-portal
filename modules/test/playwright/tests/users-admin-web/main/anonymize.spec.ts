@@ -7,7 +7,6 @@ import {Page, expect, mergeTests} from '@playwright/test';
 import {createReadStream} from 'fs';
 import path from 'node:path';
 
-import {applicationsMenuPageTest} from '../../../fixtures/applicationsMenuPageTest';
 import {contactsCenterPagesTest} from '../../../fixtures/contactsCenterPagesTest';
 import {dataApiHelpersTest} from '../../../fixtures/dataApiHelpersTest';
 import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
@@ -29,7 +28,6 @@ import {blogsPagesTest} from '../../blogs-web/main/fixtures/blogsPagesTest';
 import {journalPagesTest} from '../../journal-web/main/fixtures/journalPagesTest';
 
 export const test = mergeTests(
-	applicationsMenuPageTest,
 	blogsPagesTest,
 	contactsCenterPagesTest,
 	dataApiHelpersTest,
@@ -119,7 +117,7 @@ test(
 			name: getRandomString(),
 		});
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 		await apiHelpers.headlessDelivery.postBlog(site.id);
 
@@ -282,7 +280,7 @@ test(
 		await expect(async () => {
 			await userAssociatedDataJournalPage.optionsButton.click();
 			await userAssociatedDataSiteStagingPage.stagingMenuItem.click();
-		}).toPass();
+		}).toPass({timeout: 5000});
 
 		await userAssociatedDataSiteStagingPage.stagingFramePublishToLiveButton.click();
 
@@ -430,7 +428,7 @@ test(
 			name: getRandomString(),
 		});
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 		const folder = await apiHelpers.headlessDelivery.postDocumentFolder(
 			site.id
@@ -582,7 +580,7 @@ test(
 			title: 'Page' + getRandomInt(),
 		});
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 		const folder = await apiHelpers.headlessDelivery.postDocumentFolder(
 			site.id
@@ -764,7 +762,7 @@ test(
 			name: 'Site' + getRandomInt(),
 		});
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 		const layout = await apiHelpers.headlessDelivery.createSitePage({
 			siteId: site.id,
@@ -828,7 +826,7 @@ test(
 			await personalDataErasurePage
 				.infoPanelEllipsisButton(blog1Name)
 				.click();
-		}).toPass();
+		}).toPass({timeout: 5000});
 
 		await personalDataErasurePage.anonymizeLink.click();
 
@@ -883,7 +881,7 @@ test(
 			name: 'Site' + getRandomInt(),
 		});
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 		const folder = await apiHelpers.headlessDelivery.postDocumentFolder(
 			site.id
@@ -1019,7 +1017,7 @@ test(
 			name: getRandomString(),
 		});
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 		const attachment1 = await apiHelpers.headlessDelivery.postDocument(
 			site.id,
@@ -1161,7 +1159,7 @@ test(
 			name: getRandomString(),
 		});
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 		const attachment = await apiHelpers.headlessDelivery.postDocument(
 			site.id,
@@ -1264,7 +1262,7 @@ test(
 			name: getRandomString(),
 		});
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 		const blog = await apiHelpers.headlessDelivery.postBlog(site.id, {
 			headline: 'Blog' + getRandomInt(),
@@ -1307,8 +1305,8 @@ test(
 			await userAssociatedDataEditMessageBoardThreadPage.selectButton.click();
 			await expect(
 				userAssociatedDataEditMessageBoardThreadPage.blogEntryMenuItem
-			).toBeVisible();
-		}).toPass();
+			).toBeVisible({timeout: 500});
+		}).toPass({timeout: 5000});
 
 		await userAssociatedDataEditMessageBoardThreadPage.blogEntryMenuItem.click();
 
@@ -1329,8 +1327,8 @@ test(
 			await userAssociatedDataEditMessageBoardThreadPage.selectButton.click();
 			await expect(
 				userAssociatedDataEditMessageBoardThreadPage.basicDocumentMenuItem
-			).toBeVisible();
-		}).toPass();
+			).toBeVisible({timeout: 500});
+		}).toPass({timeout: 5000});
 
 		await userAssociatedDataEditMessageBoardThreadPage.basicDocumentMenuItem.click();
 
@@ -1450,7 +1448,7 @@ test(
 			name: getRandomString(),
 		});
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 		await performUserSwitch(page, userAccount.alternateName);
 
@@ -1571,7 +1569,7 @@ test(
 			name: getRandomString(),
 		});
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 		await apiHelpers.headlessDelivery.postDocument(
 			site.id,

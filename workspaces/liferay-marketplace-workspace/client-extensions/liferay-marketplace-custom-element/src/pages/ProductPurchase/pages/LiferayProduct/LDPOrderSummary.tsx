@@ -4,6 +4,7 @@
  */
 
 import {useSelector} from '@xstate/store/react';
+import {Navigate} from 'react-router-dom';
 
 import ProductPurchase from '../../../../components/ProductPurchase';
 import {Section} from '../../../../components/Section/Section';
@@ -29,7 +30,7 @@ const LDPOrderSummary = () => {
 	const summary = productPurchaseCart.cart.summary;
 	const currencyCode = Liferay.CommerceContext.currency.currencyCode;
 
-	const {payment: paymentStore} = useSelector(
+	const {payment: paymentStore, salesforceProject} = useSelector(
 		productPurchaseStore,
 		(state) => state.context
 	);
@@ -50,10 +51,22 @@ const LDPOrderSummary = () => {
 			product
 		);
 
-		productPurchase.setForm({...form});
+		productPurchase.setForm({
+			...form,
+			salesforceProjectId:
+				salesforceProject?.externalReferenceCode as string,
+		});
 
-		await handlePurchase(productPurchase);
+		await handlePurchase(productPurchase, {
+			...productPurchaseCart.cart,
+			billingAddress: paymentStore.billingAddress,
+			shippingAddress: paymentStore.billingAddress,
+		});
 	};
+
+	if (!salesforceProject) {
+		return <Navigate to="/" />;
+	}
 
 	return (
 		<ProductPurchase.Shell

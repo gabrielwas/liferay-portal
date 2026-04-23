@@ -93,7 +93,7 @@ const paidApp = z.object({
 });
 
 const personalInformationSchema = {
-	businessEmail: z.string().email('Please fill in valid email'),
+	businessEmailAddress: z.string().email('Please fill in valid email'),
 	companyName: z
 		.string()
 		.min(3, 'Company name is required')
@@ -101,7 +101,7 @@ const personalInformationSchema = {
 		.or(z.literal('')),
 	country: z.string().min(2, 'Please select the country to continue'),
 	extension: z.string().optional(),
-	fullname: z.string().min(3, 'Full name is required'),
+	fullName: z.string().min(3, 'Full name is required'),
 	intlCode: z.object({code: z.string(), flag: z.string()}),
 	jobTitle: z
 		.string()
@@ -161,48 +161,20 @@ const zodSchema = {
 			.min(1, {message: 'Please enter a Tax/VAT number to continue'}),
 	}),
 	activationKey: z.object({
-		businessEmail: z.string().email('Please fill in valid email'),
-		companyName: z
-			.string()
-			.min(3, 'Company name is required')
-			.optional()
-			.or(z.literal('')),
-		country: z.string().min(2, 'Please select the country to continue'),
+		...personalInformationSchema,
 		domain: z.string().min(3, 'Domain is required'),
-		extension: z.string(),
-		fullname: z.string().min(3, 'Full name is required'),
-		intlCode: z.object({
-			code: z.string(),
-			flag: z.string(),
-		}),
-		jobTitle: z
-			.string()
-			.min(3, 'Job title is required')
-			.optional()
-			.or(z.literal('')),
 		notifyMeAboutProducts: z.boolean(),
-		phoneNumber: z.string(),
 		purpose: z.string().min(3, 'Purpose is required'),
-		purposeOther: z
-			.string()
-			.min(3, 'Purpose is required')
-			.optional()
-			.or(z.literal('')),
 		termsAndConditions: z.boolean().refine((value) => value === true),
 		userAgreement: z.boolean().refine((value) => value === true),
 	}),
 	aiHubForm: z.object({
 		...personalInformationSchema,
-		administrationEmailAddress: z
+		administratorEmailAddress: z
 			.string()
 			.email('Please fill in valid email'),
 		aiHubAccountName: z.string().min(3, 'AI Hub Account Name is required'),
 		purpose: z.string().min(3, 'Purpose is required'),
-		purposeOther: z
-			.string()
-			.min(3, 'Purpose is required')
-			.optional()
-			.or(z.literal('')),
 		termsAndConditions: z.boolean().refine((value) => value === true),
 		userAgreement: z.boolean().refine((value) => value === true),
 	}),

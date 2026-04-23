@@ -13,8 +13,7 @@ import RadioCardList from '../../../../../components/RadioCardList/RadioCardList
 import {MarketplaceContext} from '../../../../../context/MarketplaceContext';
 import i18n from '../../../../../i18n';
 import {Liferay} from '../../../../../liferay/liferay';
-import koroneikiOAuth2 from '../../../../../services/oauth/Koroneiki';
-import {KoroneikiChildAccounts} from '../../../../../services/oauth/types';
+import HeadlessSalesforceProject from '../../../../../services/rest/HeadlessSalesforceProject';
 import {useProductPurchaseOutletContext} from '../../../ProductPurchaseOutlet';
 import {productPurchaseStore} from '../../../store/AppPurchaseStore';
 import NoProjectAvailable from './NoProjectAvailable';
@@ -22,9 +21,9 @@ import NoProjectAvailable from './NoProjectAvailable';
 const ProjectSelection = () => {
 	const {properties} = useContext(MarketplaceContext);
 
-	const koroneikiProject = useSelector(
+	const salesforceProject = useSelector(
 		productPurchaseStore,
-		({context}) => context.koroneikiProject
+		({context}) => context.salesforceProject
 	);
 
 	const {
@@ -36,22 +35,24 @@ const ProjectSelection = () => {
 
 	const isKoroneikiAccount = accountKey.startsWith('KOR-');
 
-	const {data: childAccounts, isLoading} = useSWR(
-		isKoroneikiAccount ? `/account/${accountKey}/child-accounts` : null,
-		() => koroneikiOAuth2.getChildAccounts(accountKey)
+	const {data: salesforceProjects, isLoading} = useSWR(
+		isKoroneikiAccount
+			? `/account/${accountKey}/salesforce-projects`
+			: null,
+		() => HeadlessSalesforceProject.getAccountSalesforceProjects(accountKey)
 	);
 
 	if (isLoading) {
 		return <ClayLoadingIndicator />;
 	}
 
-	if (!childAccounts?.items?.length || !isKoroneikiAccount) {
+	if (!salesforceProjects?.length || !isKoroneikiAccount) {
 		return <NoProjectAvailable />;
 	}
 
 	const continueButtonProps = {
 		children: i18n.translate('continue'),
-		disabled: isLoading || !koroneikiProject,
+		disabled: isLoading || !salesforceProject,
 		onClick: () => {
 			nextStep();
 		},
@@ -75,27 +76,27 @@ const ProjectSelection = () => {
 					]),
 				}}
 			/>
-			<RadioCardList
-				contentList={childAccounts?.items.map(
-					(childAccount, index) => ({
+			<RadioCardList<SalesforceProject>
+				contentList={salesforceProjects.map(
+					(_salesforceProject, index) => ({
 						fullTitle: true,
 						id: index,
-						selected: childAccount.key === koroneikiProject?.key,
+						selected:
+							_salesforceProject.externalReferenceCode ===
+							salesforceProject?.externalReferenceCode,
 						title: (
-							<div>
-								<div className="h5 m-0">
-									{childAccount.code.toUpperCase()}
-								</div>
-							</div>
+							<span className="font-weight-semi-bold">
+								{_salesforceProject.name}
+							</span>
 						),
-						value: childAccount,
+						value: _salesforceProject,
 					})
 				)}
 				leftRadio
-				onSelect={(radioOption: RadioOption<KoroneikiChildAccounts>) =>
+				onSelect={(radioOption: RadioOption<SalesforceProject>) =>
 					productPurchaseStore.send({
-						koroneikiProject: radioOption.value,
-						type: 'setKoroneikiProject',
+						salesforceProject: radioOption.value,
+						type: 'setSalesforceProject',
 					})
 				}
 			/>
@@ -104,7 +105,7 @@ const ProjectSelection = () => {
 				{i18n.translate('not-seeing-a-specific-project')}
 
 				<a
-					className="font-weight-bold ml-1"
+					className="font-weight-semi-bold ml-1"
 					href={properties.contactSupportURL}
 					target="_blank"
 				>

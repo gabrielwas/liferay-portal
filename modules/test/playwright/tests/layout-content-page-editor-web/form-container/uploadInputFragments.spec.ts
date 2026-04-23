@@ -30,7 +30,7 @@ const test = mergeTests(
 	displayPageTemplatesPagesTest,
 	documentLibraryPagesTest,
 	featureFlagsTest({
-		'LPD-11235': {enabled: true},
+		'LPD-11235': {enabled: false},
 		'LPD-17564': {enabled: true},
 		'LPD-60546': {enabled: true},
 		'LPS-178052': {enabled: true},
@@ -381,7 +381,10 @@ test.describe('File Upload Fragment', () => {
 			);
 
 			await expect(
-				fileUploadInput.getByRole('button', {name: 'Upload'})
+				fileUploadInput.getByRole('button', {
+					exact: true,
+					name: 'Upload',
+				})
 			).toBeVisible();
 		}
 	);

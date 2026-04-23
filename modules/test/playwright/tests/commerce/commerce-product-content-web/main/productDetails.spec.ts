@@ -7,11 +7,11 @@ import {expect, mergeTests} from '@playwright/test';
 import {createReadStream} from 'fs';
 import path from 'node:path';
 
-import {applicationsMenuPageTest} from '../../../../fixtures/applicationsMenuPageTest';
 import {commercePagesTest} from '../../../../fixtures/commercePagesTest';
 import {dataApiHelpersTest} from '../../../../fixtures/dataApiHelpersTest';
 import {displayPageTemplatesPagesTest} from '../../../../fixtures/displayPageTemplatesPagesTest';
 import {featureFlagsTest} from '../../../../fixtures/featureFlagsTest';
+import {globalMenuPagesTest} from '../../../../fixtures/globalMenuPagesTest';
 import {isolatedSiteTest} from '../../../../fixtures/isolatedSiteTest';
 import {loginTest} from '../../../../fixtures/loginTest';
 import {pageEditorPagesTest} from '../../../../fixtures/pageEditorPagesTest';
@@ -30,13 +30,13 @@ import getWidgetDefinition from '../../../layout-content-page-editor-web/main/ut
 import {configureBuyerUserForSite, miniumSetUp} from '../../utils/commerce';
 
 export const test = mergeTests(
-	applicationsMenuPageTest,
 	commercePagesTest,
 	dataApiHelpersTest,
 	displayPageTemplatesPagesTest,
 	featureFlagsTest({
 		'LPS-178052': {enabled: true},
 	}),
+	globalMenuPagesTest,
 	isolatedSiteTest,
 	loginTest(),
 	pageEditorPagesTest,
@@ -297,8 +297,8 @@ test(
 	{tag: '@COMMERCE-12167'},
 	async ({
 		apiHelpers,
-		applicationsMenuPage,
 		commerceAdminProductPage,
+		globalMenuPage,
 		page,
 		productDetailsPage,
 		site,
@@ -413,7 +413,7 @@ test(
 				],
 			});
 
-		await applicationsMenuPage.goToProducts();
+		await globalMenuPage.goToCommerce('Products');
 
 		await commerceAdminProductPage.managementToolbarSearchInput.fill(
 			'ProductBundle'
@@ -421,6 +421,7 @@ test(
 		await commerceAdminProductPage.managementToolbarSearchInput.press(
 			'Enter'
 		);
+
 		await commerceAdminProductPage
 			.productsTableRowLink('ProductBundle')
 			.click();
@@ -1133,7 +1134,7 @@ test(
 	{tag: '@LPD-56974'},
 	async ({
 		apiHelpers,
-		applicationsMenuPage,
+		globalMenuPage,
 		page,
 		productDetailsPage,
 		site,
@@ -1194,7 +1195,7 @@ test(
 			],
 		});
 
-		await applicationsMenuPage.goToProducts();
+		await globalMenuPage.goToCommerce('Products');
 
 		await page.goto(`/web${site.friendlyUrlPath}${layout.friendlyURL}`);
 
@@ -1358,5 +1359,129 @@ test(
 				}
 			}
 		}
+	}
+);
+
+test(
+	'User cannot see expired SKUs',
+	{tag: '@LPD-85260'},
+	async ({
+		apiHelpers,
+		commerceAdminProductPage,
+		page,
+		productDetailsPage,
+		site,
+		widgetPagePage,
+	}) => {
+		const layout = await apiHelpers.jsonWebServicesLayout.addLayout({
+			groupId: site.id,
+			title: getRandomString(),
+		});
+
+		await apiHelpers.headlessCommerceAdminChannel.postChannel({
+			siteGroupId: site.id,
+		});
+
+		const catalog =
+			await apiHelpers.headlessCommerceAdminCatalog.postCatalog({
+				name: 'Catalog',
+			});
+		const option = await apiHelpers.headlessCommerceAdminCatalog.postOption(
+			'select',
+			'color',
+			'Color',
+			1
+		);
+		const product =
+			await apiHelpers.headlessCommerceAdminCatalog.postProduct({
+				catalogId: catalog.id,
+				name: {en_US: getRandomString()},
+				productOptions: [
+					{
+						fieldType: 'select',
+						key: 'color',
+						name: {
+							en_US: 'Color',
+						},
+						optionId: option.id,
+						priority: 1,
+						productOptionValues: [
+							{
+								key: 'black',
+								name: {
+									en_US: 'Black',
+								},
+								priority: 0,
+							},
+							{
+								key: 'white',
+								name: {
+									en_US: 'White',
+								},
+								priority: 1,
+							},
+						],
+						skuContributor: true,
+					},
+				],
+			});
+
+		await page.goto(`/web${site.friendlyUrlPath}${layout.friendlyURL}`);
+
+		await widgetPagePage.addPortlet('Product Details');
+
+		await page.goto(`/web/${site.name}/p/${product.name['en_US']}`, {
+			waitUntil: 'networkidle',
+		});
+
+		await expect(
+			await productDetailsPage.optionSelector('Color')
+		).toBeVisible();
+
+		await productDetailsPage.optionSelector('Color').click();
+
+		let optionSelectorOptionValues = await productDetailsPage
+			.optionSelector('Color')
+			.locator('option')
+			.allTextContents();
+
+		expect(optionSelectorOptionValues).toEqual([
+			'Choose an Option',
+			'Black',
+			'White',
+		]);
+
+		await commerceAdminProductPage.gotoProduct(product.name['en_US']);
+
+		await commerceAdminProductPage.generateSkus();
+
+		await expect(
+			page.getByText('Showing 1 to 3 of 3 entries.')
+		).toBeVisible();
+
+		const blackSku =
+			await apiHelpers.headlessCommerceAdminCatalog.getSkuByName('BLACK');
+
+		await apiHelpers.headlessCommerceAdminCatalog.patchSku(blackSku.id, {
+			expirationDate: '2020-01-01T00:00:00Z',
+		});
+
+		await page.goto(`/web/${site.name}/p/${product.name['en_US']}`, {
+			waitUntil: 'networkidle',
+		});
+
+		await expect(
+			await productDetailsPage.optionSelector('Color')
+		).toBeVisible();
+
+		optionSelectorOptionValues = await productDetailsPage
+			.optionSelector('Color')
+			.locator('option')
+			.allTextContents();
+
+		expect(optionSelectorOptionValues).toEqual([
+			'Choose an Option',
+			'White',
+		]);
 	}
 );

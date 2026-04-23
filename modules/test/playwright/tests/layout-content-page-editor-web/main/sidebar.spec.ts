@@ -42,7 +42,7 @@ const test = mergeTests(
 	applicationsMenuPageTest,
 	collectionsPagesTest,
 	featureFlagsTest({
-		'LPD-11235': {enabled: true},
+		'LPD-11235': {enabled: false},
 		'LPS-169837': {enabled: true},
 		'LPS-178052': {enabled: true},
 	}),
@@ -58,6 +58,7 @@ const test = mergeTests(
 const testWithCKEditor4 = mergeTests(
 	apiHelpersTest,
 	featureFlagsTest({
+		'LPD-11235': {enabled: true},
 		'LPS-178052': {enabled: true},
 	}),
 	isolatedSiteTest,

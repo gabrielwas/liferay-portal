@@ -204,6 +204,9 @@ public class BatchTestEntityExportImportTest {
 							RandomTestUtil.randomString());
 					}
 				});
+
+		Assert.assertFalse(batchTestEntity1.getAcceptAllLanguages());
+
 		BatchTestEntity batchTestEntity2 =
 			_batchTestEntityResource.postBatchTestEntity(
 				new BatchTestEntity() {
@@ -231,6 +234,8 @@ public class BatchTestEntityExportImportTest {
 					}
 				});
 
+		Assert.assertFalse(batchTestEntity2.getAcceptAllLanguages());
+
 		batchTestEntitiesPage =
 			_batchTestEntityResource.getBatchTestEntitiesPage();
 
@@ -257,14 +262,21 @@ public class BatchTestEntityExportImportTest {
 		Assert.assertEquals(
 			totalCount + 2, batchTestEntitiesPage.getTotalCount());
 
-		_assertEquals(
-			batchTestEntity1,
+		BatchTestEntity importedBatchTestEntity1 =
 			_batchTestEntityResource.getBatchTestEntityByExternalReferenceCode(
-				batchTestEntity1.getExternalReferenceCode()));
-		_assertEquals(
-			batchTestEntity2,
+				batchTestEntity1.getExternalReferenceCode());
+
+		Assert.assertTrue(importedBatchTestEntity1.getAcceptAllLanguages());
+
+		_assertEquals(batchTestEntity1, importedBatchTestEntity1);
+
+		BatchTestEntity importedBatchTestEntity2 =
 			_batchTestEntityResource.getBatchTestEntityByExternalReferenceCode(
-				batchTestEntity2.getExternalReferenceCode()));
+				batchTestEntity2.getExternalReferenceCode());
+
+		Assert.assertTrue(importedBatchTestEntity2.getAcceptAllLanguages());
+
+		_assertEquals(batchTestEntity2, importedBatchTestEntity2);
 	}
 
 	@Test

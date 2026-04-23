@@ -32,9 +32,9 @@ public class AssistantHandlerUtil {
 			aiServices.chatMemoryProvider(ChatMemoryProviderUtil::provide);
 		}
 
-		if (assistantHandlerContext.getContentRetriever() != null) {
-			aiServices.contentRetriever(
-				assistantHandlerContext.getContentRetriever());
+		if (assistantHandlerContext.getRetrievalAugmentor() != null) {
+			aiServices.retrievalAugmentor(
+				assistantHandlerContext.getRetrievalAugmentor());
 		}
 
 		Assistant assistant = aiServices.streamingChatModel(
@@ -45,6 +45,8 @@ public class AssistantHandlerUtil {
 			assistantHandlerContext.getToolProvider()
 		).tools(
 			assistantHandlerContext.getTools()
+		).maxSequentialToolsInvocations(
+			7
 		).build();
 
 		if (assistant instanceof

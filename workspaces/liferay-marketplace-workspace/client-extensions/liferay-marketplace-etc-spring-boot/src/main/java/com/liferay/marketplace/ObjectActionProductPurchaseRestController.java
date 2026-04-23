@@ -6,13 +6,13 @@
 package com.liferay.marketplace;
 
 import com.liferay.client.extension.util.spring.boot3.BaseRestController;
-import com.liferay.headless.admin.user.client.dto.v1_0.UserAccount;
 import com.liferay.headless.commerce.admin.catalog.client.dto.v1_0.Catalog;
 import com.liferay.headless.commerce.admin.catalog.client.dto.v1_0.Product;
 import com.liferay.headless.commerce.admin.order.client.dto.v1_0.Account;
 import com.liferay.headless.commerce.admin.order.client.dto.v1_0.BillingAddress;
 import com.liferay.headless.commerce.admin.order.client.dto.v1_0.Order;
 import com.liferay.headless.commerce.admin.order.client.dto.v1_0.OrderItem;
+import com.liferay.headless.commerce.admin.order.client.resource.v1_0.OrderResource;
 import com.liferay.marketplace.constants.MarketplaceConstants;
 import com.liferay.marketplace.model.SalesforceOpportunity;
 import com.liferay.marketplace.service.KoroneikiService;
@@ -21,8 +21,6 @@ import com.liferay.marketplace.service.SalesforceService;
 import com.liferay.marketplace.util.MarketplaceUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-
-import java.net.URL;
 
 import java.util.Map;
 import java.util.Objects;
@@ -92,10 +90,6 @@ public class ObjectActionProductPurchaseRestController
 
 		if (Objects.equals(orderTypeExternalReferenceCode, "ADDONS")) {
 			_setUpAddOns(jwt, order, productSpecificationsMap);
-
-			_marketplaceService.updateOrder(
-				null, order.getId(),
-				MarketplaceConstants.ORDER_STATUS_COMPLETED);
 		}
 
 		if (Objects.equals(orderTypeExternalReferenceCode, "CLOUD_APP") ||
@@ -207,7 +201,8 @@ public class ObjectActionProductPurchaseRestController
 				"en_US"
 			)
 		).put(
-			"[%PRODUCT_THUMBNAIL%]", _getProductThumbnail(product)
+			"[%PRODUCT_THUMBNAIL%]",
+			_marketplaceService.getProductThumbnail(product)
 		).put(
 			"[%PRODUCT_TYPE%]",
 			productSpecificationsMap.get(
@@ -305,7 +300,8 @@ public class ObjectActionProductPurchaseRestController
 				"en_US"
 			)
 		).put(
-			"[%PRODUCT_THUMBNAIL%]", _getProductThumbnail(product)
+			"[%PRODUCT_THUMBNAIL%]",
+			_marketplaceService.getProductThumbnail(product)
 		).put(
 			"[%TOTAL_FORMATTED%]", order.getTotalFormatted()
 		).build();
@@ -365,7 +361,8 @@ public class ObjectActionProductPurchaseRestController
 				"en_US"
 			)
 		).put(
-			"[%PRODUCT_THUMBNAIL%]", _getProductThumbnail(product)
+			"[%PRODUCT_THUMBNAIL%]",
+			_marketplaceService.getProductThumbnail(product)
 		).put(
 			"[%SUBTOTAL_FORMATTED%]", order.getSubtotalFormatted()
 		).put(
@@ -375,17 +372,6 @@ public class ObjectActionProductPurchaseRestController
 		).putAll(
 			_getPaymentApprovedDescriptionMap(productSpecificationsMap)
 		).build();
-	}
-
-	private String _getProductThumbnail(Product product) throws Exception {
-		return new URL(
-			StringBundler.concat(
-				lxcDXPServerProtocol, "://", lxcDXPMainDomain,
-				product.getThumbnail())
-		).toString(
-		).replaceAll(
-			"(?<=accounts/)-?\\d+(?=/images)", "-1"
-		);
 	}
 
 	private void _postNotificationQueueEntry(Order order) throws Exception {
@@ -512,22 +498,34 @@ public class ObjectActionProductPurchaseRestController
 	private void _setUpCustomAddOn(String licenseType, Order order)
 		throws Exception {
 
-		OrderItem[] orderItems = order.getOrderItems();
+		BillingAddress billingAddress = order.getBillingAddress();
 
-		OrderItem orderItem = orderItems[0];
+		JSONObject jsonObject = _salesforceService.postSalesforceOpportunity(
+			new SalesforceOpportunity(
+				_marketplaceService.getCountryByA2(
+					billingAddress.getCountryISOCode()),
+				licenseType, order,
+				_marketplaceService.getUserAccount(
+					order.getCreatorEmailAddress())));
 
-		if (orderItem == null) {
+		if (jsonObject == null) {
 			return;
 		}
 
-		Product product = _marketplaceService.getProductBySkuId(
-			orderItem.getSkuId());
-		UserAccount userAccount = _marketplaceService.getUserAccount(
-			order.getCreatorEmailAddress());
+		OrderResource orderResource = _marketplaceService.getOrderResource();
 
-		_salesforceService.postSalesforceOpportunity(
-			new SalesforceOpportunity(
-				licenseType, order, orderItem, product, userAccount));
+		orderResource.patchOrder(
+			order.getId(),
+			new Order() {
+				{
+					setExternalReferenceCode(
+						() -> jsonObject.getJSONObject(
+							"data"
+						).getString(
+							"opportunityId"
+						));
+				}
+			});
 	}
 
 	private static final Log _log = LogFactory.getLog(

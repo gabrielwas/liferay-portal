@@ -1669,6 +1669,11 @@ public class GroupLocalServiceWrapper
 		return _groupLocalService.isLiveGroupActive(group);
 	}
 
+	@Override
+	public boolean isMaintenanceMode(Group group) {
+		return _groupLocalService.isMaintenanceMode(group);
+	}
+
 	/**
 	 * Returns the group with the matching group key by first searching the
 	 * system groups and then using the finder cache.
@@ -2892,4 +2897,4 @@ public class GroupLocalServiceWrapper
 	private GroupLocalService _groupLocalService;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1179209848
+// LIFERAY-SERVICE-BUILDER-HASH:347903877

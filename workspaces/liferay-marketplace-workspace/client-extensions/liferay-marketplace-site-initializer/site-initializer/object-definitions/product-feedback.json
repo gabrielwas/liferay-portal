@@ -66,6 +66,17 @@
 			"type": "Boolean"
 		},
 		{
+			"DBType": "String",
+			"businessType": "Text",
+			"indexed": true,
+			"indexedAsKeyword": false,
+			"label": {
+				"en_US": "Order Type"
+			},
+			"name": "orderType",
+			"required": false
+		},
+		{
 			"DBType": "Integer",
 			"businessType": "Integer",
 			"indexed": true,

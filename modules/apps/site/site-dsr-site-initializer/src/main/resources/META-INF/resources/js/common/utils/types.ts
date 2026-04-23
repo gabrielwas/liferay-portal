@@ -22,6 +22,26 @@ export interface IAccounts {
 	totalCount: number;
 }
 
+export interface IEngagementChartItem {
+	date: string;
+	numberOfVisits: number;
+	timeSpent: number;
+}
+
+export interface IEngagementChartProps {
+	data?: IEngagementChartItem[];
+}
+
+export interface IFrequencyChartItem {
+	frequencyType: string;
+	visitCount: number;
+}
+
+export interface IFrequencyChartProps {
+	frequencyChartItems?: IFrequencyChartItem[] | null;
+	isLoading?: boolean;
+}
+
 export interface IInvitedMember {
 	emailAddress: string;
 	id: number;
@@ -117,11 +137,33 @@ export interface IRoomObjectEntry {
 		label: string;
 		label_i18n: string;
 	};
+	trend: number;
 }
 
 export interface IRoomShareProps {
 	closeModal?: () => void;
 	roomId: number;
+}
+
+export interface IRoomStatistics {
+	timeViewedMinutes?: number;
+	totalActions?: number;
+	totalComments?: number;
+	totalVisits?: number;
+	uniqueVisitors?: number;
+}
+
+export interface IRoomStatisticsItem {
+	className: string;
+	icon: string;
+	id: string;
+	label: string;
+	value: string | number;
+}
+
+export interface IRoomStatisticsProps {
+	data?: IRoomStatistics | null;
+	isLoading?: boolean;
 }
 
 export interface IRoomStepProps {
@@ -158,4 +200,31 @@ export type IUserAccountsDTO = {
 	page: number;
 	pageSize: number;
 	totalCount: number;
+};
+
+export type TLatestActivity = {
+	action: string;
+	createDate: string;
+	logoURL?: string;
+	name: string;
+};
+
+export type TRoomDocumentsStatistics = {
+	download: number;
+	lastViewed: string;
+	title: string;
+	totalTimeViewingAsset: number;
+	totalViews: number;
+	type: string;
+	userInvolved: string[];
+};
+
+export type TRoomDocumentsStatisticsProps = TRoomDocumentsStatistics[];
+
+export type TVisitor = {
+	activitiesCount: number;
+	emailAddress: string;
+	firstName: string;
+	lastName: string;
+	logoURL?: string;
 };

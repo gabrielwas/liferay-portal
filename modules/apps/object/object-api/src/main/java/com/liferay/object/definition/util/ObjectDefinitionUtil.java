@@ -135,6 +135,14 @@ public class ObjectDefinitionUtil {
 		_allowedModifiableSystemObjectDefinitionNames = HashMapBuilder.put(
 			"AIHubAgentDefinition", "/ai-hub/agent-definitions"
 		).put(
+			"AIHubChatbot", "/ai-hub/chatbots"
+		).put(
+			"AIHubContentRetriever", "/ai-hub/content-retrievers"
+		).put(
+			"AIHubInstructionDefinition", "/ai-hub/instruction-definitions"
+		).put(
+			"AIHubMCPServer", "/ai-hub/mcp-servers"
+		).put(
 			"APIApplication", "/headless-builder/applications"
 		).put(
 			"APIEndpoint", "/headless-builder/endpoints"
@@ -218,8 +226,6 @@ public class ObjectDefinitionUtil {
 			"FunctionalCookieEntry", "/functional-cookies-entries"
 		).put(
 			"KnowledgeBase", "/cms/knowledge-bases"
-		).put(
-			"MCPServer", "/mcp/servers"
 		).put(
 			"MCPServerPrompt", "/mcp/server-prompts"
 		).put(

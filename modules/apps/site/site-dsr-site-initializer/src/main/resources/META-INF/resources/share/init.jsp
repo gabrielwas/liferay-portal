@@ -5,8 +5,6 @@
  */
 --%>
 
-<%@ taglib uri="jakarta.tags.core" prefix="c" %>
-
 <%@ taglib uri="http://liferay.com/tld/frontend" prefix="liferay-frontend" %><%@
 taglib uri="http://liferay.com/tld/react" prefix="react" %><%@
 taglib uri="http://liferay.com/tld/theme" prefix="liferay-theme" %>

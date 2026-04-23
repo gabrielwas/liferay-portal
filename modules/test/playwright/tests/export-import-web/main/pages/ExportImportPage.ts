@@ -211,6 +211,128 @@ export class ExportImportPage {
 		});
 	}
 
+	async checkAllPortlets() {
+		const portletListContainer = this.portletListContainer;
+
+		await portletListContainer.waitFor({state: 'attached'});
+
+		const checkBoxes = portletListContainer.locator(
+			'input[type="checkbox"]:visible'
+		);
+
+		for (const checkbox of await checkBoxes.all()) {
+			await checkbox.check();
+		}
+	}
+
+	async expectPortletCounts(
+		label: string | RegExp,
+		{
+			counts = {},
+			registrations,
+		}: {
+			counts?: {deletions?: number; items?: number};
+			registrations?: Array<{
+				counts: {deletions?: number; items?: number};
+				label: string | RegExp;
+			}>;
+		} = {}
+	) {
+		if (registrations) {
+			if (typeof label === 'string') {
+				await this.page
+					.locator(
+						`button.content-link[data-portlettitle="${label}"]`
+					)
+					.click();
+			}
+			else {
+				const buttons = this.page.locator(
+					'button.content-link[data-portlettitle]'
+				);
+
+				await buttons.first().waitFor();
+
+				for (const button of await buttons.all()) {
+					const title = await button.evaluate(
+						(element) => element.dataset.portlettitle
+					);
+
+					if (title && label.test(title)) {
+						await button.click();
+						break;
+					}
+				}
+			}
+		}
+
+		for (const entry of [{counts, label}, ...(registrations ?? [])]) {
+			await this._assertPortletEntryCounts(entry.label, entry.counts);
+		}
+	}
+
+	async expectPortletAbsent(label: string | RegExp) {
+		const filter =
+			typeof label === 'string'
+				? {has: this.page.locator(`:text-is("${label}")`)}
+				: {hasText: label};
+
+		await expect(this.page.locator('label').filter(filter)).toHaveCount(0);
+	}
+
+	async expectPortletDeletionsHidden(label: string | RegExp) {
+		await this._assertPortletEntryCounts(label, {deletions: 'hidden'});
+	}
+
+	private async _assertPortletEntryCounts(
+		label: string | RegExp,
+		counts: {
+			deletions?: 'absent' | 'hidden' | number;
+			items?: 'absent' | number;
+		}
+	) {
+		const filter =
+			typeof label === 'string'
+				? {has: this.page.locator(`:text-is("${label}")`)}
+				: {hasText: label};
+
+		const labelLocator = this.page.locator('label').filter(filter);
+		const {deletions, items} = counts;
+
+		if (items !== undefined) {
+			const itemsLocator = labelLocator.locator(
+				'.staging-taglib-checkbox-items'
+			);
+
+			if (items === 'absent') {
+				await expect(itemsLocator).toHaveCount(0);
+			}
+			else {
+				await expect(itemsLocator).toBeVisible();
+				await expect(itemsLocator).toHaveText(`${items} Items`);
+			}
+		}
+
+		if (deletions !== undefined) {
+			const deletionsLocator = labelLocator.locator(
+				'.staging-taglib-checkbox-deletions'
+			);
+
+			if (deletions === 'absent') {
+				await expect(deletionsLocator).toHaveCount(0);
+			}
+			else if (deletions === 'hidden') {
+				await expect(deletionsLocator).toBeHidden();
+			}
+			else {
+				await expect(deletionsLocator).toBeVisible();
+				await expect(deletionsLocator).toHaveText(
+					`${deletions} Deletions`
+				);
+			}
+		}
+	}
+
 	async uncheckPortlets() {
 		const portletListContainer = this.portletListContainer;
 
@@ -227,11 +349,13 @@ export class ExportImportPage {
 
 	async export({
 		dateFilter,
+		exportAllPortlets = false,
 		includePermissions = false,
 		portletLabels,
 		taskName = `Export-${getRandomString()}`,
 	}: {
 		dateFilter?: DateFilter;
+		exportAllPortlets?: boolean;
 		includePermissions?: boolean;
 		portletLabels?: string[];
 		taskName?: string;
@@ -240,7 +364,10 @@ export class ExportImportPage {
 
 		await this.title.fill(taskName);
 
-		if (portletLabels) {
+		if (exportAllPortlets) {
+			await this.checkAllPortlets();
+		}
+		else if (portletLabels) {
 			await this.uncheckPortlets();
 
 			for (const portletLabel of portletLabels) {
@@ -391,9 +518,15 @@ export class ExportImportPage {
 
 		for (const itemLocator of await itemsLocator.all()) {
 			const title = await itemLocator.locator('strong').textContent();
-			const countText = await itemLocator
-				.locator('.staging-taglib-checkbox-items')
-				.textContent();
+			const countLocator = itemLocator.locator(
+				'.staging-taglib-checkbox-items'
+			);
+
+			if ((await countLocator.count()) === 0) {
+				continue;
+			}
+
+			const countText = await countLocator.textContent();
 
 			const countMatch = countText ? countText.match(/\d+/) : null;
 

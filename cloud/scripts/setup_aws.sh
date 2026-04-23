@@ -9,9 +9,9 @@ _SCRIPTS_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 _ROOT_CLOUD_DIR=$(cd "${_SCRIPTS_DIR}/.." && pwd)
 
 function main {
-	if [ "${#}" -ne 1 ]
+	if [ "${#}" -ne 2 ]
 	then
-		echo "Usage: ${0} <configuration-json-file>"
+		echo "Usage: ${0} <configuration-json-file> <versions-tfvars-file>" >&2
 
 		exit 1
 	fi
@@ -24,7 +24,7 @@ function main {
 
 	local terraform_args
 
-	terraform_args="$(_get_terraform_apply_args "${1}")"
+	terraform_args="$(_get_terraform_apply_args "${1}" "${2}")"
 
 	_set_up_aws_service_linked_roles
 
@@ -42,14 +42,14 @@ function _generate_tfvars {
 
 	if [ ! -f "${configuration_json_file}" ]
 	then
-		echo "Configuration JSON file ${configuration_json_file} does not exist."
+		echo "Configuration JSON file ${configuration_json_file} does not exist." >&2
 
 		exit 1
 	fi
 
 	if ! jq --exit-status '.variables | objects' "${configuration_json_file}" > /dev/null
 	then
-		echo "The configuration JSON file must contain a root object named \"variables\"."
+		echo "The configuration JSON file must contain a root object named \"variables\"." >&2
 
 		exit 1
 	fi
@@ -95,7 +95,22 @@ function _get_terraform_apply_args {
 		auto_approve=$(jq --raw-output '.options.auto_approve' "${configuration_json_file}")
 	fi
 
-	local apply_args=("-var-file=${_SCRIPTS_DIR}/global_terraform.tfvars")
+	local versions_tfvars_file="${2}"
+
+	if [ ! -f "${versions_tfvars_file}" ]
+	then
+		echo "${versions_tfvars_file} does not exist." >&2
+
+		exit 1
+	fi
+
+	local versions_tfvars_file_path
+
+	versions_tfvars_file_path=$(realpath "${versions_tfvars_file}")
+
+	local apply_args=(
+		"-var-file=${versions_tfvars_file_path}"
+		"-var-file=${_SCRIPTS_DIR}/global_terraform.tfvars")
 
 	if [[ "${auto_approve}" == "true" ]]
 	then

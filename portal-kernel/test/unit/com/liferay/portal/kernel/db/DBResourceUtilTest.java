@@ -37,6 +37,60 @@ public class DBResourceUtilTest {
 	}
 
 	@Test
+	public void testGetModuleTablesPrimaryKeyColumnNamesWithNullTablesSQL()
+		throws Exception {
+
+		Bundle bundle = Mockito.mock(Bundle.class);
+
+		Mockito.when(
+			bundle.getResource(ArgumentMatchers.anyString())
+		).thenReturn(
+			null
+		);
+
+		Map<String, String[]> moduleTablesPrimaryKeyColumnNames =
+			DBResourceUtil.getModuleTablesPrimaryKeyColumnNames(bundle);
+
+		Assert.assertTrue(moduleTablesPrimaryKeyColumnNames.isEmpty());
+	}
+
+	@Test
+	public void testGetModuleTablesPrimaryKeyColumnNamesWithTablesSQL()
+		throws Exception {
+
+		Bundle bundle = Mockito.mock(Bundle.class);
+
+		URL url = Mockito.mock(URL.class);
+
+		String sql = StringBundler.concat(
+			"create table TestTable1 (testTableId LONG not null primary key);",
+			"create table TestTable2 (column1 LONG default 0 not null, ",
+			"column2 LONG not null, primary key (column1, column2));");
+
+		Mockito.when(
+			url.openStream()
+		).thenReturn(
+			new ByteArrayInputStream(sql.getBytes())
+		);
+
+		Mockito.when(
+			bundle.getResource(ArgumentMatchers.anyString())
+		).thenReturn(
+			url
+		);
+
+		Map<String, String[]> moduleTablesPrimaryKeyColumnNames =
+			DBResourceUtil.getModuleTablesPrimaryKeyColumnNames(bundle);
+
+		Assert.assertArrayEquals(
+			new String[] {"testTableId"},
+			moduleTablesPrimaryKeyColumnNames.get("TestTable1"));
+		Assert.assertArrayEquals(
+			new String[] {"column1", "column2"},
+			moduleTablesPrimaryKeyColumnNames.get("TestTable2"));
+	}
+
+	@Test
 	public void testGetPortalTablesPrimaryKeyColumnNames() throws Exception {
 		try (MockedStatic<StringUtil> stringUtilMockedStatic =
 				Mockito.mockStatic(

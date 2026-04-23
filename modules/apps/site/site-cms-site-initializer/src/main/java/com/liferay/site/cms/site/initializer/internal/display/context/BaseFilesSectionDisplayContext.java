@@ -69,6 +69,18 @@ public abstract class BaseFilesSectionDisplayContext
 			).setHref(
 				"#"
 			).setIcon(
+				"move-folder"
+			).setLabel(
+				LanguageUtil.get(httpServletRequest, "move-to")
+			).build(
+				"move-to"
+			));
+		fdsBulkActionDropdownItems.add(
+			FDSActionDropdownItemBuilder.setHighlighted(
+				true
+			).setHref(
+				"#"
+			).setIcon(
 				"copy"
 			).setLabel(
 				LanguageUtil.get(httpServletRequest, "copy-to")
@@ -162,14 +174,14 @@ public abstract class BaseFilesSectionDisplayContext
 			super.getFDSActionDropdownItems();
 
 		fdsActionDropdownItems.add(
-			1,
+			6,
 			new FDSActionDropdownItem(
 				"{embedded.file.link.href}", "download", "download",
 				LanguageUtil.get(httpServletRequest, "download"), "get", null,
 				"link"));
 
 		fdsActionDropdownItems.add(
-			2,
+			7,
 			new FDSActionDropdownItem(
 				StringBundler.concat(
 					"/o", GroupConstants.CMS_FRIENDLY_URL, "/download-folder/",

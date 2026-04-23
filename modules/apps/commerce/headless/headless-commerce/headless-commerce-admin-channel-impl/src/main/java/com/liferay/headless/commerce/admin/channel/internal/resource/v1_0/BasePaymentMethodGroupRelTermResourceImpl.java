@@ -5,6 +5,7 @@
 
 package com.liferay.headless.commerce.admin.channel.internal.resource.v1_0;
 
+import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.headless.commerce.admin.channel.dto.v1_0.PaymentMethodGroupRelTerm;
 import com.liferay.headless.commerce.admin.channel.resource.v1_0.PaymentMethodGroupRelTermResource;
 import com.liferay.petra.function.UnsafeBiConsumer;
@@ -353,6 +354,15 @@ public abstract class BasePaymentMethodGroupRelTermResourceImpl
 			@Override
 			public Locale getPreferredLocale() {
 				return LocaleUtil.fromLanguageId(languageId);
+			}
+
+			@Override
+			public boolean isAcceptAllLanguages() {
+				if (ExportImportThreadLocal.isExportInProcess()) {
+					return true;
+				}
+
+				return AcceptLanguage.super.isAcceptAllLanguages();
 			}
 
 		};
@@ -934,3 +944,4 @@ public abstract class BasePaymentMethodGroupRelTermResourceImpl
 		LogFactoryUtil.getLog(BasePaymentMethodGroupRelTermResourceImpl.class);
 
 }
+// LIFERAY-REST-BUILDER-HASH:924134742

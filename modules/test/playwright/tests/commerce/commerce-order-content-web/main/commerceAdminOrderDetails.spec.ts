@@ -6,9 +6,9 @@
 import {expect, mergeTests} from '@playwright/test';
 
 import {apiHelpersTest} from '../../../../fixtures/apiHelpersTest';
-import {applicationsMenuPageTest} from '../../../../fixtures/applicationsMenuPageTest';
 import {commercePagesTest} from '../../../../fixtures/commercePagesTest';
 import {dataApiHelpersTest} from '../../../../fixtures/dataApiHelpersTest';
+import {globalMenuPagesTest} from '../../../../fixtures/globalMenuPagesTest';
 import {isolatedSiteTest} from '../../../../fixtures/isolatedSiteTest';
 import {loginTest} from '../../../../fixtures/loginTest';
 import {getRandomInt} from '../../../../utils/getRandomInt';
@@ -22,9 +22,9 @@ import {miniumSetUp} from '../../utils/commerce';
 
 export const test = mergeTests(
 	apiHelpersTest,
-	applicationsMenuPageTest,
 	commercePagesTest,
 	dataApiHelpersTest,
+	globalMenuPagesTest,
 	isolatedSiteTest,
 	loginTest()
 );
@@ -42,7 +42,7 @@ test(
 			name: getRandomString(),
 		});
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 		const channel =
 			await apiHelpers.headlessCommerceAdminChannel.postChannel({
@@ -197,7 +197,7 @@ test('LPD-26244 Split order items are shown on admin order details page when sho
 		name: getRandomString(),
 	});
 
-	apiHelpers.data.push({id: site.id, type: 'site'});
+	apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 	const channel = await apiHelpers.headlessCommerceAdminChannel.postChannel({
 		siteGroupId: site.id,
@@ -332,7 +332,7 @@ test(
 			name: getRandomString(),
 		});
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 		const channel =
 			await apiHelpers.headlessCommerceAdminChannel.postChannel({
@@ -589,11 +589,11 @@ test(
 
 test('COMMERCE-11888. As a supplier user, I can edit the order details, payments and shipments', async ({
 	apiHelpers,
-	applicationsMenuPage,
 	commerceAdminChannelDetailsPage,
 	commerceAdminChannelsPage,
 	commerceAdminOrderDetailsPage,
 	commerceAdminOrdersPage,
+	globalMenuPage,
 	page,
 }) => {
 	test.setTimeout(120000);
@@ -755,7 +755,7 @@ test('COMMERCE-11888. As a supplier user, I can edit the order details, payments
 	await performLogout(page);
 	await performLoginViaApi({page, screenName: 'demo.unprivileged'});
 
-	await applicationsMenuPage.goToCommerceOrders(false);
+	await globalMenuPage.goToCommerce('Orders');
 
 	await (
 		await commerceAdminOrdersPage.tableRowLink({
@@ -964,7 +964,7 @@ test('LPD-30856 Can update order status by deleting unshipped items', async ({
 		name: getRandomString(),
 	});
 
-	apiHelpers.data.push({id: site.id, type: 'site'});
+	apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 	const channel = await apiHelpers.headlessCommerceAdminChannel.postChannel({
 		siteGroupId: site.id,
@@ -1157,7 +1157,7 @@ test('COMMERCE-7982 Can Edit Order Measurement Unit', async ({
 		name: getRandomString(),
 	});
 
-	apiHelpers.data.push({id: site.id, type: 'site'});
+	apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 	const channel = await apiHelpers.headlessCommerceAdminChannel.postChannel({
 		siteGroupId: site.id,

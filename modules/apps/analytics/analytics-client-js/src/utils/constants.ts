@@ -5,7 +5,9 @@
 
 // AC Version
 
-export const ANALYTICS_CLIENT_VERSION = '1.3.0';
+export const ANALYTICS_CLIENT_VERSION = '1.3.3';
+
+export const ANALYTICS_BATCH_SEGMENT_IDS = 'analyticsBatchSegmentIds';
 
 // Default Config
 
@@ -68,6 +70,10 @@ export const READ_MINIMUM_SCROLL_DEPTH = 75;
 export const READ_TIME_FACTOR = 0.75;
 
 export const READ_WORDS_PER_MIN = 265;
+
+// Time Constants
+
+export const THREE_HOURS_IN_MILLISECONDS = 10800000;
 
 // Validation
 

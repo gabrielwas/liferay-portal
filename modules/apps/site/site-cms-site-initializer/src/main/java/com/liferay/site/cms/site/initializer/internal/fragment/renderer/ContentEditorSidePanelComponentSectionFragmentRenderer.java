@@ -37,6 +37,7 @@ import com.liferay.portal.kernel.util.ParamUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.site.cms.site.initializer.internal.util.CommentUtil;
+import com.liferay.site.cms.site.initializer.internal.util.InfoItemUtil;
 import com.liferay.subscription.service.SubscriptionLocalService;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -231,6 +232,14 @@ public class ContentEditorSidePanelComponentSectionFragmentRenderer
 		).put(
 			"expirationDate",
 			() -> {
+				String restoredExpirationDate =
+					InfoItemUtil.getRestoredInfoFieldValue(
+						httpServletRequest, "ObjectEntry_expirationDate");
+
+				if (restoredExpirationDate != null) {
+					return restoredExpirationDate;
+				}
+
 				Date expirationDate = objectEntry.getExpirationDate();
 
 				if (expirationDate == null) {
@@ -239,7 +248,7 @@ public class ContentEditorSidePanelComponentSectionFragmentRenderer
 
 				return DateUtil.getDate(
 					expirationDate, "yyyy-MM-dd'T'HH:mm",
-					themeDisplay.getLocale());
+					themeDisplay.getLocale(), themeDisplay.getTimeZone());
 			}
 		).put(
 			"hasUpdatePermission",
@@ -262,6 +271,14 @@ public class ContentEditorSidePanelComponentSectionFragmentRenderer
 		).put(
 			"reviewDate",
 			() -> {
+				String restoredReviewDate =
+					InfoItemUtil.getRestoredInfoFieldValue(
+						httpServletRequest, "ObjectEntry_reviewDate");
+
+				if (restoredReviewDate != null) {
+					return restoredReviewDate;
+				}
+
 				Date reviewDate = objectEntry.getReviewDate();
 
 				if (reviewDate == null) {
@@ -269,7 +286,8 @@ public class ContentEditorSidePanelComponentSectionFragmentRenderer
 				}
 
 				return DateUtil.getDate(
-					reviewDate, "yyyy-MM-dd'T'HH:mm", themeDisplay.getLocale());
+					reviewDate, "yyyy-MM-dd'T'HH:mm", themeDisplay.getLocale(),
+					themeDisplay.getTimeZone());
 			}
 		).put(
 			"subscribeURL",

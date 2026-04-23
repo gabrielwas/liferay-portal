@@ -58,15 +58,17 @@ public class OAuthClientEntryLocalServiceImpl
 
 	@Override
 	public OAuthClientEntry addOAuthClientEntry(
-			long userId, String authRequestParametersJSON,
-			String authServerWellKnownURI, String customClaimsJSON,
-			String infoJSON, String matcherField, long metadataCacheTime,
-			String oidcUserInfoMapperJSON, String tokenRequestParametersJSON)
+			String externalReferenceCode, long userId,
+			String authRequestParametersJSON, String authServerWellKnownURI,
+			String customClaimsJSON, String infoJSON, String matcherField,
+			long metadataCacheTime, String oidcUserInfoMapperJSON,
+			String tokenRequestParametersJSON)
 		throws PortalException {
 
 		User user = _userLocalService.getUser(userId);
 
-		_validateAuthServerWellKnownURI(authServerWellKnownURI);
+		_validateAuthServerWellKnownURI(
+			user.getCompanyId(), authServerWellKnownURI);
 
 		ClientInformation clientInformation = _parseClientInformation(
 			authServerWellKnownURI, infoJSON);
@@ -115,6 +117,7 @@ public class OAuthClientEntryLocalServiceImpl
 		OAuthClientEntry oAuthClientEntry = oAuthClientEntryPersistence.create(
 			counterLocalService.increment());
 
+		oAuthClientEntry.setExternalReferenceCode(externalReferenceCode);
 		oAuthClientEntry.setCompanyId(user.getCompanyId());
 		oAuthClientEntry.setUserId(user.getUserId());
 		oAuthClientEntry.setUserName(user.getFullName());
@@ -237,7 +240,8 @@ public class OAuthClientEntryLocalServiceImpl
 			oAuthClientEntryLocalService.getOAuthClientEntry(
 				oAuthClientEntryId);
 
-		_validateAuthServerWellKnownURI(authServerWellKnownURI);
+		_validateAuthServerWellKnownURI(
+			oAuthClientEntry.getCompanyId(), authServerWellKnownURI);
 
 		ClientInformation clientInformation = _parseClientInformation(
 			authServerWellKnownURI, infoJSON);
@@ -328,13 +332,15 @@ public class OAuthClientEntryLocalServiceImpl
 		}
 	}
 
-	private void _validateAuthServerWellKnownURI(String authServerWellKnownURI)
+	private void _validateAuthServerWellKnownURI(
+			long companyId, String authServerWellKnownURI)
 		throws PortalException {
 
 		try {
 			if (authServerWellKnownURI.endsWith("local")) {
 				_oAuthClientASLocalMetadataLocalService.
-					getOAuthClientASLocalMetadata(authServerWellKnownURI);
+					getOAuthClientASLocalMetadata(
+						companyId, authServerWellKnownURI);
 
 				return;
 			}

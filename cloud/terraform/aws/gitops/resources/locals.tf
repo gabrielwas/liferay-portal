@@ -18,6 +18,30 @@ locals {
 		"environment"="internal"
 		"liferay.com/project"="liferay-cloud-native"
 	}
+	default_crossplane_container_security_context={
+		allowPrivilegeEscalation=false
+		capabilities={
+			drop=["ALL"]
+		}
+		privileged=false
+		readOnlyRootFilesystem=	true
+	}
+	default_crossplane_pod_security_context={
+		fsGroup=2000
+		runAsGroup=2000
+		runAsNonRoot=true
+		runAsUser=2000
+		seccompProfile={
+			type="RuntimeDefault"
+		}
+	}
+	deploymentruntimeconfig_opentelemetry_annotations={
+		"instrumentation.opentelemetry.io/inject-dotnet"="false"
+		"instrumentation.opentelemetry.io/inject-java"="false"
+		"instrumentation.opentelemetry.io/inject-nodejs"="false"
+		"instrumentation.opentelemetry.io/inject-python"="false"
+		"sidecar.opentelemetry.io/inject"="false"
+	}
 	ecr_credentials_sync_image="alpine/k8s:1.29.1"
 	ecr_credentials_sync_schedule="0 */8 * * *"
 	ecr_credentials_sync_script=<<-EOT
@@ -71,7 +95,6 @@ locals {
 		var.liferay_helm_chart_config,
 		{
 			chart_name=var.liferay_helm_chart_name
-			version=var.liferay_helm_chart_version,
 		},
 		var.liferay_helm_chart_name == "liferay-default" ? {
 			chart_url=coalesce(var.liferay_helm_chart_config.chart_url, "oci://us-central1-docker.pkg.dev/liferay-artifact-registry/liferay-helm-chart/liferay-default")

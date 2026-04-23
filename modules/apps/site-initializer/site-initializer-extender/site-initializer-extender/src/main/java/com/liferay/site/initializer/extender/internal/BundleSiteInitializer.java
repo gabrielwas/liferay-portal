@@ -539,6 +539,11 @@ public class BundleSiteInitializer implements SiteInitializer {
 		}
 
 		try {
+			BundleContext bundleContext = _siteBundle.getBundleContext();
+
+			BatchEngineUnitThreadLocal.setFileName(
+				String.valueOf(bundleContext.getBundle()));
+
 			_initialize(groupId);
 		}
 		catch (Exception exception) {
@@ -547,6 +552,7 @@ public class BundleSiteInitializer implements SiteInitializer {
 			throw new InitializationException(exception);
 		}
 		finally {
+			BatchEngineUnitThreadLocal.setFileName(StringPool.BLANK);
 			ServiceContextThreadLocal.popServiceContext();
 		}
 
@@ -1286,39 +1292,29 @@ public class BundleSiteInitializer implements SiteInitializer {
 			ObjectDefinition existingObjectDefinition =
 				objectDefinitionsPage.fetchFirstItem();
 
-			try {
-				BundleContext bundleContext = _siteBundle.getBundleContext();
+			if (existingObjectDefinition == null) {
+				if (GetterUtil.getBoolean(
+						objectDefinition.getAccountEntryRestricted())) {
 
-				BatchEngineUnitThreadLocal.setFileName(
-					String.valueOf(bundleContext.getBundle()));
-
-				if (existingObjectDefinition == null) {
-					if (GetterUtil.getBoolean(
-							objectDefinition.getAccountEntryRestricted())) {
-
-						accountEntryRestrictedObjectDefinitions.put(
-							objectDefinition.getName(), objectDefinition);
-					}
-
-					objectDefinition =
-						objectDefinitionResource.postObjectDefinition(
-							objectDefinition);
-
-					objectDefinitionIds.add(objectDefinition.getId());
-				}
-				else {
-					objectDefinition =
-						objectDefinitionResource.patchObjectDefinition(
-							existingObjectDefinition.getId(), objectDefinition);
+					accountEntryRestrictedObjectDefinitions.put(
+						objectDefinition.getName(), objectDefinition);
 				}
 
-				_replaceObjectDefinitionValues(
-					objectDefinition.getClassName(), objectDefinition.getName(),
-					objectDefinition.getId(), stringUtilReplaceValues);
+				objectDefinition =
+					objectDefinitionResource.postObjectDefinition(
+						objectDefinition);
+
+				objectDefinitionIds.add(objectDefinition.getId());
 			}
-			finally {
-				BatchEngineUnitThreadLocal.setFileName(StringPool.BLANK);
+			else {
+				objectDefinition =
+					objectDefinitionResource.patchObjectDefinition(
+						existingObjectDefinition.getId(), objectDefinition);
 			}
+
+			_replaceObjectDefinitionValues(
+				objectDefinition.getClassName(), objectDefinition.getName(),
+				objectDefinition.getId(), stringUtilReplaceValues);
 		}
 	}
 
@@ -1577,14 +1573,98 @@ public class BundleSiteInitializer implements SiteInitializer {
 		}
 
 		if (assetListEntry == null) {
-			_assetListEntryLocalService.addDynamicAssetListEntry(
-				assetListJSONObject.getString("externalReferenceCode"),
-				serviceContext.getUserId(), serviceContext.getScopeGroupId(),
-				assetListJSONObject.getString("title"),
-				UnicodePropertiesBuilder.create(
-					map, true
-				).buildString(),
-				serviceContext);
+			String type = assetListJSONObject.getString("type");
+
+			if (StringUtil.equals(type, "manual")) {
+				List<Long> assetEntryIds = new ArrayList<>();
+				Set<Long> assetEntryClassNameIds = new HashSet<>();
+				Map<String, Set<Long>> classTypeIdsMap = new HashMap<>();
+
+				Object[] assetListEntryObjects = JSONUtil.toObjectArray(
+					assetListJSONObject.getJSONArray("assetListEntries"));
+
+				for (Object assetListEntryObject : assetListEntryObjects) {
+					JSONObject assetListEntryJSONObject =
+						(JSONObject)assetListEntryObject;
+
+					AssetEntry assetEntry = _assetEntryLocalService.fetchEntry(
+						_portal.getClassNameId(
+							assetListEntryJSONObject.getString("className")),
+						assetListEntryJSONObject.getLong("classPK"));
+
+					if (assetEntry == null) {
+						continue;
+					}
+
+					AssetRendererFactory<?> assetRendererFactory =
+						AssetRendererFactoryRegistryUtil.
+							getAssetRendererFactoryByClassNameId(
+								assetEntry.getClassNameId());
+
+					if ((assetRendererFactory == null) ||
+						!assetRendererFactory.isSelectable()) {
+
+						continue;
+					}
+
+					assetEntryIds.add(assetEntry.getEntryId());
+					assetEntryClassNameIds.add(assetEntry.getClassNameId());
+
+					if (!assetRendererFactory.isSupportsClassTypes()) {
+						continue;
+					}
+
+					String manualAssetRendererFactoryName =
+						_getAssetRendererFactoryName(
+							assetRendererFactory.getClassName());
+
+					classTypeIdsMap.computeIfAbsent(
+						manualAssetRendererFactoryName, key -> new HashSet<>()
+					).add(
+						assetEntry.getClassTypeId()
+					);
+				}
+
+				Map<String, String> typeSettings = new HashMap<>(map);
+
+				typeSettings.put("anyAssetType", String.valueOf(Boolean.FALSE));
+				typeSettings.put(
+					"classNameIds", StringUtil.merge(assetEntryClassNameIds));
+				typeSettings.put(
+					"groupIds",
+					String.valueOf(serviceContext.getScopeGroupId()));
+
+				classTypeIdsMap.forEach(
+					(manualAssetRendererFactoryName, assetEntryClassTypeId) ->
+						typeSettings.put(
+							"classTypeIds" + manualAssetRendererFactoryName,
+							StringUtil.merge(assetEntryClassTypeId)));
+
+				assetListEntry =
+					_assetListEntryLocalService.addManualAssetListEntry(
+						assetListJSONObject.getString("externalReferenceCode"),
+						serviceContext.getUserId(),
+						serviceContext.getScopeGroupId(),
+						assetListJSONObject.getString("title"),
+						ArrayUtil.toLongArray(assetEntryIds), serviceContext);
+
+				_assetListEntryLocalService.updateAssetListEntryTypeSettings(
+					assetListEntry.getAssetListEntryId(), 0,
+					UnicodePropertiesBuilder.create(
+						typeSettings, true
+					).buildString());
+			}
+			else {
+				_assetListEntryLocalService.addDynamicAssetListEntry(
+					assetListJSONObject.getString("externalReferenceCode"),
+					serviceContext.getUserId(),
+					serviceContext.getScopeGroupId(),
+					assetListJSONObject.getString("title"),
+					UnicodePropertiesBuilder.create(
+						map, true
+					).buildString(),
+					serviceContext);
+			}
 		}
 		else {
 			_assetListEntryLocalService.updateAssetListEntry(
@@ -2428,6 +2508,8 @@ public class BundleSiteInitializer implements SiteInitializer {
 					FileUtil.getShortFileName(resourcePath));
 			}
 
+			articleId = StringUtil.toUpperCase(StringUtil.trim(articleId));
+
 			Map<Locale, String> titleMap = Collections.singletonMap(
 				LocaleUtil.getSiteDefault(), jsonObject.getString("name"));
 
@@ -2515,6 +2597,10 @@ public class BundleSiteInitializer implements SiteInitializer {
 							JournalArticle.class.getName());
 					}
 				});
+
+			stringUtilReplaceValues.put(
+				"JOURNAL_ARTICLE_ID:" + finalJournalArticle.getArticleId(),
+				String.valueOf(finalJournalArticle.getResourcePrimKey()));
 		}
 	}
 
@@ -5307,7 +5393,11 @@ public class BundleSiteInitializer implements SiteInitializer {
 			addAccountsR, _dependsOn(addOrUpdateExpandoColumnsR)
 		).put(
 			addAssetListEntriesR,
-			_dependsOn(addOrUpdateDDMStructuresR, publishObjectDefinitionsR)
+			_dependsOn(
+				addOrUpdateBlogPostingsR, addOrUpdateDDMStructuresR,
+				addOrUpdateDocumentsR, addOrUpdateJournalArticlesR,
+				addOrUpdateKnowledgeBaseArticlesR, addOrUpdateObjectEntriesR,
+				publishObjectDefinitionsR)
 		).put(
 			addCPDefinitionsR,
 			_dependsOn(addOrUpdateLayoutsR, addOrUpdateObjectEntriesR)

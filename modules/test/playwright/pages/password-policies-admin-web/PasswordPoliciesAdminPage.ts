@@ -6,18 +6,20 @@
 import {Locator, Page, expect} from '@playwright/test';
 
 import {TPasswordPolicy} from '../../helpers/PasswordPolicyApiHelper';
-import {ApplicationsMenuPage} from '../product-navigation-applications-menu/ApplicationsMenuPage';
+import {GlobalMenuPage} from '../product-navigation-applications-menu/GlobalMenuPage';
 
 export class PasswordPoliciesAdminPage {
 	readonly allowDictionaryWordsToggle: Locator;
-	readonly applicationsMenuPage: ApplicationsMenuPage;
+	readonly globalMenuPage: GlobalMenuPage;
 	readonly changeableToggle: Locator;
 	readonly checkSyntaxToggle: Locator;
 	readonly description: Locator;
 	readonly expireable: Locator;
 	readonly historyToggle: Locator;
 	readonly lockout: Locator;
+	readonly lockoutDuration: Locator;
 	readonly minAlphanumeric: Locator;
+	readonly minimumAge: Locator;
 	readonly minLength: Locator;
 	readonly minLowerCase: Locator;
 	readonly minNumbers: Locator;
@@ -30,13 +32,14 @@ export class PasswordPoliciesAdminPage {
 	readonly resetTicketMaxAge: Locator;
 	readonly saveButton: Locator;
 	readonly successMessage: Locator;
+	readonly updateButton: Locator;
 
 	constructor(page: Page) {
 		this.allowDictionaryWordsToggle = page.getByLabel(
 			"Allow Dictionary Words If this is checked, common dictionary words are allowed as the user's passwords.",
 			{exact: true}
 		);
-		this.applicationsMenuPage = new ApplicationsMenuPage(page);
+		this.globalMenuPage = new GlobalMenuPage(page);
 		this.changeableToggle = page.getByLabel(
 			'Changeable If this is checked, the user can change their password.',
 			{exact: true}
@@ -60,10 +63,12 @@ export class PasswordPoliciesAdminPage {
 			'Enable Lockout If this is checked, a user can attempt to log in a certain number of times before their account is locked.',
 			{exact: true}
 		);
+		this.lockoutDuration = page.getByLabel('Lockout Duration');
 		this.minAlphanumeric = page.getByLabel(
 			"Minimum Alpha Numeric This determines the minimum number of alpha numeric letters in the user's password.",
 			{exact: true}
 		);
+		this.minimumAge = page.getByLabel('Minimum Age');
 		this.minLength = page.getByLabel(
 			"Minimum Length This determines the minimum length of the user's password.",
 			{exact: true}
@@ -97,6 +102,7 @@ export class PasswordPoliciesAdminPage {
 		this.successMessage = page.getByText(
 			'Your request completed successfully'
 		);
+		this.updateButton = page.getByRole('button', {name: 'Update'});
 	}
 
 	async createPasswordPolicy(passwordPolicy: TPasswordPolicy) {
@@ -210,7 +216,7 @@ export class PasswordPoliciesAdminPage {
 	}
 
 	async goTo() {
-		await this.applicationsMenuPage.goToPasswordPolicies();
+		await this.globalMenuPage.goToControlPanel('Password Policies');
 	}
 
 	async resetDefaultPasswordPolicy() {

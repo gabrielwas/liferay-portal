@@ -6,7 +6,6 @@
 import {expect, mergeTests} from '@playwright/test';
 
 import {accountsPagesTest} from '../../../../fixtures/accountsPagesTest';
-import {applicationsMenuPageTest} from '../../../../fixtures/applicationsMenuPageTest';
 import {commercePagesTest} from '../../../../fixtures/commercePagesTest';
 import {dataApiHelpersTest} from '../../../../fixtures/dataApiHelpersTest';
 import {featureFlagsTest} from '../../../../fixtures/featureFlagsTest';
@@ -26,7 +25,6 @@ import getWidgetDefinition from '../../../layout-content-page-editor-web/main/ut
 
 export const test = mergeTests(
 	accountsPagesTest,
-	applicationsMenuPageTest,
 	commercePagesTest,
 	dataApiHelpersTest,
 	featureFlagsTest({
@@ -58,10 +56,14 @@ test('LPD-26142 A Sales Agent can manage channel defaults', async ({
 		rolePermissions: [
 			{
 				actionIds: [
+					'ADD_USER',
+					'ASSIGN_USERS',
+					'INVITE_USER',
 					'MANAGE_ORGANIZATIONS',
-					'MANAGE_USERS',
 					'MANAGE_CHANNEL_DEFAULTS',
+					'UNASSIGN_USERS',
 					'UPDATE',
+					'UPDATE_USERS',
 				],
 				primaryKey: companyId,
 				resourceName: 'com.liferay.account.model.AccountEntry',
@@ -190,7 +192,7 @@ test('LPD-26142 A Sales Agent can manage channel defaults', async ({
 		name: getRandomString(),
 	});
 
-	apiHelpers.data.push({id: site.id, type: 'site'});
+	apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 	const layout = await apiHelpers.headlessDelivery.createSitePage({
 		pageDefinition: getPageDefinition([
@@ -380,7 +382,7 @@ test('LPD-28220 Can user with account manager role view and manage channel defau
 		name: 'Site' + getRandomInt(),
 	});
 
-	apiHelpers.data.push({id: site.id, type: 'site'});
+	apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 	const layout = await apiHelpers.headlessDelivery.createSitePage({
 		pageDefinition: getPageDefinition([

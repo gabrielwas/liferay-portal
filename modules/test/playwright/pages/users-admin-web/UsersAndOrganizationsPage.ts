@@ -10,7 +10,7 @@ import {clickAndExpectToBeVisible} from '../../utils/clickAndExpectToBeVisible';
 import {getRandomInt} from '../../utils/getRandomInt';
 import {waitForAlert} from '../../utils/waitForAlert';
 import {DataTablePage} from '../account-admin-web/DataTablePage';
-import {ApplicationsMenuPage} from '../product-navigation-applications-menu/ApplicationsMenuPage';
+import {GlobalMenuPage} from '../product-navigation-applications-menu/GlobalMenuPage';
 
 export const searchTableRowByValue = async function (
 	tableLocator: Locator,
@@ -46,7 +46,7 @@ export class UsersAndOrganizationsPage {
 	readonly addOrganizationMenuItem: Locator;
 	readonly addUserButton: Locator;
 	readonly addUserMenuItem: Locator;
-	readonly applicationsMenuPage: ApplicationsMenuPage;
+	readonly globalMenuPage: GlobalMenuPage;
 	readonly assignOrganizationRolesIFrame: FrameLocator;
 	readonly assignOrganizationRolesMenuItem: Locator;
 	readonly assignOrganizationRolesSearchBarButton: Locator;
@@ -112,6 +112,9 @@ export class UsersAndOrganizationsPage {
 		value: string,
 		strictEqual?: boolean
 	) => Promise<{column: Locator; row: Locator}>;
+	readonly myOrganizationsTableRowActions: (
+		organizationName: string
+	) => Promise<Locator>;
 	readonly myOrganizationsTableRowLink: (
 		organizationName: string
 	) => Promise<Locator>;
@@ -207,7 +210,7 @@ export class UsersAndOrganizationsPage {
 		this.addUserMenuItem = page.getByRole('menuitem', {
 			name: 'Add User',
 		});
-		this.applicationsMenuPage = new ApplicationsMenuPage(page);
+		this.globalMenuPage = new GlobalMenuPage(page);
 		this.assignOrganizationRolesIFrame = page.frameLocator(
 			'iframe[title="Assign Organization Roles"]'
 		);
@@ -388,6 +391,24 @@ export class UsersAndOrganizationsPage {
 				return myOrganizationsTableRow.column.getByRole('link', {
 					name: organizationName,
 				});
+			}
+
+			throw new Error(
+				`Cannot locate organization row with name ${organizationName}`
+			);
+		};
+		this.myOrganizationsTableRowActions = async (
+			organizationName: string
+		) => {
+			const myOrganizationsTableRow =
+				await this.myOrganizationsUserAndOrgsTableRow(
+					1,
+					organizationName,
+					false
+				);
+
+			if (myOrganizationsTableRow && myOrganizationsTableRow.row) {
+				return myOrganizationsTableRow.row.getByLabel('Show Actions');
 			}
 
 			throw new Error(
@@ -631,7 +652,7 @@ export class UsersAndOrganizationsPage {
 				`Cannot locate user row with screenName ${screenName}`
 			);
 		};
-		this.usersLink = page.getByRole('link', {name: 'Users'});
+		this.usersLink = page.getByRole('link', {exact: true, name: 'Users'});
 		this.usersTableDivider = page.locator('tr.table-divider', {
 			hasText: 'Users',
 		});
@@ -754,7 +775,11 @@ export class UsersAndOrganizationsPage {
 	}
 
 	async goto(forceReload?: boolean) {
-		await this.applicationsMenuPage.goToUsersAndOrganizations(forceReload);
+		if (forceReload) {
+			this.globalMenuPage.goToHome();
+		}
+
+		await this.globalMenuPage.goToControlPanel('Users and Organizations');
 	}
 
 	async goToOrganizations(forceReload?: boolean) {
@@ -772,7 +797,7 @@ export class UsersAndOrganizationsPage {
 	}
 
 	async goToOrganizationsWithLimitedAccess() {
-		await this.applicationsMenuPage.goToUsersAndOrganizationsWithLimitedAccess();
+		await this.globalMenuPage.goToControlPanel('Users and Organizations');
 		await Promise.all([
 			this.organizationsLink.click(),
 			this.page.waitForResponse(
@@ -830,7 +855,7 @@ export class UsersAndOrganizationsPage {
 	}
 
 	async goToUsersWithLimitedAccess() {
-		await this.applicationsMenuPage.goToUsersAndOrganizationsWithLimitedAccess();
+		await this.globalMenuPage.goToControlPanel('Users and Organizations');
 		await Promise.all([
 			this.usersLink.click(),
 			this.page.waitForResponse(

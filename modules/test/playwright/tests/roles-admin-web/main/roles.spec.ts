@@ -39,9 +39,12 @@ export const test = mergeTests(
 
 test.beforeAll(async ({browser}) => {
 	const page = await browser.newPage();
-	const rolesPage = new RolesPage(page);
+
+	await page.goto('/');
 
 	await performLoginViaApi({page, screenName: 'test'});
+
+	const rolesPage = new RolesPage(page);
 
 	await rolesPage.goto();
 
@@ -563,7 +566,7 @@ test(
 
 		await performUserSwitch(page, user.alternateName);
 
-		await expect(rolesPage.applicationsMenuButton).toBeVisible();
+		await expect(rolesPage.globalMenuPage.globalMenuButton).toBeVisible();
 
 		await performUserSwitch(page, 'test');
 
@@ -590,7 +593,7 @@ test(
 
 		await performUserSwitch(page, user.alternateName);
 
-		await expect(rolesPage.applicationsMenuButton).toHaveCount(0);
+		await expect(rolesPage.globalMenuPage.globalMenuButton).toHaveCount(0);
 	}
 );
 
@@ -679,7 +682,7 @@ test(
 
 		await performUserSwitch(page, user.alternateName);
 
-		await expect(rolesPage.applicationsMenuButton).toBeVisible();
+		await expect(rolesPage.globalMenuPage.globalMenuButton).toBeVisible();
 
 		await performUserSwitch(page, 'test');
 
@@ -710,7 +713,7 @@ test(
 
 		await performUserSwitch(page, user.alternateName);
 
-		await expect(rolesPage.applicationsMenuButton).toHaveCount(0);
+		await expect(rolesPage.globalMenuPage.globalMenuButton).toHaveCount(0);
 	}
 );
 
@@ -804,7 +807,7 @@ test(
 
 		await performUserSwitch(page, user.alternateName);
 
-		await expect(rolesPage.applicationsMenuButton).toBeVisible();
+		await expect(rolesPage.globalMenuPage.globalMenuButton).toBeVisible();
 
 		await performUserSwitch(page, 'test');
 
@@ -837,7 +840,7 @@ test(
 
 		await performUserSwitch(page, user.alternateName);
 
-		await expect(rolesPage.applicationsMenuButton).toHaveCount(0);
+		await expect(rolesPage.globalMenuPage.globalMenuButton).toHaveCount(0);
 	}
 );
 
@@ -1040,7 +1043,7 @@ test(
 
 		await performUserSwitch(page, user.alternateName);
 
-		await expect(rolesPage.applicationsMenuButton).toBeVisible();
+		await expect(rolesPage.globalMenuPage.globalMenuButton).toBeVisible();
 
 		await performUserSwitch(page, 'test');
 
@@ -1069,7 +1072,7 @@ test(
 
 		await performUserSwitch(page, user.alternateName);
 
-		await expect(rolesPage.applicationsMenuButton).toHaveCount(0);
+		await expect(rolesPage.globalMenuPage.globalMenuButton).toHaveCount(0);
 	}
 );
 
@@ -1122,7 +1125,7 @@ test(
 		const menuItemName = 'Documents and Media';
 		const permissionName =
 			'Access in Site and Asset Library Administration';
-		const siteName = 'Liferay DXP';
+		const siteName = 'Liferay DXP Site';
 
 		await roleDefinePermissionsPage.searchInput.click();
 		await roleDefinePermissionsPage.searchInput.fill(menuItemName);
@@ -1673,7 +1676,7 @@ test(
 			name: getRandomString(),
 		});
 
-		apiHelpers.data.push({id: site2.id, type: 'site'});
+		apiHelpers.data.push({id: site2.externalReferenceCode, type: 'site'});
 
 		const bookmarkName2 = getRandomString();
 
@@ -2004,7 +2007,7 @@ test(
 
 		await performUserSwitch(page, user.alternateName);
 
-		await rolesPage.goto(false);
+		await rolesPage.goto();
 
 		await rolesPage.rolesTable.changeView('Table');
 
@@ -2040,7 +2043,7 @@ test(
 
 		await performUserSwitch(page, user.alternateName);
 
-		await rolesPage.goto(false);
+		await rolesPage.goto();
 
 		await rolesPage.rolesTable.search(guestRoleName);
 
@@ -2167,7 +2170,7 @@ test(
 	'Cannot duplicate a role with fixed permissions',
 	{tag: ['@LPD-69394']},
 	async ({rolesPage}) => {
-		await rolesPage.goto(false);
+		await rolesPage.goto();
 
 		const rolesWithFixedPermissions = ['Administrator', 'Owner'];
 

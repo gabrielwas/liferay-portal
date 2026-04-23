@@ -4,8 +4,9 @@ import React, {lazy, Suspense} from 'react';
 import RouteNotFound from 'shared/components/RouteNotFound';
 import {ChannelContext} from 'shared/context/channel';
 import {connect} from 'react-redux';
-import {DEVELOPER_MODE, ENABLE_ACCOUNTS} from 'shared/util/constants';
+import {DEVELOPER_MODE} from 'shared/util/constants';
 import {DownloadReportProvider} from 'shared/components/download-report/DownloadReportContext';
+import {ENABLE_ASSET_OBJECT_ENTRY} from 'shared/util/constants';
 import {Routes} from 'shared/util/router';
 import {Switch, withRouter} from 'react-router-dom';
 import {
@@ -98,6 +99,13 @@ const IndividualsDashboardCDP = lazy(() =>
 	)
 );
 
+/* Lifecycle */
+const LifecycleDashboard = lazy(() =>
+	import(
+		/* webpackChunkname: "LifecycleDashboard" */ '../../lifecycle/pages/BaseLifecycle'
+	)
+);
+
 /* Sites */
 
 const SitesDashboard = lazy(() =>
@@ -125,6 +133,10 @@ const TouchpointRoutes = lazy(() =>
 );
 
 /* Assets */
+
+const NewAssetsList = lazy(() =>
+	import(/* webpackChunkName: "NewAssetsList" */ 'assets/pages/List')
+);
 
 const AssetsList = lazy(() =>
 	import(/* webpackChunkName: "AssetsList" */ 'assets/pages')
@@ -154,6 +166,10 @@ const WebContent = lazy(() =>
 	import(/* webpackChunkName: "WebContent" */ 'assets/web-content/pages')
 );
 
+const ObjectEntry = lazy(() =>
+	import(/* webpackChunkName: "ObjectEntry" */ 'assets/object-entry/pages')
+);
+
 /* Commmerce */
 
 const CommerceDashboard = lazy(() =>
@@ -161,7 +177,7 @@ const CommerceDashboard = lazy(() =>
 );
 
 const ROUTES = [
-	ENABLE_ACCOUNTS && {
+	{
 		data: AccountsList,
 		path: Routes.CONTACTS_LIST_ACCOUNT
 	},
@@ -217,6 +233,12 @@ const ROUTES = [
 		path: Routes.ASSETS_WEB_CONTENT_ROUTES
 	},
 	{
+		data: ObjectEntry,
+		destructured: false,
+		exact: false,
+		path: Routes.ASSETS_OBJECT_ENTRY_ROUTES
+	},
+	{
 		data: TouchpointRoutes,
 		destructured: false,
 		exact: false,
@@ -251,7 +273,7 @@ const ROUTES = [
 		path: Routes.TESTS_OVERVIEW
 	},
 	{
-		data: AssetsList,
+		data: ENABLE_ASSET_OBJECT_ENTRY ? NewAssetsList : AssetsList,
 		destructured: false,
 		exact: false,
 		path: Routes.ASSETS
@@ -266,6 +288,11 @@ const ROUTES = [
 		data: SitesDashboard,
 		destructured: false,
 		path: Routes.CHANNEL
+	},
+	{
+		data: LifecycleDashboard,
+		destructured: false,
+		path: Routes.LIFECYCLE
 	},
 	DEVELOPER_MODE && {
 		data: CommerceDashboard,

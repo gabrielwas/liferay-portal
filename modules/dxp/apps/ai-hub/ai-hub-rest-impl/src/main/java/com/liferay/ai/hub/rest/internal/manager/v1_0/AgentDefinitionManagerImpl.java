@@ -13,10 +13,14 @@ import com.liferay.ai.hub.rest.internal.resource.v1_0.AgentDefinitionResourceImp
 import com.liferay.ai.hub.rest.manager.v1_0.AgentDefinitionManager;
 import com.liferay.ai.hub.util.AccountEntryUtil;
 import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.rest.dto.v1_0.ObjectEntry;
+import com.liferay.object.rest.manager.v1_0.DefaultObjectEntryManager;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
 import com.liferay.object.service.ObjectDefinitionLocalService;
+import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.petra.function.transform.TransformUtil;
+import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
@@ -79,6 +83,19 @@ public class AgentDefinitionManagerImpl implements AgentDefinitionManager {
 		_workflowDefinitionManager.undeployWorkflowDefinition(
 			workflowDefinition.getCompanyId(), workflowDefinition.getName(),
 			dtoConverterContext.getUserId(), workflowDefinition.getVersion());
+	}
+
+	@Override
+	public AgentDefinition getAgentDefinition(
+			long companyId, DTOConverterContext dtoConverterContext,
+			String externalReferenceCode)
+		throws Exception {
+
+		return _toAgentDefinition(
+			companyId, dtoConverterContext,
+			_objectEntryManager.getObjectEntry(
+				companyId, dtoConverterContext, externalReferenceCode,
+				_getObjectDefinition(companyId), null));
 	}
 
 	@Override
@@ -149,9 +166,14 @@ public class AgentDefinitionManagerImpl implements AgentDefinitionManager {
 			String externalReferenceCode)
 		throws Exception {
 
+		AccountEntry accountEntry = AccountEntryUtil.getUserAccountEntry(
+			dtoConverterContext.getUserId());
+
+		ObjectDefinition objectDefinition = _getObjectDefinition(companyId);
+
 		ObjectEntry objectEntry = _objectEntryManager.getObjectEntry(
 			companyId, dtoConverterContext, externalReferenceCode,
-			_getObjectDefinition(companyId), null);
+			objectDefinition, null);
 
 		WorkflowDefinition workflowDefinition =
 			_workflowDefinitionManager.getLatestWorkflowDefinition(
@@ -167,18 +189,12 @@ public class AgentDefinitionManagerImpl implements AgentDefinitionManager {
 
 		_workflowDefinitionManager.deployWorkflowDefinition(
 			content.getBytes(), companyId, null,
-			workflowDefinition.getGroupId(), workflowDefinitionName,
+			accountEntry.getAccountEntryGroupId(), workflowDefinitionName,
 			WorkflowDefinitionConstants.SCOPE_AI,
 			LanguageUtil.format(
 				locale, "copy-of-x",
 				workflowDefinition.getTitle(locale.getDisplayLanguage())),
 			dtoConverterContext.getUserId());
-
-		AccountEntry accountEntry = AccountEntryUtil.getUserAccountEntry(
-			dtoConverterContext.getUserId());
-
-		long accountEntryId =
-			(accountEntry != null) ? accountEntry.getAccountEntryId() : 0;
 
 		Map<String, String> title =
 			(Map<String, String>)objectEntry.getPropertyValue("title_i18n");
@@ -186,47 +202,76 @@ public class AgentDefinitionManagerImpl implements AgentDefinitionManager {
 		title.replaceAll(
 			(key, value) -> LanguageUtil.format(locale, "copy-of-x", value));
 
+		ObjectEntry copiedObjectEntry = _objectEntryManager.addObjectEntry(
+			dtoConverterContext, _getObjectDefinition(companyId),
+			new ObjectEntry() {
+				{
+					setProperties(
+						() -> Map.of(
+							"active",
+							GetterUtil.getBoolean(
+								objectEntry.getPropertyValue("active")),
+							"description",
+							GetterUtil.getString(
+								objectEntry.getPropertyValue("description")),
+							"inputVariables",
+							GetterUtil.getString(
+								objectEntry.getPropertyValue("inputVariables")),
+							"outputVariable",
+							GetterUtil.getString(
+								objectEntry.getPropertyValue("outputVariable")),
+							"r_accountToAIHubAgentDefinitions_accountEntryId",
+							accountEntry.getAccountEntryId(), "title_i18n",
+							title, "workflowDefinitionName",
+							workflowDefinitionName));
+				}
+			},
+			null);
+
+		ObjectRelationship objectRelationship =
+			_objectRelationshipLocalService.getObjectRelationship(
+				objectDefinition.getObjectDefinitionId(),
+				"agentDefinitionsToContentRetrievers");
+
+		DefaultObjectEntryManager defaultObjectEntryManager =
+			(DefaultObjectEntryManager)_objectEntryManager;
+
+		Page<ObjectEntry> objectEntriesPage =
+			defaultObjectEntryManager.getRelatedObjectEntries(
+				dtoConverterContext, objectEntry.getId(), objectRelationship,
+				Pagination.of(QueryUtil.ALL_POS, QueryUtil.ALL_POS));
+
+		if (objectEntriesPage.getTotalCount() != 0) {
+			for (ObjectEntry contentRetrieverObjectEntry :
+					objectEntriesPage.getItems()) {
+
+				defaultObjectEntryManager.
+					addObjectRelationshipMappingTableValues(
+						dtoConverterContext, objectRelationship,
+						copiedObjectEntry.getId(),
+						contentRetrieverObjectEntry.getId());
+			}
+		}
+
 		return _toAgentDefinition(
-			companyId, dtoConverterContext,
-			_objectEntryManager.addObjectEntry(
-				dtoConverterContext, _getObjectDefinition(companyId),
-				new ObjectEntry() {
-					{
-						setProperties(
-							() -> Map.of(
-								"active",
-								GetterUtil.getBoolean(
-									objectEntry.getPropertyValue("active")),
-								"description",
-								GetterUtil.getString(
-									objectEntry.getPropertyValue(
-										"description")),
-								"inputVariables",
-								GetterUtil.getString(
-									objectEntry.getPropertyValue(
-										"inputVariables")),
-								"outputVariable",
-								GetterUtil.getString(
-									objectEntry.getPropertyValue(
-										"outputVariable")),
-								"r_accountToAIHubAgentDefinitions_" +
-									"accountEntryId",
-								accountEntryId, "title_i18n", title,
-								"workflowDefinitionName",
-								workflowDefinitionName));
-					}
-				},
-				null));
+			companyId, dtoConverterContext, copiedObjectEntry);
 	}
 
 	private Map<String, String> _addAction(
 		DTOConverterContext dtoConverterContext, String methodName,
 		WorkflowDefinition workflowDefinition) {
 
-		if (!Objects.equals(
-				methodName, "postAgentDefinitionByExternalReferenceCodeCopy") &&
-			workflowDefinition.isSystem()) {
+		if (Objects.equals(
+				methodName, "postAgentDefinitionByExternalReferenceCodeCopy")) {
 
+			return ActionUtil.addAction(
+				ActionKeys.VIEW, AgentDefinitionResourceImpl.class,
+				workflowDefinition.getWorkflowDefinitionId(), methodName,
+				_kaleoDefinitionModelResourcePermission, (Long)null,
+				dtoConverterContext.getUriInfo());
+		}
+
+		if (workflowDefinition.isSystem()) {
 			return null;
 		}
 
@@ -385,6 +430,9 @@ public class AgentDefinitionManagerImpl implements AgentDefinitionManager {
 
 	@Reference(target = "(object.entry.manager.storage.type=default)")
 	private ObjectEntryManager _objectEntryManager;
+
+	@Reference
+	private ObjectRelationshipLocalService _objectRelationshipLocalService;
 
 	@Reference
 	private WorkflowDefinitionManager _workflowDefinitionManager;

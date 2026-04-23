@@ -5,6 +5,7 @@
 
 package com.liferay.headless.commerce.admin.channel.internal.resource.v1_0;
 
+import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.headless.commerce.admin.channel.dto.v1_0.AccountAddressChannel;
 import com.liferay.headless.commerce.admin.channel.resource.v1_0.AccountAddressChannelResource;
 import com.liferay.petra.function.UnsafeBiConsumer;
@@ -431,6 +432,15 @@ public abstract class BaseAccountAddressChannelResourceImpl
 			@Override
 			public Locale getPreferredLocale() {
 				return LocaleUtil.fromLanguageId(languageId);
+			}
+
+			@Override
+			public boolean isAcceptAllLanguages() {
+				if (ExportImportThreadLocal.isExportInProcess()) {
+					return true;
+				}
+
+				return AcceptLanguage.super.isAcceptAllLanguages();
 			}
 
 		};
@@ -1011,3 +1021,4 @@ public abstract class BaseAccountAddressChannelResourceImpl
 		LogFactoryUtil.getLog(BaseAccountAddressChannelResourceImpl.class);
 
 }
+// LIFERAY-REST-BUILDER-HASH:247323287

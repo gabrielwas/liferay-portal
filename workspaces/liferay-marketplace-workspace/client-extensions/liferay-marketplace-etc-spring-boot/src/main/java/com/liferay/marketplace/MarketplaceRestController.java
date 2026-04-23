@@ -25,11 +25,13 @@ import com.liferay.headless.commerce.admin.order.client.pagination.Pagination;
 import com.liferay.headless.commerce.admin.order.client.resource.v1_0.OrderItemResource;
 import com.liferay.headless.commerce.admin.order.client.resource.v1_0.OrderResource;
 import com.liferay.marketplace.model.PublisherAssetLink;
+import com.liferay.marketplace.permission.DefaultServiceAccountPermission;
 import com.liferay.marketplace.service.MarketplaceService;
 import com.liferay.marketplace.service.ProvisioningService;
 import com.liferay.marketplace.util.MarketplaceUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.util.GetterUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -385,6 +387,22 @@ public class MarketplaceRestController extends BaseRestController {
 		return accountRole.getId();
 	}
 
+	private String _getOrderTypeName(Order order) {
+		if (Objects.equals(
+				order.getOrderTypeExternalReferenceCode(), "AI_HUB")) {
+
+			return "AI Hub Beta";
+		}
+
+		if (Objects.equals(
+				order.getOrderTypeExternalReferenceCode(), "CMP_BETA")) {
+
+			return "CMP Beta";
+		}
+
+		return null;
+	}
+
 	private File _getPublisherAssetFile(String publisherAssetURL)
 		throws Exception {
 
@@ -440,6 +458,68 @@ public class MarketplaceRestController extends BaseRestController {
 		}
 
 		return publisherAssetLinks;
+	}
+
+	@PostMapping("request-product-feedback/{orderId}")
+	private void _postRequestProductFeedback(
+			@AuthenticationPrincipal Jwt jwt, @PathVariable long orderId)
+		throws Exception {
+
+		if (_log.isInfoEnabled()) {
+			_log.info("POST request product feedback " + orderId);
+		}
+
+		_defaultServiceAccountPermission.check(jwt);
+
+		Order order = _marketplaceService.getOrder(orderId);
+
+		OrderItem[] orderItems = order.getOrderItems();
+
+		OrderItem orderItem = orderItems[0];
+
+		if (orderItem == null) {
+			return;
+		}
+
+		Product product = _marketplaceService.getProductBySkuId(
+			orderItem.getSkuId());
+
+		Map<String, String> productSpecificationsMap =
+			_marketplaceService.getProductSpecificationsMap(
+				product.getProductId());
+
+		_marketplaceService.postNotificationQueueEntry(
+			order.getCreatorEmailAddress(),
+			"MARKETPLACE-REQUEST-PRODUCT-FEEDBACK",
+			HashMapBuilder.put(
+				"[%CATALOG_NAME%]",
+				product.getCatalog(
+				).getName()
+			).put(
+				"[%EMAIL_BODY%]",
+				StringBundler.concat(
+					"<p>It has been a few weeks since you started using <b>",
+					_getOrderTypeName(order),
+					"</b> via the Marketplace. We hope it’s helping you ",
+					"streamline your Liferay operations. Could you spare <b>5 ",
+					"minutes</b> to let us know how we’re doing?</p>")
+			).put(
+				"[%MARKETPLACE_HOST%]",
+				lxcDXPServerProtocol + "://" + lxcDXPMainDomain
+			).put(
+				"[%ORDER_ID%]", String.valueOf(orderId)
+			).put(
+				"[%PRODUCT_NAME%]",
+				product.getName(
+				).get(
+					"en_US"
+				)
+			).put(
+				"[%PRODUCT_THUMBNAIL%]",
+				_marketplaceService.getProductThumbnail(product)
+			).put(
+				"[%PRODUCT_TYPE%]", productSpecificationsMap.get("app-beta")
+			).build());
 	}
 
 	private void _processPublisherAssetLink(
@@ -524,6 +604,9 @@ public class MarketplaceRestController extends BaseRestController {
 
 	private static final Log _log = LogFactory.getLog(
 		MarketplaceRestController.class);
+
+	@Autowired
+	private DefaultServiceAccountPermission _defaultServiceAccountPermission;
 
 	private final Set<String> _europeanCountriesISOCode = Set.of(
 		"AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "GR",

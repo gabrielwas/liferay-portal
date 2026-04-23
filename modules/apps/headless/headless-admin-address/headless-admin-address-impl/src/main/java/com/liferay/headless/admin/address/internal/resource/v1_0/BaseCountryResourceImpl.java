@@ -5,6 +5,7 @@
 
 package com.liferay.headless.admin.address.internal.resource.v1_0;
 
+import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.headless.admin.address.dto.v1_0.Country;
 import com.liferay.headless.admin.address.resource.v1_0.CountryResource;
 import com.liferay.petra.function.UnsafeBiConsumer;
@@ -769,6 +770,15 @@ public abstract class BaseCountryResourceImpl
 				return LocaleUtil.fromLanguageId(languageId);
 			}
 
+			@Override
+			public boolean isAcceptAllLanguages() {
+				if (ExportImportThreadLocal.isExportInProcess()) {
+					return true;
+				}
+
+				return AcceptLanguage.super.isAcceptAllLanguages();
+			}
+
 		};
 	}
 
@@ -1389,3 +1399,4 @@ public abstract class BaseCountryResourceImpl
 		LogFactoryUtil.getLog(BaseCountryResourceImpl.class);
 
 }
+// LIFERAY-REST-BUILDER-HASH:578588563

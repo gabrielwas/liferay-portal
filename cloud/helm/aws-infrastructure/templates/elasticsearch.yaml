@@ -1,8 +1,10 @@
 {{- $search := .Values.search.elasticsearch -}}
-{{- if $search.enabled }}
+{{- if and .Values.enabled $search.enabled }}
 apiVersion: elasticsearch.k8s.elastic.co/v1
 kind: Elasticsearch
 metadata:
+    annotations:
+        {{- $search.annotations | toYaml | nindent 8 }}
     name: {{ include "elasticsearch.name" . }}
     namespace: {{ .Release.Namespace }}
 spec:
@@ -14,6 +16,9 @@ spec:
         -   count: {{ $search.nodeCount }}
             name: default
             podTemplate:
+                metadata:
+                    annotations:
+                        {{- $search.annotations | toYaml | nindent 24 }}
                 spec:
                     containers:
                         -   env:
@@ -39,16 +44,10 @@ spec:
                                 requests:
                                     cpu: 500m
                                     memory: 4Gi
-                            {{- end }}
-                    initContainers:
-                        -   command:
-                                -   sh
-                                -   -c
-                                -   sysctl -w vm.max_map_count={{ $search.maxMapCount }}
-                            name: configure-memory-map
+                                {{- end }}
                             securityContext:
-                                privileged: true
-                                runAsUser: 0
+                                {{- $search.securityContext | toYaml | nindent 32 }}
+                    initContainers:
                         -   command:
                                 -   sh
                                 -   -c
@@ -58,6 +57,10 @@ spec:
                                         --batch \
                                         analysis-{icu,kuromoji,smartcn,stempel}
                             name: install-plugins
+                            securityContext:
+                                {{- $search.securityContext | toYaml | nindent 32 }}
+                    securityContext:
+                        {{- $search.podSecurityContext | toYaml | nindent 24 }}
             volumeClaimTemplates:
                 -   metadata:
                         name: elasticsearch-data
@@ -73,6 +76,7 @@ apiVersion: v1
 kind: Secret
 metadata:
     name: elasticsearch-connection-details
+    namespace: {{ .Release.Namespace }}
 stringData:
     ELASTICSEARCH_DEFAULT_PASSWORD_SECRET_NAME: "{{ include "elasticsearch.name" . }}-es-elastic-user"
     ELASTICSEARCH_DEFAULT_USERNAME: elastic

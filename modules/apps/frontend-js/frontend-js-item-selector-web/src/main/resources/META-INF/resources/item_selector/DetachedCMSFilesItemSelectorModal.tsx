@@ -34,9 +34,9 @@ async function checkNewCMSFiles(
 	return (await response.json()) as {totalCount: number};
 }
 
-function DetachedCMSFilesItemSelectorModal<T extends Record<string, any>>(
+const DetachedCMSFilesItemSelectorModal = <T extends Record<string, any>>(
 	props: TDetachedItemSelectorModal<T>
-) {
+) => {
 	const {observer, onOpenChange, open} = useModal();
 	const [newItemsCount, setNewItemsCount] = useState(0);
 	const [showInlineNotification, setShowInlineNotification] = useState(false);
@@ -145,6 +145,6 @@ function DetachedCMSFilesItemSelectorModal<T extends Record<string, any>>(
 			)}
 		</>
 	);
-}
+};
 
 export default DetachedCMSFilesItemSelectorModal;

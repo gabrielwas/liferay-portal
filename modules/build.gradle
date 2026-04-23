@@ -40,7 +40,7 @@ ext {
 		"com.liferay.gradle.plugins.theme.builder.version": "2.0.17",
 		"com.liferay.portal.tools.bundle.support.version": "3.7.5",
 		"com.liferay.portal.tools.service.builder.version": "1.0.501",
-		"com.liferay.portal.tools.rest.builder.version": "1.0.448",
+		"com.liferay.portal.tools.rest.builder.version": "1.0.460",
 		"com.liferay.portal.tools.soy.builder.version": "3.0.4",
 		"com.liferay.portal.tools.theme.builder.version": "1.1.9",
 		"com.liferay.portal.vulcan.api.version": "9.3.1"
@@ -581,28 +581,11 @@ gradle.beforeProject {
 
 		pluginManager.withPlugin("com.liferay.jasper.jspc") {
 			if (!project.name.endsWith("-demo")) {
-				compileJSP {
+				configure([compileJSP, generateJSPJava]) {
 					configurations.compileOnly.allDependencies.withType(ProjectDependency) {
-						mustRunAfter "${it.dependencyProject.path}:deploy"
-						mustRunAfter "${it.dependencyProject.path}:deployDependencies"
-					}
-
-					if (!implicitDependencyProjects.contains(project)) {
-						implicitDependencyProjects.forEach {
-							mustRunAfter "${it.path}:deploy"
-							mustRunAfter "${it.path}:deployDependencies"
-
-							if (it.name.equals("portal-osgi-web-jasper-plugins-taglib")) {
-								mustRunAfter "${it.path}:deployAppServerPortalFile"
-							}
+						mustRunAfter it.dependencyProject.tasks.matching {
+							name.equals("deploy") || name.equals("deployDependencies")
 						}
-					}
-				}
-
-				generateJSPJava {
-					configurations.compileOnly.allDependencies.withType(ProjectDependency) {
-						mustRunAfter "${it.dependencyProject.path}:deploy"
-						mustRunAfter "${it.dependencyProject.path}:deployDependencies"
 					}
 
 					if (!implicitDependencyProjects.contains(project)) {

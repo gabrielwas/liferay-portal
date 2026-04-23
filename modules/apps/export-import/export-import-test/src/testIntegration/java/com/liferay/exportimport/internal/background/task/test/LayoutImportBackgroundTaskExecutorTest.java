@@ -9,6 +9,7 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
+import com.liferay.document.library.test.util.DLTestUtil;
 import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationSettingsMapFactoryUtil;
 import com.liferay.exportimport.kernel.configuration.constants.ExportImportConfigurationConstants;
 import com.liferay.exportimport.kernel.lar.PortletDataHandlerKeys;
@@ -48,6 +49,8 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.TempFileEntryUtil;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
+import com.liferay.portal.test.log.LogCapture;
+import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.staging.StagingGroupHelper;
@@ -107,41 +110,47 @@ public class LayoutImportBackgroundTaskExecutorTest {
 			GroupConstants.DEFAULT_PARENT_GROUP_ID, objectDefinition,
 			values.get(_OBJECT_FIELD_NAME_TEXT));
 
-		long backgroundTaskId =
-			ExportImportLocalServiceUtil.importLayoutsInBackground(
-				TestPropsValues.getUserId(),
-				ExportImportConfigurationLocalServiceUtil.
-					addExportImportConfiguration(
-						TestPropsValues.getUserId(), group.getGroupId(),
-						RandomTestUtil.randomString(),
-						RandomTestUtil.randomString(), 0,
-						ExportImportConfigurationSettingsMapFactoryUtil.
-							buildImportLayoutSettingsMap(
-								TestPropsValues.getUser(), group.getGroupId(),
-								false, new long[0],
-								_getExportImportParameterMap(
-									false, true,
-									Arrays.asList(objectDefinition))),
-						WorkflowConstants.STATUS_DRAFT,
-						ServiceContextTestUtil.getServiceContext()),
-				larFile);
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				"com.liferay.batch.engine.internal." +
+					"BatchEngineImportTaskExecutorImpl",
+				LoggerTestUtil.OFF)) {
 
-		ExportImportTestUtil.retryAssert(
-			1, TimeUnit.SECONDS, 5, TimeUnit.SECONDS,
-			() -> {
-				BackgroundTask backgroundTask =
-					_backgroundTaskLocalService.getBackgroundTask(
-						backgroundTaskId);
+			long backgroundTaskId =
+				ExportImportLocalServiceUtil.importLayoutsInBackground(
+					TestPropsValues.getUserId(),
+					ExportImportConfigurationLocalServiceUtil.
+						addExportImportConfiguration(
+							TestPropsValues.getUserId(), group.getGroupId(),
+							RandomTestUtil.randomString(),
+							RandomTestUtil.randomString(), 0,
+							ExportImportConfigurationSettingsMapFactoryUtil.
+								buildImportLayoutSettingsMap(
+									TestPropsValues.getUser(),
+									group.getGroupId(), false, new long[0],
+									_getExportImportParameterMap(
+										false, true,
+										Arrays.asList(objectDefinition))),
+							WorkflowConstants.STATUS_DRAFT,
+							ServiceContextTestUtil.getServiceContext()),
+					larFile);
 
-				Assert.assertEquals(
-					BackgroundTaskConstants.STATUS_COMPLETED_WITH_ERRORS,
-					backgroundTask.getStatus());
-			});
+			ExportImportTestUtil.retryAssert(
+				1, TimeUnit.SECONDS, 5, TimeUnit.SECONDS,
+				() -> {
+					BackgroundTask backgroundTask =
+						_backgroundTaskLocalService.getBackgroundTask(
+							backgroundTaskId);
 
-		ServiceContextThreadLocal.popServiceContext();
+					Assert.assertEquals(
+						BackgroundTaskConstants.STATUS_COMPLETED_WITH_ERRORS,
+						backgroundTask.getStatus());
+				});
+
+			ServiceContextThreadLocal.popServiceContext();
+		}
 	}
 
-	private DLFileEntry _addDLFileEntry(String content, long groupId)
+	private DLFileEntry _addDLFileEntry(byte[] content, long groupId)
 		throws Exception {
 
 		FileEntry fileEntry = _dlAppLocalService.addFileEntry(
@@ -150,7 +159,7 @@ public class LayoutImportBackgroundTaskExecutorTest {
 				RandomTestUtil.randomString() + ".txt"),
 			ContentTypes.TEXT_PLAIN, RandomTestUtil.randomString(),
 			StringPool.BLANK, StringPool.BLANK, StringPool.BLANK,
-			new ByteArrayInputStream(content.getBytes()), 0, null, null, null,
+			new ByteArrayInputStream(content), 0, null, null, null,
 			ServiceContextTestUtil.getServiceContext());
 
 		return _dlFileEntryLocalService.getFileEntry(
@@ -301,10 +310,10 @@ public class LayoutImportBackgroundTaskExecutorTest {
 			company.getGroupId());
 
 		FileEntry tempFileEntry1 = _addTempFileEntry(
-			objectDefinition,
-			_OBJECT_FIELD_VALUE_ATTACHMENT_SHOW_FILES_IN_DOCS_AND_MEDIA);
+			_OBJECT_FIELD_VALUE_ATTACHMENT_SHOW_FILES_IN_DOCS_AND_MEDIA,
+			objectDefinition);
 		FileEntry tempFileEntry2 = _addTempFileEntry(
-			objectDefinition, _OBJECT_FIELD_VALUE_ATTACHMENT_USER_COMPUTER);
+			_OBJECT_FIELD_VALUE_ATTACHMENT_USER_COMPUTER, objectDefinition);
 
 		return _objectEntryLocalService.addObjectEntry(
 			groupId, TestPropsValues.getUserId(),
@@ -327,15 +336,15 @@ public class LayoutImportBackgroundTaskExecutorTest {
 	}
 
 	private FileEntry _addTempFileEntry(
-			ObjectDefinition objectDefinition, String tempFileName)
+			byte[] content, ObjectDefinition objectDefinition)
 		throws Exception {
 
 		return TempFileEntryUtil.addTempFileEntry(
 			TestPropsValues.getGroupId(), TestPropsValues.getUserId(),
 			objectDefinition.getPortletId(),
-			TempFileEntryUtil.getTempFileName(tempFileName + ".txt"),
-			FileUtil.createTempFile(tempFileName.getBytes()),
-			ContentTypes.TEXT_PLAIN);
+			TempFileEntryUtil.getTempFileName(
+				RandomTestUtil.randomString() + ".txt"),
+			FileUtil.createTempFile(content), ContentTypes.TEXT_PLAIN);
 	}
 
 	private void _deleteObjectEntries(ObjectEntry... objectEntries)
@@ -451,15 +460,15 @@ public class LayoutImportBackgroundTaskExecutorTest {
 	private static final String _OBJECT_FIELD_NAME_TEXT =
 		"x" + RandomTestUtil.randomString();
 
-	private static final String _OBJECT_FIELD_VALUE_ATTACHMENT_DOCS_AND_MEDIA =
-		RandomTestUtil.randomString();
+	private static final byte[] _OBJECT_FIELD_VALUE_ATTACHMENT_DOCS_AND_MEDIA =
+		DLTestUtil.randomTextFileBytes();
 
-	private static final String
+	private static final byte[]
 		_OBJECT_FIELD_VALUE_ATTACHMENT_SHOW_FILES_IN_DOCS_AND_MEDIA =
-			RandomTestUtil.randomString();
+			DLTestUtil.randomTextFileBytes();
 
-	private static final String _OBJECT_FIELD_VALUE_ATTACHMENT_USER_COMPUTER =
-		RandomTestUtil.randomString();
+	private static final byte[] _OBJECT_FIELD_VALUE_ATTACHMENT_USER_COMPUTER =
+		DLTestUtil.randomTextFileBytes();
 
 	@Inject
 	private BackgroundTaskLocalService _backgroundTaskLocalService;

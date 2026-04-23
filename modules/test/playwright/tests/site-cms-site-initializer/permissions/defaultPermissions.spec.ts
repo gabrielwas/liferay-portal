@@ -19,6 +19,7 @@ const test = mergeTests(
 	cmsPagesTest,
 	dataApiHelpersTest,
 	featureFlagsTest({
+		'LPD-11235': {enabled: false},
 		'LPD-17564': {enabled: true},
 	}),
 	loginTest()
@@ -733,6 +734,11 @@ test(
 			await contentsPage.fillData([{label: 'Title', value: contentName}]);
 
 			await contentsPage.saveContent();
+
+			await waitForAlert(
+				page,
+				`Success:${contentName} was published successfully.`
+			);
 
 			await clickMenuItem('Permissions', page, contentName);
 

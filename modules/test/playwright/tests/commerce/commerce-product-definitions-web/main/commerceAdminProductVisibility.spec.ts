@@ -84,7 +84,7 @@ test('LPD-25206 Admin product page shows correct account groups for admin and ac
 		],
 	});
 
-	await commerceAdminProductPage.gotoProduct(product1.name['en_US'], false);
+	await commerceAdminProductPage.gotoProduct(product1.name['en_US']);
 
 	await expect(
 		await commerceAdminProductDetailsPage.productSkusLink
@@ -115,7 +115,7 @@ test('LPD-25206 Admin product page shows correct account groups for admin and ac
 
 	await performLogin(page, 'demo.unprivileged');
 
-	await commerceAdminProductPage.gotoProduct(product1.name['en_US'], false);
+	await commerceAdminProductPage.gotoProduct(product1.name['en_US']);
 
 	await expect(
 		await commerceAdminProductDetailsPage.productSkusLink

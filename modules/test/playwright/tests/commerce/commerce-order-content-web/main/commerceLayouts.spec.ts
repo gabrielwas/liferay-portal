@@ -7,11 +7,11 @@ import {expect, mergeTests} from '@playwright/test';
 import path from 'path';
 
 import {apiHelpersTest} from '../../../../fixtures/apiHelpersTest';
-import {applicationsMenuPageTest} from '../../../../fixtures/applicationsMenuPageTest';
 import {commercePagesTest} from '../../../../fixtures/commercePagesTest';
 import {dataApiHelpersTest} from '../../../../fixtures/dataApiHelpersTest';
 import {displayPageTemplatesPagesTest} from '../../../../fixtures/displayPageTemplatesPagesTest';
 import {featureFlagsTest} from '../../../../fixtures/featureFlagsTest';
+import {globalMenuPagesTest} from '../../../../fixtures/globalMenuPagesTest';
 import {isolatedSiteTest} from '../../../../fixtures/isolatedSiteTest';
 import {loginTest} from '../../../../fixtures/loginTest';
 import {pageEditorPagesTest} from '../../../../fixtures/pageEditorPagesTest';
@@ -32,7 +32,6 @@ import {checkLocalizedDate} from '../../utils/date';
 
 export const test = mergeTests(
 	apiHelpersTest,
-	applicationsMenuPageTest,
 	commercePagesTest,
 	dataApiHelpersTest,
 	displayPageTemplatesPagesTest,
@@ -41,6 +40,7 @@ export const test = mergeTests(
 		'LPD-20379': {enabled: true},
 		'LPS-178052': {enabled: true},
 	}),
+	globalMenuPagesTest,
 	pageEditorPagesTest,
 	isolatedSiteTest,
 	loginTest()
@@ -3085,9 +3085,9 @@ test(
 	{tag: '@LPD-43496'},
 	async ({
 		apiHelpers,
-		applicationsMenuPage,
 		commerceLayoutsPage,
 		displayPageTemplatesPage,
+		globalMenuPage,
 		page,
 		site,
 	}) => {
@@ -3110,8 +3110,6 @@ test(
 		await apiHelpers.headlessCommerceAdminChannel.postChannel({
 			siteGroupId: site.id,
 		});
-
-		await applicationsMenuPage.goToSite(site.name);
 
 		await displayPageTemplatesPage.goto(site.friendlyUrlPath);
 
@@ -3140,7 +3138,7 @@ test(
 			commerceLayoutsPage.defaultDisplayPageTemplateIcon
 		).toBeVisible();
 
-		await applicationsMenuPage.goToSite(site.name);
+		await globalMenuPage.goToSite(site.name);
 
 		await commerceLayoutsPage
 			.accountSelectorButton('Account Selector')
@@ -3306,10 +3304,10 @@ test(
 	{tag: '@LPD-52401'},
 	async ({
 		apiHelpers,
-		applicationsMenuPage,
 		commerceAdminChannelDetailsPage,
 		commerceAdminChannelsPage,
 		commerceLayoutsPage,
+		globalMenuPage,
 		page,
 		site,
 	}) => {
@@ -3347,14 +3345,14 @@ test(
 
 		await waitForAlert(page);
 
-		await applicationsMenuPage.goToSite(site.name);
+		await globalMenuPage.goToSite(site.name);
 
 		await commerceLayoutsPage
 			.accountSelectorButton('Account Selector')
 			.click();
 		await commerceLayoutsPage.createNewOrderButton.click();
 
-		await applicationsMenuPage.goToSite(site.name);
+		await globalMenuPage.goToSite(site.name);
 
 		await commerceLayoutsPage
 			.accountSelectorButton('Account Selector')

@@ -96,10 +96,10 @@ public class OrphanReferencesDataCleanupUtil {
 		try (PreparedStatement preparedStatement1 = connection.prepareStatement(
 				StringBundler.concat(
 					"select ", _SOURCE_TABLE_ALIAS, StringPool.PERIOD,
-					sourceColumnName, ", count(1) from ", sourceTableName,
-					StringPool.SPACE, _SOURCE_TABLE_ALIAS, whereClause,
-					" group by ", _SOURCE_TABLE_ALIAS, StringPool.PERIOD,
-					sourceColumnName));
+					sourceColumnName, ", count(1) as count from ",
+					sourceTableName, StringPool.SPACE, _SOURCE_TABLE_ALIAS,
+					whereClause, " group by ", _SOURCE_TABLE_ALIAS,
+					StringPool.PERIOD, sourceColumnName));
 
 			ResultSet resultSet = preparedStatement1.executeQuery()) {
 
@@ -124,10 +124,11 @@ public class OrphanReferencesDataCleanupUtil {
 
 			while (resultSet.next()) {
 				DataCleanupLoggingUtil.logDelete(
-					_log, resultSet.getLong(2), readOnly, sourceTableName,
+					_log, resultSet.getLong("count"), readOnly, sourceTableName,
 					StringBundler.concat(
 						sourceColumnName, StringPool.SPACE,
-						resultSet.getObject(1), " was not found in column",
+						resultSet.getObject(sourceColumnName),
+						" was not found in column",
 						(targetColumnNames.length > 1) ? "s " : " ",
 						String.join(", ", targetColumnNames), " from table ",
 						targetTableName));
@@ -180,6 +181,8 @@ public class OrphanReferencesDataCleanupUtil {
 			String targetTableName)
 		throws Exception {
 
+		String whereClause = null;
+
 		String additionalNullCheck = "";
 
 		DB db = DBManagerUtil.getDB();
@@ -196,27 +199,26 @@ public class OrphanReferencesDataCleanupUtil {
 				sourceColumnName, " != ''");
 		}
 
-		String whereClause = null;
+		String additionalWhereClause = StringBundler.concat(
+			_SOURCE_TABLE_ALIAS + StringPool.PERIOD + sourceColumnName,
+			" is not null", additionalNullCheck,
+			(sourceAdditionalWhereClause != null) ?
+				" and " + sourceAdditionalWhereClause : "");
 
 		if ((db.getDBType() == DBType.MARIADB) ||
 			(db.getDBType() == DBType.MYSQL)) {
 
 			whereClause = _getMySQLWhereClause(
-				customJoinClauses, dbInspector, sourceColumnName,
-				sourceTableName, targetColumnNames, targetTableName);
+				additionalWhereClause, customJoinClauses, dbInspector,
+				sourceColumnName, sourceTableName, targetColumnNames,
+				targetTableName);
 		}
 		else {
 			whereClause = _getOtherDBsWhereClause(
-				customJoinClauses, dbInspector, sourceColumnName,
-				sourceTableName, targetColumnNames, targetTableName);
+				additionalWhereClause, customJoinClauses, dbInspector,
+				sourceColumnName, sourceTableName, targetColumnNames,
+				targetTableName);
 		}
-
-		whereClause = StringBundler.concat(
-			whereClause, " and ",
-			_SOURCE_TABLE_ALIAS + StringPool.PERIOD + sourceColumnName,
-			" is not null", additionalNullCheck,
-			(sourceAdditionalWhereClause != null) ?
-				" and " + sourceAdditionalWhereClause : "");
 
 		return StringUtil.replace(
 			whereClause, "[$SOURCE_TABLE_ALIAS$]", _SOURCE_TABLE_ALIAS);
@@ -278,13 +280,14 @@ public class OrphanReferencesDataCleanupUtil {
 	}
 
 	private static String _getMySQLWhereClause(
-		String[] customJoinClauses, DBInspector dbInspector,
-		String sourceColumnName, String sourceTableName,
-		String[] targetColumnNames, String targetTableName) {
+		String additionalWhereClause, String[] customJoinClauses,
+		DBInspector dbInspector, String sourceColumnName,
+		String sourceTableName, String[] targetColumnNames,
+		String targetTableName) {
 
 		int index = 0;
 		StringBundler sb = new StringBundler(
-			(17 * targetColumnNames.length) + 1);
+			(17 * targetColumnNames.length) + 3);
 
 		for (String targetColumnName : targetColumnNames) {
 			String aliasTableName =
@@ -335,6 +338,8 @@ public class OrphanReferencesDataCleanupUtil {
 		}
 
 		sb.append(" where ");
+		sb.append(additionalWhereClause);
+		sb.append(" and ");
 
 		for (String targetColumnName : targetColumnNames) {
 			String aliasTableName =
@@ -354,14 +359,17 @@ public class OrphanReferencesDataCleanupUtil {
 	}
 
 	private static String _getOtherDBsWhereClause(
-		String[] customJoinClauses, DBInspector dbInspector,
-		String sourceColumnName, String sourceTableName,
-		String[] targetColumnNames, String targetTableName) {
+		String additionalWhereClause, String[] customJoinClauses,
+		DBInspector dbInspector, String sourceColumnName,
+		String sourceTableName, String[] targetColumnNames,
+		String targetTableName) {
 
 		StringBundler sb = new StringBundler(
-			(8 * targetColumnNames.length) + 5);
+			(8 * targetColumnNames.length) + 10);
 
-		sb.append(" where not exists (select 1 from ");
+		sb.append(" where ");
+		sb.append(additionalWhereClause);
+		sb.append(" and not exists (select 1 from ");
 		sb.append(targetTableName);
 		sb.append(" where (");
 

@@ -45,6 +45,13 @@ customInitContainers:
                     image: {{ printf "%s:%s" .image.repository (.image.tag | toString) }}
                     imagePullPolicy: {{ .image.pullPolicy }}
                     name: liferay-overlay
+                    securityContext:
+                        allowPrivilegeEscalation: false
+                        capabilities:
+                            drop:
+                                -   ALL
+                        seccompProfile:
+                            type: RuntimeDefault
                     {{- if and .overlay .overlay.enabled }}
                     volumeMounts:
                         -   mountPath: /mnt/liferay/overlay
@@ -60,7 +67,21 @@ customInitContainers:
                         -   |
                             rm --force --recursive /temp/liferay/liferay.pid 2>/dev/null
 
-                            mkdir --parents /temp/liferay
+                            mkdir --parents \
+                                /temp/liferay \
+                                /temp/liferay/logs \
+                                /temp/liferay/metrics \
+                                /temp/liferay/reports \
+                                /temp/liferay/routes \
+                                /temp/liferay/work \
+                                /temp/osgi/client-extensions \
+                                /temp/osgi/configs \
+                                /temp/osgi/modules \
+                                /temp/osgi/state \
+                                /temp/system/tmp \
+                                /temp/tomcat/logs \
+                                /temp/tomcat/temp \
+                                /temp/tomcat/work
 
                             touch /temp/liferay/liferay.pid
 
@@ -121,6 +142,13 @@ customInitContainers:
                     image: {{ printf "%s:%s" .image.repository (.image.tag | toString) }}
                     imagePullPolicy: {{ .image.pullPolicy }}
                     name: liferay-prepopulate-data
+                    securityContext:
+                        allowPrivilegeEscalation: false
+                        capabilities:
+                            drop:
+                                -   ALL
+                        seccompProfile:
+                            type: RuntimeDefault
                     volumeMounts:
                         -   mountPath: /temp
                             name: liferay-persistent-volume
@@ -146,6 +174,13 @@ customInitContainers:
                     image: {{ printf "%s:%s" .image.repository (.image.tag | toString) }}
                     imagePullPolicy: {{ .image.pullPolicy }}
                     name: liferay-wait-on-services
+                    securityContext:
+                        allowPrivilegeEscalation: false
+                        capabilities:
+                            drop:
+                                -   ALL
+                        seccompProfile:
+                            type: RuntimeDefault
 customLabels:
     origin: liferay-cloud
 customPorts: {}
@@ -158,6 +193,12 @@ dependencies: {}
 env:
     -   name: DNS_MEMBERSHIP_SERVICE_NAME
         value: liferay-default-headless
+    -   name: JMX_AGENT_PORT
+        value: "12345"
+    -   name: JMX_AGENT_YAML
+        value: |
+            rules:
+            -   pattern: ".*"
     -   name: LIFERAY_CLUSTER_PERIOD_LINK_PERIOD_BIND_PERIOD_ADDR_OPENBRACKET__QUOTE_CLUSTER_MINUS_LINK_MINUS_CONTROL_QUOTE__CLOSEBRACKET_
         value: ${env.POD_IP}
     -   name: LIFERAY_CLUSTER_PERIOD_LINK_PERIOD_BIND_PERIOD_ADDR_OPENBRACKET__QUOTE_CLUSTER_MINUS_LINK_MINUS_UDP_QUOTE__CLOSEBRACKET_
@@ -234,13 +275,14 @@ nodeSelector: {}
 overlay:
     bucketName: ""
     copy: []
-    enabled: false 
-podAnnotations: {}
+    enabled: false
 podLabels: {}
 podSecurityContext:
     fsGroup: 1000
     runAsNonRoot: true
     runAsUser: 1000
+    seccompProfile:
+        type: RuntimeDefault
 portalBundleDenyList: []
 portalComponentDenyList: []
 portalProperties:
@@ -270,10 +312,14 @@ replicaCount: 1
 resources: {}
 schedulingGates: []
 securityContext:
+    allowPrivilegeEscalation: false
     capabilities:
         drop:
             -   ALL
-    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1000
+    seccompProfile:
+        type: RuntimeDefault
 service:
     annotations: {}
     ports:

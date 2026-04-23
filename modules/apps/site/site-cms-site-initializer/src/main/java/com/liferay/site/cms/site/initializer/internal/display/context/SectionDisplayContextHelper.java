@@ -265,6 +265,20 @@ public class SectionDisplayContextHelper {
 	}
 
 	public JSONArray getDepotEntriesJSONArray(
+		HttpServletRequest httpServletRequest) {
+
+		ThemeDisplay themeDisplay =
+			(ThemeDisplay)httpServletRequest.getAttribute(
+				WebKeys.THEME_DISPLAY);
+
+		return _getDepotEntriesJSONArray(
+			DepotEntryServiceUtil.getDepotEntryGroupIds(
+				themeDisplay.getCompanyId(), themeDisplay.getUserId(),
+				DepotConstants.TYPE_SPACE),
+			themeDisplay.getLocale());
+	}
+
+	public JSONArray getDepotEntriesJSONArray(
 		HttpServletRequest httpServletRequest,
 		String rootObjectEntryFolderExternalReferenceCode) {
 
@@ -302,7 +316,7 @@ public class SectionDisplayContextHelper {
 				ActionUtil.getBaseViewFolderURL(themeDisplay) + "{embedded.id}",
 				"view", "actionLinkFolder",
 				LanguageUtil.get(httpServletRequest, "view-folder"), "get",
-				"update", null,
+				"get", null,
 				HashMapBuilder.<String, Object>put(
 					"entryClassName", ObjectEntryFolder.class.getName()
 				).build()),
@@ -328,23 +342,6 @@ public class SectionDisplayContextHelper {
 				LanguageUtil.get(httpServletRequest, "edit"), "get", "update",
 				null),
 			new FDSActionDropdownItem(
-				null, "share", "share",
-				LanguageUtil.get(httpServletRequest, "share"), "get", "share",
-				"link"),
-			new FDSActionDropdownItem(
-				StringBundler.concat(
-					themeDisplay.getPortalURL(), themeDisplay.getPathMain(),
-					GroupConstants.CMS_FRIENDLY_URL,
-					"/translate_content_item?objectEntryId={embedded.id}&",
-					"redirect=", themeDisplay.getURLCurrent()),
-				"automatic-translate", "translate",
-				LanguageUtil.get(httpServletRequest, "translate"), "get",
-				"update", null),
-			new FDSActionDropdownItem(
-				"{actions.expire.href}", "time", "expire",
-				LanguageUtil.get(httpServletRequest, "expire"), "post",
-				"expire", "headless"),
-			new FDSActionDropdownItem(
 				StringBundler.concat(
 					themeDisplay.getPortalURL(), themeDisplay.getPathMain(),
 					GroupConstants.CMS_FRIENDLY_URL,
@@ -361,6 +358,23 @@ public class SectionDisplayContextHelper {
 				null),
 			new FDSActionDropdownItem(
 				StringBundler.concat(
+					themeDisplay.getPortalURL(), themeDisplay.getPathMain(),
+					GroupConstants.CMS_FRIENDLY_URL,
+					"/translate_content_item?objectEntryId={embedded.id}&",
+					"redirect=", themeDisplay.getURLCurrent()),
+				"automatic-translate", "translate",
+				LanguageUtil.get(httpServletRequest, "translate"), "get",
+				"update", null),
+			new FDSActionDropdownItem(
+				null, "share", "share",
+				LanguageUtil.get(httpServletRequest, "share"), "get", "share",
+				"link"),
+			new FDSActionDropdownItem(
+				"{actions.expire.href}", "time", "expire",
+				LanguageUtil.get(httpServletRequest, "expire"), "post",
+				"expire", "headless"),
+			new FDSActionDropdownItem(
+				StringBundler.concat(
 					themeDisplay.getPathFriendlyURLPublic(),
 					GroupConstants.CMS_FRIENDLY_URL,
 					"/version-history?objectEntryId={embedded.id}&backURL=",
@@ -368,6 +382,14 @@ public class SectionDisplayContextHelper {
 				"date-time", "version-history",
 				LanguageUtil.get(httpServletRequest, "view-history"), "get",
 				"versions", null),
+			new FDSActionDropdownItem(
+				null, "move-folder", "move",
+				_language.get(httpServletRequest, "move"), null, "update",
+				null),
+			new FDSActionDropdownItem(
+				null, "copy", "copy",
+				_language.get(httpServletRequest, "copy-to"), null, "update",
+				null),
 			new FDSActionDropdownItem(
 				PortletURLBuilder.create(
 					_portal.getControlPanelPortletURL(
@@ -396,14 +418,6 @@ public class SectionDisplayContextHelper {
 				"download", "import-translation",
 				LanguageUtil.get(httpServletRequest, "import-translation"),
 				null, "update", null),
-			new FDSActionDropdownItem(
-				null, "copy", "copy",
-				_language.get(httpServletRequest, "copy-to"), null, "update",
-				null),
-			new FDSActionDropdownItem(
-				null, "move-folder", "move",
-				_language.get(httpServletRequest, "move"), null, "update",
-				null),
 			_getPermissionsFDSActionDropdownItem(
 				httpServletRequest, themeDisplay),
 			new FDSActionDropdownItem(

@@ -8,15 +8,24 @@ import '../../../css/content_editor/ContentEditorToolbar.scss';
 import ClayButton, {ClayButtonWithIcon} from '@clayui/button';
 import {ClayDropDownWithItems} from '@clayui/drop-down';
 import {ClayInput} from '@clayui/form';
+import ClayIcon from '@clayui/icon';
 import ClayLink from '@clayui/link';
+import {
+	AIAssistantChat,
+	ChatContext,
+} from '@liferay/ai-hub-cell-js-components-web';
 import {isCtrlOrMeta} from '@liferay/layout-js-components-web';
-import {sub} from 'frontend-js-web';
-import React, {useEffect, useId, useState} from 'react';
+import classNames from 'classnames';
+import {sessionStorage, sub} from 'frontend-js-web';
+import React, {useCallback, useEffect, useId, useRef, useState} from 'react';
 
 import Toolbar from '../../common/components/Toolbar';
-import AIAssistantChat from './AIAssistantChat/AIAssistantChat';
 import {toMomentDate} from './ScheduleField';
 import SchedulePublicationModal from './SchedulePublicationModal';
+
+export const EVENT_CLOSE_PREVIEW = 'contentEditor:closePreview';
+
+export const EVENT_HANDLE_PREVIEW = 'contentEditor:handlePreview';
 
 export const EVENT_VALIDATE_FORM = 'contentEditor:validateForm';
 
@@ -38,6 +47,9 @@ export default function ContentEditorToolbar({
 	const [displayDate, setDisplayDate] = useState<string>('');
 	const [formId, setFormId] = useState<string | undefined>();
 	const [showModal, setShowModal] = useState<boolean>(false);
+	const [showPreview, setShowPreview] = useState<boolean>(false);
+
+	const previewButtonRef = useRef<HTMLButtonElement>(null);
 
 	const optionsTitle = hasWorkflow
 		? Liferay.Language.get('submit-for-workflow-options')
@@ -49,12 +61,72 @@ export default function ContentEditorToolbar({
 			: sub(Liferay.Language.get('publish-x'), type)
 	);
 
-	useEffect(() => {
+	const getForm = useCallback((): HTMLFormElement => {
 		let form = document.querySelector('.lfr-main-form-container');
 
 		if (!form) {
 			form = document.querySelector('.lfr-layout-structure-item-form');
 		}
+
+		return form as HTMLFormElement;
+	}, []);
+
+	const getChatContext = useCallback((): ChatContext => {
+		const form = getForm();
+
+		const content = (
+			form?.querySelector(
+				'[name="ObjectField_content_en_US"]'
+			) as HTMLInputElement | null
+		)?.value;
+
+		const title = (
+			form?.querySelector(
+				'[name="ObjectField_title"]'
+			) as HTMLInputElement | null
+		)?.value;
+
+		return {
+			context: {content, title},
+			instructionDefinitionScope: 'cms',
+		};
+	}, [getForm]);
+
+	const setSuccessMessage = useCallback(
+		(message: string) => {
+			const form = getForm();
+
+			if (form?.checkValidity?.()) {
+				const titleInput = form.querySelector(
+					'[name^="ObjectField_title"]'
+				) as HTMLInputElement;
+
+				const value = titleInput ? titleInput.value : headerTitle;
+
+				sessionStorage.setItem(
+					'com.liferay.site.cms.site.initializer.successMessage',
+					sub(message, `<strong>${value}</strong>`),
+					sessionStorage.TYPES.NECESSARY
+				);
+			}
+		},
+		[getForm, headerTitle]
+	);
+
+	const handleSaveSuccessMessage = useCallback(() => {
+		setSuccessMessage(Liferay.Language.get('x-was-saved-successfully'));
+	}, [setSuccessMessage]);
+
+	const handlePublishSuccessMessage = useCallback(() => {
+		setSuccessMessage(
+			hasWorkflow
+				? Liferay.Language.get('x-was-submitted-for-workflow')
+				: Liferay.Language.get('x-was-published-successfully')
+		);
+	}, [hasWorkflow, setSuccessMessage]);
+
+	useEffect(() => {
+		const form = getForm();
 
 		if (form) {
 			setFormId(form.id);
@@ -65,7 +137,9 @@ export default function ContentEditorToolbar({
 					event.key === 'Enter' &&
 					isCtrlOrMeta(event)
 				) {
-					(form as HTMLFormElement).submit();
+					handlePublishSuccessMessage();
+
+					form.submit();
 				}
 			};
 
@@ -74,6 +148,18 @@ export default function ContentEditorToolbar({
 			return () =>
 				window.removeEventListener('keydown', handlePublishShortcut);
 		}
+	}, [getForm, handlePublishSuccessMessage]);
+
+	useEffect(() => {
+		const closePreview = () => {
+			setShowPreview(false);
+
+			previewButtonRef.current?.focus();
+		};
+
+		Liferay.on(EVENT_CLOSE_PREVIEW, closePreview);
+
+		return () => Liferay.detach(EVENT_CLOSE_PREVIEW, closePreview);
 	}, []);
 
 	return (
@@ -85,7 +171,7 @@ export default function ContentEditorToolbar({
 			{Liferay.FeatureFlags['LPD-62272'] && (
 				<>
 					<Toolbar.Item>
-						<AIAssistantChat />
+						<AIAssistantChat getContext={getChatContext} />
 					</Toolbar.Item>
 
 					<div
@@ -100,11 +186,57 @@ export default function ContentEditorToolbar({
 				</>
 			)}
 
-			<Toolbar.Item>
+			{Liferay.FeatureFlags['LPD-44507'] ? (
+				<Toolbar.Item className="nav-divider-end">
+					<ClayButton
+						aria-label={
+							showPreview
+								? Liferay.Language.get('close-preview')
+								: Liferay.Language.get('open-preview')
+						}
+						aria-pressed={showPreview}
+						borderless={showPreview}
+						className={classNames('c-mr-3 d-lg-block d-none', {
+							active: showPreview,
+						})}
+						displayType="secondary"
+						onClick={() => {
+							const nextShowPreview = !showPreview;
+
+							setShowPreview(nextShowPreview);
+
+							Liferay.fire(EVENT_HANDLE_PREVIEW, {
+								showPreview: nextShowPreview,
+							});
+						}}
+						ref={previewButtonRef}
+						size="sm"
+					>
+						<ClayIcon
+							className="inline-item inline-item-before"
+							symbol="view"
+						/>
+
+						{Liferay.Language.get('preview')}
+					</ClayButton>
+
+					<ClayButtonWithIcon
+						aria-label={Liferay.Language.get('preview')}
+						className="c-mr-3 d-lg-none"
+						displayType="secondary"
+						size="sm"
+						symbol="view"
+						title={Liferay.Language.get('preview')}
+					/>
+				</Toolbar.Item>
+			) : null}
+
+			<Toolbar.Item className="c-pl-0">
 				<ClayLink
 					aria-label={Liferay.Language.get('cancel')}
 					borderless
 					button
+					className="d-none d-sm-flex"
 					displayType="secondary"
 					href={backURL}
 					small
@@ -115,15 +247,26 @@ export default function ContentEditorToolbar({
 
 			<Toolbar.Item>
 				<ClayButton
+					className="d-md-flex d-none"
 					displayType="secondary"
 					form={formId}
 					name="status"
+					onClick={handleSaveSuccessMessage}
 					size="sm"
 					type="submit"
 					value={STATUS_DRAFT_CODE}
 				>
 					{Liferay.Language.get('save-as-draft')}
 				</ClayButton>
+
+				<ClayButtonWithIcon
+					aria-label={Liferay.Language.get('save-as-draft')}
+					className="d-md-none"
+					displayType="secondary"
+					size="sm"
+					symbol="disk"
+					title={Liferay.Language.get('save-as-draft')}
+				/>
 			</Toolbar.Item>
 
 			<Toolbar.Item>
@@ -134,6 +277,8 @@ export default function ContentEditorToolbar({
 						data-title-set-as-html
 						form={formId}
 						onClick={(event) => {
+							handlePublishSuccessMessage();
+
 							Liferay.fire(EVENT_VALIDATE_FORM, {event});
 						}}
 						size="sm"

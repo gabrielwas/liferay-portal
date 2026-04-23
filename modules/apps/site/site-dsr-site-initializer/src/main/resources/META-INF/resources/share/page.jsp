@@ -7,13 +7,11 @@
 
 <%@ include file="/share/init.jsp" %>
 
-<c:if test="<%= roomId != 0 %>">
-	<react:component
-		module="{RoomShareButton} from site-dsr-site-initializer"
-		props='<%=
-			HashMapBuilder.<String, Object>put(
-				"roomId", roomId
-			).build()
-		%>'
-	/>
-</c:if>
+<react:component
+	module="{RoomShareButton} from site-dsr-site-initializer"
+	props='<%=
+		HashMapBuilder.<String, Object>put(
+			"roomId", roomId
+		).build()
+	%>'
+/>

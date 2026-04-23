@@ -37,6 +37,7 @@ BNDRunInstructionsOrderCheck | [Styling](styling_checks.md#styling-checks) | .bn
 BNDStylingCheck | [Styling](styling_checks.md#styling-checks) | .bnd | Applies rules to enforce consistency in code style. |
 [BNDSuiteCheck](check/bnd_suite_check.md#bndsuitecheck) | [Miscellaneous](miscellaneous_checks.md#miscellaneous-checks) | .bnd | Checks that deprecated apps are moved to the `archived` folder. |
 [BNDWebContextPathCheck](check/bnd_web_context_path_check.md#bndwebcontextpathcheck) | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .bnd | Checks if the property value for `Web-ContextPath` matches the module directory. |
+BNDWebServiceTrackingCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .bnd | Finds missing `Web-ServiceTracking: false`. |
 BNDWhitespaceCheck | [Styling](styling_checks.md#styling-checks) | .bnd | Finds missing and unnecessary whitespace in `.bnd` files. |
 [BatchableUpdateCheck](check/batchable_update_check.md#batchableupdatecheck) | [Performance](performance_checks.md#performance-checks) | .java | Checks for cases where batch updates should be used inside a loop instead of individual executeUpdate calls. |
 BrandNameCheck | [Naming Conventions](naming_conventions_checks.md#naming-conventions-checks) | .java, .jsp, .jspf, .jspx, .tag, .tpl, or .vm | Checks the correct brand name. |
@@ -119,11 +120,12 @@ GradleIndentationCheck | [Styling](styling_checks.md#styling-checks) | .gradle |
 GradleJavaVersionCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .gradle | Checks values of properties `sourceCompatibility` and `targetCompatibility` in gradle build files. |
 GradleMissingDependenciesForUpgradeJava21Check | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .gradle | Checks missing dependencies for upgrade Java 21 in gradle build files. |
 GradleMissingJarManifestTaskCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .gradle | Finds missing `jarManifest` task when using `jarPatched` task in gradle build files. |
-GradlePetraModuleDependenciesCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .gradle | Checks that dependencies in `petra` moudule can only contains `petra` dependencies. |
+GradlePetraModuleDependenciesCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .gradle | Checks that dependencies in `petra` module can only contains `petra` dependencies. |
 GradlePropertiesCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .gradle | Validates property values in gradle build files. |
 GradleProvidedDependenciesCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .gradle | Validates the scope of dependencies in build gradle files. |
 [GradleRequiredDependenciesCheck](check/gradle_required_dependencies_check.md#gradlerequireddependenciescheck) | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .gradle | Validates the dependencies in `/required-dependencies/required-dependencies/build.gradle`. |
-GradleRestClientDependenciesCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .gradle | Validates the project dependencies `.*-rest-client` can only be used for `testIntegrationImplementation`. |
+GradleRestClientModuleDependenciesCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .gradle | Validates that only Jakarta dependencies can be used in `*-rest-client` modules. |
+GradleRestTestModuleDependenciesCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .gradle | Validates the project dependencies `*-rest-client` can only be used for `testIntegrationImplementation` in `*-rest-test` modules. |
 GradleStylingCheck | [Styling](styling_checks.md#styling-checks) | .gradle | Applies rules to enforce consistency in code style. |
 [GradleTaskCreationCheck](check/gradle_task_creation_check.md#gradletaskcreationcheck) | [Styling](styling_checks.md#styling-checks) | .gradle | Checks that a task is declared on a separate line before the closure. |
 GradleTestDependencyVersionCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .gradle | Checks the version for dependencies in gradle build files. |
@@ -156,6 +158,7 @@ JSONPageFileCheck | [Styling](styling_checks.md#styling-checks) | .ipynb, .json,
 JSONPortletResponseUtilCheck | [Styling](styling_checks.md#styling-checks) | .java | Checks if `JSONPortletResponseUtil.writeJSON ` should come before method calling `hideDefaultSuccessMessage`. |
 JSONReplacementsFileCheck | [Styling](styling_checks.md#styling-checks) | .ipynb, .json, or .npmbridgerc | Sorts by `issueKey`, `from` and `to` in `replacements.json` file. |
 JSONResourcePermissionsFileCheck | [Styling](styling_checks.md#styling-checks) | .ipynb, .json, or .npmbridgerc | Sorts by `resourceName` and `roleName` in `resource-permissions.json` files. |
+JSONRolesFileCheck | [Styling](styling_checks.md#styling-checks) | .ipynb, .json, or .npmbridgerc | Sorts by `resource` and `actionId` in `roles.json` files. |
 JSONStylingCheck | [Styling](styling_checks.md#styling-checks) | .ipynb, .json, or .npmbridgerc | Applies rules to enforce consistency in code style. |
 JSONUpgradeLiferayThemePackageJSONCheck | [Upgrade](upgrade_checks.md#upgrade-checks) | .ipynb, .json, or .npmbridgerc | Upgrade the `package.json` of a Liferay Theme to make it compatible with Liferay 7.4. |
 [JSONUtilCheck](check/json_util_check.md#jsonutilcheck) | [Styling](styling_checks.md#styling-checks) | .java, .jsp, .jspf, .jspx, .tag, .tpl, or .vm | Checks for utilization of class `JSONUtil`. |
@@ -214,6 +217,7 @@ JakartaTransformTLDCheck | [JakartaTransform](jakarta_transform_checks.md#jakart
 JakartaTransformTSCheck | [JakartaTransform](jakarta_transform_checks.md#jakartatransform-checks) | .ts or .tsx | Performs replacements for use of Jakarta. |
 JakartaTransformXMLCheck | [JakartaTransform](jakarta_transform_checks.md#jakartatransform-checks) | .xml | Performs replacements for use of Jakarta. |
 Java2HTMLCheck | [Miscellaneous](miscellaneous_checks.md#miscellaneous-checks) | .java | Finds incorrect use of `.java.html` in `.jsp` files. |
+[JavaAPIModulePackagePathCheck](check/java_api_module_package_path_check.md#javaapimodulepackagepathcheck) | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .java | Finds cases of incorrect package names in API modules. |
 JavaAbstractMethodCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .java | Finds incorrect `abstract` methods in `interface`. |
 JavaAggregateTestRuleParameterOrderCheck | [Styling](styling_checks.md#styling-checks) | .java | Checks the order of parameters in `new AggregateTestRule` calls. |
 JavaAnnotationDefaultAttributeCheck | [Styling](styling_checks.md#styling-checks) | .java | Finds cases where the default value is passed to annotations in package `*.bnd.annotations` or `*.bind.annotations`. |
@@ -298,7 +302,6 @@ JavaProviderTypeAnnotationCheck | [Bug Prevention](bug_prevention_checks.md#bug-
 JavaRedundantConstructorCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .java | Finds unnecessary empty constructor. |
 JavaReferenceAnnotationsCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .java | Performs several checks on classes with `@Reference` annotations. |
 JavaReleaseInfoCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .java | Validates information in `ReleaseInfo.java`. |
-[JavaResultSetCheck](check/java_result_set_check.md#javaresultsetcheck) | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .java | Checks for correct use `java.sql.ResultSet.getInt(int)`. |
 JavaReturnStatementCheck | [Styling](styling_checks.md#styling-checks) | .java | Finds unnecessary `else` statement (when `if` and `else` statement both end with `return` statement). |
 JavaRunSQLCheck | [Styling](styling_checks.md#styling-checks) | .java | Applies rules to enforce consistency in code style. |
 JavaSQLStatementCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .java | Perform several checks in SQL statements. |
@@ -484,7 +487,7 @@ ResourceImplCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-che
 ResourcePermissionCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .java | Performs several checks on `*ResourcePermission` classes. |
 [ResourcePermissionFactoryCheck](check/resource_permission_factory_check.md#resourcepermissionfactorycheck) | [Performance](performance_checks.md#performance-checks) | .java | Checks usage of `*ResourcePermissionFactory` classes. |
 ResourceTestInjectionCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .java | Checks that if any `*ResourceTest` class injects another resource that is not a `client`. |
-ResultSetGetCallCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .java | Finds incorrect use of `ResultSet.get*` calls. |
+[ResultSetGetCallCheck](check/result_set_get_call_check.md#resultsetgetcallcheck) | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .java | Finds incorrect use of `ResultSet.get*` calls. |
 ReturnVariableDeclarationAsUsedCheck | [Miscellaneous](miscellaneous_checks.md#miscellaneous-checks) | .java | Finds cases where a variable declaration should be moved. |
 SHSubshellCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .expect, .sh, or .tpl | Checks that local variables are not assigned via subshells. |
 SQLEmptyLinesCheck | [Styling](styling_checks.md#styling-checks) | .sql | Finds missing and unnecessary empty lines. |
@@ -628,8 +631,10 @@ XMLProjectElementCheck | [Bug Prevention](bug_prevention_checks.md#bug-preventio
 XMLResourceActionsFileCheck | [Styling](styling_checks.md#styling-checks) | .action, .function, .jelly, .jrxml, .macro, .pom, .project, .properties, .qti, .svg, .testcase, .toggle, .tpl, .wsdl, .xml, or .xsd | Checks the order of elements in files in directory `resource-actions`. |
 XMLServiceAutoImportDefaultReferencesCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .action, .function, .jelly, .jrxml, .macro, .pom, .project, .properties, .qti, .svg, .testcase, .toggle, .tpl, .wsdl, .xml, or .xsd | Checks that the `auto-import-default-references` in `service.xml` does not equal `false`. |
 [XMLServiceEntityNameCheck](check/xml_service_entity_name_check.md#xmlserviceentitynamecheck) | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .action, .function, .jelly, .jrxml, .macro, .pom, .project, .properties, .qti, .svg, .testcase, .toggle, .tpl, .wsdl, .xml, or .xsd | Checks that the `entity name` in `service.xml` does not equal the `package name`. |
-XMLServiceFileCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .action, .function, .jelly, .jrxml, .macro, .pom, .project, .properties, .qti, .svg, .testcase, .toggle, .tpl, .wsdl, .xml, or .xsd | Performs several checks on `service.xml` file. |
 [XMLServiceFinderNameCheck](check/xml_service_finder_name_check.md#xmlservicefindernamecheck) | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .action, .function, .jelly, .jrxml, .macro, .pom, .project, .properties, .qti, .svg, .testcase, .toggle, .tpl, .wsdl, .xml, or .xsd | Checks that the `finder name` in `service.xml`. |
+XMLServiceMVCCEnabledCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .action, .function, .jelly, .jrxml, .macro, .pom, .project, .properties, .qti, .svg, .testcase, .toggle, .tpl, .wsdl, .xml, or .xsd | Checks that the `mvcc-enabled` attribute is always set in `service.xml`. |
+XMLServiceMissingCompanyIdCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .action, .function, .jelly, .jrxml, .macro, .pom, .project, .properties, .qti, .svg, .testcase, .toggle, .tpl, .wsdl, .xml, or .xsd | Finds missing `companyId` column in `service.xml`. |
+XMLServiceOrderCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .action, .function, .jelly, .jrxml, .macro, .pom, .project, .properties, .qti, .svg, .testcase, .toggle, .tpl, .wsdl, .xml, or .xsd | Performs several checks on `service.xml` file. |
 XMLServiceReferenceCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .action, .function, .jelly, .jrxml, .macro, .pom, .project, .properties, .qti, .svg, .testcase, .toggle, .tpl, .wsdl, .xml, or .xsd | Checks for unused references in `service.xml` file. |
 XMLSolrSchemaFileCheck | [Styling](styling_checks.md#styling-checks) | .action, .function, .jelly, .jrxml, .macro, .pom, .project, .properties, .qti, .svg, .testcase, .toggle, .tpl, .wsdl, .xml, or .xsd | Checks the order of elements in `portlet-preferences.xml` file. |
 XMLSourcechecksFileCheck | [Bug Prevention](bug_prevention_checks.md#bug-prevention-checks) | .action, .function, .jelly, .jrxml, .macro, .pom, .project, .properties, .qti, .svg, .testcase, .toggle, .tpl, .wsdl, .xml, or .xsd | Performs several checks on `sourcechecks.xml` file. |

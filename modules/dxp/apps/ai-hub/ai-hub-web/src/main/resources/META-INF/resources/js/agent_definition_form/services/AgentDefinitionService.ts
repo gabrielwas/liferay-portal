@@ -7,12 +7,22 @@ import {fetch} from 'frontend-js-web';
 
 import {AgentDefinition} from '../types/AgentDefinition';
 
-const AGENT_DEFINITION_BASE_URI =
-	'/o/ai-hub/agent-definitions/by-external-reference-code/';
+const AGENT_DEFINITION_BASE_URI = '/o/ai-hub/agent-definitions';
+
+const AGENT_DEFINITION_BY_ERC_URI = `${AGENT_DEFINITION_BASE_URI}/by-external-reference-code/`;
+
+async function getAgentDefinitions() {
+	const response = await fetch(AGENT_DEFINITION_BASE_URI, {
+		method: 'GET',
+	});
+
+	return response.json();
+}
 
 async function getAgentDefinition(externalReferenceCode: string) {
 	const response = await fetch(
-		`${AGENT_DEFINITION_BASE_URI}${externalReferenceCode}`,
+		`${AGENT_DEFINITION_BY_ERC_URI}${externalReferenceCode}` +
+			'?nestedFields=agentDefinitionsToContentRetrievers',
 		{
 			method: 'GET',
 		}
@@ -23,7 +33,7 @@ async function getAgentDefinition(externalReferenceCode: string) {
 
 async function putAgentDefinition(agentDefinition: AgentDefinition) {
 	const response = await fetch(
-		`${AGENT_DEFINITION_BASE_URI}${agentDefinition.externalReferenceCode}`,
+		`${AGENT_DEFINITION_BY_ERC_URI}${agentDefinition.externalReferenceCode}`,
 		{
 			body: JSON.stringify(agentDefinition),
 			headers: {
@@ -36,4 +46,32 @@ async function putAgentDefinition(agentDefinition: AgentDefinition) {
 	return response.json();
 }
 
-export {getAgentDefinition, putAgentDefinition};
+async function putAgentDefinitionToContentRetrievers(
+	agentDefinitionERC: string,
+	contentRetrieverERC: string
+) {
+	return fetch(
+		`${AGENT_DEFINITION_BY_ERC_URI}${agentDefinitionERC}` +
+			`/agentDefinitionsToContentRetrievers/${contentRetrieverERC}`,
+		{method: 'PUT'}
+	);
+}
+
+async function deleteAgentDefinitionToContentRetrievers(
+	agentDefinitionERC: string,
+	contentRetrieverERC: string
+) {
+	return fetch(
+		`${AGENT_DEFINITION_BY_ERC_URI}${agentDefinitionERC}` +
+			`/agentDefinitionsToContentRetrievers/${contentRetrieverERC}`,
+		{method: 'DELETE'}
+	);
+}
+
+export {
+	getAgentDefinition,
+	getAgentDefinitions,
+	putAgentDefinition,
+	putAgentDefinitionToContentRetrievers,
+	deleteAgentDefinitionToContentRetrievers,
+};

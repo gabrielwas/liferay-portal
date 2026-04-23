@@ -20,11 +20,15 @@ function main {
 
 	provider=$(_get_provider "${config_file}")
 
+	local version
+
+	version=$(_get_version "${config_file}");
+
 	local extracted_dir
 
-	extracted_dir=$(_download_and_extract_files "${provider}")
+	extracted_dir=$(_download_and_extract_files "${provider}" "${version}")
 
-	"${extracted_dir}/cloud/scripts/setup_${provider}.sh" "${config_file}"
+	"${extracted_dir}/cloud/scripts/setup_${provider}.sh" "${config_file}" "${extracted_dir}/cloud/scripts/versions_${provider}.tfvars"
 }
 
 function _check_utils {
@@ -59,42 +63,63 @@ function _download_and_extract_files {
 		exit 1
 	fi
 
-	local latest_path
+	local version="${2}"
 
-	latest_path=$( \
-		jq \
-			--raw-output \
-			".items
-			| sort_by(.updated)
-			| last
-			| .name" <<< "${json}")
+	local output_path
 
-	if [ "${latest_path}" == "null" ] || [ -z "${latest_path}" ]
+	if [ "${version}" == "latest" ]
 	then
-		echo "There are no files in gs://${bucket_name}/${prefix}/" >&2
+		output_path=$( \
+			jq \
+				--raw-output \
+				".items
+				| sort_by(.updated)
+				| last
+				| .name" <<< "${json}")
 
-		exit 1
+	else
+		output_path=$( \
+			jq \
+				--arg sn "bootstrap/liferay-${provider}-bootstrap/liferay-${provider}-bootstrap-${version}.tar.gz" \
+				--raw-output \
+				'.items[]
+				| select(.name == $sn)
+				| .name' <<< "${json}")
 	fi
 
 	local output_file
 
-	output_file=$(basename "${latest_path}")
+	output_file=$(basename "${output_path}")
+
+	if [ "${output_file}" == "null" ] || [ -z "${output_file}" ]
+	then
+		echo "There are no files in gs://${bucket_name}/${prefix}/ for the version \"${version}\"" >&2
+
+		exit 1
+	fi
+
+	if [ -e "${output_file}" ]
+	then
+		rm "${output_file}"
+	fi
 
 	curl \
 		--location \
 		--output "${output_file}" \
 		--silent \
-		"https://cdn.liferay.cloud/${latest_path}"
+		"https://cdn.liferay.cloud/${output_path}"
 
 	local output_dir="${output_file%.tar.gz}"
 
-	mkdir "${output_dir}"
+	if [ ! -d "${output_dir}" ]
+	then
+		mkdir "${output_dir}"
+	fi
 
 	tar \
 		--directory "${output_dir}" \
 		--extract \
-		--file "${output_file}" \
-		--ungzip
+		--file "${output_file}"
 
 	echo "${output_dir}"
 }
@@ -122,14 +147,21 @@ function _get_provider {
 
 	local provider
 
-	provider=$(jq -r ".provider // empty" "${config_file}")
+	provider=$(jq -r ".options.provider // empty" "${config_file}")
 
 	if [ -z "${provider}" ]
 	then
-		echo "No provider is specified in ${config_file}." >&2
+		provider=$(jq -r ".provider // empty" "${config_file}")
 
-		exit 1
-	elif [ "${provider}" != "aws" ] && [ "${provider}" != "gcp" ]
+		if [ -z "${provider}" ]
+		then
+			echo "No provider is specified in ${config_file}." >&2
+
+			exit 1
+		fi
+	fi
+
+	if [ "${provider}" != "aws" ] && [ "${provider}" != "gcp" ]
 	then
 		echo "Unsupported provider ${provider} was specified in ${config_file}." >&2
 
@@ -139,4 +171,19 @@ function _get_provider {
 	echo "${provider}"
 }
 
-main "${@}"
+function _get_version {
+	local config_file="${1}"
+
+	local version
+
+	version=$(jq -r ".options.version // empty" "${config_file}")
+
+	if [ -z "${version}" ]
+	then
+		version="latest"
+	fi
+
+	echo "${version}"
+}
+
+main ${1+"$@"}

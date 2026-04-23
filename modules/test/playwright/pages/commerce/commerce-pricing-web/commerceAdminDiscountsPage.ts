@@ -3,13 +3,14 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {Page} from '@playwright/test';
+import {Locator, Page} from '@playwright/test';
 
-import {ApplicationsMenuPage} from '../../product-navigation-applications-menu/ApplicationsMenuPage';
+import {GlobalMenuPage} from '../../product-navigation-applications-menu/GlobalMenuPage';
 import {CommerceDNDTablePage} from '../commerceDNDTablePage';
 
 export class CommerceAdminDiscountsPage extends CommerceDNDTablePage {
-	readonly applicationsMenuPage: ApplicationsMenuPage;
+	readonly discountLink: (name: string) => Locator;
+	readonly globalMenuPage: GlobalMenuPage;
 	readonly page: Page;
 
 	constructor(page: Page) {
@@ -17,7 +18,9 @@ export class CommerceAdminDiscountsPage extends CommerceDNDTablePage {
 			page,
 			'#_com_liferay_commerce_pricing_web_internal_portlet_CommerceDiscountPortlet_fm .fds table'
 		);
-		this.applicationsMenuPage = new ApplicationsMenuPage(page);
+		this.discountLink = (name: string) =>
+			page.getByRole('link', {name}).first();
+		this.globalMenuPage = new GlobalMenuPage(page);
 		this.page = page;
 	}
 
@@ -30,6 +33,6 @@ export class CommerceAdminDiscountsPage extends CommerceDNDTablePage {
 	}
 
 	async goto() {
-		await this.applicationsMenuPage.goToCommerceDiscounts();
+		await this.globalMenuPage.goToCommerce('Discounts');
 	}
 }

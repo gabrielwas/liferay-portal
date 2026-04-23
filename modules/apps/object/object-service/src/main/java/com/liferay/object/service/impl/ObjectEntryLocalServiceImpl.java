@@ -9,6 +9,7 @@ import com.liferay.account.constants.AccountConstants;
 import com.liferay.account.model.AccountEntryOrganizationRelTable;
 import com.liferay.account.model.AccountEntryTable;
 import com.liferay.account.model.AccountEntryUserRelTable;
+import com.liferay.asset.categories.thread.local.AssetVocabularyThreadLocal;
 import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetTag;
@@ -234,6 +235,7 @@ import com.liferay.portal.kernel.transaction.Transactional;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.Base64;
 import com.liferay.portal.kernel.util.BigDecimalUtil;
+import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.DateUtil;
 import com.liferay.portal.kernel.util.FileUtil;
@@ -460,7 +462,11 @@ public class ObjectEntryLocalServiceImpl
 		_setRootObjectEntryId(objectDefinition, objectEntry, values);
 		_setDisplayDate(objectDefinition.getCompanyId(), objectEntry, values);
 
-		if (ExportImportThreadLocal.isImportInProcess()) {
+		boolean copy = StringUtil.equals(
+			GetterUtil.getString(serviceContext.getAttribute(Constants.ACTION)),
+			Constants.COPY);
+
+		if (ExportImportThreadLocal.isImportInProcess() || copy) {
 			if (status == WorkflowConstants.STATUS_EXPIRED) {
 				objectEntry.setExpirationDate(
 					(Date)values.get("expirationDate"));
@@ -497,20 +503,27 @@ public class ObjectEntryLocalServiceImpl
 			try {
 				if (workflowAction == WorkflowConstants.ACTION_SAVE_DRAFT) {
 					ObjectEntryThreadLocal.setSkipObjectValidationRules(true);
+
+					if (objectDefinition.isCMS()) {
+						AssetVocabularyThreadLocal.
+							setSkipRequiredCategoryValidation(true);
+					}
 				}
 
 				objectEntry = objectEntryPersistence.update(objectEntry);
+
+				_updateAsset(
+					serviceContext.getUserId(), objectEntry,
+					serviceContext.getAssetCategoryIds(),
+					serviceContext.getAssetTagNames(),
+					serviceContext.getAssetLinkEntryIds(),
+					serviceContext.getAssetPriority(), serviceContext);
 			}
 			finally {
+				AssetVocabularyThreadLocal.setSkipRequiredCategoryValidation(
+					false);
 				ObjectEntryThreadLocal.setSkipObjectValidationRules(false);
 			}
-
-			_updateAsset(
-				serviceContext.getUserId(), objectEntry,
-				serviceContext.getAssetCategoryIds(),
-				serviceContext.getAssetTagNames(),
-				serviceContext.getAssetLinkEntryIds(),
-				serviceContext.getAssetPriority(), serviceContext);
 		}
 
 		_addFriendlyURLEntry(
@@ -531,7 +544,9 @@ public class ObjectEntryLocalServiceImpl
 			objectDefinition.getClassName(), objectEntry.getObjectEntryId(),
 			serviceContext);
 
-		_deleteTempFileEntries(dlFileEntriesMap);
+		if (!copy) {
+			_deleteTempFileEntries(dlFileEntriesMap);
+		}
 
 		objectEntry = _addObjectEntryVersion(objectDefinition, objectEntry);
 
@@ -580,7 +595,7 @@ public class ObjectEntryLocalServiceImpl
 			DynamicObjectDefinitionTableUtil.getDynamicObjectDefinitionTable(
 				true, objectDefinition, _objectFieldLocalService);
 
-		int count = _count(dynamicObjectDefinitionTable, primaryKey);
+		long count = _count(dynamicObjectDefinitionTable, primaryKey);
 
 		String defaultLanguageId = _language.getLanguageId(
 			_portal.getSiteDefaultLocale(
@@ -724,23 +739,32 @@ public class ObjectEntryLocalServiceImpl
 
 		ObjectEntry objectEntry = getObjectEntry(objectEntryId);
 
-		ObjectEntryFolder objectEntryFolder =
-			_objectEntryFolderPersistence.findByPrimaryKey(objectEntryFolderId);
+		long groupId = objectEntry.getGroupId();
+
+		if (objectEntryFolderId !=
+				ObjectEntryFolderConstants.
+					PARENT_OBJECT_ENTRY_FOLDER_ID_DEFAULT) {
+
+			ObjectEntryFolder objectEntryFolder =
+				_objectEntryFolderPersistence.findByPrimaryKey(
+					objectEntryFolderId);
+
+			groupId = objectEntryFolder.getGroupId();
+		}
 
 		_checkObjectDefinitionScope(
-			objectEntry.getObjectDefinitionId(),
-			objectEntryFolder.getGroupId());
+			objectEntry.getObjectDefinitionId(), groupId);
 
 		ObjectDefinition objectDefinition =
 			_objectDefinitionPersistence.findByPrimaryKey(
 				objectEntry.getObjectDefinitionId());
 
 		_removeInvalidAssetCategories(
-			objectEntryFolder.getGroupId(), objectDefinition.getClassName(),
-			objectEntryId, serviceContext);
+			groupId, objectDefinition.getClassName(), objectEntryId,
+			serviceContext);
 		_removeInvalidAssetTags(
-			objectEntryFolder.getGroupId(), objectDefinition.getClassName(),
-			objectEntryId, serviceContext);
+			groupId, objectDefinition.getClassName(), objectEntryId,
+			serviceContext);
 
 		List<ObjectField> objectFields =
 			_objectFieldLocalService.getCustomObjectFields(
@@ -761,10 +785,12 @@ public class ObjectEntryLocalServiceImpl
 
 		values.put("externalReferenceCode", null);
 
+		serviceContext.setAttribute(Constants.ACTION, Constants.COPY);
+
 		return addObjectEntry(
-			objectEntryFolder.getGroupId(), userId,
-			objectDefinition.getObjectDefinitionId(), objectEntryFolderId,
-			objectEntry.getDefaultLanguageId(), values, serviceContext);
+			groupId, userId, objectDefinition.getObjectDefinitionId(),
+			objectEntryFolderId, objectEntry.getDefaultLanguageId(), values,
+			serviceContext);
 	}
 
 	@Override
@@ -1848,7 +1874,7 @@ public class ObjectEntryLocalServiceImpl
 			DynamicObjectDefinitionTableUtil.getDynamicObjectDefinitionTable(
 				true, objectDefinition, _objectFieldLocalService);
 
-		int count = _count(dynamicObjectDefinitionTable, primaryKey);
+		long count = _count(dynamicObjectDefinitionTable, primaryKey);
 
 		String defaultLanguageId = _language.getLanguageId(
 			_portal.getSiteDefaultLocale(
@@ -2579,6 +2605,16 @@ public class ObjectEntryLocalServiceImpl
 		if (Objects.equals(
 				dlFileEntryFolder.getFolderId(), dlFolder.getFolderId())) {
 
+			if (Validator.isNull(dlFileEntry.getClassName()) ||
+				(dlFileEntry.getClassPK() <= 0)) {
+
+				dlFileEntry.setClassName(objectDefinition.getClassName());
+				dlFileEntry.setClassPK(objectEntryId);
+
+				dlFileEntry = _dlFileEntryLocalService.updateDLFileEntry(
+					dlFileEntry);
+			}
+
 			return;
 		}
 
@@ -3229,7 +3265,7 @@ public class ObjectEntryLocalServiceImpl
 		}
 	}
 
-	private int _count(
+	private long _count(
 			DynamicObjectDefinitionTable dynamicObjectDefinitionTable,
 			long primaryKey)
 		throws PortalException {
@@ -3245,7 +3281,7 @@ public class ObjectEntryLocalServiceImpl
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(
 				StringBundler.concat(
-					"select count(*) from ",
+					"select count(*) as count from ",
 					dynamicObjectDefinitionTable.getTableName(), " where ",
 					dynamicObjectDefinitionTable.getPrimaryKeyColumnName(),
 					" = ?"))) {
@@ -3255,7 +3291,7 @@ public class ObjectEntryLocalServiceImpl
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				resultSet.next();
 
-				return resultSet.getInt(1);
+				return resultSet.getLong("count");
 			}
 		}
 		catch (SQLException sqlException) {
@@ -6540,11 +6576,6 @@ public class ObjectEntryLocalServiceImpl
 			_objectDefinitionPersistence.findByPrimaryKey(
 				objectEntry.getObjectDefinitionId());
 
-		if (!objectDefinition.isEnableCategorization()) {
-			assetCategoryIds = null;
-			assetTagNames = null;
-		}
-
 		String mimeType = ContentTypes.TEXT_PLAIN;
 		String title = StringPool.BLANK;
 
@@ -6580,19 +6611,35 @@ public class ObjectEntryLocalServiceImpl
 			}
 		}
 
-		AssetEntry assetEntry = _assetEntryLocalService.updateEntry(
-			userId, objectEntry.getNonzeroGroupId(),
-			objectEntry.getCreateDate(), objectEntry.getModifiedDate(),
-			objectDefinition.getClassName(), objectEntry.getObjectEntryId(),
-			objectEntry.getUuid(), 0, assetCategoryIds, assetTagNames, true,
-			objectEntry.isApproved(), null, null, null, null, mimeType, title,
-			String.valueOf(objectEntry.getObjectEntryId()), null, null, null, 0,
-			0, priority, serviceContext);
+		boolean originalSkipRequiredCategoryValidation =
+			AssetVocabularyThreadLocal.isSkipRequiredCategoryValidation();
 
-		if (assetLinkEntryIds != null) {
-			_assetLinkLocalService.updateLinks(
-				userId, assetEntry.getEntryId(), assetLinkEntryIds,
-				AssetLinkConstants.TYPE_RELATED);
+		if (!objectDefinition.isEnableCategorization()) {
+			assetCategoryIds = null;
+			assetTagNames = null;
+
+			AssetVocabularyThreadLocal.setSkipRequiredCategoryValidation(true);
+		}
+
+		try {
+			AssetEntry assetEntry = _assetEntryLocalService.updateEntry(
+				userId, objectEntry.getNonzeroGroupId(),
+				objectEntry.getCreateDate(), objectEntry.getModifiedDate(),
+				objectDefinition.getClassName(), objectEntry.getObjectEntryId(),
+				objectEntry.getUuid(), 0, assetCategoryIds, assetTagNames, true,
+				objectEntry.isApproved(), null, null, null, null, mimeType,
+				title, String.valueOf(objectEntry.getObjectEntryId()), null,
+				null, null, 0, 0, priority, serviceContext);
+
+			if (assetLinkEntryIds != null) {
+				_assetLinkLocalService.updateLinks(
+					userId, assetEntry.getEntryId(), assetLinkEntryIds,
+					AssetLinkConstants.TYPE_RELATED);
+			}
+		}
+		finally {
+			AssetVocabularyThreadLocal.setSkipRequiredCategoryValidation(
+				originalSkipRequiredCategoryValidation);
 		}
 	}
 
@@ -7138,6 +7185,11 @@ public class ObjectEntryLocalServiceImpl
 			GetterUtil.getBoolean(
 				ObjectDefinitionSettingUtil.getValue(
 					ObjectDefinitionSettingConstants.NAME_ACCEPT_ALL_GROUPS,
+					objectDefinition.getObjectDefinitionSettings())) ||
+			GetterUtil.getBoolean(
+				ObjectDefinitionSettingUtil.getValue(
+					ObjectDefinitionSettingConstants.
+						NAME_AUTOGENERATED_GROUP_ID,
 					objectDefinition.getObjectDefinitionSettings()))) {
 
 			return;
@@ -7290,14 +7342,14 @@ public class ObjectEntryLocalServiceImpl
 			return;
 		}
 
-		int count = 0;
+		long count = 0;
 
 		Connection connection = _currentConnection.getConnection(
 			objectEntryPersistence.getDataSource());
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(
 				StringBundler.concat(
-					"select count(*) from ",
+					"select count(*) as count from ",
 					dynamicObjectDefinitionTable.getTableName(), " where ",
 					dbColumnName, " = ?"))) {
 
@@ -7306,7 +7358,7 @@ public class ObjectEntryLocalServiceImpl
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				resultSet.next();
 
-				count = resultSet.getInt(1);
+				count = resultSet.getLong("count");
 			}
 		}
 		catch (SQLException sqlException) {
@@ -7330,14 +7382,14 @@ public class ObjectEntryLocalServiceImpl
 			return;
 		}
 
-		int count = 0;
+		long count = 0;
 
 		Connection connection = _currentConnection.getConnection(
 			objectEntryPersistence.getDataSource());
 
 		try (PreparedStatement preparedStatement = connection.prepareStatement(
 				StringBundler.concat(
-					"select count(*) from ",
+					"select count(*) as count from ",
 					dynamicObjectDefinitionTable.getTableName(), " where ",
 					dynamicObjectDefinitionTable.getPrimaryKeyColumnName(),
 					" != ? and ", dbColumnName, " = ?"))) {
@@ -7348,7 +7400,7 @@ public class ObjectEntryLocalServiceImpl
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				resultSet.next();
 
-				count = resultSet.getInt(1);
+				count = resultSet.getLong("count");
 			}
 		}
 		catch (SQLException sqlException) {

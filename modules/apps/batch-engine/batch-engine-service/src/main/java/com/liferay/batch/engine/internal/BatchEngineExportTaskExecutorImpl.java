@@ -40,6 +40,7 @@ import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.spring.orm.LastSessionRecorderHelperUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
@@ -201,6 +202,10 @@ public class BatchEngineExportTaskExecutorImpl
 		_exportTaskPostActions.close();
 	}
 
+	private void _clearSessionPersistenceContext() {
+		LastSessionRecorderHelperUtil.syncLastSessionState();
+	}
+
 	private InputStream _exportItems(
 			BatchEngineExportTask batchEngineExportTask, Settings settings)
 		throws Exception {
@@ -317,6 +322,8 @@ public class BatchEngineExportTaskExecutorImpl
 						_batchEngineExportTaskLocalService.
 							updateBatchEngineExportTask(batchEngineExportTask);
 				}
+
+				_clearSessionPersistenceContext();
 
 				if (Thread.interrupted()) {
 					throw new InterruptedException();

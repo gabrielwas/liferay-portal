@@ -16,6 +16,7 @@ import com.liferay.document.library.kernel.model.DLFileEntry;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
+import com.liferay.document.library.test.util.DLTestUtil;
 import com.liferay.document.library.util.DLURLHelper;
 import com.liferay.exportimport.data.handler.base.BaseStagedModelDataHandler;
 import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationSettingsMapFactoryUtil;
@@ -2088,7 +2089,7 @@ public class BatchEnginePortletDataHandlerTest {
 			ServiceContextTestUtil.getServiceContext());
 	}
 
-	private DLFileEntry _addDLFileEntry(String content, long groupId)
+	private DLFileEntry _addDLFileEntry(byte[] content, long groupId)
 		throws Exception {
 
 		FileEntry fileEntry = _dlAppLocalService.addFileEntry(
@@ -2097,7 +2098,7 @@ public class BatchEnginePortletDataHandlerTest {
 				RandomTestUtil.randomString() + ".txt"),
 			ContentTypes.TEXT_PLAIN, RandomTestUtil.randomString(),
 			StringPool.BLANK, StringPool.BLANK, StringPool.BLANK,
-			new ByteArrayInputStream(content.getBytes()), 0, null, null, null,
+			new ByteArrayInputStream(content), 0, null, null, null,
 			ServiceContextTestUtil.getServiceContext());
 
 		return _dlFileEntryLocalService.getFileEntry(
@@ -2330,10 +2331,10 @@ public class BatchEnginePortletDataHandlerTest {
 			company.getGroupId());
 
 		FileEntry tempFileEntry1 = _addTempFileEntry(
-			objectDefinition,
-			_OBJECT_FIELD_VALUE_ATTACHMENT_SHOW_FILES_IN_DOCS_AND_MEDIA);
+			_OBJECT_FIELD_VALUE_ATTACHMENT_SHOW_FILES_IN_DOCS_AND_MEDIA,
+			objectDefinition);
 		FileEntry tempFileEntry2 = _addTempFileEntry(
-			objectDefinition, _OBJECT_FIELD_VALUE_ATTACHMENT_USER_COMPUTER);
+			_OBJECT_FIELD_VALUE_ATTACHMENT_USER_COMPUTER, objectDefinition);
 
 		return _addObjectEntry(
 			groupId, objectDefinition,
@@ -2377,15 +2378,15 @@ public class BatchEnginePortletDataHandlerTest {
 	}
 
 	private FileEntry _addTempFileEntry(
-			ObjectDefinition objectDefinition, String tempFileName)
+			byte[] content, ObjectDefinition objectDefinition)
 		throws Exception {
 
 		return TempFileEntryUtil.addTempFileEntry(
 			TestPropsValues.getGroupId(), TestPropsValues.getUserId(),
 			objectDefinition.getPortletId(),
-			TempFileEntryUtil.getTempFileName(tempFileName + ".txt"),
-			FileUtil.createTempFile(tempFileName.getBytes()),
-			ContentTypes.TEXT_PLAIN);
+			TempFileEntryUtil.getTempFileName(
+				RandomTestUtil.randomString() + ".txt"),
+			FileUtil.createTempFile(content), ContentTypes.TEXT_PLAIN);
 	}
 
 	private void _assertComments(
@@ -2573,9 +2574,11 @@ public class BatchEnginePortletDataHandlerTest {
 					importedObjectEntry.getValues(),
 					_OBJECT_FIELD_NAME_ATTACHMENT_USER_COMPUTER));
 
-			Assert.assertEquals(
+			String content = StringUtil.read(dlFileEntry.getContentStream());
+
+			Assert.assertArrayEquals(
 				_OBJECT_FIELD_VALUE_ATTACHMENT_USER_COMPUTER,
-				StringUtil.read(dlFileEntry.getContentStream()));
+				content.getBytes());
 		}
 	}
 
@@ -3651,15 +3654,15 @@ public class BatchEnginePortletDataHandlerTest {
 	private static final String _OBJECT_FIELD_NAME_TEXT =
 		"xText" + RandomTestUtil.randomString();
 
-	private static final String _OBJECT_FIELD_VALUE_ATTACHMENT_DOCS_AND_MEDIA =
-		RandomTestUtil.randomString();
+	private static final byte[] _OBJECT_FIELD_VALUE_ATTACHMENT_DOCS_AND_MEDIA =
+		DLTestUtil.randomTextFileBytes();
 
-	private static final String
+	private static final byte[]
 		_OBJECT_FIELD_VALUE_ATTACHMENT_SHOW_FILES_IN_DOCS_AND_MEDIA =
-			RandomTestUtil.randomString();
+			DLTestUtil.randomTextFileBytes();
 
-	private static final String _OBJECT_FIELD_VALUE_ATTACHMENT_USER_COMPUTER =
-		RandomTestUtil.randomString();
+	private static final byte[] _OBJECT_FIELD_VALUE_ATTACHMENT_USER_COMPUTER =
+		DLTestUtil.randomTextFileBytes();
 
 	private static BundleContext _bundleContext;
 	private static final BiFunction

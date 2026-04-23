@@ -6,11 +6,7 @@ import React from 'react';
 import SidebarItem from './SidebarItem';
 import UserDropdown, {Menus} from 'shared/components/user-dropdown';
 import {ACCOUNTS, Routes, SEGMENTS, toRoute} from 'shared/util/router';
-import {
-	DEVELOPER_MODE,
-	ENABLE_ACCOUNTS,
-	LANGUAGES
-} from 'shared/util/constants';
+import {DEVELOPER_MODE, LANGUAGES} from 'shared/util/constants';
 import {Link, matchPath} from 'react-router-dom';
 import {User} from 'shared/util/records';
 
@@ -39,6 +35,12 @@ const Sidebar: React.FC<ISidebarProps> = ({
 		{
 			items: [
 				{
+					icon: 'polls',
+					label: Liferay.Language.get('lifecycles'),
+					route: Routes.LIFECYCLE,
+					url: toRoute(Routes.LIFECYCLE, {channelId, groupId})
+				},
+				{
 					icon: 'ac_page',
 					label: Liferay.Language.get('sites'),
 					route: Routes.SITES,
@@ -48,7 +50,10 @@ const Sidebar: React.FC<ISidebarProps> = ({
 					icon: 'ac_assets',
 					label: Liferay.Language.get('assets'),
 					route: Routes.ASSETS,
-					url: toRoute(Routes.ASSETS, {channelId, groupId})
+					url: toRoute(Routes.ASSETS, {
+						channelId,
+						groupId
+					})
 				},
 				{
 					icon: 'ac_event_analysis',
@@ -74,7 +79,7 @@ const Sidebar: React.FC<ISidebarProps> = ({
 						type: SEGMENTS
 					})
 				},
-				ENABLE_ACCOUNTS && {
+				{
 					icon: 'ac_account',
 					label: Liferay.Language.get('accounts'),
 					route: Routes.CONTACTS_LIST_ACCOUNT,

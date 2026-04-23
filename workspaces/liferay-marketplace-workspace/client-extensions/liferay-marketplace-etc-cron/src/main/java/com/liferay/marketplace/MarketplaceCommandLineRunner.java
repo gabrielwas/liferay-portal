@@ -39,6 +39,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -75,8 +76,6 @@ public class MarketplaceCommandLineRunner
 
 		_invoke(this::_processOnHoldTrials, "On Hold Trials");
 
-		_invoke(this::_processOrdersTotalAmount, "Orders Total Amount");
-
 		_invoke(this::_processPendingOrders, "Pending Orders");
 
 		_invoke(
@@ -84,6 +83,9 @@ public class MarketplaceCommandLineRunner
 			"Projects Using Marketplace Apps");
 
 		_invoke(this::_processPublisherSalesSummary, "Publisher Sales Summary");
+
+		_invoke(
+			this::_processRequestProductFeedback, "Request Product Feedback");
 	}
 
 	private void _assignAccountToUserAccount(
@@ -103,6 +105,13 @@ public class MarketplaceCommandLineRunner
 
 		userAccountResource.postAccountUserAccountByEmailAddress(
 			account.getId(), userAccount.getEmailAddress());
+
+		if (_log.isInfoEnabled()) {
+			_log.info(
+				StringBundler.concat(
+					"Assigned account ", account.getName(), " to user ",
+					userAccount.getName()));
+		}
 	}
 
 	private void _assignRoleToUserAccount(Role role, UserAccount userAccount)
@@ -118,6 +127,13 @@ public class MarketplaceCommandLineRunner
 
 		roleResource.postRoleUserAccountAssociation(
 			role.getId(), userAccount.getId());
+
+		if (_log.isInfoEnabled()) {
+			_log.info(
+				StringBundler.concat(
+					"Assigned role ", role.getName(), " to user ",
+					userAccount.getName()));
+		}
 	}
 
 	private JSONObject _createPublisherSalesSummary(
@@ -440,6 +456,10 @@ public class MarketplaceCommandLineRunner
 	}
 
 	private void _invoke(UnsafeRunnable<?> task, String name) {
+		if (_log.isInfoEnabled()) {
+			_log.info("Processing \"" + name + "\"");
+		}
+
 		try {
 			task.run();
 		}
@@ -471,6 +491,18 @@ public class MarketplaceCommandLineRunner
 			UriComponentsBuilder.fromPath(
 				"/o/c/reports/by-external-reference-code/" +
 					externalReferenceCode
+			).build(
+			).toUri());
+	}
+
+	private void _postRequestProductFeedback(long orderId) throws Exception {
+		post(
+			_liferayOAuth2AccessTokenManager.getAuthorization(
+				_liferayOAuthApplicationExternalReferenceCodes),
+			"",
+			UriComponentsBuilder.fromUriString(
+				_liferayMarketplaceEtcSpringBootURL +
+					"/marketplace/request-product-feedback/" + orderId
 			).build(
 			).toUri());
 	}
@@ -527,10 +559,6 @@ public class MarketplaceCommandLineRunner
 			-1, -1);
 
 		if (page.getTotalCount() == 0) {
-			if (_log.isInfoEnabled()) {
-				_log.info("There are no in progress trials");
-			}
-
 			return;
 		}
 
@@ -585,6 +613,10 @@ public class MarketplaceCommandLineRunner
 			"SSA-ACCOUNT");
 
 		if (account == null) {
+			if (_log.isInfoEnabled()) {
+				_log.info("Account is null");
+			}
+
 			return;
 		}
 
@@ -599,6 +631,10 @@ public class MarketplaceCommandLineRunner
 		Role role = rolesPage.fetchFirstItem();
 
 		if (role == null) {
+			if (_log.isInfoEnabled()) {
+				_log.info("Role is null");
+			}
+
 			return;
 		}
 
@@ -617,10 +653,6 @@ public class MarketplaceCommandLineRunner
 			-1, -1);
 
 		if (page.getTotalCount() == 0) {
-			if (_log.isInfoEnabled()) {
-				_log.info("There are no on hold trials");
-			}
-
 			return;
 		}
 
@@ -664,49 +696,15 @@ public class MarketplaceCommandLineRunner
 		}
 	}
 
-	private void _processOrdersTotalAmount() throws Exception {
-		_forEachOrder(
-			StringBundler.concat(
-				"orderStatus/any(x:(x eq ", _ORDER_STATUS_COMPLETED,
-				")) and orderTypeExternalReferenceCode eq 'DXP_APP'"),
-			order -> {
-				String currencyCode = order.getCurrencyCode();
-
-				if (!_totalAmount.containsKey(currencyCode)) {
-					_totalAmount.put(currencyCode, 0D);
-				}
-
-				_totalAmount.put(
-					currencyCode,
-					_totalAmount.get(currencyCode) + order.getTotalAmount());
-			});
-
-		if (_log.isInfoEnabled()) {
-			_log.info("Orders total amount " + _totalAmount);
-		}
-
-		_patchReport(
-			new JSONObject(
-			).put(
-				"value",
-				new JSONObject(
-					_totalAmount
-				).toString()
-			).toString(),
-			"TOTAL-AMOUNT");
-	}
-
 	private void _processPendingOrders() throws Exception {
-		Page<Order> page = _getOrdersPage(
-			"orderStatus/any(x:(x eq " + _ORDER_STATUS_PENDING +
-				")) and orderTypeExternalReferenceCode ne 'SOLUTIONS7'",
-			-1, -1);
+		String filterString = StringBundler.concat(
+			"orderStatus/any(x:(x eq ", _ORDER_STATUS_PENDING,
+			")) and not (orderTypeExternalReferenceCode in (",
+			"'AI_HUB', 'DXP', 'SOLUTIONS7'))");
+
+		Page<Order> page = _getOrdersPage(filterString, -1, -1);
 
 		if (page.getTotalCount() == 0) {
-			if (_log.isInfoEnabled()) {
-				_log.info("There are no pending orders");
-			}
-
 			return;
 		}
 
@@ -894,6 +892,66 @@ public class MarketplaceCommandLineRunner
 		}
 	}
 
+	private void _processRequestProductFeedback() throws Exception {
+		ZonedDateTime nowZonedDateTime = ZonedDateTime.now(ZoneOffset.UTC);
+
+		ZonedDateTime windowStartZonedDateTime = nowZonedDateTime.withHour(
+			(nowZonedDateTime.getHour() / _WINDOW_SIZE_HOURS) *
+				_WINDOW_SIZE_HOURS
+		).withMinute(
+			0
+		).withNano(
+			0
+		).withSecond(
+			0
+		);
+
+		DateTimeFormatter dateTimeFormatter =
+			DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+
+		String filterString = StringBundler.concat(
+			"createDate ge ",
+			dateTimeFormatter.format(
+				windowStartZonedDateTime.minusDays(
+					7
+				).minusHours(
+					_WINDOW_SIZE_HOURS
+				)),
+			" and createDate le ",
+			dateTimeFormatter.format(windowStartZonedDateTime.minusDays(7)),
+			" and orderTypeExternalReferenceCode eq 'CMP_BETA'");
+
+		Page<Order> page = _getOrdersPage(filterString, -1, -1);
+
+		if (page.getTotalCount() == 0) {
+			if (_log.isInfoEnabled()) {
+				_log.info("There are no request product feedback to be sent");
+			}
+
+			return;
+		}
+
+		for (Order order : page.getItems()) {
+			try {
+				OrderItem[] orderItems = order.getOrderItems();
+
+				OrderItem orderItem = orderItems[0];
+
+				if (orderItem == null) {
+					continue;
+				}
+
+				_postRequestProductFeedback(order.getId());
+			}
+			catch (Exception exception) {
+				_log.error(
+					"Unable to process request product feedback for order " +
+						order.getId(),
+					exception);
+			}
+		}
+	}
+
 	private void _updateOrder(long orderId, int orderStatus) throws Exception {
 		OrderResource orderResource = _getOrderResource();
 
@@ -916,6 +974,8 @@ public class MarketplaceCommandLineRunner
 
 	private static final int _ORDER_STATUS_PROCESSING = 10;
 
+	private static final int _WINDOW_SIZE_HOURS = 6;
+
 	private static final Log _log = LogFactory.getLog(
 		MarketplaceCommandLineRunner.class);
 
@@ -933,7 +993,5 @@ public class MarketplaceCommandLineRunner
 
 	@Value("${com.liferay.lxc.dxp.server.protocol}")
 	private String _lxcDXPServerProtocol;
-
-	private final Map<String, Double> _totalAmount = new HashMap<>();
 
 }

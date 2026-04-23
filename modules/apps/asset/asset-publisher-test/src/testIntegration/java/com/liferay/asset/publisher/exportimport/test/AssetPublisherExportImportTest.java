@@ -69,6 +69,7 @@ import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.test.rule.SearchTestRule;
@@ -83,7 +84,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -1166,34 +1166,6 @@ public class AssetPublisherExportImportTest extends BaseExportImportTestCase {
 			serviceContext);
 	}
 
-	protected void assertAssetEntries(
-		List<AssetEntry> expectedAssetEntries,
-		List<AssetEntry> actualAssetEntries) {
-
-		Assert.assertEquals(
-			actualAssetEntries.toString(), expectedAssetEntries.size(),
-			actualAssetEntries.size());
-
-		Iterator<AssetEntry> expectedAssetEntriesIterator =
-			expectedAssetEntries.iterator();
-		Iterator<AssetEntry> actualAssetEntriesIterator =
-			expectedAssetEntries.iterator();
-
-		while (expectedAssetEntriesIterator.hasNext() &&
-			   actualAssetEntriesIterator.hasNext()) {
-
-			AssetEntry expectedAssetEntry = expectedAssetEntriesIterator.next();
-			AssetEntry actualAssetEntry = actualAssetEntriesIterator.next();
-
-			Assert.assertEquals(
-				expectedAssetEntry.getClassName(),
-				actualAssetEntry.getClassName());
-			Assert.assertEquals(
-				expectedAssetEntry.getClassUuid(),
-				actualAssetEntry.getClassUuid());
-		}
-	}
-
 	protected String[] getAssetEntriesXmls(List<AssetEntry> assetEntries) {
 		String[] assetEntriesXmls = new String[assetEntries.size()];
 
@@ -1289,7 +1261,9 @@ public class AssetPublisherExportImportTest extends BaseExportImportTestCase {
 			actualAssetEntries.addAll(assetEntryResult.getAssetEntries());
 		}
 
-		assertAssetEntries(expectedAssetEntries, actualAssetEntries);
+		Assert.assertEquals(
+			SetUtil.fromList(expectedAssetEntries),
+			SetUtil.fromList(actualAssetEntries));
 	}
 
 	protected void testExportImportAssetEntries(Group scopeGroup)
@@ -1349,7 +1323,9 @@ public class AssetPublisherExportImportTest extends BaseExportImportTestCase {
 				new MockPortletRequest(), importedPortletPreferences,
 				_permissionChecker, selectedGroupIds, false, false);
 
-		assertAssetEntries(assetEntries, actualAssetEntries);
+		Assert.assertEquals(
+			SetUtil.fromList(assetEntries),
+			SetUtil.fromList(actualAssetEntries));
 	}
 
 	protected void testSortByAssetVocabulary(boolean globalVocabulary)

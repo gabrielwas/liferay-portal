@@ -50,7 +50,7 @@ export class ObjectLayoutsPage {
 		});
 		this.addTab = this.iframeLocator.getByRole('button', {name: 'Add Tab'});
 		this.fieldList = this.iframeLocator.getByRole('combobox', {
-			name: 'Relationship',
+			name: 'Relationship Mandatory',
 		});
 		this.fieldSelect = this.iframeLocator.getByText('Select an Option');
 		this.headerDropdown = this.iframeLocator
@@ -169,7 +169,7 @@ export class ObjectLayoutsPage {
 
 		await this.relationshipType.click();
 
-		await this.fieldList.click();
+		await this.fieldList.fill(relationshipField);
 
 		await this.iframeLocator
 			.getByRole('option', {name: relationshipField})
@@ -223,7 +223,11 @@ export class ObjectLayoutsPage {
 	}
 
 	async openObjectLayoutConfiguration(objectLayoutName: string) {
-		await this.page.getByRole('link', {name: objectLayoutName}).click();
+		const popupIframe = this.page.locator('iframe');
+
+		if (!(await popupIframe.isVisible())) {
+			await this.page.getByRole('link', {name: objectLayoutName}).click();
+		}
 
 		await this.layoutTab.click();
 	}

@@ -20,7 +20,6 @@ import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.upgrade.data.cleanup.util.DataCleanupLoggingUtil;
 import com.liferay.portal.kernel.upgrade.data.cleanup.util.OrphanReferencesDataCleanupUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.StringUtil;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -29,6 +28,8 @@ import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author Luis Ortiz
@@ -45,14 +46,6 @@ public class UserAllTablesOrphanReferencesDataCleanupPreupgradeProcess
 			String sourceColumnName, String sourceTableName,
 			String[] targetColumnNames, String targetTableName)
 		throws Exception {
-
-		if (StringUtil.startsWith(sourceTableName, "MFA") ||
-			StringUtil.startsWith(sourceTableName, "OAuth") ||
-			StringUtil.startsWith(sourceTableName, "OpenId") ||
-			StringUtil.startsWith(sourceTableName, "Saml")) {
-
-			return;
-		}
 
 		DBInspector dbInspector = new DBInspector(connection);
 
@@ -77,7 +70,7 @@ public class UserAllTablesOrphanReferencesDataCleanupPreupgradeProcess
 					OrphanReferencesDataCleanupUtil.getSourceTableAlias(),
 					StringPool.PERIOD, sourceColumnName, ", ",
 					OrphanReferencesDataCleanupUtil.getSourceTableAlias(),
-					".companyId, count(1) from ", sourceTableName, " ",
+					".companyId, count(1) as count from ", sourceTableName, " ",
 					OrphanReferencesDataCleanupUtil.getSourceTableAlias(),
 					OrphanReferencesDataCleanupUtil.getWhereClause(
 						connection, null, null, sourceColumnName,
@@ -106,11 +99,13 @@ public class UserAllTablesOrphanReferencesDataCleanupPreupgradeProcess
 				connection, sourceColumnName, sourceTableName);
 
 			while (resultSet.next()) {
-				long companyId = resultSet.getLong(2);
-				long count = resultSet.getLong(3);
-				long userId = resultSet.getLong(1);
+				long companyId = resultSet.getLong("companyId");
+				long count = resultSet.getLong("count");
+				long userId = resultSet.getLong(sourceColumnName);
 
-				if (partOfUniqueIndex) {
+				if (_deleteTableNames.contains(sourceTableName) ||
+					partOfUniqueIndex) {
+
 					preparedStatement2.setLong(1, userId);
 					preparedStatement2.setLong(2, companyId);
 
@@ -204,7 +199,10 @@ public class UserAllTablesOrphanReferencesDataCleanupPreupgradeProcess
 					userId = resultSet.getLong(1);
 				}
 				else {
-					_log.error("No admin user found for company " + companyId);
+					if (_log.isWarnEnabled()) {
+						_log.warn(
+							"No admin user found for company " + companyId);
+					}
 				}
 
 				_adminUserIds.put(companyId, userId);
@@ -236,6 +234,20 @@ public class UserAllTablesOrphanReferencesDataCleanupPreupgradeProcess
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		UserAllTablesOrphanReferencesDataCleanupPreupgradeProcess.class);
+
+	private static final Set<String> _deleteTableNames = new TreeSet<>(
+		String.CASE_INSENSITIVE_ORDER) {
+
+		{
+			addAll(
+				Set.of(
+					"MFAEmailOTPEntry", "MFAFIDO2CredentialEntry",
+					"MFATimeBasedOTPEntry", "OAuth2Authorization",
+					"OpenIdConnectSession", "OpenIdConnectUser",
+					"SamlIdpSpSession", "SamlIdpSsoSession", "SamlPeerBinding",
+					"SamlSpSession"));
+		}
+	};
 
 	private final Map<Long, Long> _adminUserIds = new HashMap<>();
 

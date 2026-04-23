@@ -118,7 +118,7 @@ export default {
 	'business': 'Business',
 	'business-account': 'Business Account',
 	'business-address': 'Business Address',
-	'business-email': 'Business Email',
+	'business-email-address': 'Business Email Address',
 	'by-requesting-a-publisher-account-you-agree-to-the':
 		'By requesting a Publisher account, you agree to the',
 	'cancel': 'Cancel',
@@ -195,6 +195,7 @@ export default {
 	'create-template': 'Create Template',
 	'created-at': 'Created At',
 	'created-by': 'Created By',
+	'currency-code': 'Currency Code',
 	'customer-account': 'Customer Account',
 	'customer-dashboard': 'Customer Dashboard',
 	'customer-project': 'Customer Project',
@@ -255,7 +256,6 @@ export default {
 	'email-address': 'Email Address',
 	'end-user-license-agreement': 'End User License Agreement',
 	'enter-administration-email-address': 'Enter administration email address',
-	'enter-ai-hub-account-name': 'Enter AI Hub Account Name',
 	'enter-app-description': 'Enter app description',
 	'enter-domain-here': 'Enter domain here',
 	'enter-email-address': 'Enter email address',
@@ -269,7 +269,6 @@ export default {
 	'enter-the-required-ram': 'Enter the required RAM',
 	'enter-the-required-ram-0-is-valid': 'Enter the required RAM (0 is valid)',
 	'enter-title-header': 'Enter title header',
-	'enter-your-business-email': 'Enter your business email',
 	'enter-your-company-name': 'Enter your company name',
 	'enter-your-contact-details-in-the-fields-below-in-the-request-description-enter-the-name-and-a-brief-description-of-the-app-you-would-like-to-submit-we-will-be-in-contact-regarding-your-request':
 		'Enter your contact details in the fields below. In the Request Description, enter the name and a brief description of the app you would like to submit. We will be in contact regarding your request.',
@@ -278,6 +277,7 @@ export default {
 	'enter-your-job-title': 'Enter your job title',
 	'enter-your-solution-details-this-information-will-be-used-for-submission-presentation-customer-support-and-search-capabilities':
 		'Enter your solution details. This information will be used for submission, presentation, customer support, and search capabilities.',
+	'enter-your-vat-id': 'Enter your VAT ID',
 	'entity-type': 'Entity Type',
 	'environment': 'Environment',
 	'environment-selection': 'Environment Selection',
@@ -351,8 +351,8 @@ export default {
 		'How satisfied are you with the product?',
 	'how-useful-is-the-product-for-your-workflow':
 		'How useful is the product for your workflow?',
-	'i-agree-to-the-processing-of-my-personal-data-for-the-purpose-of-evaluating-my-beta-access-request-in-accordance-with-liferay’s-privacy-policy':
-		'I agree to the processing of my personal data for the purpose of evaluating my beta access request in accordance with Liferay’s Privacy Policy.',
+	'i-agree-to-the-processing-of-my-personal-data-for-the-purpose-of-evaluating-my-beta-access-request-in-accordance-with':
+		'I agree to the processing of my personal data for the purpose of evaluating my beta access request in accordance with',
 	'i-certify-that-the-instances-activated-with-the-selected-activation-keys-have-been-shut-down-and-that-there-is-no-liferay-software-installed-deployed-used-or-executed-that-is-activated-with-the-selected-activation-key':
 		'I certify that the instances activated with the selected activation keys have been shut down and that there is no Liferay software installed, deployed, used or executed that is activated with the selected activation key.',
 	'i-have-read-and-agree-to-the-liferay-end-user-agreement':
@@ -375,6 +375,7 @@ export default {
 		'In the future, you will be able to submit your app source code for additional support and partnership opportunities with Liferay.',
 	'incident-report-contacts': 'Incident Report Contacts',
 	'income': 'Income',
+	'information': 'Information',
 	'input-one-domain-name-per-instance': 'Input one domain name per instance',
 	'insert-text-here': 'Insert text here',
 	'install': 'Install',
@@ -418,6 +419,7 @@ export default {
 	'liferay-publisher-license-agreement':
 		'Liferay Publisher License Agreement',
 	'liferay-s': 'Liferay’s',
+	'liferay-s-privacy-policy': 'Liferay’s Privacy Policy',
 	'liferay-saas': 'Liferay SaaS',
 	'liferay-self-hosted': 'Liferay Self-Hosted',
 	'liferay-version': 'Liferay Version',
@@ -532,6 +534,7 @@ export default {
 	'pending': 'Pending',
 	'personal': 'Personal',
 	'personal-account': 'Personal Account',
+	'personal-information': 'Personal Information',
 	'personal-information-purpose': 'Personal Information & Purpose',
 	'phone': 'Phone',
 	'phone-number': 'Phone Number',
@@ -658,6 +661,7 @@ export default {
 	'select-category': 'Select Category',
 	'select-compatible-versions': 'Select Compatible Versions',
 	'select-licensing-terms': 'Select Licensing Terms',
+	'select-purpose': 'Select Purpose',
 	'select-tags': 'Select Tags',
 	'select-the-offering-of-liferay-your-app-is-compatible-with-the-compatibility-selections-will-determine-on-what-platforms-your-app-is-tested':
 		'Select the offering of Liferay your app is compatible with. The compatibility selections will determine on what platforms your app is tested.',
@@ -720,7 +724,7 @@ export default {
 	'tags-help-to-describe-your-solution-in-the-marketplace-select-the-tags-most-relevant-to-your-solution-they-can-be-changed-if-needed':
 		'Tags help to describe your solution in the Marketplace. Select the tags most relevant to your solution. They can be changed if needed.',
 	'tax-id': 'Tax ID',
-	'tax-vat': 'Tax/VAT',
+	'tax-vat-id': 'Tax/VAT ID',
 	'tax-vat-number': 'Tax/VAT Number',
 	'terms-of-service': 'Terms of Service',
 	'terms-privacy-returns-or-contact-support-all-costs-are-in-us-dollars':

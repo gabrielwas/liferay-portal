@@ -479,13 +479,15 @@ currentURLObj.setParameter("historyKey", liferayPortletResponse.getNamespace() +
 						).setParameter(
 							"groupEventName", groupEventName
 						).setParameter(
+							"organizationId", ((organizationIds != null) && (organizationIds.length == 1)) ? String.valueOf(organizationIds[0]) : null
+						).setParameter(
 							"organizationIds", StringUtil.merge(organizationIds)
 						).setParameter(
 							"p_u_i_d", (selUser == null) ? "0" : String.valueOf(selUser.getUserId())
 						).setParameter(
 							"roleType", RoleConstants.TYPE_ORGANIZATION
 						).setParameter(
-							"step", "1"
+							"step", ((organizationIds != null) && (organizationIds.length == 1)) ? "2" : "1"
 						).setWindowState(
 							LiferayWindowState.POP_UP
 						).buildPortletURL();

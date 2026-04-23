@@ -2,6 +2,7 @@
 	"dependencies": {
 		"@clayui/alert": "^3.159.0",
 		"@clayui/button": "^3.159.0",
+		"@clayui/core": "^3.159.0",
 		"@clayui/drop-down": "^3.159.0",
 		"@clayui/form": "^3.159.0",
 		"@clayui/icon": "^3.159.0",
@@ -29,5 +30,5 @@
 		"format": "node-scripts format",
 		"test": "USE_REACT_16=true node-scripts test"
 	},
-	"version": "2.0.122"
+	"version": "2.0.123"
 }

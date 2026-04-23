@@ -7,9 +7,9 @@ package com.liferay.osb.faro.web.internal.search;
 
 import com.liferay.osb.faro.constants.FaroProjectConstants;
 import com.liferay.osb.faro.model.FaroProject;
+import com.liferay.osb.faro.provisioning.client.model.display.main.FaroSubscriptionDisplay;
 import com.liferay.osb.faro.service.FaroProjectLocalService;
 import com.liferay.osb.faro.service.FaroProjectUsageLocalService;
-import com.liferay.osb.faro.web.internal.model.display.main.FaroSubscriptionDisplay;
 import com.liferay.osb.faro.web.internal.util.JSONUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.IndexableActionableDynamicQuery;
@@ -253,14 +253,10 @@ public class FaroProjectIndexer extends BaseIndexer<FaroProject> {
 	}
 
 	@Override
-	protected void doReindex(String[] ids) throws Exception {
-		IndexableActionableDynamicQuery indexableActionableDynamicQuery =
-			_faroProjectLocalService.getIndexableActionableDynamicQuery();
+	protected IndexableActionableDynamicQuery
+		getIndexableActionableDynamicQuery() {
 
-		indexableActionableDynamicQuery.setPerformActionMethod(
-			this::safeGetDocument);
-
-		indexableActionableDynamicQuery.performActions();
+		return _faroProjectLocalService.getIndexableActionableDynamicQuery();
 	}
 
 	private double _getUsage(long count, long limit) {

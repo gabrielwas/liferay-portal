@@ -8,8 +8,14 @@ package com.liferay.ai.hub.site.initializer.internal.test;
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.AccountEntryLocalService;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.list.type.model.ListTypeDefinition;
+import com.liferay.list.type.model.ListTypeEntry;
+import com.liferay.list.type.service.ListTypeDefinitionLocalService;
+import com.liferay.list.type.service.ListTypeEntryLocalService;
 import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.service.ObjectDefinitionLocalService;
+import com.liferay.object.service.ObjectRelationshipLocalService;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
@@ -59,14 +65,31 @@ public class AIHubSiteInitializerTest {
 	}
 
 	@Test
-	public void test() throws Exception {
+	public void testInitialize() throws Exception {
 		SiteInitializer siteInitializer =
 			_siteInitializerRegistry.getSiteInitializer(
 				"com.liferay.ai.hub.site.initializer");
 
 		siteInitializer.initialize(TestPropsValues.getGroupId());
 
-		_assertObjectDefinitionExists();
+		_assertListTypeDefinitionExists(
+			"L_AI_HUB_INSTRUCTION_DEFINITION_SCOPES");
+
+		_assertObjectDefinitionExists("L_AI_HUB_AGENT_DEFINITION");
+		_assertObjectDefinitionExists("L_AI_HUB_CHATBOT");
+		_assertObjectDefinitionExists("L_AI_HUB_CONTENT_RETRIEVER");
+		_assertObjectDefinitionExists("L_AI_HUB_INSTRUCTION_DEFINITION");
+		_assertObjectDefinitionExists("L_AI_HUB_MCP_SERVER");
+
+		_assertObjectRelationshipExists(
+			"L_ACCOUNT", "L_ACCOUNT_TO_L_AI_HUB_AGENT_DEFINITIONS");
+		_assertObjectRelationshipExists(
+			"L_ACCOUNT", "L_ACCOUNT_TO_L_AI_HUB_CONTENT_RETRIEVERS");
+		_assertObjectRelationshipExists(
+			"L_ACCOUNT", "L_ACCOUNT_TO_L_AI_HUB_MCP_SERVERS");
+		_assertObjectRelationshipExists(
+			"L_AI_HUB_AGENT_DEFINITION",
+			"L_AI_HUB_AGENT_DEFINITIONS_TO_L_AI_HUB_CONTENT_RETRIEVERS");
 
 		_assertWorkflowDefinitionExists(
 			WorkflowDefinitionConstants.EXTERNAL_REFERENCE_CODE_CHANGE_TONE,
@@ -89,14 +112,49 @@ public class AIHubSiteInitializerTest {
 			WorkflowDefinitionConstants.NAME_MAKE_SHORTER);
 	}
 
-	private void _assertObjectDefinitionExists() throws Exception {
+	private void _assertListTypeDefinitionExists(String externalReferenceCode)
+		throws Exception {
+
+		ListTypeDefinition listTypeDefinition =
+			_listTypeDefinitionLocalService.
+				fetchListTypeDefinitionByExternalReferenceCode(
+					externalReferenceCode, TestPropsValues.getCompanyId());
+
+		ListTypeEntry listTypeEntry =
+			_listTypeEntryLocalService.getListTypeEntry(
+				listTypeDefinition.getListTypeDefinitionId(), "clickToChat");
+
+		Assert.assertTrue(listTypeEntry.isSystem());
+	}
+
+	private void _assertObjectDefinitionExists(String externalReferenceCode)
+		throws Exception {
+
 		ObjectDefinition objectDefinition =
 			_objectDefinitionLocalService.
 				fetchObjectDefinitionByExternalReferenceCode(
-					"L_MCP_SERVER", TestPropsValues.getCompanyId());
+					externalReferenceCode, TestPropsValues.getCompanyId());
 
 		Assert.assertTrue(objectDefinition.isApproved());
 		Assert.assertTrue(objectDefinition.isSystem());
+	}
+
+	private void _assertObjectRelationshipExists(
+			String objectDefinitionERC, String objectRelationshipERC)
+		throws Exception {
+
+		ObjectDefinition objectDefinition =
+			_objectDefinitionLocalService.
+				fetchObjectDefinitionByExternalReferenceCode(
+					objectDefinitionERC, TestPropsValues.getCompanyId());
+
+		ObjectRelationship objectRelationship =
+			_objectRelationshipLocalService.
+				fetchObjectRelationshipByExternalReferenceCode(
+					objectRelationshipERC,
+					objectDefinition.getObjectDefinitionId());
+
+		Assert.assertNotNull(objectRelationship);
 	}
 
 	private void _assertWorkflowDefinitionExists(
@@ -122,7 +180,16 @@ public class AIHubSiteInitializerTest {
 	private AccountEntryLocalService _accountEntryLocalService;
 
 	@Inject
+	private ListTypeDefinitionLocalService _listTypeDefinitionLocalService;
+
+	@Inject
+	private ListTypeEntryLocalService _listTypeEntryLocalService;
+
+	@Inject
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;
+
+	@Inject
+	private ObjectRelationshipLocalService _objectRelationshipLocalService;
 
 	@Inject
 	private SiteInitializerRegistry _siteInitializerRegistry;

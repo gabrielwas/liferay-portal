@@ -35,6 +35,7 @@ export const test = mergeTests(
 	documentLibraryPagesTest,
 	featureFlagsTest({
 		'LPD-34594': {enabled: true},
+		'LPD-84028': {enabled: true},
 		'LPS-164563': {enabled: true},
 	}),
 	isolatedSiteTest,
@@ -206,12 +207,12 @@ test('LPD-29088 Assert Publication Overview panel is visible', async ({
 	const site1 = await apiHelpers.headlessSite.createSite({
 		name: getRandomString(),
 	});
-	apiHelpers.data.push({id: site1.id, type: 'site'});
+	apiHelpers.data.push({id: site1.externalReferenceCode, type: 'site'});
 
 	const site2 = await apiHelpers.headlessSite.createSite({
 		name: getRandomString(),
 	});
-	apiHelpers.data.push({id: site2.id, type: 'site'});
+	apiHelpers.data.push({id: site2.externalReferenceCode, type: 'site'});
 
 	await changeTrackingPage.workOnPublication(ctCollection);
 
@@ -239,7 +240,7 @@ test('LPD-29088 Assert Publication Overview panel is visible', async ({
 
 	await changeTrackingPage.goToReviewChanges(ctCollection.body.name);
 
-	await expect(page.getByText('Liferay DXP (1): Tag (1)')).toBeVisible();
+	await expect(page.getByText('Liferay DXP Site (1): Tag (1)')).toBeVisible();
 	await expect(
 		page.getByText(
 			site1.name +
@@ -256,7 +257,7 @@ test('LPD-29088 Assert Publication Overview panel is visible', async ({
 
 	await changeTrackingPage.goToReviewChangesHistory(ctCollection.body.name);
 
-	await expect(page.getByText('Liferay DXP (1): Tag (1)')).toBeVisible();
+	await expect(page.getByText('Liferay DXP Site (1): Tag (1)')).toBeVisible();
 	await expect(
 		page.getByText(
 			site1.name +
@@ -585,15 +586,13 @@ test('LPD-62112 Cannot Preview Pending Version of Page in a Publication', async 
 
 	await changeTrackingPage.reviewChange('Home');
 
-	await page.locator('.btn-outline-secondary').click();
+	await page.locator('.dropdown-toggle.btn-outline-secondary').click();
 
 	await page.getByRole('menuitem', {name: ctCollection.body.name}).click();
 
-	const publicationIFrame = page.frameLocator('iframe[src*="preview"]');
+	const previewContent = page.locator('.publications-render-view-content');
 
-	const newHeading = publicationIFrame.getByText('Edited');
-
-	await expect(newHeading).toBeVisible();
+	await expect(previewContent.getByText('Edited')).toBeVisible();
 
 	// Disable workflow for Content Pages
 
@@ -633,28 +632,18 @@ test.describe('Publications with incomplete status tests', () => {
 		}
 	);
 
-	test.afterEach(async ({apiHelpers, page, workflowPage}) => {
+	test.afterEach(async ({apiHelpers, workflowPage}) => {
 		await apiHelpers.headlessChangeTracking.checkoutCTCollection(0);
 
 		await workflowPage.goto();
 
-		const row = await page
-			.getByRole('row')
-			.filter({hasText: 'Web Content Article'});
-
-		const workflowEnabled = await row
-			.getByTitle('Workflow Definition')
-			.filter({hasText: 'Single Approver'});
-
-		if (await workflowEnabled.isVisible()) {
-			await workflowPage.changeWorkflow(
-				'Web Content Article',
-				'No Workflow',
-				{
-					disable: true,
-				}
-			);
-		}
+		await workflowPage.changeWorkflow(
+			'Web Content Article',
+			'No Workflow',
+			{
+				disable: true,
+			}
+		);
 	});
 
 	test('LPD-73271 Can view CTEntry actions in review changes page', async ({
@@ -799,6 +788,7 @@ test.describe('Publications with incomplete status tests', () => {
 		ctCollection,
 		journalEditArticlePage,
 		page,
+		workflowPage,
 	}) => {
 		const ctCollection2 =
 			await apiHelpers.headlessChangeTracking.createCTCollection(
@@ -807,6 +797,16 @@ test.describe('Publications with incomplete status tests', () => {
 
 		await apiHelpers.headlessChangeTracking.checkoutCTCollection(
 			ctCollection2.body.id
+		);
+
+		await workflowPage.goto();
+
+		await workflowPage.changeWorkflow(
+			'Web Content Article',
+			'No Workflow',
+			{
+				disable: true,
+			}
 		);
 
 		const journalArticleTitle = getRandomString();
@@ -998,5 +998,51 @@ test('LPD-79249 Test XSS vulnerability when moving a change to a ctCollection wi
 
 	await expect(
 		page.getByRole('heading', {name: 'Moved Changes'})
+	).toBeVisible();
+});
+
+test('LPD-82268 FragmentEntryLink change displays the fragment related to the published page', async ({
+	apiHelpers,
+	changeTrackingPage,
+	ctCollection,
+	page,
+	pageEditorPage,
+	pagesAdminPage,
+}) => {
+	const site =
+		await apiHelpers.headlessAdminUser.getSiteByFriendlyUrlPath('guest');
+
+	await pagesAdminPage.goto(site.friendlyUrlPath);
+
+	await page
+		.getByTestId('creationMenuNewButton')
+		.locator('visible=true')
+		.click();
+
+	const pageTitle = getRandomString();
+
+	await pagesAdminPage.addPage({
+		name: pageTitle,
+	});
+
+	await pageEditorPage.addFragment('Basic Components', 'Heading');
+
+	await pageEditorPage.publishPage();
+
+	await changeTrackingPage.workOnPublication(ctCollection);
+
+	await pagesAdminPage.goto(site.friendlyUrlPath);
+	await pagesAdminPage.clickOnAction('Edit', pageTitle);
+
+	const headingId = await pageEditorPage.getFragmentId('Heading');
+
+	await pageEditorPage.editTextEditable(headingId, 'element-text', 'Edited');
+
+	await pageEditorPage.publishPage();
+
+	await changeTrackingPage.goToReviewChanges(ctCollection.body.name);
+
+	await expect(
+		page.getByRole('link', {name: `Heading for ${pageTitle}`})
 	).toBeVisible();
 });

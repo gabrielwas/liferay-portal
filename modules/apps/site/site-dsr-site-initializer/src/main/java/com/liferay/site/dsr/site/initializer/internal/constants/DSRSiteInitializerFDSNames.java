@@ -10,7 +10,18 @@ package com.liferay.site.dsr.site.initializer.internal.constants;
  */
 public class DSRSiteInitializerFDSNames {
 
-	public static final String DSR_ROOM =
+	public static final String DOCUMENTS_STATISTICS =
+		DSRSiteInitializerConstants.BUNDLE_SYMBOLIC_NAME +
+			"-documentsStatistics";
+
+	public static final String LATEST_ACTIVITY =
+		DSRSiteInitializerConstants.BUNDLE_SYMBOLIC_NAME + "-latestActivity";
+
+	public static final String MOST_ACTIVE_VISITORS =
+		DSRSiteInitializerConstants.BUNDLE_SYMBOLIC_NAME +
+			"-mostActiveVisitors";
+
+	public static final String ROOM =
 		DSRSiteInitializerConstants.BUNDLE_SYMBOLIC_NAME + "-room";
 
 }

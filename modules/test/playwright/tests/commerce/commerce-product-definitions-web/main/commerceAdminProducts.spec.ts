@@ -388,10 +388,7 @@ test(
 					productStatus: 1,
 				});
 
-			await commerceAdminProductPage.gotoProduct(
-				product.name['en_US'],
-				false
-			);
+			await commerceAdminProductPage.gotoProduct(product.name['en_US']);
 
 			await expect(page.getByText('Assigned to:')).toBeVisible();
 			await expect(userPersonalBarPage.notificationBadge).toBeVisible();

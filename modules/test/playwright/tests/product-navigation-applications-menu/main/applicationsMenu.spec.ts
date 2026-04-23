@@ -35,7 +35,7 @@ test(
 			await test.step(`Assert "View All" link visibility after creating 6 more sites`, async () => {
 				for (let index = 1; index < 7; index++) {
 					sites.push(
-						await apiHelpers.headlessSite.createSite({
+						await apiHelpers.headlessAdminSite.postSite({
 							name: getRandomString(),
 						})
 					);
@@ -72,7 +72,9 @@ test(
 			await test.step('Cleanup sites', async () => {
 				await Promise.all(
 					sites.map((site) =>
-						apiHelpers.headlessSite.deleteSite(site.id)
+						apiHelpers.headlessAdminSite.deleteSite(
+							site.externalReferenceCode
+						)
 					)
 				);
 			});
@@ -180,5 +182,41 @@ siteTest(
 			await expectApplicationsMenuToBeInControlMenu();
 			await expectUserAvatarToBeInNavigationBar();
 		});
+	}
+);
+
+test(
+	'Default instance name is Liferay and instance logo is shown',
+	{tag: '@LPD-77422'},
+	async ({applicationsMenuPage, page}) => {
+		await applicationsMenuPage.goto();
+
+		await expect(
+			page
+				.getByRole('dialog')
+				.getByRole('link', {exact: true, name: 'Liferay'})
+		).toBeVisible();
+
+		await expect(
+			page.getByRole('link', {name: 'Liferay DXP Site Current'})
+		).toBeVisible();
+
+		await expect(
+			page
+				.getByRole('navigation', {name: 'Applications Menu'})
+				.locator('img')
+				.first()
+		).toHaveAttribute('src', /liferay_logo/);
+
+		await expect(
+			page.getByRole('dialog').getByText('Liferay DXP', {exact: true})
+		).toBeVisible();
+
+		await expect(
+			page
+				.getByRole('navigation', {name: 'Applications Menu'})
+				.locator('img')
+				.last()
+		).toHaveAttribute('src', /default_logo/);
 	}
 );

@@ -27,6 +27,7 @@ import com.liferay.osb.faro.provisioning.client.constants.CorpProjectConstants;
 import com.liferay.osb.faro.provisioning.client.constants.ProductConstants;
 import com.liferay.osb.faro.provisioning.client.model.OSBAccountEntry;
 import com.liferay.osb.faro.provisioning.client.model.OSBOfferingEntry;
+import com.liferay.osb.faro.provisioning.client.model.display.main.FaroSubscriptionDisplay;
 import com.liferay.osb.faro.service.FaroNotificationLocalService;
 import com.liferay.osb.faro.service.FaroProjectEmailDomainLocalService;
 import com.liferay.osb.faro.service.FaroProjectLocalService;
@@ -44,7 +45,6 @@ import com.liferay.osb.faro.web.internal.model.display.contacts.ProjectDisplay;
 import com.liferay.osb.faro.web.internal.model.display.contacts.ProjectUsageMetricDisplay;
 import com.liferay.osb.faro.web.internal.model.display.contacts.TimeZoneDisplay;
 import com.liferay.osb.faro.web.internal.model.display.contacts.UsageMetric;
-import com.liferay.osb.faro.web.internal.model.display.main.FaroSubscriptionDisplay;
 import com.liferay.osb.faro.web.internal.param.FaroParam;
 import com.liferay.osb.faro.web.internal.util.JSONUtil;
 import com.liferay.osb.faro.web.internal.util.TimeZoneUtil;
@@ -974,7 +974,7 @@ public class ProjectController extends BaseFaroController {
 					OSBOfferingEntry osbOfferingEntry = new OSBOfferingEntry();
 
 					osbOfferingEntry.setProductEntryId(
-						ProductConstants.BASIC_PRODUCT_ENTRY_ID);
+						ProductConstants.DATA_PLATFORM_PRODUCT_ENTRY_ID);
 
 					osbOfferingEntry.setQuantity(1);
 					osbOfferingEntry.setStartDate(

@@ -241,6 +241,7 @@ public class AssetLibraryResourceTest extends BaseAssetLibraryResourceTestCase {
 				}
 			});
 		_testPostAssetLibrary(new MimeTypeLimit[0]);
+		_testPostAssetLibraryWithNoSettings();
 
 		AssetLibrary randomAssetLibrary = randomAssetLibrary();
 
@@ -319,21 +320,7 @@ public class AssetLibraryResourceTest extends BaseAssetLibraryResourceTestCase {
 	}
 
 	protected AssetLibrary randomAssetLibrary() throws Exception {
-		AssetLibrary assetLibrary = super.randomAssetLibrary();
-
-		assetLibrary.setSettings(
-			new Settings() {
-				{
-					autoTaggingEnabled = false;
-					logoColor = "color-1";
-					sharingEnabled = false;
-					useCustomLanguages = false;
-				}
-			});
-		assetLibrary.setType(
-			RandomTestUtil.randomEnum(AssetLibrary.Type.class));
-
-		return assetLibrary;
+		return _randomAssetLibrary(true);
 	}
 
 	protected AssetLibrary randomAssetLibraryWithTrashEnabled()
@@ -586,6 +573,29 @@ public class AssetLibraryResourceTest extends BaseAssetLibraryResourceTestCase {
 		return assetLibraryResource.postAssetLibrary(assetLibrary);
 	}
 
+	private AssetLibrary _randomAssetLibrary(boolean provideSettings)
+		throws Exception {
+
+		AssetLibrary assetLibrary = super.randomAssetLibrary();
+
+		if (provideSettings) {
+			assetLibrary.setSettings(
+				new Settings() {
+					{
+						autoTaggingEnabled = false;
+						logoColor = "color-1";
+						sharingEnabled = false;
+						useCustomLanguages = false;
+					}
+				});
+		}
+
+		assetLibrary.setType(
+			RandomTestUtil.randomEnum(AssetLibrary.Type.class));
+
+		return assetLibrary;
+	}
+
 	private void _testPostAssetLibrary(MimeTypeLimit[] mimeTypeLimits)
 		throws Exception {
 
@@ -610,6 +620,15 @@ public class AssetLibraryResourceTest extends BaseAssetLibraryResourceTestCase {
 			trashEnabled, trashEntriesMaxAge, useCustomLanguages);
 
 		_assertGroupDepotEntryType(assetLibrary);
+	}
+
+	private void _testPostAssetLibraryWithNoSettings() throws Exception {
+		AssetLibrary randomAssetLibraryNoSettings = _randomAssetLibrary(false);
+
+		AssetLibrary postedAssetLibraryNoSettings =
+			assetLibraryResource.postAssetLibrary(randomAssetLibraryNoSettings);
+
+		assertValid(postedAssetLibraryNoSettings);
 	}
 
 	private void _testPutAssetLibrary(MimeTypeLimit[] mimeTypeLimits)

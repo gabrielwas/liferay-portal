@@ -29,7 +29,7 @@ import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 
 import io.modelcontextprotocol.common.McpTransportContext;
-import io.modelcontextprotocol.json.jackson.JacksonMcpJsonMapper;
+import io.modelcontextprotocol.json.jackson2.JacksonMcpJsonMapper;
 import io.modelcontextprotocol.server.McpServer;
 import io.modelcontextprotocol.server.McpServerFeatures;
 import io.modelcontextprotocol.server.McpSyncServer;
@@ -118,6 +118,10 @@ public class MCPServerServlet extends HttpServlet {
 					request -> McpTransportContext.create(
 						HashMapBuilder.<String, Object>put(
 							"authorization", request.getHeader("Authorization")
+						).put(
+							"liferayAIHubCellOnBehalfOf",
+							request.getHeader(
+								"Liferay-AI-Hub-Cell-On-Behalf-Of")
 						).build())
 				).build();
 
@@ -132,27 +136,34 @@ public class MCPServerServlet extends HttpServlet {
 			).prompts(
 				true
 			).build()
-		).tool(
+		).toolCall(
 			_getTool("call-http-endpoint", toolsJSONObject),
-			(mcpSyncServerExchange, monos) -> {
-				String path = String.valueOf(monos.get("path"));
+			(mcpSyncServerExchange, callToolRequest) -> {
+				Map<String, Object> arguments = callToolRequest.arguments();
+
+				String path = String.valueOf(arguments.get("path"));
 
 				if (!path.startsWith("/")) {
 					path = "/" + path;
 				}
 
 				return _call(
-					String.valueOf(monos.get("payload")), baseURL + path,
-					mcpSyncServerExchange, String.valueOf(monos.get("method")));
+					String.valueOf(arguments.get("payload")), baseURL + path,
+					mcpSyncServerExchange,
+					String.valueOf(arguments.get("method")));
 			}
-		).tool(
+		).toolCall(
 			_getTool("get-openapi", toolsJSONObject),
-			(mcpSyncServerExchange, monos) -> _call(
-				null, String.valueOf(monos.get("url")), mcpSyncServerExchange,
-				"GET")
-		).tool(
+			(mcpSyncServerExchange, callToolRequest) -> {
+				Map<String, Object> arguments = callToolRequest.arguments();
+
+				return _call(
+					null, String.valueOf(arguments.get("url")),
+					mcpSyncServerExchange, "GET");
+			}
+		).toolCall(
 			_getTool("get-openapis", toolsJSONObject),
-			(mcpSyncServerExchange, monos) -> _call(
+			(mcpSyncServerExchange, callToolRequest) -> _call(
 				null, baseURL + "/openapi", mcpSyncServerExchange, "GET")
 		).prompts(
 			_getSyncPromptSpecifications(companyId)
@@ -189,17 +200,22 @@ public class MCPServerServlet extends HttpServlet {
 				body, ContentTypes.APPLICATION_JSON, StringPool.UTF8);
 		}
 
+		McpTransportContext mcpTransportContext =
+			mcpSyncServerExchange.transportContext();
+
+		Object liferayAIHubCellOnBehalfOf = mcpTransportContext.get(
+			"liferayAIHubCellOnBehalfOf");
+
 		options.setHeaders(
 			HashMapBuilder.put(
 				"Authorization",
 				() -> {
-					McpTransportContext mcpTransportContext =
-						mcpSyncServerExchange.transportContext();
-
 					Object authorization = mcpTransportContext.get(
 						"authorization");
 
-					if (authorization == null) {
+					if ((authorization == null) ||
+						(liferayAIHubCellOnBehalfOf != null)) {
+
 						return null;
 					}
 
@@ -210,6 +226,15 @@ public class MCPServerServlet extends HttpServlet {
 				() ->
 					Validator.isNotNull(body) ? ContentTypes.APPLICATION_JSON :
 						null
+			).put(
+				"Liferay-AI-Hub-Cell-On-Behalf-Of",
+				() -> {
+					if (liferayAIHubCellOnBehalfOf == null) {
+						return null;
+					}
+
+					return String.valueOf(liferayAIHubCellOnBehalfOf);
+				}
 			).build());
 
 		options.setLocation(location);
@@ -223,18 +248,31 @@ public class MCPServerServlet extends HttpServlet {
 			int responseCode = response.getResponseCode();
 
 			if (responseCode < 300) {
-				return new McpSchema.CallToolResult(content, false);
+				return McpSchema.CallToolResult.builder(
+				).addTextContent(
+					content
+				).isError(
+					false
+				).build();
 			}
 
-			return new McpSchema.CallToolResult(
+			return McpSchema.CallToolResult.builder(
+			).addTextContent(
 				StringBundler.concat(
-					"Status code: ", responseCode, ", Content:\n", content),
-				true);
+					"Status code: ", responseCode, ", Content:\n", content)
+			).isError(
+				true
+			).build();
 		}
 		catch (IOException ioException) {
 			_log.error(ioException);
 
-			return new McpSchema.CallToolResult(ioException.getMessage(), true);
+			return McpSchema.CallToolResult.builder(
+			).addTextContent(
+				ioException.getMessage()
+			).isError(
+				true
+			).build();
 		}
 	}
 

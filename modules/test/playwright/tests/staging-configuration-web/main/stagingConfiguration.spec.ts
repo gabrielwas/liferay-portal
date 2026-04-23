@@ -8,9 +8,9 @@ import {createReadStream} from 'fs';
 import path from 'path';
 
 import {apiHelpersTest} from '../../../fixtures/apiHelpersTest';
-import {applicationsMenuPageTest} from '../../../fixtures/applicationsMenuPageTest';
 import {dataApiHelpersTest} from '../../../fixtures/dataApiHelpersTest';
 import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
+import {globalMenuPagesTest} from '../../../fixtures/globalMenuPagesTest';
 import {instanceSettingsPagesTest} from '../../../fixtures/instanceSettingsPagesTest';
 import {loginTest} from '../../../fixtures/loginTest';
 import {pageEditorPagesTest} from '../../../fixtures/pageEditorPagesTest';
@@ -33,9 +33,9 @@ import {portletPublishToLivePageTest} from './fixtures/portletPublishToLivePageT
 import {stagingConfigurationPageTest} from './fixtures/stagingConfigurationPageTest';
 
 export const test = mergeTests(
-	applicationsMenuPageTest,
 	dataApiHelpersTest,
 	exportImportPagesTest,
+	globalMenuPagesTest,
 	loginTest(),
 	instanceSettingsPagesTest,
 	pageViewModePagesTest,
@@ -79,7 +79,7 @@ test(
 			name: getRandomString(),
 		});
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 		const layout = await apiHelpers.jsonWebServicesLayout.addLayout({
 			groupId: site.id,
@@ -138,7 +138,7 @@ test(
 			name: getRandomString(),
 		});
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 		const layout = await apiHelpers.jsonWebServicesLayout.addLayout({
 			groupId: site.id,
@@ -184,12 +184,12 @@ test(
 
 test('Check if local staging can be enabled', async ({
 	apiHelpers,
-	applicationsMenuPage,
+	globalMenuPage,
 	stagingConfigurationPage,
 }) => {
 	const siteName: string = getRandomString();
 
-	await applicationsMenuPage.goToSites();
+	await globalMenuPage.goToControlPanel('Sites');
 
 	const site = await apiHelpers.headlessSite.createSite({
 		name: siteName,
@@ -207,7 +207,7 @@ test(
 	{tag: ['@LPS-89116']},
 	async ({
 		apiHelpers,
-		applicationsMenuPage,
+		globalMenuPage,
 		journalPage,
 		page,
 		pagesAdminPage,
@@ -218,9 +218,9 @@ test(
 			name: getRandomString(),
 		});
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
-		await applicationsMenuPage.goToSite(site.name);
+		await globalMenuPage.goToSite(site.name);
 		await productMenuPage.goToPages();
 
 		await pagesAdminPage.createNewPage({
@@ -279,7 +279,7 @@ test(
 			name: getRandomString(),
 		});
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 		const layout = await apiHelpers.jsonWebServicesLayout.addLayout({
 			groupId: site.id,
@@ -398,7 +398,7 @@ testFlagsEnabled(
 			name: siteName,
 		});
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 		const layout = await apiHelpers.jsonWebServicesLayout.addLayout({
 			groupId: site.id,

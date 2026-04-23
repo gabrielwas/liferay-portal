@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 
+import java.lang.management.ManagementFactory;
+import java.lang.management.RuntimeMXBean;
+
 import java.net.InetAddress;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -32,8 +35,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -206,9 +211,7 @@ public class DBUpgradeClient {
 
 		Map<String, String> environment = processBuilder.environment();
 
-		if (_isGTJDK8()) {
-			environment.put("JDK_JAVA_OPTIONS", _buildJDKJavaOptions());
-		}
+		environment.put("JDK_JAVA_OPTIONS", _buildJDKJavaOptions());
 
 		Process process = processBuilder.start();
 
@@ -216,8 +219,10 @@ public class DBUpgradeClient {
 
 		try (ObjectOutputStream bootstrapObjectOutputStream =
 				new ObjectOutputStream(process.getOutputStream());
+
 			InputStreamReader inputStreamReader = new InputStreamReader(
 				process.getInputStream());
+
 			BufferedReader bufferedReader = new BufferedReader(
 				inputStreamReader)) {
 
@@ -395,18 +400,30 @@ public class DBUpgradeClient {
 	}
 
 	private String _buildJDKJavaOptions() {
-		StringBuilder sb = new StringBuilder();
+		Set<String> jdkOptions = new LinkedHashSet<>(_reflectionOpens);
 
-		for (String reflectionOpen : _reflectionOpens) {
-			sb.append(reflectionOpen);
-			sb.append(' ');
+		RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+
+		List<String> inputArguments = runtimeMXBean.getInputArguments();
+
+		for (int i = 0; i < inputArguments.size(); i++) {
+			String inputArgument = inputArguments.get(i);
+
+			if (inputArgument.startsWith("--add-opens=")) {
+				jdkOptions.add(inputArgument);
+			}
+			else if (inputArgument.equals("--add-opens")) {
+				if ((i + 1) < inputArguments.size()) {
+					String nextInputArgument = inputArguments.get(i + 1);
+
+					jdkOptions.add(inputArgument + "=" + nextInputArgument);
+
+					i++;
+				}
+			}
 		}
 
-		if (!_reflectionOpens.isEmpty()) {
-			sb.setLength(sb.length() - 1);
-		}
-
-		return sb.toString();
+		return String.join(" ", jdkOptions);
 	}
 
 	private void _close(Closeable closeable) throws IOException {
@@ -508,19 +525,6 @@ public class DBUpgradeClient {
 
 	private boolean _isEmpty(String value) {
 		if ((value == null) || value.isEmpty()) {
-			return true;
-		}
-
-		return false;
-	}
-
-	private boolean _isGTJDK8() {
-		String javaVersion = System.getProperty("java.version");
-
-		int majorVersion = Integer.parseInt(
-			javaVersion.substring(0, javaVersion.indexOf('.')));
-
-		if (majorVersion > 8) {
 			return true;
 		}
 

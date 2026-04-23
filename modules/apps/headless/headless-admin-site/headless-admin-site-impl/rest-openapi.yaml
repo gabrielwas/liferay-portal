@@ -4101,7 +4101,7 @@ components:
                     # @review
                     description:
                         The utility page's type.
-                    enum: [CookiePolicy, CreateAccount, Error, ErrorCode404, ErrorCode500, ForgotPassword, Login, TermsOfUse]
+                    enum: [CookiePolicy, CreateAccount, Error, ErrorCode404, ErrorCode500, ErrorCode503, ForgotPassword, Login, TermsOfUse]
                     type: string
                 utilityPageSettings:
                     $ref: "#/components/schemas/UtilityPageSettings"
@@ -4784,7 +4784,7 @@ components:
 info:
     description:
         "A Java client JAR is available for use with the group ID 'com.liferay', artifact ID
-        'com.liferay.headless.admin.site.client', and version '1.0.25'."
+        'com.liferay.headless.admin.site.client', and version '1.0.28'."
     license:
         name: Apache 2.0
         url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -9458,6 +9458,59 @@ paths:
                         application/xml:
                             schema:
                                 $ref: "#/components/schemas/Site"
+            tags: ["Site"]
+    /sites/{siteExternalReferenceCode}/activate:
+        put:
+            description:
+                Activates a site.
+            operationId: putSiteActivate
+            parameters:
+                -   in: path
+                    name: siteExternalReferenceCode
+                    required: true
+                    schema:
+                        type: string
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+                    description:
+                        default response
+                403:
+                    description:
+                        Forbidden
+                404:
+                    description:
+                        The specified Site was not found
+            tags: ["Site"]
+    /sites/{siteExternalReferenceCode}/deactivate:
+        put:
+            description:
+                Deactivates a site.
+            operationId: putSiteDeactivate
+            parameters:
+                -   in: path
+                    name: siteExternalReferenceCode
+                    required: true
+                    schema:
+                        type: string
+            responses:
+                204:
+                    content:
+                        application/json: {}
+                        application/xml: {}
+                    description:
+                        default response
+                403:
+                    description:
+                        Forbidden
+                404:
+                    description:
+                        The specified Site was not found
+                405:
+                    description:
+                        System sites cannot be deactivated
             tags: ["Site"]
     /sites/{siteExternalReferenceCode}/site-initializer:
         get:

@@ -584,7 +584,6 @@ mariadb.executable=${mariadb.executable}]]></echo>
 					<record-git-diffs-build-services>
 						<action>
 							<gradle-execute dir="@{gradle.module.dir}" forcedcacheenabled="false" task="@{gradle.task.name}">
-								<arg value="-Dskip.read.only=${build.services.skip.read.only}" />
 								<arg value="-Pcom.liferay.portal.tools.service.builder.ignore.local=false" />
 							</gradle-execute>
 						</action>
@@ -620,7 +619,6 @@ mariadb.executable=${mariadb.executable}]]></echo>
 						<action>
 							<gradle-execute dir="@{gradle.module.dir}" forcedcacheenabled="false" task="@{gradle.task.name}">
 								<arg value="-DbuildREST.forceClientVersionDescription=false" />
-								<arg value="-Dskip.read.only=${build.rest.skip.read.only}" />
 								<arg value="-Pcom.liferay.portal.tools.rest.builder.ignore.local=false" />
 							</gradle-execute>
 						</action>
@@ -1230,7 +1228,7 @@ mariadb.executable=${mariadb.executable}]]></echo>
 					</if>
 
 					<if>
-						<equals arg1="${test.batch.name}" arg2="solr" />
+						<contains string="${test.batch.name}" substring="solr" />
 						<then>
 							<ant antfile="build-test-solr.xml" target="start-solr" />
 
@@ -1340,14 +1338,14 @@ app.server.type=@{app.server.type}]]></echo>
 
 			<antcall inheritAll="false" target="compile" />
 
+			<antcall inheritAll="false" target="install-portal-snapshots" />
+
 			<if>
 				<and>
 					<equals arg1="@{app.server.type}" arg2="tomcat" />
 					<equals arg1="@{dist.type}" arg2="release" />
 				</and>
 				<then>
-					<antcall inheritAll="false" target="install-portal-snapshots" />
-
 					<lstopwatch action="start" name="prepare-test-build-dist.bundles.@{app.server.type}.dist" />
 
 					<ant antfile="build-test.xml" target="prepare-release-bundle" />
@@ -1357,8 +1355,6 @@ app.server.type=@{app.server.type}]]></echo>
 				<elseif>
 					<equals arg1="@{app.server.type}" arg2="weblogic" />
 					<then>
-						<antcall inheritAll="false" target="install-portal-snapshots" />
-
 						<antcall inheritAll="false" target="prepare-test-build-custom">
 							<param name="app.server.type" value="@{app.server.type}" />
 						</antcall>
@@ -1577,6 +1573,20 @@ app.server.type=@{app.server.type}]]></echo>
 			<tstamp>
 				<format pattern="yyyyMMddkkmmssSSS" property="tstamp" />
 			</tstamp>
+
+			<if>
+				<and>
+					<available file="modules/yarn.lock" />
+					<isset property="nodejs.npm.ci.registry" />
+				</and>
+				<then>
+					<replace
+						file="modules/yarn.lock"
+						token="${nodejs.npm.ci.registry}"
+						value="https://registry.yarnpkg.com"
+					/>
+				</then>
+			</if>
 
 			<exec executable="git" output="${tstamp}.diff">
 				<arg value="diff" />
@@ -9461,6 +9471,8 @@ information. Make sure to commit in all format-javadoc results.
 					</then>
 				</if>
 
+				<property name="test.batch.name" unless:set="test.batch.name" value="${env.TEST_BATCH_NAME}" />
+
 				<condition else="" property="test.arg.opensearch2.unit.tests" value="-Dcom.liferay.portal.search.opensearch2.test.unit.enabled=true">
 					<istrue value="${run.opensearch2.unit.tests}" />
 				</condition>
@@ -10345,53 +10357,7 @@ tar --extract --file=liferay-portal-source.tar.gz modules/core/portal-bootstrap/
 					<arg value="--all" />
 				</exec>
 
-				<if>
-					<or>
-						<not>
-							<equals arg1="${skip.service.builder.core}" arg2="true" />
-						</not>
-						<not>
-							<equals arg1="${skip.service.builder.full}" arg2="true" />
-						</not>
-					</or>
-					<then>
-						<execute-ant-target-build-services ant.target.file="portal-impl/build.xml" ant.target.name="build-service-counter" />
-						<execute-ant-target-build-services ant.target.file="portal-impl/build.xml" ant.target.name="build-service-portal" />
-						<execute-ant-target-build-services ant.target.file="portal-impl/build.xml" ant.target.name="build-service-portlets" />
-					</then>
-				</if>
-
-				<if>
-					<isset property="modules.test.class.group" />
-					<then>
-						<get-gradle-module-dir-task-names gradle.task.names="${modules.test.class.group}" />
-
-						<for delimiter="|" list="${gradle.module.dir.task.names}" param="gradle.module.dir.task.name" trim="true">
-							<sequential>
-								<local name="gradle.module.dir" />
-								<local name="gradle.task.name" />
-
-								<propertyregex
-									input="@{gradle.module.dir.task.name}"
-									override="true"
-									property="gradle.module.dir"
-									regexp="([^=]+)=([^=]+)"
-									replace="\1"
-								/>
-
-								<propertyregex
-									input="@{gradle.module.dir.task.name}"
-									override="true"
-									property="gradle.task.name"
-									regexp="([^=]+)=([^=]+)"
-									replace="\2"
-								/>
-
-								<execute-gradle-task-build-services gradle.module.dir="${gradle.module.dir}" gradle.task.name="${gradle.task.name}" />
-							</sequential>
-						</for>
-					</then>
-				</if>
+				<execute-ant-target-build-services ant.target.file="portal-impl/build.xml" ant.target.name="build-services" />
 			</test-action>
 
 			<test-set-up>

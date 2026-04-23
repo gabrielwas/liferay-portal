@@ -32,7 +32,7 @@ const expandGroupForSideMenu = (group) => {
 			displayName: productName
 		}));
 	}
-	
+
 	return [group];
 };
 
@@ -42,9 +42,7 @@ const SideMenu = () => {
 			hasExperienceSubscription,
 			hasLegacySubscription,
 			hasPlanSubscription,
-			project,
 			subscriptionGroups,
-			subscriptions,
 		},
 	] = useAppContext();
 	const [isOpenedProductsMenu, setIsOpenedProductsMenu] = useState(false);
@@ -80,15 +78,6 @@ const SideMenu = () => {
 		[menuItemActiveStatus]
 	);
 
-	const hasSaasSubscription = useMemo(
-        () =>
-            subscriptionGroups?.some(
-                (subscription) =>
-                    subscription.activationProductName?.includes(PRODUCT_TYPES.liferayExperienceCloud)
-            ),
-        [subscriptionGroups]
-    );
-
 	const hasSLASubscription = useMemo(
 		() =>
 			koroneikiAccount?.slaCurrent ||
@@ -97,19 +86,14 @@ const SideMenu = () => {
 		[koroneikiAccount]
 	);
 
-	useEffect(() => {
-		const expandedHeightProducts = isOpenedProductsMenu
-			? activationSubscriptionGroups?.length * 48
-			: 0;
-
-		if (activationMenuRef?.current) {
-			activationMenuRef.current.style.maxHeight = `${expandedHeightProducts}px`;
-		}
-	}, [
-		activationSubscriptionGroups?.length,
-		hasSomeMenuItemActive,
-		isOpenedProductsMenu,
-	]);
+  	const isProjectUsageEnabled =
+		(hasPlanSubscription || hasLegacySubscription) &&
+		  (featureFlags.includes('LRSD-6322') ||
+		  	loggedUserAccount?.isLiferayStaff ||
+		  	loggedUserAccount?.isPartner) ||
+		hasExperienceSubscription &&
+		  (featureFlags.includes('LRSD-12003') ||
+			  loggedUserAccount?.isLiferayStaff);
 
 	const accountSubscriptionGroupsMenuItem = useMemo(
 		() => {
@@ -166,6 +150,20 @@ const SideMenu = () => {
 			);
 		}, [activationSubscriptionGroups]
 	);
+
+	useEffect(() => {
+		const expandedHeightProducts = isOpenedProductsMenu
+			? accountSubscriptionGroupsMenuItem?.length * 48
+			: 0;
+
+		if (activationMenuRef?.current) {
+			activationMenuRef.current.style.maxHeight = `${expandedHeightProducts}px`;
+		}
+	}, [
+		accountSubscriptionGroupsMenuItem?.length,
+		hasSomeMenuItemActive,
+		isOpenedProductsMenu,
+	]);
 
 	if (!activationSubscriptionGroups) {
 		return <SideMenuSkeleton />;
@@ -233,18 +231,16 @@ const SideMenu = () => {
 					</li>
 				)}
 
-				{featureFlags.includes('ISSD-119') && (
-					<div className="d-flex">
-						<MenuItem
-							iconKey="attachments"
-							to={getKebabCase(MENU_TYPES.attachments)}
-						>
-							{i18n.translate(
-								getKebabCase(MENU_TYPES.attachments)
-							)}
-						</MenuItem>
-					</div>
-				)}
+				<div className="d-flex">
+					<MenuItem
+						iconKey="attachments"
+						to={getKebabCase(MENU_TYPES.attachments)}
+					>
+						{i18n.translate(
+							getKebabCase(MENU_TYPES.attachments)
+						)}
+					</MenuItem>
+				</div>
 
 				<div className="d-flex">
 					<MenuItem
@@ -266,10 +262,7 @@ const SideMenu = () => {
 					</div>
 				)}
 
-				{(((loggedUserAccount?.isLiferayStaff || loggedUserAccount?.isPartner) &&
-					(hasPlanSubscription || hasLegacySubscription)) ||
-					(featureFlags.includes('LRSD-12003') &&
-						hasExperienceSubscription)) && (
+				{isProjectUsageEnabled && (
 					<div className="d-flex">
 						<MenuItem
 							iconKey="projectUsage"

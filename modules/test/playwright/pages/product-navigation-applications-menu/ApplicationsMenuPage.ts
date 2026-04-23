@@ -558,10 +558,6 @@ export class ApplicationsMenuPage {
 		await this.exportMenuItem.click();
 	}
 
-	async goToGlobalSite() {
-		await this.goToSite('Global');
-	}
-
 	async goToGogoShell() {
 		await this.goToControlPanel();
 		await this.gogoShellItem.click();
@@ -699,7 +695,10 @@ export class ApplicationsMenuPage {
 		await this.serviceAccountsItem.click();
 	}
 
-	async goToSite(name: string = 'Liferay DXP', checkTabVisibility = true) {
+	async goToSite(
+		name: string = 'Liferay DXP Site',
+		checkTabVisibility = true
+	) {
 		await this.goto(checkTabVisibility);
 
 		await this.page.getByRole('link', {exact: true, name}).click();

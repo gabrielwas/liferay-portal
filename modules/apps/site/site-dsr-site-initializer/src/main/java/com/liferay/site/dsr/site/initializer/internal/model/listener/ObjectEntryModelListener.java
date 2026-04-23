@@ -5,6 +5,10 @@
 
 package com.liferay.site.dsr.site.initializer.internal.model.listener;
 
+import com.liferay.analytics.settings.rest.dto.v1_0.Channel;
+import com.liferay.analytics.settings.rest.dto.v1_0.DataSource;
+import com.liferay.analytics.settings.rest.manager.AnalyticsSettingsManager;
+import com.liferay.analytics.settings.rest.resource.v1_0.ChannelResource;
 import com.liferay.fragment.entry.processor.constants.FragmentEntryProcessorConstants;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.service.FragmentEntryLinkLocalService;
@@ -15,7 +19,6 @@ import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.petra.function.transform.TransformUtil;
-import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.ModelListenerException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONObject;
@@ -25,20 +28,16 @@ import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.model.GroupModel;
 import com.liferay.portal.kernel.model.LayoutSetPrototype;
 import com.liferay.portal.kernel.model.ModelListener;
-import com.liferay.portal.kernel.model.ResourceAction;
-import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
-import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutSetPrototypeLocalService;
-import com.liferay.portal.kernel.service.ResourceActionLocalService;
-import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
@@ -47,22 +46,26 @@ import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.transaction.TransactionCommitCallbackUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.liveusers.LiveUsers;
 import com.liferay.portal.security.permission.PermissionCacheUtil;
+import com.liferay.portal.vulcan.pagination.Page;
+import com.liferay.portal.vulcan.pagination.Pagination;
 import com.liferay.sites.kernel.util.Sites;
 
 import java.io.Serializable;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
+import org.osgi.service.component.annotations.ReferencePolicy;
+import org.osgi.service.component.annotations.ReferencePolicyOption;
 
 /**
  * @author Stefano Motta
@@ -102,9 +105,27 @@ public class ObjectEntryModelListener extends BaseModelListener<ObjectEntry> {
 		return friendlyURL;
 	}
 
-	private ServiceContext _getServiceContext(long companyId, long userId)
-		throws PortalException {
+	private Channel _getOrAddAnalyticsChannel(ChannelResource channelResource)
+		throws Exception {
 
+		Page<Channel> channelsPage = channelResource.getChannelsPage(
+			_DSR_CHANNEL_NAME, Pagination.of(1, 1), null);
+
+		List<Channel> channels = ListUtil.fromCollection(
+			channelsPage.getItems());
+
+		if (!channels.isEmpty()) {
+			return channels.get(0);
+		}
+
+		Channel channel = new Channel();
+
+		channel.setName(() -> _DSR_CHANNEL_NAME);
+
+		return channelResource.postChannel(channel);
+	}
+
+	private ServiceContext _getServiceContext(long companyId, long userId) {
 		ServiceContext serviceContext = new ServiceContext();
 
 		serviceContext.setCompanyId(companyId);
@@ -126,6 +147,8 @@ public class ObjectEntryModelListener extends BaseModelListener<ObjectEntry> {
 
 		Company company = _companyLocalService.getCompany(
 			objectEntry.getCompanyId());
+		Group group;
+		LayoutSetPrototype layoutSetPrototype = null;
 		User user = _userLocalService.getUser(objectEntry.getUserId());
 
 		try (AutoCloseable autoCloseable =
@@ -134,7 +157,7 @@ public class ObjectEntryModelListener extends BaseModelListener<ObjectEntry> {
 
 			Map<String, Serializable> values = objectEntry.getValues();
 
-			Group group = _groupLocalService.addGroup(
+			group = _groupLocalService.addGroup(
 				null, user.getUserId(), GroupConstants.DEFAULT_PARENT_GROUP_ID,
 				objectDefinition.getClassName(), objectEntry.getObjectEntryId(),
 				GroupConstants.DEFAULT_LIVE_GROUP_ID,
@@ -164,19 +187,29 @@ public class ObjectEntryModelListener extends BaseModelListener<ObjectEntry> {
 			LiveUsers.joinGroup(
 				group.getCompanyId(), group.getGroupId(), user.getUserId());
 
-			LayoutSetPrototype layoutSetPrototype =
+			layoutSetPrototype =
 				_layoutSetPrototypeLocalService.
 					getLayoutSetPrototypeByUuidAndCompanyId(
 						GetterUtil.getString(
 							values.get("siteTemplateKey"),
 							"L_DSR_LAYOUT_SET_PROTOTYPE"),
 						company.getCompanyId());
+		}
+
+		Role administratorRole = _roleLocalService.getRole(
+			company.getCompanyId(), RoleConstants.ADMINISTRATOR);
+
+		try (AutoCloseable autoCloseable =
+				_layoutServiceContextHelper.getServiceContextAutoCloseable(
+					company,
+					_userLocalService.getUser(
+						_userLocalService.getRoleUserIds(
+							administratorRole.getRoleId())[0]))) {
 
 			_sites.updateLayoutSetPrototypesLinks(
 				group, layoutSetPrototype.getLayoutSetPrototypeId(), 0, false,
 				false);
 
-			_setResourcePermissions(objectEntry);
 			_updateFragmentEntryLink(group);
 
 			TransactionCommitCallbackUtil.registerCallback(
@@ -194,6 +227,18 @@ public class ObjectEntryModelListener extends BaseModelListener<ObjectEntry> {
 							"siteId", group.getGroupId()
 						).build(),
 						new ServiceContext());
+
+					try {
+						_patchAnalyticsChannel(
+							company.getCompanyId(), objectDefinition,
+							objectEntry.getUserId());
+					}
+					catch (Exception exception) {
+						_log.error(
+							"Unable to connect site " + group.getGroupId() +
+								" to analytics channel",
+							exception);
+					}
 
 					return null;
 				});
@@ -233,49 +278,39 @@ public class ObjectEntryModelListener extends BaseModelListener<ObjectEntry> {
 		}
 	}
 
-	private void _setResourcePermissions(ObjectEntry objectEntry)
+	private void _patchAnalyticsChannel(
+			long companyId, ObjectDefinition objectDefinition, long userId)
 		throws Exception {
 
-		ObjectDefinition objectDefinition = objectEntry.getObjectDefinition();
+		if (!_analyticsSettingsManager.isAnalyticsEnabled(companyId)) {
+			return;
+		}
 
-		String[] actionIds = TransformUtil.transformToArray(
-			_resourceActionLocalService.getResourceActions(
-				objectDefinition.getClassName()),
-			ResourceAction::getActionId, String.class);
+		Channel channel = new Channel();
 
-		Map<String, String[]> permissionsMap = HashMapBuilder.put(
-			RoleConstants.OWNER, actionIds
-		).put(
-			RoleConstants.SITE_MEMBER,
-			new String[] {ActionKeys.ADD_DISCUSSION, ActionKeys.VIEW}
-		).put(
-			RoleConstants.SITE_OWNER, actionIds
-		).put(
-			"DSR Contributor",
-			new String[] {ActionKeys.ADD_DISCUSSION, ActionKeys.VIEW}
+		ChannelResource channelResource = _channelResourceFactory.create(
+		).checkPermissions(
+			false
+		).user(
+			_userLocalService.getUser(userId)
 		).build();
 
-		for (Role role :
-				_roleLocalService.getGroupRolesAndTeamRoles(
-					objectEntry.getCompanyId(), null,
-					Arrays.asList(RoleConstants.ADMINISTRATOR), null, null,
-					new int[] {
-						RoleConstants.TYPE_REGULAR, RoleConstants.TYPE_SITE
-					},
-					0, 0, QueryUtil.ALL_POS, QueryUtil.ALL_POS)) {
+		Channel analyticsChannel = _getOrAddAnalyticsChannel(channelResource);
 
-			String[] roleActionIds = permissionsMap.get(role.getName());
+		channel.setChannelId(analyticsChannel::getChannelId);
 
-			if (roleActionIds == null) {
-				roleActionIds = new String[0];
-			}
+		DataSource dataSource = new DataSource();
 
-			_resourcePermissionLocalService.setResourcePermissions(
-				objectEntry.getCompanyId(), objectEntry.getModelClassName(),
-				ResourceConstants.SCOPE_INDIVIDUAL,
-				String.valueOf(objectEntry.getObjectEntryId()),
-				role.getRoleId(), roleActionIds);
-		}
+		dataSource.setSiteIds(
+			() -> TransformUtil.transformToArray(
+				_groupLocalService.getGroups(
+					companyId, objectDefinition.getClassName(),
+					GroupConstants.DEFAULT_PARENT_GROUP_ID),
+				GroupModel::getGroupId, Long.class));
+
+		channel.setDataSources(() -> new DataSource[] {dataSource});
+
+		channelResource.patchChannel(channel);
 	}
 
 	private void _updateFragmentEntryLink(Group group) {
@@ -323,12 +358,26 @@ public class ObjectEntryModelListener extends BaseModelListener<ObjectEntry> {
 		}
 	}
 
+	private static final String _DSR_CHANNEL_NAME = "DSR";
+
 	private static final String _RENDERER_KEY =
 		"com.liferay.fragment.renderer.menu.display.internal." +
 			"MenuDisplayFragmentRenderer";
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		ObjectEntryModelListener.class);
+
+	@Reference(
+		policy = ReferencePolicy.DYNAMIC,
+		policyOption = ReferencePolicyOption.GREEDY
+	)
+	private volatile AnalyticsSettingsManager _analyticsSettingsManager;
+
+	@Reference(
+		policy = ReferencePolicy.DYNAMIC,
+		policyOption = ReferencePolicyOption.GREEDY
+	)
+	private volatile ChannelResource.Factory _channelResourceFactory;
 
 	@Reference
 	private ClassNameLocalService _classNameLocalService;
@@ -354,12 +403,6 @@ public class ObjectEntryModelListener extends BaseModelListener<ObjectEntry> {
 
 	@Reference
 	private ObjectEntryLocalService _objectEntryLocalService;
-
-	@Reference
-	private ResourceActionLocalService _resourceActionLocalService;
-
-	@Reference
-	private ResourcePermissionLocalService _resourcePermissionLocalService;
 
 	@Reference
 	private RoleLocalService _roleLocalService;

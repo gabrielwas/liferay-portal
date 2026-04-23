@@ -95,6 +95,19 @@ public class ServiceBuilderModulesBatchTestClassGroup
 		PortalGitWorkingDirectory portalGitWorkingDirectory =
 			getPortalGitWorkingDirectory();
 
+		File portalImplBuildFile = new File(
+			portalGitWorkingDirectory.getWorkingDirectory(),
+			"portal-impl/build.xml");
+
+		if (JenkinsResultsParserUtil.isUnifiedBuilderSupported(
+				portalGitWorkingDirectory.getUpstreamBranchName())) {
+
+			addTestClass(
+				TestClassFactory.newTestClass(this, portalImplBuildFile));
+
+			return;
+		}
+
 		File portalModulesBaseDir = new File(
 			portalGitWorkingDirectory.getWorkingDirectory(), "modules");
 
@@ -116,32 +129,32 @@ public class ServiceBuilderModulesBatchTestClassGroup
 
 			if (!modifiedPortalToolsServiceBuilderFiles.isEmpty()) {
 				_buildType = BuildType.FULL;
-
-				return;
-			}
-
-			List<File> modifiedPortalImplFiles =
-				JenkinsResultsParserUtil.getIncludedFiles(
-					null,
-					getPathMatchers(
-						"portal-impl/**",
-						portalGitWorkingDirectory.getWorkingDirectory()),
-					modifiedFiles);
-
-			if (!modifiedPortalImplFiles.isEmpty()) {
-				_buildType = BuildType.CORE;
 			}
 			else {
-				List<File> modifiedPortalKernelFiles =
+				List<File> modifiedPortalImplFiles =
 					JenkinsResultsParserUtil.getIncludedFiles(
 						null,
 						getPathMatchers(
-							"portal-kernel/**",
+							"portal-impl/**",
 							portalGitWorkingDirectory.getWorkingDirectory()),
 						modifiedFiles);
 
-				if (!modifiedPortalKernelFiles.isEmpty()) {
+				if (!modifiedPortalImplFiles.isEmpty()) {
 					_buildType = BuildType.CORE;
+				}
+				else {
+					List<File> modifiedPortalKernelFiles =
+						JenkinsResultsParserUtil.getIncludedFiles(
+							null,
+							getPathMatchers(
+								"portal-kernel/**",
+								portalGitWorkingDirectory.
+									getWorkingDirectory()),
+							modifiedFiles);
+
+					if (!modifiedPortalKernelFiles.isEmpty()) {
+						_buildType = BuildType.CORE;
+					}
 				}
 			}
 
@@ -157,11 +170,10 @@ public class ServiceBuilderModulesBatchTestClassGroup
 					excludesPathMatchers, includesPathMatchers));
 		}
 
-		File portalImplBuildFile = new File(
-			portalGitWorkingDirectory.getWorkingDirectory(),
-			"portal-impl/build.xml");
-
-		addTestClass(TestClassFactory.newTestClass(this, portalImplBuildFile));
+		if (_buildType != null) {
+			addTestClass(
+				TestClassFactory.newTestClass(this, portalImplBuildFile));
+		}
 
 		addTestClasses(moduleDirsList);
 	}

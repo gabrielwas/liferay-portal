@@ -30,6 +30,7 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.GroupService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -174,7 +175,7 @@ public class UserAccountResourceImpl extends BaseUserAccountResourceImpl {
 			throw new ValidationException("Email Address is null");
 		}
 
-		ObjectEntry objectEntry = _objectEntryService.getObjectEntry(roomId);
+		ObjectEntry objectEntry = _getObjectEntry(roomId);
 
 		Map<String, Serializable> values = objectEntry.getValues();
 
@@ -311,11 +312,20 @@ public class UserAccountResourceImpl extends BaseUserAccountResourceImpl {
 	}
 
 	private Group _getGroup(long roomId) throws Exception {
-		ObjectEntry objectEntry = _objectEntryService.getObjectEntry(roomId);
+		ObjectEntry objectEntry = _getObjectEntry(roomId);
 
 		Map<String, Serializable> values = objectEntry.getValues();
 
 		return _groupService.getGroup(GetterUtil.getLong(values.get("siteId")));
+	}
+
+	private ObjectEntry _getObjectEntry(long roomId) throws Exception {
+		ObjectEntry objectEntry = _objectEntryService.getObjectEntry(roomId);
+
+		_objectEntryService.checkModelResourcePermission(
+			objectEntry.getObjectDefinitionId(), roomId, ActionKeys.UPDATE);
+
+		return objectEntry;
 	}
 
 	private void _initThemeDisplay(long groupId) throws Exception {

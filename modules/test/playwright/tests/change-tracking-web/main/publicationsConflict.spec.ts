@@ -12,6 +12,7 @@ import {pageEditorPagesTest} from '../../../fixtures/pageEditorPagesTest';
 import {TCustomField} from '../../../helpers/CustomFieldTypesHelper';
 import {clickAndExpectToBeVisible} from '../../../utils/clickAndExpectToBeVisible';
 import getRandomString from '../../../utils/getRandomString';
+import {closeProductMenu} from '../../../utils/productMenu';
 import {waitForAlert} from '../../../utils/waitForAlert';
 import {blogsPagesTest} from '../../blogs-web/main/fixtures/blogsPagesTest';
 import {journalPagesTest} from '../../journal-web/main/fixtures/journalPagesTest';
@@ -158,6 +159,8 @@ test('LPD-54602 Edit in Production action should not be visible if entity does n
 	await page.getByRole('link', {name: 'Publish'}).click();
 
 	await expect(page.getByText('Checking Changes')).toBeVisible();
+
+	await closeProductMenu(page);
 
 	await expect(
 		page.getByText('Test Test added a Custom Field')

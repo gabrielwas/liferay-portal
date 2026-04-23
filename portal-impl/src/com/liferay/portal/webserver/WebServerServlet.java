@@ -20,10 +20,12 @@ import com.liferay.document.library.kernel.processor.VideoProcessorUtil;
 import com.liferay.document.library.kernel.service.DLAppLocalServiceUtil;
 import com.liferay.document.library.kernel.service.DLAppServiceUtil;
 import com.liferay.document.library.kernel.util.DLUtil;
+import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.CharPool;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.image.ImageToolUtil;
+import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.exception.NoSuchUserException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.exception.SystemException;
@@ -466,16 +468,22 @@ public class WebServerServlet extends HttpServlet {
 
 		String path = GetterUtil.getString(httpServletRequest.getPathInfo());
 
-		if (path.startsWith("/company_logo") ||
-			path.startsWith("/layout_set_logo") || path.startsWith("/logo")) {
+		if (path.startsWith("/account_logo") ||
+			path.startsWith("/organization_logo")) {
+
+			return ImageToolUtil.getDefaultOrganizationLogo();
+		}
+		else if (path.startsWith("/company_logo") ||
+				 path.startsWith("/layout_set_logo") ||
+				 path.startsWith("/logo")) {
 
 			return ImageToolUtil.getDefaultCompanyLogo();
 		}
 		else if (path.startsWith("/company_group_logo")) {
 			return ImageToolUtil.getDefaultCompanyGroupLogo();
 		}
-		else if (path.startsWith("/organization_logo")) {
-			return ImageToolUtil.getDefaultOrganizationLogo();
+		else if (path.startsWith("/liferay_logo")) {
+			return ImageToolUtil.getDefaultLiferayLogo();
 		}
 		else if (path.startsWith("/user_female_portrait")) {
 			return ImageToolUtil.getDefaultUserFemalePortrait();
@@ -1018,7 +1026,10 @@ public class WebServerServlet extends HttpServlet {
 
 		if (_processCompanyInactiveRequest(
 				httpServletRequest, httpServletResponse,
-				fileEntry.getCompanyId())) {
+				fileEntry.getCompanyId()) ||
+			_processGroupMaintenanceModeRequest(
+				httpServletRequest, httpServletResponse,
+				fileEntry.getGroupId())) {
 
 			return;
 		}
@@ -1324,7 +1335,10 @@ public class WebServerServlet extends HttpServlet {
 		if ((fileEntry == null) ||
 			_processCompanyInactiveRequest(
 				httpServletRequest, httpServletResponse,
-				fileEntry.getCompanyId())) {
+				fileEntry.getCompanyId()) ||
+			_processGroupMaintenanceModeRequest(
+				httpServletRequest, httpServletResponse,
+				fileEntry.getGroupId())) {
 
 			return;
 		}
@@ -1340,6 +1354,9 @@ public class WebServerServlet extends HttpServlet {
 			TrashHelper trashTitleResolver = _trashTitleResolverSnapshot.get();
 
 			fileName = trashTitleResolver.getOriginalTitle(fileName);
+		}
+		else if (ParamUtil.getBoolean(httpServletRequest, "useTitle")) {
+			fileName = fileEntry.getTitle();
 		}
 
 		httpServletResponse.setHeader(
@@ -1558,10 +1575,16 @@ public class WebServerServlet extends HttpServlet {
 
 		User user = _getUser(httpServletRequest);
 
-		Group group = _getGroup(user.getCompanyId(), pathArray[1]);
+		try (SafeCloseable safeCloseable =
+				CTCollectionThreadLocal.setCTCollectionIdWithSafeCloseable(
+					ParamUtil.getLong(
+						httpServletRequest, "previewCTCollectionId"))) {
 
-		return fileEntryFriendlyURLResolver.resolveFriendlyURL(
-			group.getGroupId(), pathArray[2]);
+			Group group = _getGroup(user.getCompanyId(), pathArray[1]);
+
+			return fileEntryFriendlyURLResolver.resolveFriendlyURL(
+				group.getGroupId(), pathArray[2]);
+		}
 	}
 
 	private void _checkCompanyAndGroup(
@@ -1973,6 +1996,46 @@ public class WebServerServlet extends HttpServlet {
 		if (_log.isDebugEnabled()) {
 			_log.debug("Processed company inactive request");
 		}
+
+		return true;
+	}
+
+	private boolean _processGroupMaintenanceModeRequest(
+			HttpServletRequest httpServletRequest,
+			HttpServletResponse httpServletResponse, long groupId)
+		throws Exception {
+
+		Group group = GroupLocalServiceUtil.fetchGroup(groupId);
+
+		if ((group == null) || GroupLocalServiceUtil.isLiveGroupActive(group)) {
+			return false;
+		}
+
+		if (GroupLocalServiceUtil.isMaintenanceMode(group)) {
+			PermissionChecker permissionChecker =
+				PermissionThreadLocal.getPermissionChecker();
+
+			if ((permissionChecker != null) &&
+				permissionChecker.isGroupAdmin(groupId)) {
+
+				return false;
+			}
+
+			PortalUtil.sendError(
+				HttpServletResponse.SC_SERVICE_UNAVAILABLE,
+				new PortalException(
+					"this-site-is-temporarily-unavailable-for-maintenance"),
+				httpServletRequest, httpServletResponse);
+
+			return true;
+		}
+
+		InactiveRequestHandler inactiveRequestHandler =
+			_inactiveRequestHandlerSnapshot.get();
+
+		inactiveRequestHandler.processInactiveRequest(
+			httpServletRequest, httpServletResponse,
+			"this-site-is-inactive-please-contact-the-administrator");
 
 		return true;
 	}

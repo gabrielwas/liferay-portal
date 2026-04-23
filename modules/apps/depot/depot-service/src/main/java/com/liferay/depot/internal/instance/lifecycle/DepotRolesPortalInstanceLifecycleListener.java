@@ -19,11 +19,13 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
+import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.ResourceLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.UserLocalService;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.osgi.service.component.annotations.Component;
@@ -40,7 +42,11 @@ public class DepotRolesPortalInstanceLifecycleListener
 	public void portalInstanceRegistered(Company company)
 		throws PortalException {
 
-		for (String name : DepotRoleUtil.DEPOT_ROLE_NAMES) {
+		Role assetLibraryAdministratorRole = _getOrCreateRole(
+			company.getCompanyId(),
+			DepotRolesConstants.ASSET_LIBRARY_ADMINISTRATOR);
+
+		for (String name : DepotRolesConstants.DEPOT_ROLE_NAMES) {
 			Role role = _getOrCreateRole(company.getCompanyId(), name);
 
 			_resourceLocalService.addResources(
@@ -48,7 +54,24 @@ public class DepotRolesPortalInstanceLifecycleListener
 				role.getRoleId(), false, false, false);
 
 			if (Objects.equals(
-					DepotRolesConstants.ASSET_LIBRARY_MEMBER, role.getName())) {
+					DepotRolesConstants.ASSET_LIBRARY_ADMINISTRATOR,
+					role.getName())) {
+
+				List<String> resourceActions =
+					ResourceActionsUtil.getResourceActions(
+						DepotEntry.class.getName());
+
+				resourceActions.remove(ActionKeys.ASSIGN_USER_ROLES);
+
+				_resourcePermissionLocalService.setResourcePermissions(
+					company.getCompanyId(), DepotEntry.class.getName(),
+					ResourceConstants.SCOPE_COMPANY,
+					String.valueOf(company.getCompanyId()), role.getRoleId(),
+					resourceActions.toArray(new String[0]));
+			}
+			else if (Objects.equals(
+						DepotRolesConstants.ASSET_LIBRARY_MEMBER,
+						role.getName())) {
 
 				_resourcePermissionLocalService.addResourcePermission(
 					company.getCompanyId(), DepotEntry.class.getName(),
@@ -56,6 +79,13 @@ public class DepotRolesPortalInstanceLifecycleListener
 					String.valueOf(company.getCompanyId()), role.getRoleId(),
 					ActionKeys.VIEW);
 			}
+
+			_resourcePermissionLocalService.setResourcePermissions(
+				company.getCompanyId(), Role.class.getName(),
+				ResourceConstants.SCOPE_INDIVIDUAL,
+				String.valueOf(role.getRoleId()),
+				assetLibraryAdministratorRole.getRoleId(),
+				new String[] {ActionKeys.VIEW});
 		}
 	}
 

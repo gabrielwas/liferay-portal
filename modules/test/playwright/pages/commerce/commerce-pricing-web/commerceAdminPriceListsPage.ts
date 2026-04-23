@@ -3,14 +3,15 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {Page} from '@playwright/test';
+import {Locator, Page} from '@playwright/test';
 
-import {ApplicationsMenuPage} from '../../product-navigation-applications-menu/ApplicationsMenuPage';
+import {GlobalMenuPage} from '../../product-navigation-applications-menu/GlobalMenuPage';
 import {CommerceDNDTablePage} from '../commerceDNDTablePage';
 
 export class CommerceAdminPriceListsPage extends CommerceDNDTablePage {
-	readonly applicationsMenuPage: ApplicationsMenuPage;
+	readonly globalMenuPage: GlobalMenuPage;
 	readonly page: Page;
+	readonly priceListLink: (name: string) => Locator;
 
 	constructor(page: Page) {
 		super(
@@ -18,11 +19,13 @@ export class CommerceAdminPriceListsPage extends CommerceDNDTablePage {
 			'#_com_liferay_commerce_pricing_web_internal_portlet_CommercePriceListPortlet_fm .fds table'
 		);
 
-		this.applicationsMenuPage = new ApplicationsMenuPage(page);
+		this.globalMenuPage = new GlobalMenuPage(page);
 		this.page = page;
+		this.priceListLink = (name: string) =>
+			page.getByRole('link', {name}).first();
 	}
 
 	async goto() {
-		await this.applicationsMenuPage.goToCommercePriceLists(false);
+		await this.globalMenuPage.goToCommerce('Price Lists');
 	}
 }

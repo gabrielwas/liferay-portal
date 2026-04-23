@@ -13,7 +13,6 @@ import fs from 'fs/promises';
 import * as path from 'path';
 import {getComparator} from 'playwright-core/lib/utils';
 
-import {applicationsMenuPageTest} from '../../../fixtures/applicationsMenuPageTest';
 import {dataApiHelpersTest} from '../../../fixtures/dataApiHelpersTest';
 import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
 import {loginTest} from '../../../fixtures/loginTest';
@@ -23,20 +22,21 @@ import {getRandomInt} from '../../../utils/getRandomInt';
 import getRandomString from '../../../utils/getRandomString';
 import {getSiteHomePageScreenshot} from '../../../utils/getSiteHomePageScreenshot';
 import {getTempDir} from '../../../utils/temp';
+import {pagesPagesTest} from '../../layout-admin-web/main/fixtures/pagesPagesTest';
 import {companyExportImportPageTest} from './fixtures/companyExportImportPagesTest';
 import {exportImportPagesTest} from './fixtures/exportImportPagesTest';
 import {stagingPageTest} from './fixtures/stagingPageTest';
 
 const test = mergeTests(
-	applicationsMenuPageTest,
 	companyExportImportPageTest,
 	dataApiHelpersTest,
 	exportImportPagesTest,
 	featureFlagsTest({
-		'LPD-35443': {enabled: true},
+		'LPD-35443': {enabled: false},
 		'LPD-45276': {enabled: true},
 	}),
 	loginTest(),
+	pagesPagesTest,
 	stagingPageTest,
 	styleBookPageTest,
 	uiElementsPageTest
@@ -45,7 +45,7 @@ const test = mergeTests(
 const testWithClaritySiteInitializerFF = mergeTests(
 	test,
 	featureFlagsTest({
-		'LPD-35443': {enabled: true},
+		'LPD-35443': {enabled: false},
 		'LPD-45276': {enabled: true},
 	})
 );
@@ -69,7 +69,7 @@ const testWithClaritySiteInitializerFF = mergeTests(
 
 		expect(site.name).toBeDefined();
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 		await stagingPage.goto(site.name);
 
@@ -109,6 +109,7 @@ const testWithClaritySiteInitializerFF = mergeTests(
 		apiHelpers,
 		exportImportPage,
 		page,
+		utilityPagesPage,
 	}) => {
 		let exportFilePath: string;
 		let exportableItems1: Map<string, number>;
@@ -123,7 +124,10 @@ const testWithClaritySiteInitializerFF = mergeTests(
 				templateType: 'site-initializer',
 			});
 
-			apiHelpers.data.push({id: site1.id, type: 'site'});
+			apiHelpers.data.push({
+				id: site1.externalReferenceCode,
+				type: 'site',
+			});
 		});
 
 		await test.step('Export the site 1', async () => {
@@ -139,7 +143,16 @@ const testWithClaritySiteInitializerFF = mergeTests(
 				name: getRandomString(),
 			});
 
-			apiHelpers.data.push({id: site2.id, type: 'site'});
+			apiHelpers.data.push({
+				id: site2.externalReferenceCode,
+				type: 'site',
+			});
+		});
+
+		await test.step('Delete the existing utility pages on site 2', async () => {
+			await utilityPagesPage.goto(site2.friendlyUrlPath);
+
+			await utilityPagesPage.deleteAllPages();
 		});
 
 		await test.step('Import the site 1 into site 2', async () => {
@@ -194,6 +207,7 @@ testWithClaritySiteInitializerFF(
 		page,
 		styleBooksPage,
 		uploadServletRequestSystemSettingsPage,
+		utilityPagesPage,
 	}) => {
 		testWithClaritySiteInitializerFF.setTimeout(300000);
 
@@ -299,7 +313,10 @@ testWithClaritySiteInitializerFF(
 						templateType: 'site-initializer',
 					});
 
-					apiHelpers.data.push({id: site1.id, type: 'site'});
+					apiHelpers.data.push({
+						id: site1.externalReferenceCode,
+						type: 'site',
+					});
 				}
 			);
 
@@ -347,7 +364,9 @@ testWithClaritySiteInitializerFF(
 
 					expect(exportableItems1.has('Style Books')).toBe(true);
 
-					exportFilePath = await exportImportPage.export();
+					exportFilePath = await exportImportPage.export({
+						exportAllPortlets: true,
+					});
 				}
 			);
 
@@ -358,9 +377,18 @@ testWithClaritySiteInitializerFF(
 						name: getRandomString(),
 					});
 
-					apiHelpers.data.push({id: site2.id, type: 'site'});
+					apiHelpers.data.push({
+						id: site2.externalReferenceCode,
+						type: 'site',
+					});
 				}
 			);
+
+			await test.step('Delete the existing utility pages on site 2', async () => {
+				await utilityPagesPage.goto(site2.friendlyUrlPath);
+
+				await utilityPagesPage.deleteAllPages();
+			});
 
 			await testWithClaritySiteInitializerFF.step(
 				'Import the site 1 into site 2',
@@ -387,21 +415,7 @@ testWithClaritySiteInitializerFF(
 					);
 
 					for (const [name, count] of exportableItems1.entries()) {
-						if (name === 'Calendar' || name === 'Categories') {
-
-							// TODO LPD-64899, LPD-65749
-
-							expect(exportableItems2.get(name)).toBe(count);
-						}
-						else if (name === 'Style Books') {
-
-							// TODO LPD-64905
-
-							expect(exportableItems2.get(name)).toBe(count);
-						}
-						else {
-							expect(exportableItems2.get(name)).toBe(count);
-						}
+						expect(exportableItems2.get(name)).toBe(count);
 					}
 				}
 			);

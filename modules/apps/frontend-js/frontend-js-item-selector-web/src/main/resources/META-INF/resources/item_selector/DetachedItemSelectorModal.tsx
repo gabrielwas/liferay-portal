@@ -9,9 +9,9 @@ import React, {useEffect} from 'react';
 import ItemSelectorModal from './ItemSelectorModal';
 import {TDetachedItemSelectorModal} from './types';
 
-function DetachedItemSelectorModal<T extends Record<string, any>>(
+const DetachedItemSelectorModal = <T extends Record<string, any>>(
 	props: TDetachedItemSelectorModal<T>
-) {
+) => {
 	const {observer, onOpenChange, open} = useModal();
 
 	useEffect(() => {
@@ -30,6 +30,6 @@ function DetachedItemSelectorModal<T extends Record<string, any>>(
 			)}
 		</>
 	);
-}
+};
 
 export default DetachedItemSelectorModal;

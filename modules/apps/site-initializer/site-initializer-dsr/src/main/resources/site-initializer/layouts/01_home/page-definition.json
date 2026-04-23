@@ -3,126 +3,358 @@
 		"pageElements": [
 			{
 				"definition": {
-					"cssClasses": [
-						"p-3",
-						"p-lg-4"
-					],
+					"fragmentStyle": {
+						"marginLeft": "4",
+						"marginRight": "4"
+					},
 					"indexed": true,
 					"layout": {
+						"marginLeft": 2,
+						"marginRight": 2
 					}
 				},
-				"id": "27edfb44-ab3e-5671-1b7d-3c8ace340ecc",
 				"pageElements": [
 					{
 						"definition": {
-							"indexed": true,
-							"layout": {
-							}
-						},
-						"id": "2c14a5f5-e235-1234-a146-34999055341d",
-						"pageElements": [
-						],
-						"type": "Section"
-					},
-					{
-						"definition": {
-							"indexed": true,
-							"layout": {
-							}
-						},
-						"id": "5d512a72-a41d-405d-9876-b7b73ed33053",
-						"pageElements": [
-						],
-						"type": "Section"
-					},
-					{
-						"definition": {
-							"gutters": true,
-							"indexed": true,
-							"modulesPerRow": 2,
-							"numberOfColumns": 2,
-							"reverseOrder": false,
-							"rowViewports": [
+							"fragment": {
+								"key": "BASIC_COMPONENT-html"
+							},
+							"fragmentConfig": {
+							},
+							"fragmentFields": [
 								{
-									"id": "landscapeMobile",
-									"rowViewportDefinition": {
-										"modulesPerRow": 1
-									}
-								},
-								{
-									"id": "portraitMobile",
-									"rowViewportDefinition": {
-									}
-								},
-								{
-									"id": "tablet",
-									"rowViewportDefinition": {
+									"id": "element-html",
+									"value": {
+										"html": {
+											"value_i18n": {
+												"en_US": "<h2 class=\"font-weight-semi-bold mb-0 text-7 text-dark\">Home</h2>\n"
+											}
+										}
 									}
 								}
 							],
-							"verticalAlignment": "top"
+							"fragmentStyle": {
+								"marginBottom": "4",
+								"marginTop": "4"
+							},
+							"indexed": true
 						},
-						"id": "217ebad7-ef54-65e6-a123-b181b89419f7",
+						"type": "Fragment"
+					},
+					{
+						"definition": {
+							"fragmentStyle": {
+								"marginBottom": "4",
+								"marginTop": "4"
+							},
+							"indexed": true,
+							"layout": {
+								"marginBottom": 2,
+								"marginTop": 2
+							}
+						},
 						"pageElements": [
 							{
 								"definition": {
-									"columnViewports": [
+									"fragmentStyle": {
+										"marginBottom": "1"
+									},
+									"gutters": false,
+									"indexed": true,
+									"modulesPerRow": 2,
+									"numberOfColumns": 2,
+									"reverseOrder": false,
+									"rowViewports": [
 										{
-											"columnViewportDefinition": {
-												"size": 12
-											},
-											"id": "landscapeMobile"
+											"id": "landscapeMobile",
+											"rowViewportDefinition": {
+											}
 										},
 										{
-											"columnViewportDefinition": {
-											},
-											"id": "portraitMobile"
+											"id": "portraitMobile",
+											"rowViewportDefinition": {
+											}
 										},
 										{
-											"columnViewportDefinition": {
-											},
-											"id": "tablet"
+											"id": "tablet",
+											"rowViewportDefinition": {
+											}
 										}
 									],
-									"size": 7
+									"verticalAlignment": "middle"
 								},
-								"id": "02137bb8-9814-84a1-615c-a5fdb57a5033",
 								"pageElements": [
+									{
+										"definition": {
+											"columnViewports": [
+												{
+													"columnViewportDefinition": {
+													},
+													"id": "landscapeMobile"
+												},
+												{
+													"columnViewportDefinition": {
+													},
+													"id": "portraitMobile"
+												},
+												{
+													"columnViewportDefinition": {
+													},
+													"id": "tablet"
+												}
+											],
+											"size": 10
+										},
+										"pageElements": [
+											{
+												"definition": {
+													"fragment": {
+														"key": "BASIC_COMPONENT-html"
+													},
+													"fragmentConfig": {
+													},
+													"fragmentFields": [
+														{
+															"id": "element-html",
+															"value": {
+																"html": {
+																	"value_i18n": {
+																		"en_US": "\n<h2 class=\"font-weight-semi-bold m-0 text-4\">Digital Sales Rooms</h2>\n"
+																	}
+																}
+															}
+														}
+													],
+													"indexed": true
+												},
+												"id": "51965f09-19ae-5a36-eb34-55a6b83e794a",
+												"type": "Fragment"
+											}
+										],
+										"type": "Column"
+									},
+									{
+										"definition": {
+											"columnViewports": [
+												{
+													"columnViewportDefinition": {
+													},
+													"id": "landscapeMobile"
+												},
+												{
+													"columnViewportDefinition": {
+													},
+													"id": "portraitMobile"
+												},
+												{
+													"columnViewportDefinition": {
+													},
+													"id": "tablet"
+												}
+											],
+											"size": 2
+										},
+										"pageElements": [
+											{
+												"definition": {
+													"fragment": {
+														"key": "BASIC_COMPONENT-button"
+													},
+													"fragmentConfig": {
+														"buttonSize": "sm",
+														"buttonType": "link",
+														"type": "link"
+													},
+													"fragmentFields": [
+														{
+															"id": "link",
+															"value": {
+																"fragmentLink": {
+																	"value": {
+																		"href": {
+																			"mapping": {
+																				"itemReference": {
+																					"className": "com.liferay.portal.kernel.model.Layout",
+																					"fields": [
+																						{
+																							"fieldName": "friendlyURL",
+																							"fieldValue": "/rooms"
+																						},
+																						{
+																							"fieldName": "privatePage",
+																							"fieldValue": "false"
+																						}
+																					]
+																				}
+																			}
+																		}
+																	}
+																},
+																"text": {
+																	"value_i18n": {
+																		"en_US": "View All"
+																	}
+																}
+															}
+														}
+													],
+													"fragmentStyle": {
+														"textAlign": "right"
+													},
+													"indexed": true
+												},
+												"type": "Fragment"
+											}
+										],
+										"type": "Column"
+									}
 								],
-								"type": "Column"
+								"type": "Row"
 							},
 							{
 								"definition": {
-									"columnViewports": [
-										{
-											"columnViewportDefinition": {
-												"size": 12
-											},
-											"id": "landscapeMobile"
-										},
-										{
-											"columnViewportDefinition": {
-											},
-											"id": "portraitMobile"
-										},
-										{
-											"columnViewportDefinition": {
-											},
-											"id": "tablet"
-										}
+									"fragment": {
+										"key": "com.liferay.site.dsr.site.initializer.internal.fragment.renderer.ViewRoomsJSPSectionFragmentRenderer"
+									},
+									"fragmentConfig": {
+										"isHomePage": true
+									},
+									"fragmentFields": [
 									],
-									"size": 5
+									"indexed": true
 								},
-								"id": "3e7c52b6-4a61-9160-8751-1f1e3cc21427",
-								"pageElements": [
-								],
-								"type": "Column"
+								"type": "Fragment"
 							}
 						],
-						"type": "Row"
+						"type": "Section"
 					}
 				],
 				"type": "Section"
+			},
+			{
+				"definition": {
+					"customCSS": ".[$FRAGMENT_CLASS$] .dsr-section {\npadding: 0.75rem 1.5rem;\n}",
+					"fragment": {
+						"key": "com.liferay.site.dsr.site.initializer.internal.fragment.renderer.ViewAnalyticsRoomStatisticsJSPSectionFragmentRenderer"
+					},
+					"fragmentConfig": {
+					},
+					"fragmentFields": [
+					],
+					"indexed": true
+				},
+				"type": "Fragment"
+			},
+			{
+				"definition": {
+					"gutters": false,
+					"indexed": true,
+					"modulesPerRow": 2,
+					"numberOfColumns": 2,
+					"reverseOrder": false,
+					"rowViewports": [
+						{
+							"id": "landscapeMobile",
+							"rowViewportDefinition": {
+								"modulesPerRow": 1
+							}
+						},
+						{
+							"id": "portraitMobile",
+							"rowViewportDefinition": {
+							}
+						},
+						{
+							"id": "tablet",
+							"rowViewportDefinition": {
+							}
+						}
+					],
+					"verticalAlignment": "top"
+				},
+				"pageElements": [
+					{
+						"definition": {
+							"columnViewports": [
+								{
+									"columnViewportDefinition": {
+										"size": 12
+									},
+									"id": "landscapeMobile"
+								},
+								{
+									"columnViewportDefinition": {
+									},
+									"id": "portraitMobile"
+								},
+								{
+									"columnViewportDefinition": {
+									},
+									"id": "tablet"
+								}
+							],
+							"size": 7
+						},
+						"pageElements": [
+							{
+								"definition": {
+									"customCSS": ".[$FRAGMENT_CLASS$] .dsr-section {\npadding: 0.75rem 0.75rem 0.75rem 1.5rem;\n}",
+									"fragment": {
+										"key": "com.liferay.site.dsr.site.initializer.internal.fragment.renderer.ViewAnalyticsDocumentsStatisticsJSPSectionFragmentRenderer"
+									},
+									"fragmentConfig": {
+									},
+									"fragmentFields": [
+									],
+									"indexed": true
+								},
+								"type": "Fragment"
+							}
+						],
+						"type": "Column"
+					},
+					{
+						"definition": {
+							"columnViewports": [
+								{
+									"columnViewportDefinition": {
+										"size": 12
+									},
+									"id": "landscapeMobile"
+								},
+								{
+									"columnViewportDefinition": {
+									},
+									"id": "portraitMobile"
+								},
+								{
+									"columnViewportDefinition": {
+									},
+									"id": "tablet"
+								}
+							],
+							"size": 5
+						},
+						"pageElements": [
+							{
+								"definition": {
+									"customCSS": ".[$FRAGMENT_CLASS$] .dsr-section {\npadding: 0.75rem 1.5rem 0.75rem 0.75rem;\n}",
+									"fragment": {
+										"key": "com.liferay.site.dsr.site.initializer.internal.fragment.renderer.ViewAnalyticsLatestActivityJSPSectionFragmentRenderer"
+									},
+									"fragmentConfig": {
+									},
+									"fragmentFields": [
+									],
+									"indexed": true
+								},
+								"type": "Fragment"
+							}
+						],
+						"type": "Column"
+					}
+				],
+				"type": "Row"
 			}
 		],
 		"type": "Root"
@@ -132,5 +364,5 @@
 			"key": "dsr-master"
 		}
 	},
-	"version": 1.1
+	"version": 1.2
 }

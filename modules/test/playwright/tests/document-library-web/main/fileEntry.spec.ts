@@ -8,15 +8,17 @@ import {createReadStream} from 'fs';
 import path from 'path';
 
 import {apiHelpersTest} from '../../../fixtures/apiHelpersTest';
-import {applicationsMenuPageTest} from '../../../fixtures/applicationsMenuPageTest';
 import {documentLibraryPagesTest} from '../../../fixtures/documentLibraryPages.fixtures';
 import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
+import {globalMenuPagesTest} from '../../../fixtures/globalMenuPagesTest';
 import {isolatedSiteTest} from '../../../fixtures/isolatedSiteTest';
 import {loginTest} from '../../../fixtures/loginTest';
 import {pageEditorPagesTest} from '../../../fixtures/pageEditorPagesTest';
 import {siteSettingsPagesTest} from '../../../fixtures/siteSettingsPagesTest';
+import {workflowPagesTest} from '../../../fixtures/workflowPagesTest';
 import {createCategories} from '../../../helpers/CreateCategories';
 import {DLFILE_STATUS} from '../../../helpers/json-web-services/JSONWebServicesDocumentLibraryApiHelper';
+import {checkAccessibility} from '../../../utils/checkAccessibility';
 import {clickAndExpectToBeHidden} from '../../../utils/clickAndExpectToBeHidden';
 import {clickAndExpectToBeVisible} from '../../../utils/clickAndExpectToBeVisible';
 import getRandomString from '../../../utils/getRandomString';
@@ -29,11 +31,12 @@ import getWidgetDefinition from '../../layout-content-page-editor-web/main/utils
 
 const test = mergeTests(
 	apiHelpersTest,
-	applicationsMenuPageTest,
 	documentLibraryPagesTest,
+	workflowPagesTest,
 	featureFlagsTest({
 		'LPS-178052': {enabled: true},
 	}),
+	globalMenuPagesTest,
 	isolatedSiteTest,
 	loginTest(),
 	pageEditorPagesTest,
@@ -331,7 +334,6 @@ test(
 	{
 		tag: '@LPD-29609',
 	},
-
 	async ({
 		documentLibraryEditDocumentTypesPage,
 		documentLibraryEditFilePage,
@@ -361,7 +363,6 @@ test(
 	{
 		tag: '@LPD-50971',
 	},
-
 	async ({apiHelpers, documentLibraryPage, page, site}) => {
 		const vocabularyName = getRandomString();
 
@@ -649,7 +650,6 @@ test(
 	{
 		tag: ['@LPD-27899', '@LPSA-74819'],
 	},
-
 	async ({
 		apiHelpers,
 		documentLibraryEditFilePage,
@@ -729,7 +729,6 @@ test(
 	{
 		tag: '@LPD-42737',
 	},
-
 	async ({
 		apiHelpers,
 		documentLibraryPage,
@@ -879,15 +878,13 @@ test(
 	{
 		tag: '@LPP-53324',
 	},
-
 	async ({
 		apiHelpers,
-		applicationsMenuPage,
 		documentLibraryEditDocumentTypesPage,
 		documentLibraryEditFilePage,
 		documentLibraryPage,
+		globalMenuPage,
 		page,
-		site,
 		siteSettingsLocalizationPage,
 	}) => {
 		const dTypeTitle = getRandomString();
@@ -896,6 +893,10 @@ test(
 			dTypeTitle,
 			'/global'
 		);
+
+		const site = await apiHelpers.headlessAdminSite.postSite({
+			name: getRandomString(),
+		});
 
 		await siteSettingsLocalizationPage.setCustomDefaultLanguage(
 			'Spanish (Spain)',
@@ -921,8 +922,10 @@ test(
 			'Success:Your request completed successfully.'
 		);
 
-		await apiHelpers.headlessSite.deleteSite(site.id);
-		await applicationsMenuPage.goToGlobalSite();
+		await globalMenuPage.goToSite('Global');
+		await apiHelpers.headlessAdminSite.deleteSite(
+			site.externalReferenceCode
+		);
 		await documentLibraryPage.deleteDocumentType(dTypeTitle);
 
 		await waitForAlert(
@@ -1022,7 +1025,6 @@ test(
 	{
 		tag: '@LPD-57911',
 	},
-
 	async ({
 		documentLibraryEditDocumentTypesPage,
 		documentLibraryEditFilePage,
@@ -1082,7 +1084,6 @@ test(
 	{
 		tag: ['@LPD-71053'],
 	},
-
 	async ({
 		documentLibraryEditFilePage,
 		documentLibraryEditFolderPage,
@@ -1107,5 +1108,120 @@ test(
 		await expect(
 			page.getByRole('button', {name: 'Select All'})
 		).not.toBeVisible();
+	}
+);
+
+test(
+	'Show the last modified date of the most recent version of a document, even if that version is still pending',
+	{
+		tag: ['@LPD-83517'],
+	},
+	async ({
+		documentLibraryEditFilePage,
+		documentLibraryEditFolderPage,
+		documentLibraryPage,
+		page,
+		site,
+		workflowTasksPage,
+	}) => {
+		const docTitle = getRandomString();
+		const expectSuccessToast = async () => {
+			await expect(
+				page.getByText('Your request completed successfully.')
+			).toBeVisible();
+		};
+		const folderTitle = getRandomString();
+		const newDocTitle = docTitle + ' Edited';
+
+		await test.step('Create a new Folder', async () => {
+			await documentLibraryPage.goto(site.friendlyUrlPath);
+			await documentLibraryPage.goToCreateNewFolder();
+			await documentLibraryEditFolderPage.publishNewFolder(folderTitle);
+		});
+
+		await test.step('Add workflow to the Folder', async () => {
+			await documentLibraryPage.goToEditFolder(folderTitle);
+			await page.waitForURL(/edit_folder/);
+			await documentLibraryEditFolderPage.setWorkflow('Single Approver');
+			await documentLibraryPage.goto(site.friendlyUrlPath);
+		});
+
+		await test.step('Create a new File in the Folder', async () => {
+			await page.getByRole('link', {name: folderTitle}).click();
+			await page.waitForURL(/view_folder/);
+			const folderUrl = page.url();
+			await documentLibraryPage.goToCreateNewFile();
+			await documentLibraryEditFilePage.submitWorkflowForBasicFileEntry(
+				docTitle
+			);
+			await page.waitForURL(folderUrl);
+		});
+
+		await test.step('Approve the workflow task', async () => {
+			await workflowTasksPage.goToAssignedToMyRoles();
+			await workflowTasksPage.assignToMe(docTitle);
+			await workflowTasksPage.approve(docTitle);
+		});
+
+		await test.step('Edit the new File', async () => {
+			await documentLibraryPage.goto(site.friendlyUrlPath);
+			await page.getByRole('link', {name: folderTitle}).click();
+			await page.waitForURL(/view_folder/);
+			await documentLibraryPage.goToEditFileEntry(docTitle);
+			await page.waitForURL(/edit_file_entry/);
+			await expect(
+				documentLibraryEditFilePage.titleSelector
+			).toBeVisible();
+			await documentLibraryEditFilePage.submitWorkflowForBasicFileEntry(
+				newDocTitle
+			);
+			await expectSuccessToast();
+		});
+
+		await test.step('Verify modified date of the file', async () => {
+			await documentLibraryPage.goto(site.friendlyUrlPath);
+			await page.getByRole('link', {name: folderTitle}).click();
+			await page.waitForURL(/view_folder/);
+
+			const editedCard = page.locator('.card', {hasText: newDocTitle});
+			const recentlyModified =
+				/Modified ((\d{1,2} Seconds? ago)|Just now)/;
+			await expect(editedCard.locator('.card-subtitle')).toHaveText(
+				recentlyModified
+			);
+		});
+	}
+);
+
+test(
+	'Check accessibility of the search container in DM',
+	{
+		tag: ['@LPD-83985'],
+	},
+	async ({documentLibraryEditFilePage, documentLibraryPage, page, site}) => {
+		await documentLibraryPage.goto(site.friendlyUrlPath);
+
+		const title = getRandomString();
+
+		await documentLibraryEditFilePage.publishNewBasicFileEntry(
+			title,
+			site.friendlyUrlPath
+		);
+
+		const views: string[] = ['table', 'list', 'cards'];
+
+		for (const view of views) {
+			await test.step(`Change visualization mode to ${view}`, async () => {
+				await documentLibraryPage.changeView(view);
+
+				await checkAccessibility({
+					bestPractices: true,
+					page,
+					selectors: [
+						'#_com_liferay_document_library_web_portlet_DLAdminPortlet_documentLibraryContainer',
+					],
+				});
+			});
+		}
 	}
 );

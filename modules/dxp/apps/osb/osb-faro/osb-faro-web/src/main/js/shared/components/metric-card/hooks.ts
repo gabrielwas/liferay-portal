@@ -12,22 +12,27 @@ import {useQuery} from '@apollo/react-hooks';
 
 interface ICommonVariables extends SafeRangeSelectors, Filters {
 	interval: Interval;
+	type?: string;
 }
 
-export const useAssetVariables = (commonVariables: ICommonVariables) => {
+export const useAssetVariables = (variables: ICommonVariables) => {
+	const {type, ...commonVariables} = variables;
 	const {assetId, channelId, title, touchpoint} = useParams();
 
 	return {
 		assetId: getSafeDecodedURIComponent(assetId),
-		channelId,
-		title: getSafeDecodedURIComponent(title),
 		touchpoint: getSafeTouchpoint(touchpoint),
+		...(type !== 'objectEntry' && {
+			channelId,
+			title: getSafeDecodedURIComponent(title)
+		}),
 		...commonVariables
 	};
 };
 
 type TMetricQuery = {
 	filters: RawFilters;
+	experienceId?: string;
 	interval: Interval;
 	Query: DocumentNode;
 	rangeSelectors: RangeSelectors;
@@ -35,6 +40,7 @@ type TMetricQuery = {
 };
 
 export const useMetricQuery = ({
+	experienceId,
 	filters,
 	interval,
 	Query,
@@ -46,7 +52,8 @@ export const useMetricQuery = ({
 		variables: variables({
 			interval,
 			...getFilters(filters),
-			...getSafeRangeSelectors(rangeSelectors)
+			...getSafeRangeSelectors(rangeSelectors),
+			...(experienceId && {experienceId})
 		})
 	});
 

@@ -114,6 +114,14 @@ public class ContentEditorToolbarComponentSectionFragmentRenderer
 		return hashMapWrapper.put(
 			"displayDate",
 			() -> {
+				String restoredDisplayDate =
+					InfoItemUtil.getRestoredInfoFieldValue(
+						httpServletRequest, "ObjectEntry_displayDate");
+
+				if (restoredDisplayDate != null) {
+					return restoredDisplayDate;
+				}
+
 				Date displayDate = objectEntry.getDisplayDate();
 
 				if (displayDate == null) {
@@ -121,8 +129,8 @@ public class ContentEditorToolbarComponentSectionFragmentRenderer
 				}
 
 				return DateUtil.getDate(
-					displayDate, "yyyy-MM-dd'T'HH:mm",
-					themeDisplay.getLocale());
+					displayDate, "yyyy-MM-dd'T'HH:mm", themeDisplay.getLocale(),
+					themeDisplay.getTimeZone());
 			}
 		).put(
 			"hasWorkflow",
@@ -159,13 +167,17 @@ public class ContentEditorToolbarComponentSectionFragmentRenderer
 						themeDisplay.getLocale(), "translate-x", title);
 				}
 
-				if (objectEntry.getVersion() > 0) {
+				if (Objects.equals(
+						Constants.ADD,
+						ParamUtil.getString(
+							httpServletRequest, Constants.CMD))) {
+
 					return language.format(
-						themeDisplay.getLocale(), "edit-x", title);
+						themeDisplay.getLocale(), "new-x", title);
 				}
 
 				return language.format(
-					themeDisplay.getLocale(), "new-x", title);
+					themeDisplay.getLocale(), "edit-x", title);
 			}
 		).put(
 			"type",

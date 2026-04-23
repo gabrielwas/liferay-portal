@@ -5,18 +5,80 @@
 
 import ClayBreadcrumb from '@clayui/breadcrumb';
 import {ClayButtonWithIcon} from '@clayui/button';
-import ClayDropDown from '@clayui/drop-down';
+import ClayDropDown, {ClayDropDownWithItems} from '@clayui/drop-down';
+import {openModal} from 'frontend-js-components-web';
+import {navigate, sub} from 'frontend-js-web';
 import React, {ComponentProps} from 'react';
 
-type ActionDropdownItemProps = ComponentProps<typeof ClayDropDown.Item>;
+import DesignLibraryConnectedSitesModal from './modal/DesignLibraryConnectedSitesModal';
+import confirmAndDeleteEntryAction from './props_transformer/actions/confirmAndDeleteEntryAction';
 
+export interface ActionDropdownItemProps {
+	descriptiveName?: string;
+	externalReferenceCode?: string;
+	href?: string;
+	label?: string;
+	redirect?: string;
+	target?: 'connected-sites' | string;
+}
 interface DesignLibraryBreadcrumbProps {
-	actionItems?: ActionDropdownItemProps[];
+	actionItems?: ComponentProps<typeof ClayDropDownWithItems>['items'] &
+		ActionDropdownItemProps;
 	breadcrumbItems: {active: boolean; href?: string; label: string}[];
 }
 
-function ActionDropdownItem(props: ActionDropdownItemProps) {
-	return <ClayDropDown.Item {...props}>{props.title}</ClayDropDown.Item>;
+function ActionDropdownItem({
+	descriptiveName = '',
+	externalReferenceCode = '',
+	href = '',
+	label,
+	redirect,
+	target,
+	...props
+}: ActionDropdownItemProps) {
+	const handleClick = async () => {
+		if (target === 'connected-sites') {
+			openModal({
+				contentComponent: () =>
+					DesignLibraryConnectedSitesModal({
+						externalReferenceCode,
+					}),
+				size: 'md',
+			});
+		}
+		else if (target === 'delete') {
+			confirmAndDeleteEntryAction({
+				bodyHTML: `
+					<p>${Liferay.Language.get('delete-design-library-confirmation-body-main')}</p>
+					<p>${Liferay.Language.get('delete-design-library-confirmation-body-warning')}</p>
+				`,
+				deleteAction: {
+					href,
+					method: 'DELETE',
+				},
+				redirect,
+				successMessage: sub(
+					Liferay.Language.get('x-was-successfully-deleted'),
+					`<strong>${Liferay.Util.escapeHTML(descriptiveName)}</strong>`
+				),
+				title: sub(
+					Liferay.Language.get(
+						'delete-design-library-confirmation-title'
+					),
+					descriptiveName
+				),
+			});
+		}
+		else {
+			navigate(href);
+		}
+	};
+
+	return (
+		<ClayDropDown.Item onClick={handleClick} {...props}>
+			{label}
+		</ClayDropDown.Item>
+	);
 }
 
 export default function DesignLibraryBreadcrumb({

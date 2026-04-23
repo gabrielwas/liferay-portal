@@ -7,6 +7,7 @@ import {z} from 'zod';
 
 import {OrderCustomFields, OrderTypes} from '../../../enums/Order';
 import zodSchema from '../../../schema/zod';
+import HeadlessAIHubBetaRequestAccess from '../../../services/rest/HeadlessAIHubBetaRequestAccess';
 import {getSiteURL} from '../../../utils/site';
 import ProductPurchase from './ProductPurchase';
 
@@ -30,21 +31,7 @@ export class ProductPurchaseAIHub extends ProductPurchase {
 			customFields: {
 				...baseCart?.customFields,
 				[OrderCustomFields.ORDER_METADATA]: JSON.stringify({
-					aiHubForm: {
-						administrationEmailAddress:
-							this.form?.administrationEmailAddress,
-						aiHubAccountName: this.form?.aiHubAccountName,
-						businessEmail: this.form?.businessEmail,
-						companyName: this.form?.companyName,
-						country: this.form?.country,
-						extension: this.form?.extension,
-						fullName: this.form?.fullname,
-						intlCode: this.form?.intlCode.code,
-						jobTitle: this.form?.jobTitle,
-						phoneNumber: this.form?.phoneNumber,
-						purpose: this.form?.purpose,
-						purposeOther: this.form?.purposeOther,
-					},
+					aiHubForm: this.form,
 				}),
 			},
 		} as Cart;
@@ -58,6 +45,11 @@ export class ProductPurchaseAIHub extends ProductPurchase {
 		const cart = this.getCart();
 
 		const order = await super.createOrder(cart);
+
+		await HeadlessAIHubBetaRequestAccess.createAIHubBetaRequestAccess({
+			...this.form,
+			r_orderToAIHubBetaPrivateAccessRequest_commerceOrderId: order?.id,
+		});
 
 		return order;
 	}

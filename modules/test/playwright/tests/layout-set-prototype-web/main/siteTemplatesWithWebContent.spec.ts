@@ -6,9 +6,9 @@
 import {expect, mergeTests} from '@playwright/test';
 
 import {apiHelpersTest} from '../../../fixtures/apiHelpersTest';
-import {applicationsMenuPageTest} from '../../../fixtures/applicationsMenuPageTest';
 import {dataApiHelpersTest} from '../../../fixtures/dataApiHelpersTest';
 import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
+import {globalMenuPagesTest} from '../../../fixtures/globalMenuPagesTest';
 import {isolatedSiteTest} from '../../../fixtures/isolatedSiteTest';
 import {loginTest} from '../../../fixtures/loginTest';
 import {pageEditorPagesTest} from '../../../fixtures/pageEditorPagesTest';
@@ -24,8 +24,8 @@ import createSiteTemplate from './utils/createSiteTemplate';
 
 export const test = mergeTests(
 	apiHelpersTest,
-	applicationsMenuPageTest,
 	dataApiHelpersTest,
+	globalMenuPagesTest,
 	featureFlagsTest({
 		'LPD-39304': {enabled: true},
 	}),
@@ -44,7 +44,7 @@ test(
 	{tag: ['@LPD-46415']},
 	async ({
 		apiHelpers,
-		applicationsMenuPage,
+		globalMenuPage,
 		page,
 		pageEditorPage,
 		pagesAdminPage,
@@ -98,22 +98,22 @@ test(
 			titleMap: {en_US: webContentName},
 		});
 
-		await applicationsMenuPage.goToSites();
+		await globalMenuPage.goToControlPanel('Sites');
 
 		const siteName = getRandomString();
 
-		const siteId = await sitesPage.createSite({
+		const {externalReferenceCode} = await sitesPage.createSite({
 			isCustom: true,
 			siteName,
 			templateName: layoutSetPrototype.nameCurrentValue,
 		});
 
 		apiHelpers.data.push({
-			id: siteId,
+			id: externalReferenceCode,
 			type: 'site',
 		});
 
-		await applicationsMenuPage.goToSite(siteName);
+		await globalMenuPage.goToSite(siteName);
 		await productMenuPage.goToPages();
 		await page.getByLabel(`${page1Name}`, {exact: true}).click();
 		await pageEditorPage.addWidget(

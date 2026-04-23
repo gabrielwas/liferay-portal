@@ -51,17 +51,6 @@ resource "kubernetes_manifest" "infrastructure_applicationset" {
 						namespace="liferay-${var.infrastructure_git_repo_config.target.namespaceSuffix}"
 						server="https://kubernetes.default.svc"
 					}
-					ignoreDifferences=[
-						{
-							group="aws.liferay.com"
-							jsonPointers=[
-								"/spec/database/snapshotIdentifier",
-								"/spec/restorePhase",
-								"/spec/targetActiveDataPlane",
-							]
-							kind="LiferayInfrastructure"
-						},
-					]
 					project=local.infrastructure_appproject_name
 					sources=[
 						merge(
@@ -99,7 +88,7 @@ resource "kubernetes_manifest" "infrastructure_applicationset" {
 									]
 								}
 								repoURL=var.infrastructure_helm_chart_config.chart_url
-								targetRevision=var.infrastructure_helm_chart_config.version
+								targetRevision=var.infrastructure_helm_chart_version
 							},
 							var.infrastructure_helm_chart_config.path == null ? {
 								chart=var.infrastructure_helm_chart_config.chart_name
@@ -117,6 +106,11 @@ resource "kubernetes_manifest" "infrastructure_applicationset" {
 						automated={
 							prune=true
 							selfHeal=true
+						}
+						managedNamespaceMetadata={
+							labels = {
+								"pod-security.kubernetes.io/enforce"="restricted"
+							}
 						}
 						syncOptions=[
 							"CreateNamespace=true",
@@ -156,6 +150,10 @@ resource "kubernetes_manifest" "infrastructure_appproject" {
 			]
 			description="ArgoCD project for Liferay could native infrastructure."
 			destinations=[
+				{
+					namespace="cluster-bootstrap-system"
+					server="https://kubernetes.default.svc"
+				},
 				{
 					namespace="elastic-system"
 					server="https://kubernetes.default.svc"
@@ -273,13 +271,25 @@ resource "kubernetes_manifest" "infrastructure_provider_application" {
 							]
 						}
 						repoURL=var.infrastructure_provider_helm_chart_config.chart_url
-						targetRevision=var.infrastructure_provider_helm_chart_config.version
+						targetRevision=var.infrastructure_provider_helm_chart_version
 					},
 					var.infrastructure_provider_helm_chart_config.path == null ? {
 						chart=var.infrastructure_provider_helm_chart_config.chart_name
 					} : {
 						path=var.infrastructure_provider_helm_chart_config.path
 					}
+				),
+				merge(
+					{
+						kustomize={}
+						repoURL=var.infrastructure_provider_helm_chart_config.chart_url
+						targetRevision=var.infrastructure_provider_helm_chart_version
+					},
+					var.infrastructure_provider_helm_chart_config.path == null ? {
+						chart=var.infrastructure_provider_helm_chart_config.chart_name
+					} : {
+						path=var.infrastructure_provider_helm_chart_config.path
+					},
 				),
 				{
 					ref="values"
@@ -398,7 +408,7 @@ resource "kubernetes_manifest" "liferay_applicationset" {
 									]
 								}
 								repoURL=local.liferay_helm_chart_config.chart_url
-								targetRevision=local.liferay_helm_chart_config.version
+								targetRevision=var.liferay_helm_chart_version
 							},
 							local.liferay_helm_chart_config.path == null ? {
 								chart=local.liferay_helm_chart_config.chart_name
@@ -424,6 +434,11 @@ resource "kubernetes_manifest" "liferay_applicationset" {
 						automated={
 							prune=true
 							selfHeal=true
+						}
+						managedNamespaceMetadata={
+							labels = {
+								"pod-security.kubernetes.io/enforce"="restricted"
+							}
 						}
 						syncOptions=[
 							"CreateNamespace=true",

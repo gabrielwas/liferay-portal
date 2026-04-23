@@ -6,6 +6,7 @@
 import {IInternalRenderer, replaceTokens} from '@liferay/frontend-data-set-web';
 import {navigate, sessionStorage, sub} from 'frontend-js-web';
 
+import StatusLabel from '../../common/components/StatusLabel';
 import {openCMSModal} from '../../common/utils/openCMSModal';
 import FilePreviewerModalContent from '../modal/FilePreviewerModalContent';
 import confirmAndDeleteEntryAction from './actions/confirmAndDeleteEntryAction';
@@ -45,6 +46,11 @@ export default function ViewVersionHistoryFDSPropsTransformer({
 					name: 'versionTableCellRenderer',
 					type: 'internal',
 				} as IInternalRenderer,
+				{
+					component: ({value}) => StatusLabel(value),
+					name: 'statusTableCellRenderer',
+					type: 'internal',
+				} as IInternalRenderer,
 			],
 		},
 		hideManagementBarInEmptyState: true,
@@ -58,7 +64,7 @@ export default function ViewVersionHistoryFDSPropsTransformer({
 			else if (action?.data?.id === 'view-content') {
 				return {
 					...action,
-					isVisible: (item: any) => Boolean(!item?.file?.link?.href),
+					isVisible: (item: any) => Boolean(!item?.file),
 				};
 			}
 			else if (action?.data?.id === 'view-file') {

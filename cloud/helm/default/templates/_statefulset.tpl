@@ -27,6 +27,9 @@ spec:
         metadata:
             annotations:
                 checksum/config: {{ include (print .root.Template.BasePath "/configmap.yaml") .root | sha256sum }}
+                {{- with .statefulset.annotations }}
+                {{- toYaml . | nindent 16 }}
+                {{- end }}
             labels:
                 app: {{ include "liferay.name" .root }}{{ $suffix }}
                 {{- include "liferay.labels" .root | nindent 16 }}
@@ -43,7 +46,9 @@ spec:
                         {{- toYaml . | nindent 22 }}
                         {{- end }}
                         {{- range $k, $v := .statefulset.customEnv }}
+                        {{- if and $v (gt (len $v) 0) }}
                         {{- toYaml $v | nindent 22 }}
+                        {{- end }}
                         {{- end }}
                     {{- end }}
                     {{- if or .statefulset.envFrom .statefulset.customEnvFrom }}
@@ -52,7 +57,9 @@ spec:
                         {{- toYaml . | nindent 22 }}
                         {{- end }}
                         {{- range $k, $v := .statefulset.customEnvFrom }}
+                        {{- if and $v (gt (len $v) 0) }}
                         {{- toYaml $v | nindent 22 }}
+                        {{- end }}
                         {{- end }}
                     {{- end }}
                     image: {{ printf "%s:%s" .statefulset.image.repository (.statefulset.image.tag | toString) }}
@@ -93,7 +100,9 @@ spec:
                         {{- toYaml . | nindent 22 }}
                         {{- end }}
                         {{- range $k, $v := .statefulset.customVolumeMounts }}
+                        {{- if and $v (gt (len $v) 0) }}
                         {{- toYaml $v | nindent 22 }}
+                        {{- end }}
                         {{- end }}
                     {{- end }}
             {{- if or .statefulset.pullSecrets .statefulset.customPullSecrets}}
@@ -173,6 +182,27 @@ spec:
     {{- end }}
 {{- if and .statefulset.network .statefulset.network.enabled }}
 ---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+    labels:
+        app: {{ include "liferay.name" .root }}{{ $suffix }}
+        {{- include "liferay.labels" .root | nindent 8 }}
+    name: {{ include "liferay.name" .root }}-hash-policy
+    namespace: {{ include "liferay.namespace" .root }}
+spec:
+    loadBalancer:
+        consistentHash:
+            cookie:
+                name:
+                    JSESSIONID
+            type: Cookie
+        type: ConsistentHash
+    targetRefs:
+        -   group: gateway.networking.k8s.io
+            kind: HTTPRoute
+            name: {{ include "liferay.name" .root }}-httproute
+---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -219,6 +249,9 @@ spec:
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
+    labels:
+        app: {{ include "liferay.name" .root }}{{ $suffix }}
+        {{- include "liferay.labels" .root | nindent 8 }}
     name: {{ include "liferay.name" .root }}-https-redirect
     namespace: {{ include "liferay.namespace" .root }}
 spec:

@@ -49,6 +49,10 @@ public interface Indexer<T> {
 
 	public IndexerPostProcessor[] getIndexerPostProcessors();
 
+	public default long getReindexEntryCount(long companyId) {
+		return Long.MAX_VALUE;
+	}
+
 	public String[] getSearchClassNames();
 
 	/**
@@ -139,8 +143,6 @@ public interface Indexer<T> {
 	@Bufferable
 	public void reindex(String className, long classPK) throws SearchException;
 
-	public void reindex(String[] ids) throws SearchException;
-
 	@Bufferable
 	public void reindex(T object) throws SearchException;
 
@@ -149,6 +151,8 @@ public interface Indexer<T> {
 
 		reindex(object);
 	}
+
+	public void reindexCompany(long companyId) throws SearchException;
 
 	public default Document safeGetDocument(T object) {
 		try {

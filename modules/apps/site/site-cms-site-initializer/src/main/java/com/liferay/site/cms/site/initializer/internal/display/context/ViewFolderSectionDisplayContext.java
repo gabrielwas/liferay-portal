@@ -78,10 +78,22 @@ public class ViewFolderSectionDisplayContext extends BaseSectionDisplayContext {
 			getRootObjectEntryFolderExternalReferenceCode(),
 			ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_CONTENTS);
 
+		boolean rootFolder = false;
+
+		if (objectEntryFolder != null) {
+			rootFolder = Objects.equals(
+				objectEntryFolder.getExternalReferenceCode(),
+				getRootObjectEntryFolderExternalReferenceCode());
+		}
+
 		return new HashMapBuilder<>().putAll(
 			super.getAdditionalProps()
 		).put(
+			"breadcrumbProps", getBreadcrumbProps()
+		).put(
 			"galleryViewEnabled", !contentsFolder
+		).put(
+			"rootFolder", rootFolder
 		).put(
 			"rootObjectEntryFolderExternalReferenceCode",
 			getRootObjectEntryFolderExternalReferenceCode()
@@ -150,11 +162,35 @@ public class ViewFolderSectionDisplayContext extends BaseSectionDisplayContext {
 			).setHref(
 				"#"
 			).setIcon(
+				"move-folder"
+			).setLabel(
+				LanguageUtil.get(httpServletRequest, "move-to")
+			).build(
+				"move-to"
+			));
+		fdsBulkActionDropdownItems.add(
+			FDSActionDropdownItemBuilder.setHighlighted(
+				true
+			).setHref(
+				"#"
+			).setIcon(
 				"copy"
 			).setLabel(
 				LanguageUtil.get(httpServletRequest, "copy-to")
 			).build(
 				"copy-to"
+			));
+		fdsBulkActionDropdownItems.add(
+			FDSActionDropdownItemBuilder.setHighlighted(
+				true
+			).setHref(
+				"#"
+			).setIcon(
+				"upload"
+			).setLabel(
+				LanguageUtil.get(httpServletRequest, "export-for-translation")
+			).build(
+				"export-for-translation"
 			));
 		fdsBulkActionDropdownItems.add(
 			new FDSActionDropdownItem(
@@ -279,6 +315,7 @@ public class ViewFolderSectionDisplayContext extends BaseSectionDisplayContext {
 			super.getFDSActionDropdownItems();
 
 		fdsActionDropdownItems.add(
+			6,
 			new FDSActionDropdownItem(
 				"{embedded.file.link.href}", "download", "download",
 				LanguageUtil.get(httpServletRequest, "download"), "get", null,
@@ -289,6 +326,7 @@ public class ViewFolderSectionDisplayContext extends BaseSectionDisplayContext {
 				ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_CONTENTS)) {
 
 			fdsActionDropdownItems.add(
+				7,
 				new FDSActionDropdownItem(
 					StringBundler.concat(
 						"/o", GroupConstants.CMS_FRIENDLY_URL,
@@ -304,6 +342,7 @@ public class ViewFolderSectionDisplayContext extends BaseSectionDisplayContext {
 		}
 
 		fdsActionDropdownItems.add(
+			9,
 			new FDSActionDropdownItem(
 				StringPool.BLANK, "info-circle-open", "show-details",
 				LanguageUtil.get(httpServletRequest, "show-details"), null,

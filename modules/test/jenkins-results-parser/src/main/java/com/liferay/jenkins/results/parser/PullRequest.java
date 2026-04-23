@@ -19,6 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -110,33 +111,34 @@ public class PullRequest {
 		}
 	}
 
-	public boolean addLabel(GitHubRemoteGitRepository.Label label) {
-		if (!isUpdateEnabled()) {
-			return false;
+	public void addLabel(GitHubRemoteGitRepository.Label label) {
+		addLabels(Arrays.asList(label));
+	}
+
+	public void addLabels(List<GitHubRemoteGitRepository.Label> labels) {
+		if (!isUpdateEnabled() || (labels == null) || labels.isEmpty()) {
+			return;
 		}
 
-		if ((label == null) || hasLabel(label.getName())) {
-			return true;
+		List<GitHubRemoteGitRepository.Label> newLabels = new ArrayList<>();
+
+		for (GitHubRemoteGitRepository.Label label : labels) {
+			if ((label == null) || hasLabel(label.getName())) {
+				continue;
+			}
+
+			newLabels.add(label);
 		}
 
-		GitHubRemoteGitRepository gitHubRemoteGitRepository =
-			getGitHubRemoteGitRepository();
-
-		GitHubRemoteGitRepository.Label gitRepositoryLabel =
-			gitHubRemoteGitRepository.getLabel(label.getName());
-
-		if (gitRepositoryLabel == null) {
-			System.out.println(
-				JenkinsResultsParserUtil.combine(
-					"GitHubRemoteGitRepository.Label ", label.getName(),
-					" does not exist in ", getGitHubRemoteGitRepositoryName()));
-
-			return false;
+		if (newLabels.isEmpty()) {
+			return;
 		}
 
 		JSONArray jsonArray = new JSONArray();
 
-		jsonArray.put(label.getName());
+		for (GitHubRemoteGitRepository.Label newLabel : newLabels) {
+			jsonArray.put(newLabel.getName());
+		}
 
 		String gitHubApiUrl = JenkinsResultsParserUtil.getGitHubApiUrl(
 			getGitHubRemoteGitRepositoryName(), getOwnerUsername(),
@@ -148,14 +150,10 @@ public class PullRequest {
 				jsonArray.toString());
 		}
 		catch (IOException ioException) {
-			System.out.println("Unable to add label " + label.getName());
+			System.out.println("Unable to add labels " + jsonArray);
 
 			ioException.printStackTrace();
-
-			return false;
 		}
-
-		return true;
 	}
 
 	public void close() {
@@ -181,6 +179,54 @@ public class PullRequest {
 		}
 
 		_jsonObject.put("state", "closed");
+	}
+
+	public void copyLabelsToPullRequest(PullRequest pullRequest) {
+		if (pullRequest == null) {
+			return;
+		}
+
+		refresh();
+
+		pullRequest.addLabels(getLabels());
+	}
+
+	public void copyStatusesToPullRequest(PullRequest pullRequest) {
+		if (pullRequest == null) {
+			return;
+		}
+
+		JSONObject senderSHAStatusJSONObject = getSenderSHAStatusJSONObject();
+
+		if (senderSHAStatusJSONObject == null) {
+			return;
+		}
+
+		JSONArray statusesJSONArray = senderSHAStatusJSONObject.optJSONArray(
+			"statuses");
+
+		if ((statusesJSONArray == null) || statusesJSONArray.isEmpty()) {
+			return;
+		}
+
+		GitHubRemoteGitCommit gitHubRemoteGitCommit =
+			pullRequest.getGitHubRemoteGitCommit();
+
+		for (int i = 0; i < statusesJSONArray.length(); i++) {
+			JSONObject statusJSONObject = statusesJSONArray.getJSONObject(i);
+
+			String state = statusJSONObject.getString("state");
+			String context = statusJSONObject.getString("context");
+			String description = statusJSONObject.optString(
+				"description", null);
+			String targetURL = statusJSONObject.optString("target_url", null);
+
+			GitHubRemoteGitCommit.Status status =
+				GitHubRemoteGitCommit.Status.valueOf(state.toUpperCase());
+
+			gitHubRemoteGitCommit.setStatus(
+				status, context, description, targetURL);
+		}
 	}
 
 	public String forward(
@@ -327,14 +373,17 @@ public class PullRequest {
 		for (int i = 0; i < statusesJSONArray.length(); i++) {
 			JSONObject jsonObject = statusesJSONArray.getJSONObject(i);
 
-			Matcher matcher = _liferayContextPattern.matcher(
-				jsonObject.getString("context"));
+			String testSuiteName = jsonObject.getString("context");
 
-			if (!matcher.find()) {
-				continue;
+			if (!Objects.equals(testSuiteName, "default")) {
+				Matcher matcher = _liferayContextPattern.matcher(testSuiteName);
+
+				if (!matcher.find()) {
+					continue;
+				}
+
+				testSuiteName = matcher.group("testSuiteName");
 			}
-
-			String testSuiteName = matcher.group("testSuiteName");
 
 			if (testSuiteNames.contains(testSuiteName)) {
 				continue;
@@ -509,14 +558,21 @@ public class PullRequest {
 		for (int i = 0; i < statusesJSONArray.length(); i++) {
 			JSONObject jsonObject = statusesJSONArray.getJSONObject(i);
 
-			Matcher matcher = _liferayContextPattern.matcher(
-				jsonObject.getString("context"));
+			String testSuiteName = jsonObject.getString("context");
 
-			if (!matcher.find()) {
-				continue;
+			if (!Objects.equals(testSuiteName, "default")) {
+				Matcher matcher = _liferayContextPattern.matcher(testSuiteName);
+
+				if (!matcher.find()) {
+					continue;
+				}
+
+				testSuiteName = matcher.group("testSuiteName");
 			}
 
-			String testSuiteName = matcher.group("testSuiteName");
+			if (JenkinsResultsParserUtil.isNullOrEmpty(testSuiteName)) {
+				testSuiteName = "default";
+			}
 
 			if (testSuiteNames.contains(testSuiteName) ||
 				!Objects.equals(jsonObject.getString("state"), "success")) {
@@ -1308,7 +1364,7 @@ public class PullRequest {
 			"https://github.com/(?<owner>[^/]+)/",
 			"(?<gitHubRemoteGitRepositoryName>[^/]+)/pull/(?<number>\\d+)"));
 	private static final Pattern _liferayContextPattern = Pattern.compile(
-		"liferay/ci:test:(?<testSuiteName>[^:]+)");
+		"liferay/ci:test(:(?<testSuiteName>[^:]+))?");
 
 	private Boolean _autoCloseCommentAvailable;
 	private String _ciMergeSHA = "";

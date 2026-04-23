@@ -33,6 +33,8 @@ import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.upgrade.data.cleanup.CompanyDataCleanupPreupgradeProcess;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 import java.util.Arrays;
 import java.util.List;
@@ -96,6 +98,77 @@ public class CompanyDataCleanupPreupgradeProcessTest
 
 		for (ResourceAction resourceAction : resourceActions) {
 			_resourceActionLocalService.deleteResourceAction(resourceAction);
+		}
+	}
+
+	@Test
+	public void testUpdateCompanyIdByGroupId() throws Exception {
+		long companyId = RandomTestUtil.nextLong();
+
+		runSQL(
+			StringBundler.concat(
+				"insert into Company (companyId, webId) values (", companyId,
+				", '", companyId, "')"));
+
+		long groupId = RandomTestUtil.nextLong();
+
+		runSQL(
+			StringBundler.concat(
+				"insert into Group_ (groupId, companyId, name) values (",
+				groupId, ", ", companyId, ", '", groupId, "')"));
+
+		String tableName = "test_cleanup_" + RandomTestUtil.randomString();
+
+		runSQL(
+			StringBundler.concat(
+				"create table ", tableName,
+				" (companyId LONG, groupId LONG, id_ LONG not null primary ",
+				"key)"));
+
+		runSQL(
+			StringBundler.concat(
+				"insert into ", tableName,
+				" (companyId, groupId, id_) values (0, ", groupId, ", 1)"));
+		runSQL(
+			StringBundler.concat(
+				"insert into ", tableName,
+				" (companyId, groupId, id_) values (null, ", groupId, ", 2)"));
+
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				CompanyDataCleanupPreupgradeProcess.class.getName(),
+				LoggerTestUtil.INFO)) {
+
+			upgrade();
+
+			List<String> messages = logCapture.getMessages();
+
+			Assert.assertTrue(
+				messages.contains(
+					StringBundler.concat(
+						"Table ", _dbInspector.normalizeName(tableName),
+						", 2 rows updated column ",
+						_dbInspector.normalizeName("companyId"),
+						" because missing values were populated from table ",
+						_dbInspector.normalizeName("Group_"))));
+
+			try (PreparedStatement preparedStatement =
+					_connection.prepareStatement(
+						"select companyId from " + tableName +
+							" where id_ in (1, 2) order by id_");
+
+				ResultSet resultSet = preparedStatement.executeQuery()) {
+
+				while (resultSet.next()) {
+					Assert.assertEquals(
+						companyId, resultSet.getLong("companyId"));
+				}
+			}
+		}
+		finally {
+			dropTable(_dbInspector.normalizeName(tableName));
+
+			runSQL("delete from Company where companyId = " + companyId);
+			runSQL("delete from Group_ where groupId = " + groupId);
 		}
 	}
 

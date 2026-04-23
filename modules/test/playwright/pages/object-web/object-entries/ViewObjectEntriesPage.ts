@@ -7,10 +7,15 @@ import {ObjectField} from '@liferay/object-admin-rest-client-js';
 import {FrameLocator, Locator, Page, expect} from '@playwright/test';
 import path from 'path';
 
-import {getFDSDateFormat} from '../../../tests/object-web/main/utils/dateFormat';
+import {
+	getFDSDateFormat,
+	getFDSDateTimeFormat,
+} from '../../../tests/object-web/utils/dateFormat';
+import {
+	type SupportedBusinessType,
+	isFillableBusinessType,
+} from '../../../tests/object-web/utils/generateObjectEntry';
 import {PORTLET_URLS} from '../../../utils/portletUrls';
-
-import type {SupportedBusinessType} from '../../../tests/object-web/main/utils/generateObjectEntry';
 
 export class ViewObjectEntriesPage {
 	readonly backButton: Locator;
@@ -186,29 +191,58 @@ export class ViewObjectEntriesPage {
 	async fillObjectEntry({
 		objectFieldBusinessType,
 		objectFieldLabel,
+		objectFieldName,
 		objectFieldValue,
 	}: {
 		objectFieldBusinessType?: ObjectField['businessType'];
 		objectFieldLabel?: string;
+		objectFieldName?: string;
 		objectFieldValue: string;
 	}) {
-		if (objectFieldBusinessType === 'RichText') {
-			await this.page.waitForSelector('iframe');
+		if (objectFieldBusinessType === 'Assignee') {
+			await this.page
+				.getByRole('combobox', {name: objectFieldLabel})
+				.fill(objectFieldValue);
 
+			await this.page
+				.getByRole('option', {name: objectFieldValue})
+				.click();
+
+			return;
+		}
+		else if (objectFieldBusinessType === 'Boolean') {
+			await this.page
+				.getByLabel(objectFieldLabel, {exact: true})
+				.setChecked(objectFieldValue === 'true');
+
+			return;
+		}
+		else if (objectFieldBusinessType === 'MultiselectPicklist') {
+			await this.page
+				.locator(`[data-field-name="${objectFieldName}"] .form-control`)
+				.click();
+
+			await this.page
+				.getByRole('option', {name: objectFieldValue})
+				.click();
+
+			return;
+		}
+		else if (objectFieldBusinessType === 'Picklist') {
+			await this.page.getByLabel(objectFieldLabel, {exact: true}).click();
+
+			await this.page
+				.getByRole('option', {name: objectFieldValue as string})
+				.click();
+
+			return;
+		}
+		else if (objectFieldBusinessType === 'RichText') {
 			const richTextInput = this.page
-				.getByRole('application', {
-					name: objectFieldLabel,
-				})
-				.frameLocator('iframe')
-				.getByRole('textbox');
-
-			await richTextInput.clear();
+				.locator(`[data-qa-id="${objectFieldName}"]`)
+				.locator('.ck-editor__editable');
 
 			await richTextInput.fill(objectFieldValue);
-
-			await richTextInput.click({button: 'left'});
-
-			await richTextInput.press('Backspace');
 
 			return;
 		}
@@ -276,7 +310,7 @@ export class ViewObjectEntriesPage {
 			.click();
 
 		await this.selectFileIframe
-			.getByRole('link', {name: 'Liferay DXP'})
+			.getByRole('link', {name: 'Liferay DXP Site'})
 			.click();
 
 		await this.selectFileIframe
@@ -298,7 +332,7 @@ export class ViewObjectEntriesPage {
 			.click();
 
 		await this.selectFileIframeArabic
-			.getByRole('link', {name: 'Liferay DXP'})
+			.getByRole('link', {name: 'موقع Liferay DXP'})
 			.click();
 
 		await this.selectFileIframeArabic
@@ -325,7 +359,7 @@ export class ViewObjectEntriesPage {
 		const fileChooser = await fileChooserPromise;
 
 		await fileChooser.setFiles(
-			path.join(dirName, 'dependencies', fileName)
+			path.join(dirName, '../dependencies', fileName)
 		);
 	}
 
@@ -352,17 +386,17 @@ export class ViewObjectEntriesPage {
 		}[] = [];
 
 		for (const objectField of objectFields) {
+			if (!isFillableBusinessType(objectField.businessType)) {
+				continue;
+			}
+
 			switch (objectField.businessType) {
 				case 'Assignee': {
-					await this.page
-						.getByLabel(objectField.label['en_US'], {exact: true})
-						.fill(objectEntry[objectField.name]);
-
-					await this.page
-						.getByRole('option', {
-							name: objectEntry[objectField.name],
-						})
-						.click();
+					await this.fillObjectEntry({
+						objectFieldBusinessType: objectField.businessType,
+						objectFieldLabel: objectField.label['en_US'],
+						objectFieldValue: objectEntry[objectField.name],
+					});
 
 					objectEntries.push({
 						businessType: objectField.businessType,
@@ -406,16 +440,40 @@ export class ViewObjectEntriesPage {
 
 					break;
 				}
+				case 'MultiselectPicklist': {
+					for (const value of objectEntry[
+						objectField.name
+					] as string[]) {
+						await this.fillObjectEntry({
+							objectFieldBusinessType: objectField.businessType,
+							objectFieldName: objectField.name,
+							objectFieldValue: value,
+						});
+					}
 
+					objectEntries.push({
+						businessType: objectField.businessType,
+						entry: (objectEntry[objectField.name] as string[]).join(
+							', '
+						),
+						name: objectField.name,
+					});
+
+					break;
+				}
 				case 'Picklist': {
+					const key = (
+						objectEntry[objectField.name] as {key: string}
+					).key.toString();
+
 					await this.selectDropdownItem(
 						objectField.label['en_US'],
-						objectEntry[objectField.name].key.toString()
+						key
 					);
 
 					objectEntries.push({
 						businessType: objectField.businessType,
-						entry: objectEntry[objectField.name].key.toString(),
+						entry: key,
 						name: objectField.name,
 					});
 
@@ -425,6 +483,7 @@ export class ViewObjectEntriesPage {
 					await this.fillObjectEntry({
 						objectFieldBusinessType: objectField.businessType,
 						objectFieldLabel: objectField.label['en_US'],
+						objectFieldName: objectField.name,
 						objectFieldValue: objectEntry[objectField.name]
 							.toString()
 							.substring(0, 35),
@@ -448,14 +507,24 @@ export class ViewObjectEntriesPage {
 							objectEntry[objectField.name].toString(),
 					});
 
-					if (
-						objectField.businessType === 'Date' ||
-						objectField.businessType === 'DateTime'
-					) {
+					if (objectField.businessType === 'Date') {
 						objectEntries.push({
 							businessType: objectField.businessType,
 							entry: getFDSDateFormat(
-								new Date(objectEntry[objectField.name])
+								new Date(
+									objectEntry[objectField.name] as string
+								)
+							),
+							name: objectField.name,
+						});
+					}
+					else if (objectField.businessType === 'DateTime') {
+						objectEntries.push({
+							businessType: objectField.businessType,
+							entry: getFDSDateTimeFormat(
+								new Date(
+									objectEntry[objectField.name] as string
+								)
 							),
 							name: objectField.name,
 						});

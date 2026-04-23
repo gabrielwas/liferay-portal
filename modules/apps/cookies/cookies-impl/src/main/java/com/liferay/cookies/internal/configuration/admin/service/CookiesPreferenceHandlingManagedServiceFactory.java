@@ -47,6 +47,41 @@ public class CookiesPreferenceHandlingManagedServiceFactory
 		return cookiesPreferenceHandlingConfiguration.consentRenewalPeriod();
 	}
 
+	public String getCompanyConsentRenewalPeriodTimeUnit(long companyId) {
+		CookiesPreferenceHandlingConfiguration
+			cookiesPreferenceHandlingConfiguration =
+				_getCompanyCookiesPreferenceHandlingConfiguration(companyId);
+
+		return cookiesPreferenceHandlingConfiguration.
+			consentRenewalPeriodTimeUnit();
+	}
+
+	public long getCompanyCustomFloatingIconImageId(long companyId) {
+		CookiesPreferenceHandlingConfiguration
+			cookiesPreferenceHandlingConfiguration =
+				_getCompanyCookiesPreferenceHandlingConfiguration(companyId);
+
+		return cookiesPreferenceHandlingConfiguration.
+			customFloatingIconImageId();
+	}
+
+	public int getCompanyDissentRenewalPeriod(long companyId) {
+		CookiesPreferenceHandlingConfiguration
+			cookiesPreferenceHandlingConfiguration =
+				_getCompanyCookiesPreferenceHandlingConfiguration(companyId);
+
+		return cookiesPreferenceHandlingConfiguration.dissentRenewalPeriod();
+	}
+
+	public String getCompanyDissentRenewalPeriodTimeUnit(long companyId) {
+		CookiesPreferenceHandlingConfiguration
+			cookiesPreferenceHandlingConfiguration =
+				_getCompanyCookiesPreferenceHandlingConfiguration(companyId);
+
+		return cookiesPreferenceHandlingConfiguration.
+			dissentRenewalPeriodTimeUnit();
+	}
+
 	public boolean getCompanyEnabled(long companyId) {
 		CookiesPreferenceHandlingConfiguration
 			cookiesPreferenceHandlingConfiguration =
@@ -94,6 +129,51 @@ public class CookiesPreferenceHandlingManagedServiceFactory
 					companyId, groupId);
 
 		return cookiesPreferenceHandlingConfiguration.consentRenewalPeriod();
+	}
+
+	public String getGroupConsentRenewalPeriodTimeUnit(
+		long companyId, long groupId) {
+
+		CookiesPreferenceHandlingConfiguration
+			cookiesPreferenceHandlingConfiguration =
+				_getGroupCookiesPreferenceHandlingConfiguration(
+					companyId, groupId);
+
+		return cookiesPreferenceHandlingConfiguration.
+			consentRenewalPeriodTimeUnit();
+	}
+
+	public long getGroupCustomFloatingIconImageId(
+		long companyId, long groupId) {
+
+		CookiesPreferenceHandlingConfiguration
+			cookiesPreferenceHandlingConfiguration =
+				_getGroupCookiesPreferenceHandlingConfiguration(
+					companyId, groupId);
+
+		return cookiesPreferenceHandlingConfiguration.
+			customFloatingIconImageId();
+	}
+
+	public int getGroupDissentRenewalPeriod(long companyId, long groupId) {
+		CookiesPreferenceHandlingConfiguration
+			cookiesPreferenceHandlingConfiguration =
+				_getGroupCookiesPreferenceHandlingConfiguration(
+					companyId, groupId);
+
+		return cookiesPreferenceHandlingConfiguration.dissentRenewalPeriod();
+	}
+
+	public String getGroupDissentRenewalPeriodTimeUnit(
+		long companyId, long groupId) {
+
+		CookiesPreferenceHandlingConfiguration
+			cookiesPreferenceHandlingConfiguration =
+				_getGroupCookiesPreferenceHandlingConfiguration(
+					companyId, groupId);
+
+		return cookiesPreferenceHandlingConfiguration.
+			dissentRenewalPeriodTimeUnit();
 	}
 
 	public boolean getGroupEnabled(long companyId, long groupId) {
@@ -150,6 +230,26 @@ public class CookiesPreferenceHandlingManagedServiceFactory
 	public int getSystemConsentRenewalPeriod() {
 		return _systemCookiesPreferenceHandlingConfiguration.
 			consentRenewalPeriod();
+	}
+
+	public String getSystemConsentRenewalPeriodTimeUnit() {
+		return _systemCookiesPreferenceHandlingConfiguration.
+			consentRenewalPeriodTimeUnit();
+	}
+
+	public long getSystemCustomFloatingIconImageId() {
+		return _systemCookiesPreferenceHandlingConfiguration.
+			customFloatingIconImageId();
+	}
+
+	public int getSystemDissentRenewalPeriod() {
+		return _systemCookiesPreferenceHandlingConfiguration.
+			dissentRenewalPeriod();
+	}
+
+	public String getSystemDissentRenewalPeriodTimeUnit() {
+		return _systemCookiesPreferenceHandlingConfiguration.
+			dissentRenewalPeriodTimeUnit();
 	}
 
 	public boolean getSystemEnabled() {

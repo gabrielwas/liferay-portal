@@ -6,9 +6,11 @@
 import ClayForm, {ClayCheckbox} from '@clayui/form';
 import ClayMultiSelect from '@clayui/multi-select';
 import {zodResolver} from '@hookform/resolvers/zod';
+import {useSelector} from '@xstate/store/react';
 import classNames from 'classnames';
 import {useState} from 'react';
 import {useForm} from 'react-hook-form';
+import {Navigate} from 'react-router-dom';
 import {z} from 'zod';
 
 import HelpPopover from '../../../../components/HelpPopover';
@@ -21,6 +23,7 @@ import i18n from '../../../../i18n';
 import {Liferay} from '../../../../liferay/liferay';
 import zodSchema from '../../../../schema/zod';
 import {useProductPurchaseOutletContext} from '../../ProductPurchaseOutlet';
+import {productPurchaseStore} from '../../store';
 
 type MultiSelectValue = {
 	key: string;
@@ -31,6 +34,11 @@ type MultiSelectValue = {
 const LDPProvisioning = () => {
 	const [incidentReportContactsText, setIncidentReportContactsText] =
 		useState('');
+
+	const salesforceProject = useSelector(
+		productPurchaseStore,
+		({context}) => context.salesforceProject
+	);
 
 	const {
 		actions: {nextStep, previousStep},
@@ -72,6 +80,10 @@ const LDPProvisioning = () => {
 		productPurchaseCart.addCart(Number(product.id), product.skus[0].id);
 		nextStep();
 	};
+
+	if (!salesforceProject) {
+		return <Navigate to="/" />;
+	}
 
 	if (isLoading || !accountKey) {
 		return <Loading />;

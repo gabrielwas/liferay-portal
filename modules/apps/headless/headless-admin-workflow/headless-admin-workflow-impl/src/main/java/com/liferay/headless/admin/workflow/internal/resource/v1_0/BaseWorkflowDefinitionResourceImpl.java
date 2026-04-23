@@ -5,6 +5,7 @@
 
 package com.liferay.headless.admin.workflow.internal.resource.v1_0;
 
+import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.headless.admin.workflow.dto.v1_0.WorkflowDefinition;
 import com.liferay.headless.admin.workflow.resource.v1_0.WorkflowDefinitionResource;
 import com.liferay.petra.function.UnsafeBiConsumer;
@@ -763,6 +764,15 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 				return LocaleUtil.fromLanguageId(languageId);
 			}
 
+			@Override
+			public boolean isAcceptAllLanguages() {
+				if (ExportImportThreadLocal.isExportInProcess()) {
+					return true;
+				}
+
+				return AcceptLanguage.super.isAcceptAllLanguages();
+			}
+
 		};
 	}
 
@@ -1381,3 +1391,4 @@ public abstract class BaseWorkflowDefinitionResourceImpl
 		LogFactoryUtil.getLog(BaseWorkflowDefinitionResourceImpl.class);
 
 }
+// LIFERAY-REST-BUILDER-HASH:-1031106309

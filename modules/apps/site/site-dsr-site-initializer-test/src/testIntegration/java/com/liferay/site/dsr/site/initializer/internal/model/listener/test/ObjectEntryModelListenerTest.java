@@ -7,30 +7,42 @@ package com.liferay.site.dsr.site.initializer.internal.model.listener.test;
 
 import com.liferay.account.model.AccountEntry;
 import com.liferay.account.service.AccountEntryLocalService;
+import com.liferay.analytics.settings.configuration.AnalyticsConfiguration;
+import com.liferay.analytics.settings.rest.manager.AnalyticsSettingsManager;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryLocalService;
+import com.liferay.object.service.ObjectEntryService;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.model.LayoutSet;
+import com.liferay.portal.kernel.model.LayoutSetPrototype;
 import com.liferay.portal.kernel.model.ResourceAction;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
-import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.LayoutSetLocalService;
+import com.liferay.portal.kernel.service.LayoutSetPrototypeLocalService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
+import com.liferay.portal.kernel.service.UserGroupRoleLocalService;
+import com.liferay.portal.kernel.service.UserLocalService;
+import com.liferay.portal.kernel.test.context.ContextUserReplace;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.test.rule.FeatureFlag;
@@ -42,14 +54,22 @@ import com.liferay.site.dsr.site.initializer.test.util.DSRTestUtil;
 
 import java.io.Serializable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.ServiceRegistration;
 
 /**
  * @author Stefano Motta
@@ -77,10 +97,81 @@ public class ObjectEntryModelListenerTest {
 			_objectDefinitionLocalService.
 				getObjectDefinitionByExternalReferenceCode(
 					"L_DSR_ROOM", TestPropsValues.getCompanyId());
+
+		BundleContext bundleContext = FrameworkUtil.getBundle(
+			ObjectEntryModelListenerTest.class
+		).getBundleContext();
+
+		_serviceRegistrations.add(
+			bundleContext.registerService(
+				AnalyticsSettingsManager.class,
+				new TestAnalyticsSettingsManager(_analyticsEnabled),
+				HashMapDictionaryBuilder.<String, Object>put(
+					"service.ranking", Integer.MAX_VALUE
+				).build()));
+	}
+
+	@After
+	public void tearDown() {
+		for (ServiceRegistration<?> serviceRegistration :
+				_serviceRegistrations) {
+
+			serviceRegistration.unregister();
+		}
+
+		_serviceRegistrations.clear();
 	}
 
 	@Test
 	public void testOnAfterCreate() throws Exception {
+		_testOnAfterCreate();
+		_testOnAfterCreateWithDSRSellerRole();
+	}
+
+	@Test
+	public void testOnAfterRemove() throws Exception {
+		ObjectEntry objectEntry = _objectEntryLocalService.addObjectEntry(
+			0, TestPropsValues.getUserId(),
+			_objectDefinition.getObjectDefinitionId(), 0, null,
+			HashMapBuilder.<String, Serializable>put(
+				"name", "A" + RandomTestUtil.randomString()
+			).put(
+				"r_accountToDSRRooms_accountEntryId",
+				_accountEntry.getAccountEntryId()
+			).build(),
+			ServiceContextTestUtil.getServiceContext());
+
+		Assert.assertNotNull(
+			_groupLocalService.fetchGroup(
+				TestPropsValues.getCompanyId(),
+				_classNameLocalService.getClassNameId(
+					_objectDefinition.getClassName()),
+				objectEntry.getObjectEntryId()));
+
+		_objectEntryLocalService.deleteObjectEntry(
+			objectEntry.getObjectEntryId());
+
+		Assert.assertNull(
+			_groupLocalService.fetchGroup(
+				TestPropsValues.getCompanyId(),
+				_classNameLocalService.getClassNameId(
+					_objectDefinition.getClassName()),
+				objectEntry.getObjectEntryId()));
+	}
+
+	private void _assertHasResourcePermission(
+			String actionId, ObjectEntry objectEntry, long roleId)
+		throws Exception {
+
+		Assert.assertTrue(
+			_resourcePermissionLocalService.hasResourcePermission(
+				objectEntry.getCompanyId(), objectEntry.getModelClassName(),
+				ResourceConstants.SCOPE_INDIVIDUAL,
+				String.valueOf(objectEntry.getObjectEntryId()), roleId,
+				actionId));
+	}
+
+	private void _testOnAfterCreate() throws Exception {
 		String name = StringUtil.toLowerCase(
 			"A" + RandomTestUtil.randomString());
 
@@ -137,6 +228,8 @@ public class ObjectEntryModelListenerTest {
 			).build(),
 			ServiceContextTestUtil.getServiceContext());
 
+		Assert.assertTrue(_analyticsEnabled.get());
+
 		group = _groupLocalService.fetchGroup(
 			TestPropsValues.getCompanyId(),
 			_classNameLocalService.getClassNameId(
@@ -165,79 +258,78 @@ public class ObjectEntryModelListenerTest {
 			_assertHasResourcePermission(
 				actionId, objectEntry, role.getRoleId());
 		}
+	}
 
-		role = _roleLocalService.fetchRole(
-			TestPropsValues.getCompanyId(), RoleConstants.SITE_MEMBER);
+	private void _testOnAfterCreateWithDSRSellerRole() throws Exception {
+		User user = UserTestUtil.addUser();
 
-		_assertHasResourcePermission(
-			ActionKeys.ADD_DISCUSSION, objectEntry, role.getRoleId());
-		_assertHasResourcePermission(
-			ActionKeys.VIEW, objectEntry, role.getRoleId());
+		Role dsrSellerRole = _roleLocalService.fetchRoleByExternalReferenceCode(
+			"L_DSR_SELLER", TestPropsValues.getCompanyId());
 
-		role = _roleLocalService.fetchRole(
-			TestPropsValues.getCompanyId(), RoleConstants.SITE_OWNER);
+		_userLocalService.addRoleUser(dsrSellerRole.getRoleId(), user);
 
-		for (String actionId : actionIds) {
-			_assertHasResourcePermission(
-				actionId, objectEntry, role.getRoleId());
+		String roomName = StringUtil.toLowerCase(
+			"B" + RandomTestUtil.randomString());
+
+		ObjectEntry objectEntry;
+
+		try (ContextUserReplace contextUserReplace = new ContextUserReplace(
+				user)) {
+
+			objectEntry = _objectEntryService.addObjectEntry(
+				0, _objectDefinition.getObjectDefinitionId(), 0, null,
+				HashMapBuilder.<String, Serializable>put(
+					"name", roomName
+				).put(
+					"r_accountToDSRRooms_accountEntryId",
+					_accountEntry.getAccountEntryId()
+				).build(),
+				ServiceContextTestUtil.getServiceContext());
+
+			Group group = _groupLocalService.fetchGroup(
+				TestPropsValues.getCompanyId(),
+				_classNameLocalService.getClassNameId(
+					_objectDefinition.getClassName()),
+				objectEntry.getObjectEntryId());
+
+			Assert.assertEquals("/" + roomName, group.getFriendlyURL());
+			Assert.assertEquals(
+				GroupConstants.TYPE_SITE_RESTRICTED, group.getType());
+			Assert.assertTrue(group.isSite());
+
+			LayoutSet layoutSet = _layoutSetLocalService.getLayoutSet(
+				group.getGroupId(), false);
+
+			LayoutSetPrototype layoutSetPrototype =
+				_layoutSetPrototypeLocalService.
+					fetchLayoutSetPrototypeByUuidAndCompanyId(
+						"L_DSR_LAYOUT_SET_PROTOTYPE",
+						TestPropsValues.getCompanyId());
+
+			Assert.assertEquals(
+				layoutSetPrototype.getLayoutSetPrototypeId(),
+				layoutSet.getLayoutSetPrototypeId());
+			Assert.assertEquals(
+				layoutSetPrototype.getUuid(),
+				layoutSet.getLayoutSetPrototypeUuid());
+
+			DSRLayoutTestUtil.assertLayouts(
+				group.getGroupId(),
+				new String[] {"Documents", "Login", "Onboarding"}, false);
+
+			Assert.assertTrue(
+				_userGroupRoleLocalService.hasUserGroupRole(
+					user.getUserId(), group.getGroupId(),
+					RoleConstants.SITE_OWNER));
 		}
-
-		role = _roleLocalService.fetchRole(
-			TestPropsValues.getCompanyId(), "DSR Contributor");
-
-		_assertHasResourcePermission(
-			ActionKeys.ADD_DISCUSSION, objectEntry, role.getRoleId());
-		_assertHasResourcePermission(
-			ActionKeys.VIEW, objectEntry, role.getRoleId());
-	}
-
-	@Test
-	public void testOnAfterRemove() throws Exception {
-		ObjectEntry objectEntry = _objectEntryLocalService.addObjectEntry(
-			0, TestPropsValues.getUserId(),
-			_objectDefinition.getObjectDefinitionId(), 0, null,
-			HashMapBuilder.<String, Serializable>put(
-				"name", "A" + RandomTestUtil.randomString()
-			).put(
-				"r_accountToDSRRooms_accountEntryId",
-				_accountEntry.getAccountEntryId()
-			).build(),
-			ServiceContextTestUtil.getServiceContext());
-
-		Assert.assertNotNull(
-			_groupLocalService.fetchGroup(
-				TestPropsValues.getCompanyId(),
-				_classNameLocalService.getClassNameId(
-					_objectDefinition.getClassName()),
-				objectEntry.getObjectEntryId()));
-
-		_objectEntryLocalService.deleteObjectEntry(
-			objectEntry.getObjectEntryId());
-
-		Assert.assertNull(
-			_groupLocalService.fetchGroup(
-				TestPropsValues.getCompanyId(),
-				_classNameLocalService.getClassNameId(
-					_objectDefinition.getClassName()),
-				objectEntry.getObjectEntryId()));
-	}
-
-	private void _assertHasResourcePermission(
-			String actionId, ObjectEntry objectEntry, long roleId)
-		throws Exception {
-
-		Assert.assertTrue(
-			_resourcePermissionLocalService.hasResourcePermission(
-				objectEntry.getCompanyId(), objectEntry.getModelClassName(),
-				ResourceConstants.SCOPE_INDIVIDUAL,
-				String.valueOf(objectEntry.getObjectEntryId()), roleId,
-				actionId));
 	}
 
 	private AccountEntry _accountEntry;
 
 	@Inject
 	private AccountEntryLocalService _accountEntryLocalService;
+
+	private final AtomicBoolean _analyticsEnabled = new AtomicBoolean();
 
 	@Inject
 	private ClassNameLocalService _classNameLocalService;
@@ -246,6 +338,12 @@ public class ObjectEntryModelListenerTest {
 
 	@Inject
 	private GroupLocalService _groupLocalService;
+
+	@Inject
+	private LayoutSetLocalService _layoutSetLocalService;
+
+	@Inject
+	private LayoutSetPrototypeLocalService _layoutSetPrototypeLocalService;
 
 	private ObjectDefinition _objectDefinition;
 
@@ -256,6 +354,9 @@ public class ObjectEntryModelListenerTest {
 	private ObjectEntryLocalService _objectEntryLocalService;
 
 	@Inject
+	private ObjectEntryService _objectEntryService;
+
+	@Inject
 	private ResourceActionLocalService _resourceActionLocalService;
 
 	@Inject
@@ -263,5 +364,91 @@ public class ObjectEntryModelListenerTest {
 
 	@Inject
 	private RoleLocalService _roleLocalService;
+
+	private final List<ServiceRegistration<?>> _serviceRegistrations =
+		new ArrayList<>();
+
+	@Inject
+	private UserGroupRoleLocalService _userGroupRoleLocalService;
+
+	@Inject
+	private UserLocalService _userLocalService;
+
+	private static class TestAnalyticsSettingsManager
+		implements AnalyticsSettingsManager {
+
+		public TestAnalyticsSettingsManager(AtomicBoolean analyticsEnabled) {
+			_analyticsEnabled = analyticsEnabled;
+		}
+
+		@Override
+		public void deleteCompanyConfiguration(long companyId) {
+		}
+
+		@Override
+		public AnalyticsConfiguration getAnalyticsConfiguration(
+			long companyId) {
+
+			return null;
+		}
+
+		@Override
+		public Long[] getCommerceChannelIds(
+			String analyticsChannelId, long companyId) {
+
+			return new Long[0];
+		}
+
+		@Override
+		public Long[] getSiteIds(String analyticsChannelId, long companyId) {
+			return new Long[0];
+		}
+
+		@Override
+		public boolean isAnalyticsEnabled(long companyId) {
+			_analyticsEnabled.set(true);
+
+			return false;
+		}
+
+		@Override
+		public boolean isSiteIdSynced(long companyId, long groupId) {
+			return false;
+		}
+
+		@Override
+		public boolean syncedAccountSettingsEnabled(long companyId) {
+			return false;
+		}
+
+		@Override
+		public boolean syncedContactSettingsEnabled(long companyId) {
+			return false;
+		}
+
+		@Override
+		public String[] updateCommerceChannelIds(
+			String analyticsChannelId, long companyId,
+			Long[] dataSourceCommerceChannelIds) {
+
+			return new String[0];
+		}
+
+		@Override
+		public void updateCompanyConfiguration(
+			long companyId, Map<String, Object> properties) {
+		}
+
+		@Override
+		public String[] updateSiteIds(
+			String analyticsChannelId, long companyId,
+			Long[] dataSourceSiteIds) {
+
+			return new String[0];
+		}
+
+		private final AtomicBoolean _analyticsEnabled;
+
+	}
 
 }

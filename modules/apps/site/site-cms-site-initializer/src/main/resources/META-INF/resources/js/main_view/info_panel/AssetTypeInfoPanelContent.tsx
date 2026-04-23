@@ -24,7 +24,13 @@ import {getAssetType} from './util';
 import {ASSET_TYPE} from './util/constants';
 
 const AssetTypeInfoPanelContent = ({
-	additionalProps: {assetLibraries, cmsGroupId, commentsProps, ...otherProps},
+	additionalProps: {
+		breadcrumbProps,
+		candidateAssetLibraries,
+		cmsGroupId,
+		commentsProps,
+		...otherProps
+	},
 	dataSetId,
 	items: selectedAssets = [],
 }: {
@@ -81,10 +87,11 @@ const AssetTypeInfoPanelContent = ({
 				{
 					actions: selectedAssets[0].actions,
 					asset,
-					assetLibrary: assetLibraries.find(
+					assetLibrary: candidateAssetLibraries.find(
 						({groupId}: {groupId: number}) =>
 							Number(groupId) === Number(asset.scopeId)
 					),
+					breadcrumbProps,
 					cmsGroupId,
 					commentsProps,
 					dataSetId,

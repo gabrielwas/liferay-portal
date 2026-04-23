@@ -9,6 +9,7 @@ import {OrderCustomFields, OrderTypes} from '../../../enums/Order';
 import {Liferay} from '../../../liferay/liferay';
 import zodSchema from '../../../schema/zod';
 import provisioningOAuth2 from '../../../services/oauth/Provisioning';
+import HeadlessDXPFreeRequest from '../../../services/rest/HeadlessDXPFreeRequest';
 import {getSiteURL} from '../../../utils/site';
 import ProductPurchase from './ProductPurchase';
 
@@ -51,9 +52,14 @@ export default class ProductPurchaseDXPTypeFree extends ProductPurchase {
 			assetReceiptLicenseUuid: order.id,
 			domains: this.form.domain,
 			owner:
-				this.form.businessEmail ||
+				this.form.businessEmailAddress ||
 				Liferay.ThemeDisplay.getUserEmailAddress(),
 		});
+
+		await HeadlessDXPFreeRequest.createDXPFreeRequest({
+			...this.form,
+			r_orderToDXPFreeActivationKeyRequest_commerceOrderId: order.id,
+		}).catch(console.error);
 
 		return order;
 	}

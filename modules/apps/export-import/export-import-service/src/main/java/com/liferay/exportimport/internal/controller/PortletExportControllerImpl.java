@@ -366,7 +366,9 @@ public class PortletExportControllerImpl implements PortletExportController {
 
 					layout.setGroupId(liveGroup.getGroupId());
 				}
-				else if (!portletDataHandler.isBatch()) {
+				else if (!portletDataHandler.isBatch() &&
+						 !portlet.isPreferencesUniquePerLayout()) {
+
 					Group liveGroup = _groupLocalService.getGroup(
 						portletDataContext.getGroupId());
 
@@ -384,7 +386,9 @@ public class PortletExportControllerImpl implements PortletExportController {
 						PortletPreferencesFactoryUtil.getStrictPortletSetup(
 							layout, portlet.getPortletId());
 				}
-				else if (!portletDataHandler.isBatch()) {
+				else if (!portletDataHandler.isBatch() &&
+						 !portlet.isPreferencesUniquePerLayout()) {
+
 					jxPortletPreferences =
 						PortletPreferencesFactoryUtil.getStrictPortletSetup(
 							portletDataContext.getCompanyId(),

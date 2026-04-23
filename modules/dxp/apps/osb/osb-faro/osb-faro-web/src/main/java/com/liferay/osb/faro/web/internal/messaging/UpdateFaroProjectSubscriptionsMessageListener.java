@@ -15,12 +15,12 @@ import com.liferay.osb.faro.provisioning.client.ProvisioningClient;
 import com.liferay.osb.faro.provisioning.client.constants.ProductConstants;
 import com.liferay.osb.faro.provisioning.client.model.OSBAccountEntry;
 import com.liferay.osb.faro.provisioning.client.model.OSBOfferingEntry;
+import com.liferay.osb.faro.provisioning.client.model.display.main.FaroSubscriptionDisplay;
 import com.liferay.osb.faro.service.FaroProjectLocalService;
 import com.liferay.osb.faro.service.FaroProjectUsageLocalService;
 import com.liferay.osb.faro.util.DateUtil;
 import com.liferay.osb.faro.web.internal.constants.FaroMessageDestinationNames;
 import com.liferay.osb.faro.web.internal.messaging.destination.creator.DestinationCreator;
-import com.liferay.osb.faro.web.internal.model.display.main.FaroSubscriptionDisplay;
 import com.liferay.osb.faro.web.internal.util.JSONUtil;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.log.Log;
@@ -148,7 +148,7 @@ public class UpdateFaroProjectSubscriptionsMessageListener
 							new OSBOfferingEntry();
 
 						osbOfferingEntry.setProductEntryId(
-							ProductConstants.BASIC_PRODUCT_ENTRY_ID);
+							ProductConstants.DATA_PLATFORM_PRODUCT_ENTRY_ID);
 						osbOfferingEntry.setQuantity(1);
 						osbOfferingEntry.setStartDate(createDate);
 

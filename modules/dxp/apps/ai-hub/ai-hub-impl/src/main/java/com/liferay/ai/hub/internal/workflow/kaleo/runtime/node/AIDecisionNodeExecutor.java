@@ -8,24 +8,28 @@ package com.liferay.ai.hub.internal.workflow.kaleo.runtime.node;
 import com.liferay.ai.hub.internal.assistant.handler.AssistantHandlerContext;
 import com.liferay.ai.hub.internal.assistant.handler.AssistantHandlerUtil;
 import com.liferay.ai.hub.internal.mcp.tool.provider.MCPToolProviderUtil;
-import com.liferay.ai.hub.internal.workflow.kaleo.runtime.node.util.ContentRetrieverUtil;
+import com.liferay.ai.hub.internal.model.VertexAiGeminiStreamingChatModelUtil;
 import com.liferay.ai.hub.internal.workflow.kaleo.runtime.node.util.KaleoLogUtil;
+import com.liferay.ai.hub.internal.workflow.kaleo.runtime.node.util.PromptUtil;
+import com.liferay.ai.hub.internal.workflow.kaleo.runtime.node.util.RetrievalAugmentorUtil;
+import com.liferay.ai.hub.internal.workflow.kaleo.runtime.node.util.ToolProviderUtil;
 import com.liferay.ai.hub.internal.workflow.kaleo.runtime.node.util.ToolsUtil;
 import com.liferay.ai.hub.internal.workflow.kaleo.runtime.node.util.VariablesUtil;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.rest.manager.v1_0.ObjectEntryManager;
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
-import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowNodeManager;
+import com.liferay.portal.search.engine.adapter.SearchEngineAdapter;
+import com.liferay.portal.search.highlight.FieldConfigBuilderFactory;
+import com.liferay.portal.search.highlight.HighlightBuilderFactory;
 import com.liferay.portal.vulcan.dto.converter.DTOConverterRegistry;
 import com.liferay.portal.workflow.kaleo.definition.NodeType;
 import com.liferay.portal.workflow.kaleo.model.KaleoInstanceToken;
@@ -38,8 +42,6 @@ import com.liferay.portal.workflow.kaleo.runtime.node.BaseNodeExecutor;
 import com.liferay.portal.workflow.kaleo.runtime.node.NodeExecutor;
 import com.liferay.portal.workflow.kaleo.service.KaleoNodeSettingLocalService;
 
-import dev.langchain4j.agent.tool.P;
-import dev.langchain4j.agent.tool.Tool;
 import dev.langchain4j.invocation.InvocationParameters;
 import dev.langchain4j.model.vertexai.gemini.VertexAiGeminiStreamingChatModel;
 
@@ -61,54 +63,6 @@ public class AIDecisionNodeExecutor extends BaseNodeExecutor {
 	@Override
 	public NodeType getNodeType() {
 		return NodeType.AI_DECISION;
-	}
-
-	public class Tools {
-
-		@Tool(
-			"Complete the workflow node by proceeding to the chosen transition"
-		)
-		public void completeWorkflowNode(
-				InvocationParameters invocationParameters,
-				@P(
-					"A brief, one-sentence justification for the chosen transition."
-				)
-				String reason,
-				@P("Transition name") String transitionName)
-			throws PortalException {
-
-			PermissionChecker permissionChecker =
-				PermissionThreadLocal.getPermissionChecker();
-
-			try (SafeCloseable safeCloseable =
-					CompanyThreadLocal.setCompanyIdWithSafeCloseable(
-						invocationParameters.get("companyId"))) {
-
-				PermissionThreadLocal.setPermissionChecker(
-					invocationParameters.get("permissionChecker"));
-
-				ExecutionContext executionContext = invocationParameters.get(
-					"executionContext");
-
-				KaleoInstanceToken kaleoInstanceToken =
-					executionContext.getKaleoInstanceToken();
-
-				Map<String, Serializable> workflowContext =
-					executionContext.getWorkflowContext();
-
-				workflowContext.put("reason", reason);
-
-				_workflowNodeManager.completeWorkflowNode(
-					kaleoInstanceToken.getCompanyId(),
-					kaleoInstanceToken.getUserId(),
-					kaleoInstanceToken.getKaleoInstanceTokenId(),
-					transitionName, workflowContext, false);
-			}
-			finally {
-				PermissionThreadLocal.setPermissionChecker(permissionChecker);
-			}
-		}
-
 	}
 
 	@Override
@@ -138,32 +92,26 @@ public class AIDecisionNodeExecutor extends BaseNodeExecutor {
 				kaleoNodeSetting.getName(), kaleoNodeSetting.getValue());
 		}
 
-		String prompt = VariablesUtil.applyInputVariables(
-			executionContext, "prompt", kaleoNodeSettingValues);
+		String prompt = PromptUtil.composePrompt(
+			kaleoInstanceToken.getCompanyId(), _dtoConverterRegistry,
+			executionContext, kaleoNodeSettingValues, _objectEntryManager);
 		String userMessage = VariablesUtil.applyInputVariables(
 			executionContext, "userMessage", kaleoNodeSettingValues);
 
 		ServiceContext serviceContext = executionContext.getServiceContext();
 
 		VertexAiGeminiStreamingChatModel vertexAiGeminiStreamingChatModel =
-			VertexAiGeminiStreamingChatModel.builder(
-			).location(
-				"europe-central2"
-			).modelName(
-				"gemini-2.5-flash-lite"
-			).project(
-				"ai-hub-liferay"
-			).build();
+			VertexAiGeminiStreamingChatModelUtil.create(
+				serviceContext.getCompanyId());
+
 		Map<String, Serializable> workflowContext =
 			executionContext.getWorkflowContext();
 
+		String sseEventSinkKey = GetterUtil.getString(
+			workflowContext.get("sseEventSinkKey"));
+
 		AssistantHandlerUtil.handle(
 			AssistantHandlerContext.builder(
-			).contentRetriever(
-				ContentRetrieverUtil.createContentRetriever(
-					GetterUtil.getString(workflowContext.get("accessToken")),
-					kaleoNodeSettingValues,
-					GetterUtil.getString(workflowContext.get("userToken")))
 			).invocationParameters(
 				InvocationParameters.from(
 					Map.of(
@@ -175,6 +123,8 @@ public class AIDecisionNodeExecutor extends BaseNodeExecutor {
 				GetterUtil.getString(workflowContext.get("memoryId"))
 			).onCompleteResponseConsumer(
 				response -> {
+					MCPToolProviderUtil.close(sseEventSinkKey);
+
 					vertexAiGeminiStreamingChatModel.close();
 
 					KaleoLogUtil.addNodeUsageKaleoLog(
@@ -185,21 +135,33 @@ public class AIDecisionNodeExecutor extends BaseNodeExecutor {
 				}
 			).onErrorConsumer(
 				throwable -> {
+					MCPToolProviderUtil.close(sseEventSinkKey);
+
 					vertexAiGeminiStreamingChatModel.close();
 
 					_log.error(throwable);
 				}
+			).retrievalAugmentor(
+				RetrievalAugmentorUtil.createRetrievalAugmentor(
+					kaleoInstanceToken.getCompanyId(), _dtoConverterRegistry,
+					_fieldConfigBuilderFactory, _highlightBuilderFactory,
+					kaleoNodeSettingValues, serviceContext.getLocale(),
+					_objectEntryManager, _searchEngineAdapter,
+					serviceContext.getUserId(), workflowContext)
 			).systemMessageProviderFunction(
 				memoryId -> prompt
 			).tools(
-				new Tools()
+				ToolsUtil.getTools(
+					kaleoInstanceToken.getCompanyId(), currentKaleoNode,
+					workflowContext, _workflowNodeManager)
 			).toolProvider(
 				MCPToolProviderUtil.create(
 					kaleoInstanceToken.getCompanyId(), _dtoConverterRegistry,
 					kaleoInstanceToken.getGroupId(), serviceContext.getLocale(),
-					ToolsUtil.getMCPServerExternalReferenceCodes(
+					ToolProviderUtil.getMCPServerExternalReferenceCodes(
 						_jsonFactory, kaleoNodeSettingValues),
-					_objectEntryManager, serviceContext.getUserId())
+					_objectEntryManager, sseEventSinkKey,
+					serviceContext.getUserId())
 			).userMessage(
 				userMessage
 			).vertexAiGeminiStreamingChatModel(
@@ -239,6 +201,12 @@ public class AIDecisionNodeExecutor extends BaseNodeExecutor {
 	private DTOConverterRegistry _dtoConverterRegistry;
 
 	@Reference
+	private FieldConfigBuilderFactory _fieldConfigBuilderFactory;
+
+	@Reference
+	private HighlightBuilderFactory _highlightBuilderFactory;
+
+	@Reference
 	private JSONFactory _jsonFactory;
 
 	@Reference
@@ -248,6 +216,9 @@ public class AIDecisionNodeExecutor extends BaseNodeExecutor {
 		target = "(object.entry.manager.storage.type=" + ObjectDefinitionConstants.STORAGE_TYPE_DEFAULT + ")"
 	)
 	private ObjectEntryManager _objectEntryManager;
+
+	@Reference
+	private SearchEngineAdapter _searchEngineAdapter;
 
 	@Reference
 	private WorkflowNodeManager _workflowNodeManager;

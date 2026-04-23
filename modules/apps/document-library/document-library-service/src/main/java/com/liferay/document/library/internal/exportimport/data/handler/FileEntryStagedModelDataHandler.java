@@ -50,6 +50,7 @@ import com.liferay.friendly.url.service.FriendlyURLEntryLocalService;
 import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerList;
 import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerListFactory;
 import com.liferay.petra.function.transform.TransformUtil;
+import com.liferay.petra.io.DummyOutputStream;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -534,6 +535,10 @@ public class FileEntryStagedModelDataHandler
 							if (existingFileVersionInputStream == null) {
 								updateFileEntry = true;
 							}
+							else {
+								existingFileVersionInputStream.transferTo(
+									new DummyOutputStream());
+							}
 						}
 						catch (Exception exception) {
 							if (_log.isDebugEnabled()) {
@@ -599,6 +604,15 @@ public class FileEntryStagedModelDataHandler
 									userId, importedFileEntry.getFileEntryId(),
 									folderId, serviceContext);
 						}
+
+						DLFileEntry importedDLFileEntry =
+							_dlFileEntryLocalService.fetchDLFileEntry(
+								importedFileEntry.getFileEntryId());
+
+						importedDLFileEntry.setUuid(fileEntry.getUuid());
+
+						_dlFileEntryLocalService.updateDLFileEntry(
+							importedDLFileEntry);
 
 						if (importedFileEntry instanceof LiferayFileEntry) {
 							LiferayFileEntry liferayFileEntry =

@@ -16,11 +16,11 @@ import com.liferay.headless.admin.site.dto.v1_0.UtilityPageSettings;
 import com.liferay.headless.admin.site.internal.dto.v1_0.util.DTOConverterContextUtil;
 import com.liferay.headless.admin.site.internal.odata.entity.v1_0.UtilityPageEntityModel;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.FileEntryUtil;
-import com.liferay.headless.admin.site.internal.resource.v1_0.util.GroupUtil;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.LayoutUtil;
 import com.liferay.headless.admin.site.internal.resource.v1_0.util.ServiceContextUtil;
 import com.liferay.headless.admin.site.internal.util.EnabledUtil;
 import com.liferay.headless.admin.site.resource.v1_0.UtilityPageResource;
+import com.liferay.headless.common.spi.util.GroupUtil;
 import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
 import com.liferay.layout.utility.page.kernel.constants.LayoutUtilityPageEntryConstants;
@@ -466,7 +466,8 @@ public class UtilityPageResourceImpl
 			return _externalToInternalValuesMap.get(type);
 		}
 
-		throw new UnsupportedOperationException();
+		throw new IllegalArgumentException(
+			"The page type does not match the expected utility page type");
 	}
 
 	private void _validateUtilityPage(UtilityPage utilityPage) {
@@ -478,7 +479,8 @@ public class UtilityPageResourceImpl
 				utilityPage.getPageSpecifications()) {
 
 			if (pageSpecification.getCustomFields() != null) {
-				throw new UnsupportedOperationException();
+				throw new IllegalArgumentException(
+					"Utility pages do not support custom fields");
 			}
 		}
 	}

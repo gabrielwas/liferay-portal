@@ -866,19 +866,21 @@ public class JavaSourceProcessorTest extends BaseSourceProcessorTestCase {
 	}
 
 	@Test
-	public void testResultCountSet() throws Exception {
-		test(
-			"ResultSetCount.testjava", "Use resultSet.getInt(1) for count", 26);
-	}
-
-	@Test
 	public void testResultSetGetCall() throws Exception {
 		test(
-			"ResultSetGetCall.testjava",
-			"Do not use \"TableName.ColumnName\" as the parameter when " +
-				"calling method \"resultSet.get*\", use column index or " +
-					"column name instead",
-			43);
+			SourceProcessorTestParameters.create(
+				"ResultSetGetCall.testjava"
+			).addExpectedMessage(
+				"Use the simple column name instead of \"TableName.ColumnName" +
+					"\" when calling method \"resultSet.get*\"",
+				43
+			).addExpectedMessage(
+				"Use the simple column name instead of column index when " +
+					"calling method \"resultSet.get*\"",
+				60
+			).addExpectedMessage(
+				"Use \"resultSet.getLong\" for count", 74
+			));
 	}
 
 	@Test
@@ -1035,6 +1037,13 @@ public class JavaSourceProcessorTest extends BaseSourceProcessorTestCase {
 			).addExpectedMessage(
 				"Do not use text block", 29
 			));
+	}
+
+	@Test
+	public void testThreadVariableName() throws Exception {
+		test(
+			"ThreadVariableName.testjava",
+			"Rename thread to \"Lock Create Thread\"", 14);
 	}
 
 	@Test

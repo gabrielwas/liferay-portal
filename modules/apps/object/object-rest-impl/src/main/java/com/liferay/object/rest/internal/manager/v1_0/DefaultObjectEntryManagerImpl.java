@@ -17,10 +17,14 @@ import com.liferay.object.action.engine.ObjectActionEngine;
 import com.liferay.object.comment.ObjectEntryComment;
 import com.liferay.object.constants.ObjectActionTriggerConstants;
 import com.liferay.object.constants.ObjectDefinitionConstants;
+import com.liferay.object.constants.ObjectEntryFolderConstants;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectFieldSettingConstants;
+import com.liferay.object.constants.ObjectFolderConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
 import com.liferay.object.entry.folder.subscription.util.ObjectEntryFolderSubscriptionUtil;
+import com.liferay.object.entry.scope.provider.ObjectEntryScopeProvider;
+import com.liferay.object.entry.scope.provider.ObjectEntryScopeProviderRegistry;
 import com.liferay.object.entry.util.ObjectEntryDTOConverterUtil;
 import com.liferay.object.exception.NoSuchObjectEntryException;
 import com.liferay.object.field.attachment.AttachmentManager;
@@ -35,6 +39,7 @@ import com.liferay.object.model.ObjectEntryTable;
 import com.liferay.object.model.ObjectEntryVersion;
 import com.liferay.object.model.ObjectEntryVersionTable;
 import com.liferay.object.model.ObjectField;
+import com.liferay.object.model.ObjectFolder;
 import com.liferay.object.model.ObjectRelationship;
 import com.liferay.object.model.ObjectRelationshipModel;
 import com.liferay.object.related.models.ObjectRelatedModelsProvider;
@@ -200,6 +205,19 @@ public class DefaultObjectEntryManagerImpl
 			ObjectDefinition objectDefinition, ObjectEntry objectEntry,
 			String scopeKey)
 		throws Exception {
+
+		if (objectDefinition.isModifiableAndSystem() &&
+			Validator.isNull(scopeKey)) {
+
+			ObjectEntryScopeProvider objectEntryScopeProvider =
+				_objectEntryScopeProviderRegistry.getObjectEntryScopeProvider(
+					objectDefinition.getExternalReferenceCode());
+
+			if (objectEntryScopeProvider != null) {
+				scopeKey = objectEntryScopeProvider.getGroupId(
+					dtoConverterContext.getUser());
+			}
+		}
 
 		validateReadOnlyObjectFields(
 			null, getGroupId(objectDefinition, scopeKey), objectDefinition,
@@ -624,6 +642,27 @@ public class DefaultObjectEntryManagerImpl
 			objectDefinition =
 				_objectDefinitionLocalService.getObjectDefinition(
 					serviceBuilderObjectEntry.getObjectDefinitionId());
+		}
+
+		return _toObjectEntry(
+			dtoConverterContext, objectDefinition, serviceBuilderObjectEntry,
+			null);
+	}
+
+	@Override
+	public ObjectEntry fetchObjectEntry(
+			DTOConverterContext dtoConverterContext,
+			String externalReferenceCode, ObjectDefinition objectDefinition,
+			String scopeKey)
+		throws Exception {
+
+		com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry =
+			_objectEntryService.fetchObjectEntry(
+				externalReferenceCode, getGroupId(objectDefinition, scopeKey),
+				objectDefinition.getObjectDefinitionId());
+
+		if (serviceBuilderObjectEntry == null) {
+			return null;
 		}
 
 		return _toObjectEntry(
@@ -1389,7 +1428,7 @@ public class DefaultObjectEntryManagerImpl
 						objectDefinition.getObjectDefinitionId(),
 						_getObjectEntryFolderId(
 							objectDefinition.getCompanyId(), groupId,
-							objectEntry, serviceContext),
+							objectEntry, objectDefinition, serviceContext),
 						_toObjectValues(
 							0L, dtoConverterContext.getLocale(),
 							objectDefinition, objectEntry, scopeKey,
@@ -1610,7 +1649,7 @@ public class DefaultObjectEntryManagerImpl
 				groupId, objectDefinition.getObjectDefinitionId(),
 				_getObjectEntryFolderId(
 					objectDefinition.getCompanyId(), groupId, objectEntry,
-					serviceContext),
+					objectDefinition, serviceContext),
 				objectEntry.getDefaultLanguageId(), values, serviceContext);
 
 		return _toObjectEntry(
@@ -1895,9 +1934,7 @@ public class DefaultObjectEntryManagerImpl
 				_getObjectRelationships(objectDefinition, objectEntry),
 				_objectEntryService.addObjectEntry(
 					groupId, objectDefinition.getObjectDefinitionId(),
-					_getObjectEntryFolderId(
-						objectDefinition.getCompanyId(), groupId, objectEntry,
-						serviceContext),
+					GetterUtil.getLong(objectEntry.getObjectEntryFolderId()),
 					objectEntry.getDefaultLanguageId(),
 					_toObjectValues(
 						objectField.getObjectFieldId(),
@@ -2251,6 +2288,16 @@ public class DefaultObjectEntryManagerImpl
 		return getGroupId(objectDefinition, scopeKey, true);
 	}
 
+	private String _getGroupExternalReferenceCode(FileEntry fileEntry) {
+		Scope scope = fileEntry.getScope();
+
+		if (scope != null) {
+			return scope.getExternalReferenceCode();
+		}
+
+		return null;
+	}
+
 	private BaseModel<ExternalReferenceCodeModel> _getManyToOneRelatedModel(
 			ObjectRelationship objectRelationship, long primaryKey,
 			ObjectDefinition relatedObjectDefinition)
@@ -2370,16 +2417,69 @@ public class DefaultObjectEntryManagerImpl
 			serviceBuilderObjectEntry);
 	}
 
+	private String _getObjectEntryFolderExternalReferenceCode(
+		long companyId, long groupId, ObjectDefinition objectDefinition) {
+
+		if (!FeatureFlagManagerUtil.isEnabled(companyId, "LPD-17564") ||
+			(groupId == 0) ||
+			!StringUtil.equals(
+				objectDefinition.getScope(),
+				ObjectDefinitionConstants.SCOPE_DEPOT)) {
+
+			return null;
+		}
+
+		Group group = _groupLocalService.fetchGroup(groupId);
+
+		if ((group == null) || !group.isDepot()) {
+			return null;
+		}
+
+		DepotEntry depotEntry = _depotEntryLocalService.fetchGroupDepotEntry(
+			groupId);
+
+		if ((depotEntry == null) ||
+			(depotEntry.getType() != DepotConstants.TYPE_SPACE)) {
+
+			return null;
+		}
+
+		ObjectFolder objectFolder = objectDefinition.getObjectFolder();
+
+		if ((objectFolder != null) &&
+			Objects.equals(
+				objectFolder.getExternalReferenceCode(),
+				ObjectFolderConstants.EXTERNAL_REFERENCE_CODE_FILE_TYPES)) {
+
+			return ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_FILES;
+		}
+
+		return ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_CONTENTS;
+	}
+
 	private long _getObjectEntryFolderId(
 			long companyId, long groupId, ObjectEntry objectEntry,
-			ServiceContext serviceContext)
+			ObjectDefinition objectDefinition, ServiceContext serviceContext)
 		throws Exception {
 
 		String objectEntryFolderExternalReferenceCode =
 			objectEntry.getObjectEntryFolderExternalReferenceCode();
 
 		if (Validator.isNull(objectEntryFolderExternalReferenceCode)) {
-			return GetterUtil.getLong(objectEntry.getObjectEntryFolderId());
+			long objectEntryFolderId = GetterUtil.getLong(
+				objectEntry.getObjectEntryFolderId());
+
+			if (objectEntryFolderId != 0) {
+				return objectEntryFolderId;
+			}
+
+			objectEntryFolderExternalReferenceCode =
+				_getObjectEntryFolderExternalReferenceCode(
+					companyId, groupId, objectDefinition);
+
+			if (Validator.isNull(objectEntryFolderExternalReferenceCode)) {
+				return objectEntryFolderId;
+			}
 		}
 
 		ObjectEntryFolder objectEntryFolder =
@@ -2945,6 +3045,23 @@ public class DefaultObjectEntryManagerImpl
 				"File source " + fileSource + " is not supported");
 		}
 
+		if (Validator.isNotNull(fileEntry.getExternalReferenceCode())) {
+			com.liferay.portal.kernel.repository.model.FileEntry
+				serviceBuilderFileEntry =
+					_dlAppLocalService.fetchFileEntryByExternalReferenceCode(
+						_getFileEntryGroupId(
+							_getGroupExternalReferenceCode(fileEntry),
+							objectDefinition, scopeKey),
+						fileEntry.getExternalReferenceCode());
+
+			if ((serviceBuilderFileEntry != null) &&
+				(objectField.getCompanyId() ==
+					serviceBuilderFileEntry.getCompanyId())) {
+
+				return serviceBuilderFileEntry.getFileEntryId();
+			}
+		}
+
 		byte[] fileContent = {};
 
 		if (fileEntry.getFileBase64() != null) {
@@ -2989,16 +3106,18 @@ public class DefaultObjectEntryManagerImpl
 			}
 		}
 
+		if (((fileEntry.getFileBase64() != null) ||
+			 (fileEntry.getFileURL() != null)) &&
+			ArrayUtil.isEmpty(fileContent)) {
+
+			throw new IllegalArgumentException("File content is empty");
+		}
+
 		com.liferay.portal.kernel.repository.model.FileEntry
 			serviceBuilderFileEntry = null;
 
-		String groupExternalReferenceCode = null;
-
-		Scope scope = fileEntry.getScope();
-
-		if (scope != null) {
-			groupExternalReferenceCode = scope.getExternalReferenceCode();
-		}
+		String groupExternalReferenceCode = _getGroupExternalReferenceCode(
+			fileEntry);
 
 		if (StringUtil.equals(
 				fileSource,
@@ -3055,26 +3174,24 @@ public class DefaultObjectEntryManagerImpl
 		if (objectField.isLocalized()) {
 			Object value = values.get(objectField.getI18nObjectFieldName());
 
-			if ((value == null) || !(value instanceof Map<?, ?>)) {
+			if ((value != null) && (value instanceof Map<?, ?>)) {
+				Map<String, Serializable> localizedValues =
+					(Map<String, Serializable>)value;
+
+				for (Map.Entry<String, Serializable> entry :
+						localizedValues.entrySet()) {
+
+					long fileEntryId = _processAttachment(
+						objectDefinition, objectField, entry.getValue(),
+						scopeKey, serviceContext);
+
+					if (fileEntryId > 0) {
+						entry.setValue(fileEntryId);
+					}
+				}
+
 				return;
 			}
-
-			Map<String, Serializable> localizedValues =
-				(Map<String, Serializable>)value;
-
-			for (Map.Entry<String, Serializable> entry :
-					localizedValues.entrySet()) {
-
-				long fileEntryId = _processAttachment(
-					objectDefinition, objectField, entry.getValue(), scopeKey,
-					serviceContext);
-
-				if (fileEntryId > 0) {
-					entry.setValue(fileEntryId);
-				}
-			}
-
-			return;
 		}
 
 		long fileEntryId = _processAttachment(
@@ -3732,7 +3849,7 @@ public class DefaultObjectEntryManagerImpl
 					_getObjectEntryFolderId(
 						serviceBuilderObjectEntry.getCompanyId(),
 						serviceBuilderObjectEntry.getGroupId(), objectEntry,
-						serviceContext),
+						objectDefinition, serviceContext),
 					values, serviceContext);
 		}
 		else {
@@ -3741,7 +3858,7 @@ public class DefaultObjectEntryManagerImpl
 				_getObjectEntryFolderId(
 					serviceBuilderObjectEntry.getCompanyId(),
 					serviceBuilderObjectEntry.getGroupId(), objectEntry,
-					serviceContext),
+					objectDefinition, serviceContext),
 				values, serviceContext);
 		}
 
@@ -3889,6 +4006,9 @@ public class DefaultObjectEntryManagerImpl
 
 	@Reference
 	private ObjectEntryManagerRegistry _objectEntryManagerRegistry;
+
+	@Reference
+	private ObjectEntryScopeProviderRegistry _objectEntryScopeProviderRegistry;
 
 	@Reference
 	private ObjectEntryService _objectEntryService;

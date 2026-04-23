@@ -284,7 +284,10 @@ public class JobFactory {
 
 		String key = null;
 
-		if (jsonObject == null) {
+		if ((jsonObject == null) &&
+			JenkinsResultsParserUtil.isBuildCachingEnabled(
+				jobName, testSuiteName)) {
+
 			jsonObject = JobCacheUtil.getCachedJobJSONObject(
 				jobName, portalGitWorkingDirectory, testSuiteName);
 		}
@@ -389,6 +392,16 @@ public class JobFactory {
 					job = new FixPackBuilderGitRepositoryJob(
 						buildProfile, jobName, testSuiteName,
 						upstreamBranchName);
+				}
+			}
+
+			if (jobName.equals("test-jenkins-acceptance-pullrequest")) {
+				if (jsonObject != null) {
+					job = new JenkinsGitRepositoryJob(jsonObject);
+				}
+				else {
+					job = new JenkinsGitRepositoryJob(
+						buildProfile, jobName, testSuiteName);
 				}
 			}
 

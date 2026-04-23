@@ -16,6 +16,8 @@ import {useForm} from 'react-hook-form';
 import {RequiredMask} from '../../../../../components/FieldBase';
 import {Input} from '../../../../../components/Input/Input';
 import ProductPurchase from '../../../../../components/ProductPurchase';
+import Select from '../../../../../components/Select/Select';
+import useCommerceRegions from '../../../../../hooks/useCommerceRegions';
 import i18n from '../../../../../i18n';
 import {Liferay} from '../../../../../liferay/liferay';
 import zodSchema, {z} from '../../../../../schema/zod';
@@ -35,12 +37,6 @@ const setValuesOptions = {
 };
 
 const AIHubForm = () => {
-	const [active, setActive] = useState(false);
-	const [loading, setLoading] = useState(false);
-
-	const {handlePurchase, product, selectedAccount} =
-		useProductPurchaseOutletContext();
-
 	const {
 		formState: {errors, isValid},
 		handleSubmit,
@@ -49,19 +45,18 @@ const AIHubForm = () => {
 		watch,
 	} = useForm<z.infer<typeof zodSchema.aiHubForm>>({
 		defaultValues: {
-			administrationEmailAddress:
+			administratorEmailAddress:
 				Liferay.ThemeDisplay.getUserEmailAddress(),
 			aiHubAccountName: '',
-			businessEmail: Liferay.ThemeDisplay.getUserEmailAddress(),
+			businessEmailAddress: Liferay.ThemeDisplay.getUserEmailAddress(),
 			companyName: '',
 			country: '',
 			extension: '',
-			fullname: '',
+			fullName: Liferay.ThemeDisplay.getUserName(),
 			intlCode: {code: '+1', flag: 'en-us'},
 			jobTitle: '',
 			phoneNumber: '',
 			purpose: '',
-			purposeOther: '',
 			termsAndConditions: false,
 			userAgreement: false,
 		},
@@ -70,21 +65,36 @@ const AIHubForm = () => {
 		resolver: zodResolver(zodSchema.aiHubForm),
 	});
 
-	const {intlCode, purpose, termsAndConditions, userAgreement} = watch();
+	const watchedValues = watch();
 
+	const {intlCode, purpose, termsAndConditions, userAgreement} =
+		watchedValues;
+
+	const [active, setActive] = useState(false);
 	const [currentPhonesFlags, setCurrentPhonesFlags] = useState(intlCode);
+	const [loading, setLoading] = useState(false);
+	const {data: regionsResponse} = useCommerceRegions();
+	const {handlePurchase, product, selectedAccount} =
+		useProductPurchaseOutletContext();
 
-	const onSubmit = async (data: z.infer<typeof zodSchema.aiHubForm>) => {
+	const countries = regionsResponse?.items ?? [];
+
+	const onSubmit = async (form: z.infer<typeof zodSchema.aiHubForm>) => {
 		setLoading(true);
 
-		const productPurchase = new ProductPurchaseAIHub(
-			selectedAccount,
-			product
-		);
+		try {
+			const productPurchase = new ProductPurchaseAIHub(
+				selectedAccount,
+				product
+			);
 
-		productPurchase.setForm(data);
+			productPurchase.setForm(form);
 
-		await handlePurchase(productPurchase);
+			await handlePurchase(productPurchase);
+		}
+		catch (error) {
+			console.error(error);
+		}
 
 		setLoading(false);
 	};
@@ -108,9 +118,9 @@ const AIHubForm = () => {
 
 			<ClayForm.Group>
 				<Input
-					{...register('fullname')}
+					{...register('fullName')}
 					className="w-100"
-					errorMessage={errors.fullname?.message}
+					errorMessage={errors.fullName?.message}
 					label={i18n.translate('full-name')}
 					placeholder={i18n.translate('enter-your-full-name')}
 					required
@@ -119,26 +129,27 @@ const AIHubForm = () => {
 				<ClayInput.Group>
 					<ClayInput.GroupItem>
 						<Input
-							{...register('businessEmail')}
+							{...register('businessEmailAddress')}
 							className="w-100"
-							errorMessage={errors.businessEmail?.message}
-							id="businessEmail"
-							label={i18n.translate('business-email')}
-							placeholder={i18n.translate(
-								'enter-your-business-email'
-							)}
+							errorMessage={errors.businessEmailAddress?.message}
+							id="businessEmailAddress"
+							label={i18n.translate('business-email-address')}
 							required
 						/>
 					</ClayInput.GroupItem>
 
-					<ClayInput.GroupItem>
-						<Input
+					<ClayInput.GroupItem
+						style={{position: 'relative', top: '-2px'}}
+					>
+						<Select
+							className="custom-input"
 							{...register('country')}
-							className="w-100"
-							errorMessage={errors.country?.message}
-							id="country"
 							label={i18n.translate('country')}
-							placeholder={i18n.translate('enter-your-country')}
+							name="country"
+							options={countries.map((country) => ({
+								key: country.title_i18n?.en_US,
+								name: country.title_i18n?.en_US,
+							}))}
 							required
 						/>
 					</ClayInput.GroupItem>
@@ -306,13 +317,6 @@ const AIHubForm = () => {
 					</ClayDropDown.ItemList>
 				</ClayDropDown>
 
-				<textarea
-					className="custom-input mt-5 rounded-lg w-100"
-					placeholder="Please describe why you would like to test AI Hub in this private beta"
-					rows={5}
-					{...register('purposeOther')}
-				/>
-
 				<p className="h4 mt-6">
 					{i18n.translate('ai-hub-information')}
 				</p>
@@ -326,28 +330,24 @@ const AIHubForm = () => {
 							errorMessage={errors.aiHubAccountName?.message}
 							id="aiHubAccountName"
 							label={i18n.translate('ai-hub-account-name')}
-							placeholder={i18n.translate(
-								'enter-ai-hub-account-name'
-							)}
+							placeholder={i18n.translate('account-name')}
 							required
 						/>
 					</ClayInput.GroupItem>
 
 					<ClayInput.GroupItem>
 						<Input
-							{...register('administrationEmailAddress')}
+							{...register('administratorEmailAddress')}
 							className="w-100"
 							errorMessage={
-								errors.administrationEmailAddress?.message
+								errors.administratorEmailAddress?.message
 							}
 							helpMessage={i18n.translate(
 								'this-is-the-email-address-that-will-receive-the-ai-hub-account-management-invite'
 							)}
-							id="administrationEmailAddress"
+							id="administratorEmailAddress"
 							label={i18n.translate('administration-email')}
-							placeholder={i18n.translate(
-								'enter-administration-email-address'
-							)}
+							placeholder={i18n.translate('email-address')}
 							required
 						/>
 					</ClayInput.GroupItem>
@@ -419,9 +419,18 @@ const AIHubForm = () => {
 						})}
 						htmlFor="user-agreement"
 					>
-						{i18n.translate(
-							'i-agree-to-the-processing-of-my-personal-data-for-the-purpose-of-evaluating-my-beta-access-request-in-accordance-with-liferay’s-privacy-policy'
-						)}
+						<span>
+							{i18n.translate(
+								'i-agree-to-the-processing-of-my-personal-data-for-the-purpose-of-evaluating-my-beta-access-request-in-accordance-with'
+							)}
+							<a
+								className="ml-1"
+								href={productAgreements.links.privacyPolicy}
+								target="_blank"
+							>
+								{i18n.translate('liferay-s-privacy-policy')}
+							</a>
+						</span>
 						<RequiredMask />
 					</label>
 				</div>
@@ -443,7 +452,7 @@ const AIHubForm = () => {
 
 				<a
 					className="ml-1"
-					href={productAgreements.links.eula}
+					href={productAgreements.links.privacyPolicy}
 					target="_blank"
 				>
 					privacy policy for details.

@@ -511,7 +511,7 @@ test('Admin users can see all site scopes regardless of site membership', async 
 			name: getRandomString(),
 		});
 
-		apiHelpers.data.push({id: site.id, type: 'site'});
+		apiHelpers.data.push({id: site.externalReferenceCode, type: 'site'});
 
 		const objectDefinitionAPIClient =
 			await apiHelpers.buildRestClient(ObjectDefinitionAPI);
@@ -561,7 +561,7 @@ test('Admin users can see all site scopes regardless of site membership', async 
 		const scopesArray = scopeInnerText.split('\n');
 
 		expect(scopesArray).toEqual(
-			expect.arrayContaining([site.name, 'Global', 'Liferay DXP'])
+			expect.arrayContaining([site.name, 'Global', 'Liferay DXP Site'])
 		);
 	});
 });

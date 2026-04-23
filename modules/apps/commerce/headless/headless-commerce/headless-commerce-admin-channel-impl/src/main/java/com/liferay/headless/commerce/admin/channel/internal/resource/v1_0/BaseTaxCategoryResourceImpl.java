@@ -5,6 +5,7 @@
 
 package com.liferay.headless.commerce.admin.channel.internal.resource.v1_0;
 
+import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.headless.commerce.admin.channel.dto.v1_0.TaxCategory;
 import com.liferay.headless.commerce.admin.channel.resource.v1_0.TaxCategoryResource;
 import com.liferay.petra.function.UnsafeBiConsumer;
@@ -277,6 +278,15 @@ public abstract class BaseTaxCategoryResourceImpl
 			@Override
 			public Locale getPreferredLocale() {
 				return LocaleUtil.fromLanguageId(languageId);
+			}
+
+			@Override
+			public boolean isAcceptAllLanguages() {
+				if (ExportImportThreadLocal.isExportInProcess()) {
+					return true;
+				}
+
+				return AcceptLanguage.super.isAcceptAllLanguages();
 			}
 
 		};
@@ -858,3 +868,4 @@ public abstract class BaseTaxCategoryResourceImpl
 		LogFactoryUtil.getLog(BaseTaxCategoryResourceImpl.class);
 
 }
+// LIFERAY-REST-BUILDER-HASH:1073538994

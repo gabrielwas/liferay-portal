@@ -8,25 +8,36 @@ package com.liferay.site.dsr.site.initializer.internal.object.deployer;
 import com.liferay.object.constants.ObjectActionKeys;
 import com.liferay.object.deployer.ObjectDefinitionDeployer;
 import com.liferay.object.model.ObjectDefinition;
+import com.liferay.object.model.ObjectEntry;
+import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
+import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutSetPrototype;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
+import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionRegistryUtil;
+import com.liferay.portal.kernel.service.ClassNameLocalService;
+import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutSetPrototypeLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
+import com.liferay.site.dsr.site.initializer.internal.security.permission.resource.DSRDefaultPermissionObjectEntryModelResourcePermission;
 import com.liferay.site.dsr.site.initializer.internal.util.SiteInitializerUtil;
 import com.liferay.site.initializer.SiteInitializer;
 
@@ -36,7 +47,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -61,14 +74,37 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 				objectDefinition.getCompanyId());
 
 			_setResourcePermissions(
-				objectDefinition.getCompanyId(),
-				layoutSetPrototype.getGroupId(), objectDefinition);
+				objectDefinition.getCompanyId(), layoutSetPrototype,
+				objectDefinition);
 		}
 		catch (PortalException portalException) {
 			_log.error(portalException);
 		}
 
-		return Collections.emptyList();
+		ModelResourcePermission<ObjectEntry> modelResourcePermission =
+			ModelResourcePermissionRegistryUtil.getModelResourcePermission(
+				objectDefinition.getClassName());
+
+		if (modelResourcePermission == null) {
+			return Collections.emptyList();
+		}
+
+		return ListUtil.fromArray(
+			_bundleContext.registerService(
+				ModelResourcePermission.class,
+				new DSRDefaultPermissionObjectEntryModelResourcePermission(
+					_classNameLocalService, _groupLocalService,
+					modelResourcePermission, _objectEntryLocalService),
+				HashMapDictionaryBuilder.<String, Object>put(
+					"model.class.name", objectDefinition.getClassName()
+				).put(
+					"service.ranking", Integer.valueOf(200)
+				).build()));
+	}
+
+	@Activate
+	protected void activate(BundleContext bundleContext) {
+		_bundleContext = bundleContext;
 	}
 
 	private LayoutSetPrototype _addLayoutSetPrototype(long companyId)
@@ -105,8 +141,11 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 	}
 
 	private void _setResourcePermissions(
-			long companyId, long groupId, ObjectDefinition objectDefinition)
+			long companyId, LayoutSetPrototype layoutSetPrototype,
+			ObjectDefinition objectDefinition)
 		throws PortalException {
+
+		Group group = layoutSetPrototype.getGroup();
 
 		Role role = _roleLocalService.fetchRoleByExternalReferenceCode(
 			"L_DSR_CONTRIBUTOR", companyId);
@@ -129,16 +168,38 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 			role = _roleLocalService.addRole(
 				"L_DSR_SELLER", user.getUserId(), null, 0, "DSR Seller", null,
 				null, RoleConstants.TYPE_REGULAR, null, null);
-
-			_resourcePermissionLocalService.addResourcePermission(
-				companyId, PortletKeys.PORTAL, ResourceConstants.SCOPE_COMPANY,
-				String.valueOf(companyId), role.getRoleId(),
-				ActionKeys.VIEW_CONTROL_PANEL);
-			_resourcePermissionLocalService.addResourcePermission(
-				role.getCompanyId(), objectDefinition.getResourceName(),
-				ResourceConstants.SCOPE_COMPANY, String.valueOf(companyId),
-				role.getRoleId(), ObjectActionKeys.ADD_OBJECT_ENTRY);
 		}
+
+		_resourcePermissionLocalService.addResourcePermission(
+			companyId, PortletKeys.PORTAL, ResourceConstants.SCOPE_COMPANY,
+			String.valueOf(companyId), role.getRoleId(),
+			ActionKeys.VIEW_CONTROL_PANEL);
+		_resourcePermissionLocalService.addResourcePermission(
+			companyId, objectDefinition.getResourceName(),
+			ResourceConstants.SCOPE_COMPANY, String.valueOf(companyId),
+			role.getRoleId(), ObjectActionKeys.ADD_OBJECT_ENTRY);
+
+		if (group.getDefaultPrivatePlid() > 0) {
+			_resourcePermissionLocalService.setResourcePermissions(
+				companyId, Layout.class.getName(),
+				ResourceConstants.SCOPE_INDIVIDUAL,
+				String.valueOf(group.getDefaultPrivatePlid()), role.getRoleId(),
+				new String[] {ActionKeys.VIEW});
+		}
+
+		_resourcePermissionLocalService.setResourcePermissions(
+			companyId, LayoutSetPrototype.class.getName(),
+			ResourceConstants.SCOPE_INDIVIDUAL,
+			String.valueOf(layoutSetPrototype.getLayoutSetPrototypeId()),
+			role.getRoleId(), new String[] {ActionKeys.VIEW});
+
+		Group dsrGroup = _groupLocalService.getGroupByExternalReferenceCode(
+			"L_" + GroupConstants.DSR, companyId);
+
+		_resourcePermissionLocalService.setResourcePermissions(
+			companyId, Layout.class.getName(), ResourceConstants.SCOPE_GROUP,
+			String.valueOf(dsrGroup.getGroupId()), role.getRoleId(),
+			new String[] {ActionKeys.VIEW});
 
 		Map<String, String[]> permissionsMap = HashMapBuilder.put(
 			RoleConstants.OWNER,
@@ -150,11 +211,15 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 			RoleConstants.SITE_MEMBER,
 			new String[] {ActionKeys.SUBSCRIBE, ActionKeys.VIEW}
 		).put(
+			RoleConstants.USER, new String[] {ActionKeys.VIEW}
+		).put(
 			"DSR Contributor",
 			new String[] {
 				ActionKeys.ADD_DOCUMENT, ActionKeys.ADVANCED_UPDATE,
 				ActionKeys.UPDATE, ActionKeys.SUBSCRIBE, ActionKeys.VIEW
 			}
+		).put(
+			"DSR Seller", new String[] {ActionKeys.VIEW}
 		).build();
 
 		for (Role currentRole :
@@ -174,16 +239,28 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 
 			_resourcePermissionLocalService.setResourcePermissions(
 				companyId, "com.liferay.document.library",
-				ResourceConstants.SCOPE_INDIVIDUAL, String.valueOf(groupId),
-				currentRole.getRoleId(), actionIds);
+				ResourceConstants.SCOPE_INDIVIDUAL,
+				String.valueOf(group.getGroupId()), currentRole.getRoleId(),
+				actionIds);
 		}
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		ObjectDefinitionDeployerImpl.class);
 
+	private BundleContext _bundleContext;
+
+	@Reference
+	private ClassNameLocalService _classNameLocalService;
+
+	@Reference
+	private GroupLocalService _groupLocalService;
+
 	@Reference
 	private LayoutSetPrototypeLocalService _layoutSetPrototypeLocalService;
+
+	@Reference
+	private ObjectEntryLocalService _objectEntryLocalService;
 
 	@Reference
 	private ResourcePermissionLocalService _resourcePermissionLocalService;

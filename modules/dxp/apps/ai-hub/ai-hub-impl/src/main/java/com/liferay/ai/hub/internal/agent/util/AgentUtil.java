@@ -45,7 +45,7 @@ public class AgentUtil {
 			workflowInstance.getWorkflowInstanceId(), completableFuture);
 
 		return MapUtil.getString(
-			completableFuture.get(15, TimeUnit.SECONDS), "output");
+			completableFuture.get(5, TimeUnit.MINUTES), "output");
 	}
 
 	private static final ConcurrentMap

@@ -11,6 +11,7 @@ import QueueFlushService from './queueFlushService';
 import EventMessageQueue from './queues/eventMessageQueue';
 import EventQueue from './queues/eventsQueue';
 import IdentityMessageQueue from './queues/identityMessageQueue';
+import {Segment} from './segment';
 import {Analytics as AnalyticsType} from './types';
 import {
 	ANALYTICS_CLIENT_VERSION,
@@ -48,6 +49,7 @@ class Analytics {
 		channelId: '',
 		dataSourceId: '',
 		endpointUrl: '',
+		faroBackendUrl: '',
 		flushInterval: 0,
 		identity: {
 			emailAddressHashed: '',
@@ -57,6 +59,7 @@ class Analytics {
 		userId: '',
 	};
 	middlewares: AnalyticsType.Middleware[] = [];
+	segment!: Segment;
 	version: string = '';
 
 	/**
@@ -74,8 +77,11 @@ class Analytics {
 
 		const endpointUrl = (config.endpointUrl || '').replace(/\/$/, '');
 
+		const faroBackendUrl = (config.faroBackendUrl || '').replace(/\/$/, '');
+
 		this.config = Object.assign(config, {
 			endpointUrl,
+			faroBackendUrl,
 			flushInterval: config.flushInterval || FLUSH_INTERVAL,
 			identityEndpoint: `${endpointUrl}/identity`,
 		});
@@ -93,6 +99,8 @@ class Analytics {
 		this._initializeEventQueue();
 		this._initializeEventMessageQueue();
 		this._initializeIdentityMessageQueue();
+
+		this.segment = new Segment(this);
 
 		// Upgrade storage
 
@@ -170,6 +178,14 @@ class Analytics {
 		return this[
 			AnalyticsType.Queues.Events
 		].getItems<AnalyticsType.Event>();
+	}
+
+	getBatchSegmentIds() {
+		return this.segment.getBatchSegmentIds();
+	}
+
+	getRealTimeSegmentIds() {
+		return this.segment.getRealTimeSegmentIds();
 	}
 
 	/**

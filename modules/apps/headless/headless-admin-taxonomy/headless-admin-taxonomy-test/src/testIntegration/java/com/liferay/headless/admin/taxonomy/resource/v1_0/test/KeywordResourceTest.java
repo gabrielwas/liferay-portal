@@ -24,20 +24,23 @@ import com.liferay.headless.admin.taxonomy.client.resource.v1_0.KeywordResource;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
-import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.role.RoleConstants;
-import com.liferay.portal.kernel.service.RoleLocalService;
+import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.rule.DataGuard;
+import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
+import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PropsValues;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
+import com.liferay.site.cms.site.initializer.test.util.CMSTestUtil;
 
 import java.util.Arrays;
 import java.util.List;
@@ -372,7 +375,7 @@ public class KeywordResourceTest extends BaseKeywordResourceTestCase {
 		Group originalIrrelevantGroup = irrelevantGroup;
 		Group originalTestGroup = testGroup;
 
-		_addCMSGroup();
+		testGroup = CMSTestUtil.getOrAddGroup(KeywordResourceTest.class);
 
 		irrelevantGroup = GroupTestUtil.addGroup(
 			testDepotEntryGroup.getCompanyId(), TestPropsValues.getUserId(),
@@ -382,6 +385,20 @@ public class KeywordResourceTest extends BaseKeywordResourceTestCase {
 
 		irrelevantGroup = originalIrrelevantGroup;
 		testGroup = originalTestGroup;
+
+		_cmsAdministratorUser = UserTestUtil.addUser(
+			testCompany, RoleConstants.CMS_ADMINISTRATOR);
+
+		_userLocalService.updatePassword(
+			_cmsAdministratorUser.getUserId(), "test", "test", false, true);
+
+		_regularUser = UserTestUtil.addUser();
+
+		_userLocalService.updatePassword(
+			_regularUser.getUserId(), "test", "test", false, true);
+
+		_testGetSiteKeywordsPageWithUser(_cmsAdministratorUser);
+		_testGetSiteKeywordsPageWithUser(_regularUser);
 	}
 
 	@Ignore
@@ -397,7 +414,7 @@ public class KeywordResourceTest extends BaseKeywordResourceTestCase {
 	public void testPatchSiteKeyword() throws Exception {
 		Group originalTestGroup = testGroup;
 
-		_addCMSGroup();
+		testGroup = CMSTestUtil.getOrAddGroup(KeywordResourceTest.class);
 
 		Keyword keyword = _postKeywordWithAssetLibraries(_randomAssetLibrary());
 
@@ -419,6 +436,42 @@ public class KeywordResourceTest extends BaseKeywordResourceTestCase {
 
 		Assert.assertEquals(
 			assetTagGroupRels.toString(), 3, assetTagGroupRels.size());
+
+		testGroup = originalTestGroup;
+	}
+
+	@FeatureFlag("LPD-17564")
+	@Override
+	@Test
+	public void testPostSiteKeyword() throws Exception {
+		super.testPostSiteKeyword();
+
+		Group originalTestGroup = testGroup;
+
+		testGroup = CMSTestUtil.getOrAddGroup(KeywordResourceTest.class);
+
+		_cmsAdministratorUser = UserTestUtil.addUser(
+			testCompany, RoleConstants.CMS_ADMINISTRATOR);
+
+		_userLocalService.updatePassword(
+			_cmsAdministratorUser.getUserId(), "test", "test", false, true);
+
+		Keyword randomKeyword = randomKeyword();
+
+		KeywordResource cmsAdminKeywordResource = KeywordResource.builder(
+		).authentication(
+			_cmsAdministratorUser.getEmailAddress(), "test"
+		).endpoint(
+			testCompany.getVirtualHostname(), 8080, "http"
+		).locale(
+			LocaleUtil.getDefault()
+		).build();
+
+		Keyword postKeyword = cmsAdminKeywordResource.postSiteKeyword(
+			testGroup.getGroupId(), randomKeyword);
+
+		assertEquals(randomKeyword, postKeyword);
+		assertValid(postKeyword);
 
 		testGroup = originalTestGroup;
 	}
@@ -452,7 +505,7 @@ public class KeywordResourceTest extends BaseKeywordResourceTestCase {
 	public void testPutKeyword() throws Exception {
 		Group originalTestGroup = testGroup;
 
-		_addCMSGroup();
+		testGroup = CMSTestUtil.getOrAddGroup(KeywordResourceTest.class);
 
 		super.testPutKeyword();
 
@@ -477,7 +530,7 @@ public class KeywordResourceTest extends BaseKeywordResourceTestCase {
 	public void testPutKeywordMerge() throws Exception {
 		Group originalTestGroup = testGroup;
 
-		_addCMSGroup();
+		testGroup = CMSTestUtil.getOrAddGroup(KeywordResourceTest.class);
 
 		Keyword keyword1 = _postKeywordWithAssetLibraries(
 			_randomAssetLibrary());
@@ -622,29 +675,6 @@ public class KeywordResourceTest extends BaseKeywordResourceTestCase {
 		return testDepotEntry.getDepotEntryId();
 	}
 
-	private void _addCMSGroup() throws Exception {
-
-		// These tests require the instance to be created with the feature
-		// flag LPD-17564 enabled. On CI, feature flags are enabled on
-		// demand for each test, but not during instance initialization.
-		// Until the feature flag LPD-17564 is removed, we need an explicit CMS
-		// group creation.
-
-		Role role = _roleLocalService.fetchRole(
-			testDepotEntryGroup.getCompanyId(), RoleConstants.SITE_MEMBER);
-
-		if (role == null) {
-			_roleLocalService.addRole(
-				null, TestPropsValues.getUserId(), null, 0,
-				RoleConstants.SITE_MEMBER, null, null,
-				RoleConstants.TYPE_REGULAR, null, null);
-		}
-
-		testGroup = GroupTestUtil.addGroup(
-			testDepotEntryGroup.getCompanyId(), TestPropsValues.getUserId(),
-			GroupConstants.DEFAULT_PARENT_GROUP_ID, GroupConstants.CMS);
-	}
-
 	private Keyword _patchKeywordWithAssetLibraries(
 			Keyword keyword, AssetLibrary... assetLibraries)
 		throws Exception {
@@ -682,13 +712,45 @@ public class KeywordResourceTest extends BaseKeywordResourceTestCase {
 		};
 	}
 
+	private void _testGetSiteKeywordsPageWithUser(User user) throws Exception {
+		KeywordResource userKeywordResource = KeywordResource.builder(
+		).authentication(
+			user.getEmailAddress(), "test"
+		).endpoint(
+			testCompany.getVirtualHostname(), 8080, "http"
+		).locale(
+			LocaleUtil.getDefault()
+		).build();
+
+		Page<Keyword> page = userKeywordResource.getSiteKeywordsPage(
+			testGroup.getGroupId(), null, null, null, Pagination.of(1, 10),
+			null);
+
+		long originalTotalCount = page.getTotalCount();
+
+		keywordResource.postSiteKeyword(
+			testGroup.getGroupId(), randomKeyword());
+
+		page = userKeywordResource.getSiteKeywordsPage(
+			testGroup.getGroupId(), null, null, null, Pagination.of(1, 10),
+			null);
+
+		Assert.assertEquals(originalTotalCount + 1, page.getTotalCount());
+	}
+
 	@Inject
 	private AssetTagGroupRelLocalService _assetTagGroupRelLocalService;
+
+	@DeleteAfterTestRun
+	private User _cmsAdministratorUser;
 
 	@Inject
 	private DepotEntryLocalService _depotEntryLocalService;
 
+	@DeleteAfterTestRun
+	private User _regularUser;
+
 	@Inject
-	private RoleLocalService _roleLocalService;
+	private UserLocalService _userLocalService;
 
 }

@@ -87,14 +87,21 @@ public class OpenAPIResourceImpl {
 		{
 			add(AgentDefinitionResourceImpl.class);
 
+			add(AgentInstanceResourceImpl.class);
+
 			add(ChatResourceImpl.class);
+
+			add(ContentRetrieverResourceImpl.class);
 
 			add(MessageResourceImpl.class);
 
-			add(TaskResourceImpl.class);
+			add(ProvisioningRequestResourceImpl.class);
+
+			add(SiteResourceImpl.class);
 
 			add(OpenAPIResourceImpl.class);
 		}
 	};
 
 }
+// LIFERAY-REST-BUILDER-HASH:-197497947

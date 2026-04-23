@@ -36,6 +36,7 @@ export enum AssetTypes {
 	Document = 'Document',
 	Form = 'Form',
 	Journal = 'Journal',
+	ObjectEntry = 'ObjectEntry',
 	WebContent = 'WebContent',
 	WebPage = 'Page'
 }
@@ -103,6 +104,7 @@ export enum DataSourceStatuses {
 
 export enum DataSourceTypes {
 	Csv = 'CSV',
+	Demandbase = 'DEMANDBASE',
 	Liferay = 'LIFERAY',
 	Salesforce = 'SALESFORCE'
 }
@@ -204,6 +206,24 @@ export enum LanguageIds {
 	Japanese = 'ja_JP',
 	Portuguese = 'pt_BR',
 	Spanish = 'es_ES'
+}
+
+/**
+ * - Loading (1) The status is set to `loading` only when the first
+ *   requisition occurs.
+ * - Refetch (2) The status is set to `refetch` when a change in the variables API
+ *   or refetch method is called.
+ * - Polling (3) The status is set to `polling` when pollInterval is set above 0.
+ * - Unused (4) When no request is happening the status will be `unused`.
+ * - Error (5) When any timeout or request `error` occurs, the status will be set
+ *   to error.
+ */
+export enum NetworkState {
+	Error = 5,
+	Loading = 1,
+	Polling = 3,
+	Refetch = 2,
+	Unused = 4
 }
 
 export enum OrderByDirections {
@@ -387,9 +407,7 @@ export const DATA_RETENTION_PERIOD_KEY = 'data-retention-period';
 
 export const DEVELOPER_MODE = FARO_DEV_MODE;
 
-// LRAC-11571 Disable temporarily Accounts
-
-export const ENABLE_ACCOUNTS = false;
+export const ENABLE_ASSET_OBJECT_ENTRY = true;
 
 export const ENABLE_ADD_TRIAL_WORKSPACE =
 	FARO_ENV === FaroEnv.Local || FARO_ENV === FaroEnv.Staging;

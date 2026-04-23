@@ -13,6 +13,7 @@ import com.liferay.portal.kernel.exception.NoSuchModelException;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Ticket;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.GroupService;
 import com.liferay.portal.kernel.service.TicketLocalService;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -84,6 +85,9 @@ public class InvitedMemberResourceImpl extends BaseInvitedMemberResourceImpl {
 
 	private Group _getGroup(long roomId) throws Exception {
 		ObjectEntry objectEntry = _objectEntryService.getObjectEntry(roomId);
+
+		_objectEntryService.checkModelResourcePermission(
+			objectEntry.getObjectDefinitionId(), roomId, ActionKeys.UPDATE);
 
 		Map<String, Serializable> values = objectEntry.getValues();
 

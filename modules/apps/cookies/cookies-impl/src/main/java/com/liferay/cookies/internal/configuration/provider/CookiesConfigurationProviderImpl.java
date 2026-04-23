@@ -15,7 +15,6 @@ import com.liferay.cookies.internal.configuration.admin.service.CookiesPreferenc
 import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
@@ -138,6 +137,55 @@ public class CookiesConfigurationProviderImpl
 			this::_getCompanyCookiesPreferenceHandlingConsentRenewalPeriod,
 			this::_getGroupCookiesPreferenceHandlingConsentRenewalPeriod,
 			this::_getSystemCookiesPreferenceHandlingConsentRenewalPeriod);
+	}
+
+	@Override
+	public String getCookiesPreferenceHandlingConsentRenewalPeriodTimeUnit(
+		ExtendedObjectClassDefinition.Scope scope, long scopePK) {
+
+		return _getScopeConfigurationAttribute(
+			scope, scopePK,
+			this::
+				_getCompanyCookiesPreferenceHandlingConsentRenewalPeriodTimeUnit,
+			this::
+				_getGroupCookiesPreferenceHandlingConsentRenewalPeriodTimeUnit,
+			this::
+				_getSystemCookiesPreferenceHandlingConsentRenewalPeriodTimeUnit);
+	}
+
+	public long getCookiesPreferenceHandlingCustomFloatingIconImageId(
+		ExtendedObjectClassDefinition.Scope scope, long scopePK) {
+
+		return _getScopeConfigurationAttribute(
+			scope, scopePK,
+			this::_getCompanyCookiesPreferenceHandlingCustomFloatingIconImageId,
+			this::_getGroupCookiesPreferenceHandlingCustomFloatingIconImageId,
+			this::_getSystemCookiesPreferenceHandlingCustomFloatingIconImageId);
+	}
+
+	@Override
+	public int getCookiesPreferenceHandlingDissentRenewalPeriod(
+		ExtendedObjectClassDefinition.Scope scope, long scopePK) {
+
+		return _getScopeConfigurationAttribute(
+			scope, scopePK,
+			this::_getCompanyCookiesPreferenceHandlingDissentRenewalPeriod,
+			this::_getGroupCookiesPreferenceHandlingDissentRenewalPeriod,
+			this::_getSystemCookiesPreferenceHandlingDissentRenewalPeriod);
+	}
+
+	@Override
+	public String getCookiesPreferenceHandlingDissentRenewalPeriodTimeUnit(
+		ExtendedObjectClassDefinition.Scope scope, long scopePK) {
+
+		return _getScopeConfigurationAttribute(
+			scope, scopePK,
+			this::
+				_getCompanyCookiesPreferenceHandlingDissentRenewalPeriodTimeUnit,
+			this::
+				_getGroupCookiesPreferenceHandlingDissentRenewalPeriodTimeUnit,
+			this::
+				_getSystemCookiesPreferenceHandlingDissentRenewalPeriodTimeUnit);
 	}
 
 	@Override
@@ -362,16 +410,7 @@ public class CookiesConfigurationProviderImpl
 			new Date(
 			).getTime()
 		).put(
-			"storeConsent",
-			() -> {
-				if (FeatureFlagManagerUtil.isEnabled(
-						CompanyThreadLocal.getCompanyId(), "LPD-75032")) {
-
-					return storeConsent;
-				}
-
-				return null;
-			}
+			"storeConsent", storeConsent
 		).build();
 	}
 
@@ -386,6 +425,60 @@ public class CookiesConfigurationProviderImpl
 
 		return _cookiesPreferenceHandlingManagedServiceFactory.
 			getCompanyConsentRenewalPeriod(companyId);
+	}
+
+	private String
+		_getCompanyCookiesPreferenceHandlingConsentRenewalPeriodTimeUnit(
+			long companyId) {
+
+		if (_cookiesPreferenceHandlingManagedServiceFactory == null) {
+			_cookiesPreferenceHandlingManagedServiceFactory =
+				(CookiesPreferenceHandlingManagedServiceFactory)
+					_managedServiceFactory;
+		}
+
+		return _cookiesPreferenceHandlingManagedServiceFactory.
+			getCompanyConsentRenewalPeriodTimeUnit(companyId);
+	}
+
+	private long _getCompanyCookiesPreferenceHandlingCustomFloatingIconImageId(
+		long companyId) {
+
+		if (_cookiesPreferenceHandlingManagedServiceFactory == null) {
+			_cookiesPreferenceHandlingManagedServiceFactory =
+				(CookiesPreferenceHandlingManagedServiceFactory)
+					_managedServiceFactory;
+		}
+
+		return _cookiesPreferenceHandlingManagedServiceFactory.
+			getCompanyCustomFloatingIconImageId(companyId);
+	}
+
+	private int _getCompanyCookiesPreferenceHandlingDissentRenewalPeriod(
+		long companyId) {
+
+		if (_cookiesPreferenceHandlingManagedServiceFactory == null) {
+			_cookiesPreferenceHandlingManagedServiceFactory =
+				(CookiesPreferenceHandlingManagedServiceFactory)
+					_managedServiceFactory;
+		}
+
+		return _cookiesPreferenceHandlingManagedServiceFactory.
+			getCompanyDissentRenewalPeriod(companyId);
+	}
+
+	private String
+		_getCompanyCookiesPreferenceHandlingDissentRenewalPeriodTimeUnit(
+			long companyId) {
+
+		if (_cookiesPreferenceHandlingManagedServiceFactory == null) {
+			_cookiesPreferenceHandlingManagedServiceFactory =
+				(CookiesPreferenceHandlingManagedServiceFactory)
+					_managedServiceFactory;
+		}
+
+		return _cookiesPreferenceHandlingManagedServiceFactory.
+			getCompanyDissentRenewalPeriodTimeUnit(companyId);
 	}
 
 	private String _getCompanyFloatingIcon(long companyId) {
@@ -488,6 +581,62 @@ public class CookiesConfigurationProviderImpl
 			getGroupConsentRenewalPeriod(_getCompanyId(groupId), groupId);
 	}
 
+	private String
+		_getGroupCookiesPreferenceHandlingConsentRenewalPeriodTimeUnit(
+			long groupId) {
+
+		if (_cookiesPreferenceHandlingManagedServiceFactory == null) {
+			_cookiesPreferenceHandlingManagedServiceFactory =
+				(CookiesPreferenceHandlingManagedServiceFactory)
+					_managedServiceFactory;
+		}
+
+		return _cookiesPreferenceHandlingManagedServiceFactory.
+			getGroupConsentRenewalPeriodTimeUnit(
+				_getCompanyId(groupId), groupId);
+	}
+
+	private long _getGroupCookiesPreferenceHandlingCustomFloatingIconImageId(
+		long groupId) {
+
+		if (_cookiesPreferenceHandlingManagedServiceFactory == null) {
+			_cookiesPreferenceHandlingManagedServiceFactory =
+				(CookiesPreferenceHandlingManagedServiceFactory)
+					_managedServiceFactory;
+		}
+
+		return _cookiesPreferenceHandlingManagedServiceFactory.
+			getGroupCustomFloatingIconImageId(_getCompanyId(groupId), groupId);
+	}
+
+	private int _getGroupCookiesPreferenceHandlingDissentRenewalPeriod(
+		long groupId) {
+
+		if (_cookiesPreferenceHandlingManagedServiceFactory == null) {
+			_cookiesPreferenceHandlingManagedServiceFactory =
+				(CookiesPreferenceHandlingManagedServiceFactory)
+					_managedServiceFactory;
+		}
+
+		return _cookiesPreferenceHandlingManagedServiceFactory.
+			getGroupDissentRenewalPeriod(_getCompanyId(groupId), groupId);
+	}
+
+	private String
+		_getGroupCookiesPreferenceHandlingDissentRenewalPeriodTimeUnit(
+			long groupId) {
+
+		if (_cookiesPreferenceHandlingManagedServiceFactory == null) {
+			_cookiesPreferenceHandlingManagedServiceFactory =
+				(CookiesPreferenceHandlingManagedServiceFactory)
+					_managedServiceFactory;
+		}
+
+		return _cookiesPreferenceHandlingManagedServiceFactory.
+			getGroupDissentRenewalPeriodTimeUnit(
+				_getCompanyId(groupId), groupId);
+	}
+
 	private String _getGroupFloatingIcon(long groupId) {
 		if (_cookiesPreferenceHandlingManagedServiceFactory == null) {
 			_cookiesPreferenceHandlingManagedServiceFactory =
@@ -543,6 +692,56 @@ public class CookiesConfigurationProviderImpl
 
 		return _cookiesPreferenceHandlingManagedServiceFactory.
 			getSystemConsentRenewalPeriod();
+	}
+
+	private String
+		_getSystemCookiesPreferenceHandlingConsentRenewalPeriodTimeUnit() {
+
+		if (_cookiesPreferenceHandlingManagedServiceFactory == null) {
+			_cookiesPreferenceHandlingManagedServiceFactory =
+				(CookiesPreferenceHandlingManagedServiceFactory)
+					_managedServiceFactory;
+		}
+
+		return _cookiesPreferenceHandlingManagedServiceFactory.
+			getSystemConsentRenewalPeriodTimeUnit();
+	}
+
+	private long
+		_getSystemCookiesPreferenceHandlingCustomFloatingIconImageId() {
+
+		if (_cookiesPreferenceHandlingManagedServiceFactory == null) {
+			_cookiesPreferenceHandlingManagedServiceFactory =
+				(CookiesPreferenceHandlingManagedServiceFactory)
+					_managedServiceFactory;
+		}
+
+		return _cookiesPreferenceHandlingManagedServiceFactory.
+			getSystemCustomFloatingIconImageId();
+	}
+
+	private int _getSystemCookiesPreferenceHandlingDissentRenewalPeriod() {
+		if (_cookiesPreferenceHandlingManagedServiceFactory == null) {
+			_cookiesPreferenceHandlingManagedServiceFactory =
+				(CookiesPreferenceHandlingManagedServiceFactory)
+					_managedServiceFactory;
+		}
+
+		return _cookiesPreferenceHandlingManagedServiceFactory.
+			getSystemDissentRenewalPeriod();
+	}
+
+	private String
+		_getSystemCookiesPreferenceHandlingDissentRenewalPeriodTimeUnit() {
+
+		if (_cookiesPreferenceHandlingManagedServiceFactory == null) {
+			_cookiesPreferenceHandlingManagedServiceFactory =
+				(CookiesPreferenceHandlingManagedServiceFactory)
+					_managedServiceFactory;
+		}
+
+		return _cookiesPreferenceHandlingManagedServiceFactory.
+			getSystemDissentRenewalPeriodTimeUnit();
 	}
 
 	private String _getSystemFloatingIcon() {

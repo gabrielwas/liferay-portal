@@ -38,6 +38,7 @@ import com.liferay.document.library.kernel.service.DLAppService;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.document.library.kernel.service.DLFileEntryService;
 import com.liferay.document.library.kernel.service.DLFolderService;
+import com.liferay.document.library.test.util.DLTestUtil;
 import com.liferay.document.library.util.DLURLHelper;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.report.constants.ExportImportReportEntryConstants;
@@ -226,6 +227,7 @@ import com.liferay.portal.vulcan.pagination.Page;
 import com.liferay.portal.vulcan.permission.Permission;
 import com.liferay.portal.vulcan.scope.Scope;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
+import com.liferay.site.cms.site.initializer.test.util.CMSTestUtil;
 import com.liferay.subscription.service.SubscriptionLocalService;
 
 import java.io.ByteArrayInputStream;
@@ -875,8 +877,8 @@ public class DefaultObjectEntryManagerImplTest
 
 		_objectDefinition3 =
 			objectDefinitionLocalService.addCustomObjectDefinition(
-				null, adminUser.getUserId(), 0, null, false, true, false, true,
-				false, false, false, false, null,
+				null, adminUser.getUserId(), 0, null, true, false, true, false,
+				true, false, false, false, false, null,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 				ObjectDefinitionTestUtil.getRandomName(), null, null,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
@@ -1562,8 +1564,7 @@ public class DefaultObjectEntryManagerImplTest
 									objectDefinition.getPortletId(),
 									TempFileEntryUtil.getTempFileName(fileName),
 									FileUtil.createTempFile(
-										RandomTestUtil.randomString(
-										).getBytes()),
+										DLTestUtil.randomTextFileBytes()),
 									ContentTypes.TEXT_PLAIN);
 
 							return fileEntry.getFileEntryId();
@@ -1708,6 +1709,37 @@ public class DefaultObjectEntryManagerImplTest
 						"a" + RandomTestUtil.randomString()
 					).build()),
 				ObjectDefinitionConstants.SCOPE_SITE));
+	}
+
+	@FeatureFlag("LPD-17564")
+	@Test
+	@TestInfo("LPD-75616")
+	public void testAddObjectEntryWithDefaultObjectEntryFolder()
+		throws Exception {
+
+		CMSTestUtil.getOrAddGroup(DefaultObjectEntryManagerImplTest.class);
+
+		_depotEntry = _addDepotEntry(DepotConstants.TYPE_SPACE);
+
+		Group group = _depotEntry.getGroup();
+
+		_testAddObjectEntryWithDefaultObjectEntryFolder(
+			"L_CMS_BASIC_DOCUMENT",
+			ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_FILES,
+			HashMapBuilder.<String, Object>put(
+				"file",
+				_addTempFileEntry(
+					group.getGroupKey(), RandomTestUtil.randomString())
+			).put(
+				"title", RandomTestUtil.randomString()
+			).build());
+
+		_testAddObjectEntryWithDefaultObjectEntryFolder(
+			"L_CMS_BASIC_WEB_CONTENT",
+			ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_CONTENTS,
+			HashMapBuilder.<String, Object>put(
+				"title", RandomTestUtil.randomString()
+			).build());
 	}
 
 	@Test
@@ -3499,6 +3531,117 @@ public class DefaultObjectEntryManagerImplTest
 					_createDTOConverterContext(),
 					objectEntry1.getExternalReferenceCode(), objectEntry2,
 					objectRelationship, _group.getGroupKey()));
+	}
+
+	@FeatureFlag("LPD-17564")
+	@Test
+	public void testAddRelatedObjectEntryWithoutObjectEntryFolder()
+		throws Exception {
+
+		CMSTestUtil.getOrAddGroup(DefaultObjectEntryManagerImplTest.class);
+
+		DepotEntry depotEntry = _addDepotEntry(DepotConstants.TYPE_SPACE);
+
+		ObjectDefinition parentObjectDefinition =
+			ObjectDefinitionTestUtil.publishObjectDefinition(
+				Collections.singletonList(
+					new TextObjectFieldBuilder(
+					).labelMap(
+						LocalizedMapUtil.getLocalizedMap(
+							RandomTestUtil.randomString())
+					).name(
+						"title"
+					).build()),
+				ObjectDefinitionConstants.SCOPE_DEPOT);
+
+		_objectDefinitionSettingLocalService.addObjectDefinitionSetting(
+			TestPropsValues.getUserId(),
+			parentObjectDefinition.getObjectDefinitionId(),
+			ObjectDefinitionSettingConstants.NAME_ACCEPT_ALL_GROUPS,
+			StringPool.TRUE);
+
+		ObjectDefinition childObjectDefinition =
+			ObjectDefinitionTestUtil.publishObjectDefinition(
+				Collections.singletonList(
+					new TextObjectFieldBuilder(
+					).labelMap(
+						LocalizedMapUtil.getLocalizedMap(
+							RandomTestUtil.randomString())
+					).name(
+						"title"
+					).build()),
+				ObjectDefinitionConstants.SCOPE_DEPOT);
+
+		_objectDefinitionSettingLocalService.addObjectDefinitionSetting(
+			TestPropsValues.getUserId(),
+			childObjectDefinition.getObjectDefinitionId(),
+			ObjectDefinitionSettingConstants.NAME_ACCEPT_ALL_GROUPS,
+			StringPool.TRUE);
+
+		ObjectRelationship objectRelationship =
+			_objectRelationshipLocalService.addObjectRelationship(
+				null, TestPropsValues.getUserId(),
+				parentObjectDefinition.getObjectDefinitionId(),
+				childObjectDefinition.getObjectDefinitionId(), 0,
+				ObjectRelationshipConstants.DELETION_TYPE_CASCADE, true,
+				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
+				StringUtil.randomId(), false,
+				ObjectRelationshipConstants.TYPE_ONE_TO_MANY, null);
+
+		String scopeKey = String.valueOf(depotEntry.getGroupId());
+
+		ObjectEntry parentObjectEntry =
+			_defaultObjectEntryManager.addObjectEntry(
+				_simpleDTOConverterContext, parentObjectDefinition,
+				new ObjectEntry() {
+					{
+						properties = HashMapBuilder.<String, Object>put(
+							"title", RandomTestUtil.randomString()
+						).build();
+					}
+				},
+				scopeKey);
+
+		com.liferay.object.model.ObjectEntry parentServiceBuilderObjectEntry =
+			_objectEntryLocalService.getObjectEntry(parentObjectEntry.getId());
+
+		Assert.assertNotEquals(
+			0, parentServiceBuilderObjectEntry.getObjectEntryFolderId());
+
+		ObjectEntry childObjectEntry =
+			_defaultObjectEntryManager.addRelatedObjectEntry(
+				_simpleDTOConverterContext,
+				parentObjectEntry.getExternalReferenceCode(),
+				new ObjectEntry() {
+					{
+						properties = HashMapBuilder.<String, Object>put(
+							"title", RandomTestUtil.randomString()
+						).build();
+					}
+				},
+				objectRelationship, scopeKey);
+
+		com.liferay.object.model.ObjectEntry childServiceBuilderObjectEntry =
+			_objectEntryLocalService.getObjectEntry(childObjectEntry.getId());
+
+		Assert.assertEquals(
+			0, childServiceBuilderObjectEntry.getObjectEntryFolderId());
+
+		objectRelationship =
+			_objectRelationshipLocalService.updateObjectRelationship(
+				objectRelationship.getExternalReferenceCode(),
+				objectRelationship.getObjectRelationshipId(),
+				objectRelationship.getParameterObjectFieldId(),
+				objectRelationship.getDeletionType(), false,
+				objectRelationship.getLabelMap(), null);
+
+		_objectRelationshipLocalService.deleteObjectRelationship(
+			objectRelationship);
+
+		objectDefinitionLocalService.deleteObjectDefinition(
+			childObjectDefinition);
+		objectDefinitionLocalService.deleteObjectDefinition(
+			parentObjectDefinition);
 	}
 
 	@FeatureFlag("LPD-17564")
@@ -9656,8 +9799,8 @@ public class DefaultObjectEntryManagerImplTest
 
 		ObjectDefinition objectDefinition =
 			objectDefinitionLocalService.addCustomObjectDefinition(
-				null, adminUser.getUserId(), 0, null, false, true, false, true,
-				false, false, enableObjectEntrySubscription, false, null,
+				null, adminUser.getUserId(), 0, null, true, false, true, false,
+				true, false, false, enableObjectEntrySubscription, false, null,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
 				ObjectDefinitionTestUtil.getRandomName(), null, null,
 				LocalizedMapUtil.getLocalizedMap(RandomTestUtil.randomString()),
@@ -9799,6 +9942,10 @@ public class DefaultObjectEntryManagerImplTest
 	}
 
 	private DepotEntry _addDepotEntry() throws Exception {
+		return _addDepotEntry(DepotConstants.TYPE_ASSET_LIBRARY);
+	}
+
+	private DepotEntry _addDepotEntry(int type) throws Exception {
 		return _depotEntryLocalService.addDepotEntry(
 			HashMapBuilder.put(
 				LocaleUtil.getDefault(), RandomTestUtil.randomString()
@@ -9806,8 +9953,7 @@ public class DefaultObjectEntryManagerImplTest
 			HashMapBuilder.put(
 				LocaleUtil.getDefault(), RandomTestUtil.randomString()
 			).build(),
-			DepotConstants.TYPE_ASSET_LIBRARY,
-			ServiceContextTestUtil.getServiceContext());
+			type, ServiceContextTestUtil.getServiceContext());
 	}
 
 	private String _addListTypeEntry() throws Exception {
@@ -10066,7 +10212,7 @@ public class DefaultObjectEntryManagerImplTest
 			TempFileEntryUtil.addTempFileEntry(
 				TestPropsValues.getGroupId(), TestPropsValues.getUserId(),
 				folderName, TempFileEntryUtil.getTempFileName(title + ".txt"),
-				FileUtil.createTempFile(RandomTestUtil.randomBytes()),
+				FileUtil.createTempFile(DLTestUtil.randomTextFileBytes()),
 				ContentTypes.TEXT_PLAIN);
 
 		return fileEntry.getFileEntryId();
@@ -11024,6 +11170,29 @@ public class DefaultObjectEntryManagerImplTest
 			objectDefinitionLocalService.deleteObjectDefinition(
 				objectDefinition);
 		}
+	}
+
+	private void _testAddObjectEntryWithDefaultObjectEntryFolder(
+			String objectDefinitionExternalReferenceCode,
+			String objectEntryFolderExternalReferenceCode,
+			Map<String, Object> objectEntryProperties)
+		throws Exception {
+
+		ObjectEntry objectEntry = _defaultObjectEntryManager.addObjectEntry(
+			_simpleDTOConverterContext,
+			objectDefinitionLocalService.
+				getObjectDefinitionByExternalReferenceCode(
+					objectDefinitionExternalReferenceCode, companyId),
+			new ObjectEntry() {
+				{
+					properties = objectEntryProperties;
+				}
+			},
+			String.valueOf(_depotEntry.getGroupId()));
+
+		Assert.assertEquals(
+			objectEntryFolderExternalReferenceCode,
+			objectEntry.getObjectEntryFolderExternalReferenceCode());
 	}
 
 	private void _testAddObjectEntryWithMissingParentObjectEntryReference(

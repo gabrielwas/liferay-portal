@@ -48,7 +48,7 @@ const Form: React.FC<{
 	router: Router;
 }> = ({className, router}) => {
 	const {
-		params: {assetId, channelId, groupId, title, touchpoint}
+		params: {assetId, channelId, groupId, title, touchpoint, type}
 	} = router;
 
 	const [filters, setFilters] = useState({});
@@ -56,6 +56,7 @@ const Form: React.FC<{
 	const dataSourceStates = useDataSource();
 
 	const decodedTitle = getSafeDecodedURIComponent(title);
+	const decodedType = getSafeDecodedURIComponent(type);
 
 	const rangeSelectorsFromQuery = useQueryRangeSelectors();
 
@@ -74,12 +75,17 @@ const Form: React.FC<{
 						label: selectedChannel?.name
 					}),
 					breadcrumbs.getAssets({channelId, groupId}),
-					breadcrumbs.getForms({channelId, groupId}),
 					breadcrumbs.getEntityName({label: decodedTitle})
 				]}
 				groupId={groupId}
 			>
-				<BasePage.Header.TitleSection title={decodedTitle} />
+				{type && (
+					<BasePage.Header.TitleSection
+						label
+						subtitle={decodedType}
+						title={decodedTitle}
+					/>
+				)}
 
 				<BasePage.Header.NavBar
 					items={NAV_ITEMS}
@@ -88,7 +94,8 @@ const Form: React.FC<{
 						channelId,
 						groupId,
 						title,
-						touchpoint
+						touchpoint,
+						type
 					}}
 					routeQueries={pickBy(rangeSelectorsFromQuery)}
 				/>

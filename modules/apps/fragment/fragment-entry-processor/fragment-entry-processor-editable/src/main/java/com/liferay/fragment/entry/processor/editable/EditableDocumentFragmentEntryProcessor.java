@@ -21,7 +21,6 @@ import com.liferay.info.item.InfoItemServiceRegistry;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMap;
 import com.liferay.osgi.service.tracker.collections.map.ServiceTrackerMapFactory;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -57,24 +56,34 @@ public class EditableDocumentFragmentEntryProcessor
 
 	@Override
 	public void processFragmentEntryLinkHTML(
-			FragmentEntryLink fragmentEntryLink, Document document,
+			Document document, FragmentEntryLink fragmentEntryLink,
 			FragmentEntryProcessorContext fragmentEntryProcessorContext)
 		throws PortalException {
 
-		JSONObject jsonObject = fragmentEntryLink.getEditableValuesJSONObject();
+		processFragmentEntryLinkHTML(
+			document, fragmentEntryLink.getEditableValuesJSONObject(),
+			fragmentEntryLink, fragmentEntryProcessorContext);
+	}
 
-		if (jsonObject.length() == 0) {
-			jsonObject.put(
+	@Override
+	public void processFragmentEntryLinkHTML(
+			Document document, JSONObject editableValuesJSONObject,
+			FragmentEntryLink fragmentEntryLink,
+			FragmentEntryProcessorContext fragmentEntryProcessorContext)
+		throws PortalException {
+
+		if (editableValuesJSONObject.length() == 0) {
+			editableValuesJSONObject.put(
 				FragmentEntryProcessorConstants.
 					KEY_EDITABLE_FRAGMENT_ENTRY_PROCESSOR,
 				_getDefaultEditableValuesJSONObject(document));
 		}
 
-		JSONObject editableValuesJSONObject = jsonObject.getJSONObject(
+		JSONObject jsonObject = editableValuesJSONObject.getJSONObject(
 			FragmentEntryProcessorConstants.
 				KEY_EDITABLE_FRAGMENT_ENTRY_PROCESSOR);
 
-		if (editableValuesJSONObject == null) {
+		if (jsonObject == null) {
 			return;
 		}
 
@@ -109,12 +118,11 @@ public class EditableDocumentFragmentEntryProcessor
 			String id = EditableFragmentEntryProcessorUtil.getElementId(
 				element);
 
-			if (!editableValuesJSONObject.has(id)) {
+			if (!jsonObject.has(id)) {
 				continue;
 			}
 
-			JSONObject editableValueJSONObject =
-				editableValuesJSONObject.getJSONObject(id);
+			JSONObject editableValueJSONObject = jsonObject.getJSONObject(id);
 
 			String value = null;
 
@@ -220,10 +228,7 @@ public class EditableDocumentFragmentEntryProcessor
 				element.removeAttr("view-tag-name");
 			}
 
-			if (FeatureFlagManagerUtil.isEnabled(
-					fragmentEntryLink.getCompanyId(), "LPD-39437") &&
-				fragmentEntryProcessorContext.isViewMode()) {
-
+			if (fragmentEntryProcessorContext.isViewMode()) {
 				AnalyticsAttributesUtil.addAnalyticsAttributes(
 					editableValueJSONObject, element,
 					fragmentEntryProcessorContext,

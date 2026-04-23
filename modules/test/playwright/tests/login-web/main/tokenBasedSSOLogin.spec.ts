@@ -7,7 +7,6 @@ import {mergeTests} from '@playwright/test';
 
 import {accountsPagesTest} from '../../../fixtures/accountsPagesTest';
 import {apiHelpersTest} from '../../../fixtures/apiHelpersTest';
-import {applicationsMenuPageTest} from '../../../fixtures/applicationsMenuPageTest';
 import {dataApiHelpersTest} from '../../../fixtures/dataApiHelpersTest';
 import {loginTest} from '../../../fixtures/loginTest';
 import {serverAdministrationPageTest} from '../../../fixtures/serverAdministrationPageTest';
@@ -26,7 +25,6 @@ import {
 export const test = mergeTests(
 	accountsPagesTest,
 	apiHelpersTest,
-	applicationsMenuPageTest,
 	dataApiHelpersTest,
 	loginTest(),
 	serverAdministrationPageTest

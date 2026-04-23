@@ -11,10 +11,6 @@
 	},
 	"modifiable": true,
 	"name": "AIHubAgentDefinition",
-	"objectActions": [
-	],
-	"objectDefinitionSettings": [
-	],
 	"objectFields": [
 		{
 			"DBType": "Boolean",
@@ -30,8 +26,8 @@
 			"type": "Boolean"
 		},
 		{
-			"DBType": "String",
-			"businessType": "Text",
+			"DBType": "Clob",
+			"businessType": "LongText",
 			"defaultValue": "null",
 			"externalReferenceCode": "DESCRIPTION",
 			"indexed": true,
@@ -40,13 +36,10 @@
 				"en_US": "Description"
 			},
 			"name": "description",
-			"objectFieldSettings": [
-			],
 			"readOnly": "false",
 			"readOnlyConditionExpression": "",
-			"required": true,
 			"system": true,
-			"type": "String"
+			"type": "Clob"
 		},
 		{
 			"DBType": "String",
@@ -59,8 +52,6 @@
 				"en_US": "Input Variables"
 			},
 			"name": "inputVariables",
-			"objectFieldSettings": [
-			],
 			"readOnly": "false",
 			"required": true,
 			"system": true,
@@ -77,8 +68,6 @@
 				"en_US": "Output Variable"
 			},
 			"name": "outputVariable",
-			"objectFieldSettings": [
-			],
 			"readOnly": "false",
 			"required": true,
 			"system": true,
@@ -96,8 +85,6 @@
 			},
 			"localized": true,
 			"name": "title",
-			"objectFieldSettings": [
-			],
 			"readOnly": "false",
 			"system": true,
 			"type": "String"
@@ -113,8 +100,6 @@
 				"en_US": "Workflow Definition Name"
 			},
 			"name": "workflowDefinitionName",
-			"objectFieldSettings": [
-			],
 			"readOnly": "false",
 			"required": true,
 			"system": true,
@@ -124,7 +109,7 @@
 			"DBType": "Long",
 			"businessType": "Relationship",
 			"defaultValue": "null",
-			"externalReferenceCode": "RELATIONSHIP",
+			"externalReferenceCode": "ACCOUNT_TO_AI_HUB_AGENT_DEFINITIONS",
 			"indexed": true,
 			"indexedLanguageId": "en_US",
 			"label": {
@@ -151,14 +136,6 @@
 		}
 	],
 	"objectFolderExternalReferenceCode": "default",
-	"objectLayouts": [
-	],
-	"objectRelationships": [
-	],
-	"objectValidationRules": [
-	],
-	"objectViews": [
-	],
 	"panelCategoryKey": "control_panel.object",
 	"pluralLabel": {
 		"en_US": "Agent Definitions"

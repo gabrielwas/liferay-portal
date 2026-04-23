@@ -66,16 +66,16 @@ public class BaseUuidUpgradeProcessTest extends BaseUuidUpgradeProcess {
 		return new String[] {"TestTable1", "TestTable2"};
 	}
 
-	private int _getDistinctUuidCount(String tableName) throws Exception {
+	private long _getDistinctUuidCount(String tableName) throws Exception {
 		try (Connection connection = DataAccess.getConnection();
 
 			PreparedStatement preparedStatement = connection.prepareStatement(
-				"select count(distinct(uuid_)) from " + tableName)) {
+				"select count(distinct(uuid_)) as count from " + tableName)) {
 
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				resultSet.next();
 
-				return resultSet.getInt(1);
+				return resultSet.getLong("count");
 			}
 		}
 	}
