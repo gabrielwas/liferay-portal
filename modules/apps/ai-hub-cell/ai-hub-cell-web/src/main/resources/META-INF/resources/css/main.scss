@@ -624,6 +624,28 @@
 			padding: 0.125rem 0.5rem;
 		}
 	}
+
+	&__sample-i18n {
+		display: flex;
+		flex-direction: column;
+		gap: 0.375rem;
+	}
+
+	&__sample-i18n-row {
+		align-items: flex-start;
+		display: flex;
+		gap: 0.5rem;
+
+		.form-control {
+			flex: 1;
+		}
+	}
+
+	&__sample-i18n-label {
+		flex-shrink: 0;
+		min-width: 3rem;
+		text-align: center;
+	}
 }
 
 .content-site-generator-refine-chat {

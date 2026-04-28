@@ -32,7 +32,9 @@ const PAGE_CLASS_NAMES = [
 
 const LANGUAGE_FROM_FILENAME = /-([a-z]{2})(?:[-_][A-Z]{2})?\.json$/i;
 
-const LANGUAGE_FROM_I18N = /"[a-zA-Z]+_i18n"\s*:\s*\{\s*"([a-z]{2})/;
+const LANGUAGE_FROM_I18N = /"[a-zA-Z]+_i18n"\s*:\s*\{([^{}]*)\}/g;
+
+const LOCALE_KEY = /"([a-z]{2})(?:_[A-Z]{2})?"\s*:/g;
 
 const PHASE_KEYS = [
 	'analyzing-reference-documents',
@@ -53,16 +55,29 @@ interface IProps {
 const sleep = (ms: number) =>
 	new Promise<void>((resolve) => setTimeout(resolve, ms));
 
-const getArtifactLanguage = (artifact: Artifact): string | null => {
+const getArtifactLanguages = (artifact: Artifact): string[] => {
 	const fromFilename = artifact.fileName?.match(LANGUAGE_FROM_FILENAME);
 
 	if (fromFilename) {
-		return fromFilename[1].toLowerCase();
+		return [fromFilename[1].toLowerCase()];
 	}
 
-	const fromJson = artifact.json?.match(LANGUAGE_FROM_I18N);
 
-	return fromJson ? fromJson[1].toLowerCase() : null;
+	if (!artifact.json) {
+		return [];
+	}
+
+	const languages = new Set<string>();
+
+	for (const i18nMatch of artifact.json.matchAll(LANGUAGE_FROM_I18N)) {
+		const block = i18nMatch[1];
+
+		for (const localeMatch of block.matchAll(LOCALE_KEY)) {
+			languages.add(localeMatch[1].toLowerCase());
+		}
+	}
+
+	return Array.from(languages);
 };
 
 const getItemCount = (artifact: Artifact): number => {
@@ -255,9 +270,7 @@ export default function ReviewAndPublishStep({
 	const languages = new Set<string>();
 
 	for (const artifact of artifacts) {
-		const language = getArtifactLanguage(artifact);
-
-		if (language) {
+		for (const language of getArtifactLanguages(artifact)) {
 			languages.add(language);
 		}
 	}

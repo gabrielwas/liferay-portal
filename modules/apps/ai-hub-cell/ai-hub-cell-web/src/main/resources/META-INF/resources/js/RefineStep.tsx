@@ -23,7 +23,7 @@ import {getAttachments} from './services/attachments';
 import {commitRun, deleteRun, getRun, patchRun} from './services/runs';
 import {Artifact} from './types/Artifact';
 import {Attachment} from './types/Attachment';
-import {ContentSample} from './types/ContentSample';
+import {ContentSample, ContentSampleField} from './types/ContentSample';
 import {DetectedConfigItem} from './types/DetectedConfigItem';
 import {GeneratedItem} from './types/GeneratedItem';
 import {Run} from './types/Run';
@@ -95,7 +95,35 @@ const LANGUAGE_LABELS: Record<string, string> = {
 };
 
 const LANGUAGE_FROM_FILENAME = /-([a-z]{2})(?:[-_][A-Z]{2})?\.json$/i;
-const LANGUAGE_FROM_I18N = /"[a-zA-Z]+_i18n"\s*:\s*\{\s*"([a-z]{2})/;
+const LANGUAGE_FROM_I18N = /"[a-zA-Z]+_i18n"\s*:\s*\{([^{}]*)\}/g;
+const LOCALE_KEY = /"([a-z]{2})(?:_[A-Z]{2})?"\s*:/g;
+
+const METADATA_KEYS = new Set([
+	'actions',
+	'classNameId',
+	'classPK',
+	'createDate',
+	'creator',
+	'dateCreated',
+	'dateModified',
+	'externalReferenceCode',
+	'groupId',
+	'id',
+	'modifiedDate',
+	'parentExternalReferenceCode',
+	'priority',
+	'siteId',
+	'sortOrder',
+	'status',
+	'userId',
+]);
+
+const TITLE_BY_CLASS_NAME: Record<string, string> = {
+	'com.liferay.headless.admin.site.dto.v1_0.Site': 'site',
+	'com.liferay.headless.asset.library.dto.v1_0.AssetLibrary': 'space',
+	'com.liferay.headless.asset.library.dto.v1_0.ConnectedSite':
+		'connected-site',
+};
 
 const getTypeDefinition = (className: string | undefined) =>
 	TYPE_DEFINITIONS.find((definition) => definition.className === className);
@@ -110,16 +138,84 @@ const getTypeIcon = (className: string | undefined) =>
 const getLanguageLabel = (code: string) =>
 	LANGUAGE_LABELS[code.toLowerCase()] ?? code.toUpperCase();
 
-const getArtifactLanguage = (artifact: Artifact): string | null => {
+const getArtifactLanguages = (artifact: Artifact): string[] => {
 	const fromFilename = artifact.fileName?.match(LANGUAGE_FROM_FILENAME);
 
 	if (fromFilename) {
-		return fromFilename[1].toLowerCase();
+		return [fromFilename[1].toLowerCase()];
 	}
 
-	const fromJson = artifact.json?.match(LANGUAGE_FROM_I18N);
 
-	return fromJson ? fromJson[1].toLowerCase() : null;
+	const languages = new Set<string>();
+
+	if (!artifact.json) {
+		return [];
+	}
+
+	for (const i18nMatch of artifact.json.matchAll(LANGUAGE_FROM_I18N)) {
+		const block = i18nMatch[1];
+
+		for (const localeMatch of block.matchAll(LOCALE_KEY)) {
+			languages.add(localeMatch[1].toLowerCase());
+		}
+	}
+
+	return Array.from(languages);
+};
+
+const humanizeKey = (key: string) =>
+	key
+		.replace(/_i18n$/, '')
+		.replace(/([A-Z])/g, ' $1')
+		.replace(/[_-]+/g, ' ')
+		.replace(/^./, (character) => character.toUpperCase())
+		.trim();
+
+const getFirstItem = (artifact: Artifact): Record<string, unknown> | null => {
+	if (!artifact.json) {
+		return null;
+	}
+
+	try {
+		const parsed = JSON.parse(artifact.json);
+
+		if (Array.isArray(parsed?.items) && parsed.items.length) {
+			return parsed.items[0];
+		}
+	}
+	catch (exception) {
+		// Fall through.
+	}
+
+	return null;
+};
+
+const getEntityName = (item: Record<string, unknown> | null): string | null => {
+	if (!item) {
+		return null;
+	}
+
+	for (const key of ['name', 'title']) {
+		const value = item[key];
+
+		if (typeof value === 'string' && value.trim()) {
+			return value;
+		}
+
+		const i18nValue = item[`${key}_i18n`];
+
+		if (i18nValue && typeof i18nValue === 'object') {
+			const map = i18nValue as Record<string, string>;
+			const firstLocale =
+				map['en_US'] ?? map[Object.keys(map)[0] ?? ''];
+
+			if (firstLocale) {
+				return firstLocale;
+			}
+		}
+	}
+
+	return null;
 };
 
 const buildSummary = (
@@ -189,28 +285,89 @@ const buildTemplates = (
 	}));
 };
 
-const buildContentSamples = (artifacts: Artifact[]): ContentSample[] =>
-	artifacts.slice(0, 4).map((artifact) => {
-		const language = getArtifactLanguage(artifact);
+const buildSampleField = (
+	key: string,
+	value: unknown
+): ContentSampleField | null => {
+	const label = humanizeKey(key);
+
+	if (key.endsWith('_i18n') && value && typeof value === 'object') {
+		const entries = Object.entries(value as Record<string, unknown>).filter(
+			([, localeValue]) => typeof localeValue === 'string'
+		);
+
+		if (!entries.length) {
+			return null;
+		}
 
 		return {
-			fields: [
-				{label: Liferay.Language.get('file-name'), value: artifact.fileName ?? ''},
-				{label: Liferay.Language.get('class-name'), value: getTypeLabel(artifact.className)},
-				...(language
-					? [
-							{
-								label: Liferay.Language.get('language'),
-								value: getLanguageLabel(language),
-							},
-						]
-					: []),
-			],
-			tags: [],
-			title: `${getTypeLabel(artifact.className)}${
-				language ? ` - ${getLanguageLabel(language)}` : ''
-			}`,
+			label,
+			type: 'i18n',
+			values: entries.map(([locale, localeValue]) => ({
+				label: getLanguageLabel(locale.split('_')[0]),
+				value: String(localeValue),
+			})),
 		};
+	}
+
+	if (Array.isArray(value)) {
+		const tags = value
+			.filter(
+				(entry) =>
+					typeof entry === 'string' ||
+					typeof entry === 'number' ||
+					typeof entry === 'boolean'
+			)
+			.map(String);
+
+		if (!tags.length) {
+			return null;
+		}
+
+		return {label, tags, type: 'tags'};
+	}
+
+	if (
+		typeof value === 'string' ||
+		typeof value === 'number' ||
+		typeof value === 'boolean'
+	) {
+		return {label, type: 'text', value: String(value)};
+	}
+
+	return null;
+};
+
+const buildContentSamples = (artifacts: Artifact[]): ContentSample[] =>
+	artifacts.map((artifact) => {
+		const item = getFirstItem(artifact);
+		const fields: ContentSampleField[] = [];
+
+		if (item) {
+			for (const [key, value] of Object.entries(item)) {
+				if (METADATA_KEYS.has(key)) {
+					continue;
+				}
+
+				const field = buildSampleField(key, value);
+
+				if (field) {
+					fields.push(field);
+				}
+			}
+		}
+
+		const titleKey = TITLE_BY_CLASS_NAME[artifact.className ?? ''];
+		const titleFromEntity = getEntityName(item);
+		const titleFromClass = titleKey
+			? Liferay.Language.get(titleKey)
+			: getTypeLabel(artifact.className);
+
+		const title = titleFromEntity
+			? `${titleFromClass} - ${titleFromEntity}`
+			: titleFromClass;
+
+		return {fields, tags: [], title};
 	});
 
 const buildGeneratedItems = (
@@ -426,9 +583,7 @@ export default function RefineStep({
 
 	const languages = Array.from(
 		new Set(
-			artifacts
-				.map((artifact) => getArtifactLanguage(artifact))
-				.filter((language): language is string => !!language)
+			artifacts.flatMap((artifact) => getArtifactLanguages(artifact))
 		)
 	);
 	const templates = buildTemplates(artifacts, languages.length);

@@ -28,32 +28,60 @@ export default function ContentSampleItem({
 			showCollapseIcon
 		>
 			<ClayPanel.Body>
-				{sample.fields.map((field, index) => (
-					<div className="form-group" key={index}>
-						<label className="control-label">{field.label}</label>
+				{sample.fields.length ? (
+					sample.fields.map((field, index) => (
+						<div className="form-group" key={index}>
+							<label className="control-label">
+								{field.label}
+							</label>
 
-						<div className="form-control">{field.value}</div>
-					</div>
-				))}
+							{field.type === 'text' && (
+								<div className="form-control">
+									{field.value}
+								</div>
+							)}
 
-				{sample.tags.length ? (
-					<>
-						<div className="content-site-generator-refine__sample-fields-header">
-							{Liferay.Language.get('content-fields')}
+							{field.type === 'i18n' && (
+								<div className="content-site-generator-refine__sample-i18n">
+									{field.values.map((entry, valueIndex) => (
+										<div
+											className="content-site-generator-refine__sample-i18n-row"
+											key={valueIndex}
+										>
+											<ClayLabel
+												className="content-site-generator-refine__sample-i18n-label"
+												displayType="info"
+											>
+												{entry.label}
+											</ClayLabel>
+
+											<div className="form-control">
+												{entry.value}
+											</div>
+										</div>
+									))}
+								</div>
+							)}
+
+							{field.type === 'tags' && (
+								<div className="content-site-generator-refine__sample-tags">
+									{field.tags.map((tag, tagIndex) => (
+										<ClayLabel
+											displayType="secondary"
+											key={tagIndex}
+										>
+											{tag}
+										</ClayLabel>
+									))}
+								</div>
+							)}
 						</div>
-
-						<div className="content-site-generator-refine__sample-tags">
-							{sample.tags.map((tag, index) => (
-								<ClayLabel
-									displayType="unstyled"
-									key={index}
-								>
-									{tag}
-								</ClayLabel>
-							))}
-						</div>
-					</>
-				) : null}
+					))
+				) : (
+					<p className="font-italic text-secondary mb-0">
+						{Liferay.Language.get('no-fields-to-preview')}
+					</p>
+				)}
 			</ClayPanel.Body>
 		</ClayPanel>
 	);
