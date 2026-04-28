@@ -16,6 +16,7 @@ import dev.langchain4j.agent.tool.Tool;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Mahmoud Tayem
@@ -79,7 +80,6 @@ public class IRToPageSpecTools {
 			spec.put("customFields", JSONFactoryUtil.createJSONArray());
 			spec.put("externalReferenceCode", draftERC);
 			spec.put("pageExperiences", pageExperiences);
-			spec.put("settings", JSONFactoryUtil.createJSONObject());
 			spec.put("status", "Draft");
 			spec.put("type", "ContentPageSpecification");
 
@@ -122,52 +122,41 @@ public class IRToPageSpecTools {
 
 		_applySpacing(ir, style, "padding", "5");
 		_applySpacing(ir, style, "margin", null);
-
-		String backgroundColor = ir.getString("backgroundColor");
-
-		if ((backgroundColor != null) && !backgroundColor.isEmpty()) {
-			style.put("backgroundColor", _normalizeColor(backgroundColor));
-		}
-
-		String textColor = ir.getString("textColor");
-
-		if ((textColor != null) && !textColor.isEmpty()) {
-			style.put("textColor", _normalizeColor(textColor));
-		}
-
-		String textAlign = ir.getString("textAlign");
-
-		if ((textAlign != null) && !textAlign.isEmpty()) {
-			style.put("textAlign", textAlign);
-		}
+		_applyStyleProperties(ir, style);
 
 		JSONObject irStyle = ir.getJSONObject("style");
 
 		if (irStyle != null) {
 			_applySpacing(irStyle, style, "padding", null);
 			_applySpacing(irStyle, style, "margin", null);
-
-			backgroundColor = irStyle.getString("backgroundColor");
-
-			if ((backgroundColor != null) && !backgroundColor.isEmpty()) {
-				style.put(
-					"backgroundColor", _normalizeColor(backgroundColor));
-			}
-
-			textColor = irStyle.getString("textColor");
-
-			if ((textColor != null) && !textColor.isEmpty()) {
-				style.put("textColor", _normalizeColor(textColor));
-			}
-
-			textAlign = irStyle.getString("textAlign");
-
-			if ((textAlign != null) && !textAlign.isEmpty()) {
-				style.put("textAlign", textAlign);
-			}
+			_applyStyleProperties(irStyle, style);
 		}
 
 		return style;
+	}
+
+	private void _applyStyleProperties(
+		JSONObject source, JSONObject style) {
+
+		for (String colorKey : _COLOR_STYLE_KEYS) {
+			String value = source.getString(colorKey);
+
+			if (Validator.isNotNull(value)) {
+				style.put(colorKey, _normalizeColor(value));
+			}
+		}
+
+		for (String key : _STRING_STYLE_KEYS) {
+			String value = source.getString(key);
+
+			if (Validator.isNotNull(value)) {
+				style.put(key, value);
+			}
+		}
+
+		if (source.has("hidden")) {
+			style.put("hidden", source.getBoolean("hidden"));
+		}
 	}
 
 	private JSONObject _convertContainer(
@@ -316,6 +305,13 @@ public class IRToPageSpecTools {
 				fragmentKey);
 
 			if (fragmentSources != null) {
+				String configuration = fragmentSources.getString(
+					"configuration");
+
+				if (Validator.isNotNull(configuration)) {
+					instance.put("configuration", configuration);
+				}
+
 				String css = fragmentSources.getString("css");
 
 				if (Validator.isNotNull(css)) {
@@ -435,7 +431,7 @@ public class IRToPageSpecTools {
 			JSONObject col = columns.getJSONObject(i);
 
 			moduleElements.put(
-				_convertModule(col, erc, i, locale));
+				_convertModule(col, erc, i, columnCount, locale));
 		}
 
 		JSONObject node = JSONFactoryUtil.createJSONObject();
@@ -453,12 +449,15 @@ public class IRToPageSpecTools {
 	}
 
 	private JSONObject _convertModule(
-			JSONObject col, String gridERC, int position, String locale)
+			JSONObject col, String gridERC, int position, int columnCount,
+			String locale)
 		throws Exception {
 
-		int size = col.getInt("size", 6);
+		int defaultSize = (columnCount > 0) ? (12 / columnCount) : 6;
 
-		String colERC = gridERC + "-col-" + (position + 1);
+		int size = col.getInt("size", defaultSize);
+
+		String colERC = "mod-" + gridERC + "-" + (position + 1);
 
 		JSONObject viewportDef = JSONFactoryUtil.createJSONObject();
 
@@ -837,6 +836,22 @@ public class IRToPageSpecTools {
 			return (String)value;
 		}
 
+		if (value instanceof JSONObject) {
+			JSONObject jsonObject = (JSONObject)value;
+
+			if (jsonObject.has("text")) {
+				return jsonObject.getString("text");
+			}
+
+			if (jsonObject.has("value")) {
+				return jsonObject.getString("value");
+			}
+
+			if (jsonObject.has("content")) {
+				return jsonObject.getString("content");
+			}
+		}
+
 		return String.valueOf(value);
 	}
 
@@ -903,6 +918,7 @@ public class IRToPageSpecTools {
 
 				JSONObject sources = JSONFactoryUtil.createJSONObject();
 
+				sources.put("configuration", fragment.getString("configuration"));
 				sources.put("css", fragment.getString("css"));
 				sources.put("html", fragment.getString("html"));
 				sources.put("js", fragment.getString("js"));
@@ -918,6 +934,14 @@ public class IRToPageSpecTools {
 
 	private final Map<String, Map<String, String>> _customEditableTypes;
 	private final Map<String, JSONObject> _customFragmentSources;
+
+	private static final Set<String> _COLOR_STYLE_KEYS = Set.of(
+		"backgroundColor", "borderColor", "textColor");
+
+	private static final Set<String> _STRING_STYLE_KEYS = Set.of(
+		"borderRadius", "borderWidth", "fontFamily", "fontSize", "fontWeight",
+		"height", "maxHeight", "maxWidth", "minHeight", "minWidth", "opacity",
+		"overflow", "shadow", "textAlign", "width");
 
 	private static final Map<String, String> _OOTB_NAME_TO_KEY =
 		new HashMap<String, String>() {

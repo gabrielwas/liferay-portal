@@ -183,6 +183,14 @@ public class SitePageTools {
 
 		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(responseBody);
 
+		JSONObject settings = jsonObject.getJSONObject("settings");
+
+		if (settings != null) {
+			_settingsCache.put(
+				sitePageExternalReferenceCode,
+				JSONFactoryUtil.createJSONObject(settings.toString()));
+		}
+
 		_pruneReadOnlyFields(jsonObject);
 
 		String result = jsonObject.toString();
@@ -289,6 +297,24 @@ public class SitePageTools {
 		_ensurePageExperienceERCs(
 			bodyJSONObject, sitePageExternalReferenceCode);
 
+		JSONObject cachedSettings = _settingsCache.get(
+			sitePageExternalReferenceCode);
+
+		if (cachedSettings != null) {
+			JSONObject bodySettings = bodyJSONObject.getJSONObject("settings");
+
+			if (bodySettings == null) {
+				bodyJSONObject.put("settings", cachedSettings);
+			}
+			else {
+				for (String key : cachedSettings.keySet()) {
+					if (!bodySettings.has(key)) {
+						bodySettings.put(key, cachedSettings.get(key));
+					}
+				}
+			}
+		}
+
 		body = bodyJSONObject.toString();
 
 		String location = _getPageSpecificationLocation(
@@ -348,6 +374,9 @@ public class SitePageTools {
 	private static final Log _log = LogFactoryUtil.getLog(SitePageTools.class);
 
 	private static final Map<String, String> _pageSpecCache =
+		new ConcurrentHashMap<>();
+
+	private static final Map<String, JSONObject> _settingsCache =
 		new ConcurrentHashMap<>();
 
 	private static final Set<String> _readOnlyKeys = Set.of(

@@ -42,6 +42,17 @@ public class ToolsUtil {
 			return new Object[] {new CatalogBuilderTools(companyId)};
 		}
 
+		if (_siteBuilderNodeNames.contains(currentKaleoNode.getName())) {
+			return new Object[] {
+				new SiteBuilderTools(
+					GetterUtil.getString(workflowContext.get("accessToken")),
+					companyId,
+					GetterUtil.getString(
+						workflowContext.get("sseEventSinkKey")),
+					GetterUtil.getString(workflowContext.get("userToken")))
+			};
+		}
+
 		if (_fragmentLoaderNodeNames.contains(currentKaleoNode.getName())) {
 			return new Object[] {
 				new SiteFragmentTools(
@@ -95,6 +106,10 @@ public class ToolsUtil {
 
 	private static final Set<String> _pageSpecToIRNodeNames = Set.of(
 		"pageSpecToIR");
+
+	private static final Set<String> _siteBuilderNodeNames = Set.of(
+		"cacheFragments", "cacheSitePlan", "createFragments", "createPages",
+		"createSite");
 
 	private static final Set<String> _sitePageToolsNodeNames = Set.of(
 		"pageFetcher", "pageUpdater");
