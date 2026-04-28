@@ -37,7 +37,6 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -51,11 +50,11 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 /**
- * Standalone Object Action that commits a Content Generator Run by merging the
- * JSON of its artifacts into a single array and submitting it to the Headless
- * Batch Engine. The batch routing values (className, delegateName, fileName)
- * are read from the artifact, so each agent (CMS Blog Builder, Space Builder,
- * etc.) decides at emit time which batch delegate processes the items.
+ * Standalone Object Action that commits a Content Generator Run by submitting
+ * each of its artifacts to the Headless Batch Engine, one at a time, in the
+ * order defined by the artifact's loadOrder field. Each artifact carries a
+ * full {configuration, items} envelope and is dispatched to whatever batch
+ * delegate the envelope's className / taskItemDelegateName resolves to.
  *
  * Invoked by the auto-generated endpoint:
  *   PUT /o/content-site-generator/runs/by-external-reference-code/{erc}/object-actions/commit
@@ -99,21 +98,23 @@ public class CommitContentSiteGeneratorRunObjectActionExecutor
 		executorService.submit(() -> _runCommit(companyId, userId, runId));
 	}
 
-	private boolean _awaitTerminal(long taskId) throws InterruptedException {
+	private boolean _awaitTerminal(String fileName, long taskId)
+		throws InterruptedException {
+
 		long deadline = System.currentTimeMillis() + _TIMEOUT_MS;
 
 		while (System.currentTimeMillis() < deadline) {
 			Thread.sleep(_POLL_INTERVAL_MS);
 
-			BatchEngineImportTask batchEngineImportTask =
+			BatchEngineImportTask task =
 				_batchEngineImportTaskLocalService.fetchBatchEngineImportTask(
 					taskId);
 
-			if (batchEngineImportTask == null) {
+			if (task == null) {
 				continue;
 			}
 
-			String status = batchEngineImportTask.getExecuteStatus();
+			String status = task.getExecuteStatus();
 
 			if (Objects.equals(
 					BatchEngineTaskExecuteStatus.FAILED.name(), status)) {
@@ -130,7 +131,7 @@ public class CommitContentSiteGeneratorRunObjectActionExecutor
 
 		_log.error(
 			StringBundler.concat(
-				"Batch task ", taskId, " timed out after ", _TIMEOUT_MS, "ms"));
+				"Artifact ", fileName, " timed out after ", _TIMEOUT_MS, "ms"));
 
 		return false;
 	}
@@ -173,6 +174,19 @@ public class CommitContentSiteGeneratorRunObjectActionExecutor
 
 			String runERC = runObjectEntry.getExternalReferenceCode();
 
+			Map<String, Serializable> runValues =
+				_objectEntryLocalService.getValues(runId);
+
+			String currentStatus = GetterUtil.getString(
+				runValues.get("runStatus"));
+
+			if (!_committableStates.contains(currentStatus)) {
+				throw new PortalException(
+					StringBundler.concat(
+						"Run ", runERC, " is not in a committable state: ",
+						currentStatus));
+			}
+
 			ObjectDefinition artifactObjectDefinition =
 				_objectDefinitionLocalService.
 					fetchObjectDefinitionByExternalReferenceCode(
@@ -209,68 +223,24 @@ public class CommitContentSiteGeneratorRunObjectActionExecutor
 			}
 
 			artifacts.sort(
-				Comparator.comparingInt(a -> GetterUtil.getInteger(
-					artifactValues.get(
-						a.getObjectEntryId()
-					).get(
-						"loadOrder"
-					))));
+				(a, b) -> Integer.compare(
+					GetterUtil.getInteger(
+						artifactValues.get(
+							a.getObjectEntryId()
+						).get(
+							"loadOrder"
+						)),
+					GetterUtil.getInteger(
+						artifactValues.get(
+							b.getObjectEntryId()
+						).get(
+							"loadOrder"
+						))));
 
 			if (artifacts.isEmpty()) {
 				throw new PortalException(
 					"Run " + runERC + " has no artifacts to commit");
 			}
-
-			JSONArray jsonArray = JSONFactoryUtil.createJSONArray();
-
-			for (ObjectEntry artifact : artifacts) {
-				String json = GetterUtil.getString(
-					artifactValues.get(
-						artifact.getObjectEntryId()
-					).get(
-						"json"
-					));
-
-				if (Validator.isBlank(json)) {
-					continue;
-				}
-
-				JSONArray artifactItems = JSONFactoryUtil.createJSONArray(json);
-
-				for (int i = 0; i < artifactItems.length(); i++) {
-					jsonArray.put(artifactItems.getJSONObject(i));
-				}
-			}
-
-			if (jsonArray.length() == 0) {
-				throw new PortalException(
-					"Run " + runERC + " has no items to commit");
-			}
-
-			Map<String, Serializable> firstArtifactValues = artifactValues.get(
-				artifacts.get(
-					0
-				).getObjectEntryId());
-
-			String className = GetterUtil.getString(
-				firstArtifactValues.get("className"));
-			String delegateName = GetterUtil.getString(
-				firstArtifactValues.get("delegateName"));
-			String fileName = GetterUtil.getString(
-				firstArtifactValues.get("fileName"));
-
-			if (Validator.isBlank(className) || Validator.isBlank(delegateName) ||
-				Validator.isBlank(fileName)) {
-
-				throw new PortalException(
-					StringBundler.concat(
-						"Run ", runERC,
-						" artifact is missing batch routing values ",
-						"(className, delegateName, fileName)"));
-			}
-
-			Map<String, Serializable> runValues =
-				_objectEntryLocalService.getValues(runId);
 
 			Map<String, Serializable> updates = new HashMap<>(runValues);
 
@@ -280,49 +250,46 @@ public class CommitContentSiteGeneratorRunObjectActionExecutor
 			_objectEntryLocalService.updateObjectEntry(
 				userId, runId, 0L, updates, new ServiceContext());
 
-			BatchEngineTaskItemDelegate<?> batchEngineTaskItemDelegate =
-				_batchEngineTaskItemDelegateRegistry.
-					getBatchEngineTaskItemDelegate(
-						companyId, className, delegateName);
+			for (ObjectEntry artifact : artifacts) {
+				Map<String, Serializable> values = artifactValues.get(
+					artifact.getObjectEntryId());
 
-			if (batchEngineTaskItemDelegate == null) {
-				throw new PortalException(
-					StringBundler.concat(
-						"No batch engine task item delegate registered for ",
-						className, " / ", delegateName));
+				String fileName = GetterUtil.getString(values.get("fileName"));
+				String json = GetterUtil.getString(values.get("json"));
+
+				if (Validator.isBlank(json)) {
+					if (_log.isWarnEnabled()) {
+						_log.warn(
+							"Skipping artifact " + fileName +
+								" due to missing envelope");
+					}
+
+					continue;
+				}
+
+				BatchEngineImportTask batchEngineImportTask = _submitEnvelope(
+					companyId, userId, fileName, json);
+
+				if (batchEngineImportTask == null) {
+					continue;
+				}
+
+				boolean succeeded = _awaitTerminal(
+					fileName,
+					batchEngineImportTask.getBatchEngineImportTaskId());
+
+				if (!succeeded) {
+					_finalizeRun(
+						userId, runId, true,
+						StringBundler.concat(
+							"Artifact ", fileName,
+							" failed; see batch engine task errors"));
+
+					return;
+				}
 			}
 
-			Map<String, Serializable> parameters = new HashMap<>();
-
-			parameters.put("createStrategy", "UPSERT");
-			parameters.put("updateStrategy", "UPDATE");
-
-			String resultingSiteERC = GetterUtil.getString(
-				runValues.get("resultingSiteERC"));
-
-			if (Validator.isNotNull(resultingSiteERC)) {
-				parameters.put(
-					"siteExternalReferenceCode", resultingSiteERC);
-			}
-
-			BatchEngineImportTask batchEngineImportTask =
-				_batchEngineImportTaskLocalService.addBatchEngineImportTask(
-					null, companyId, userId, 100, null, className,
-					_zipJSON(fileName, jsonArray.toString()), "JSON",
-					BatchEngineTaskExecuteStatus.INITIAL.name(), null,
-					BatchEngineImportTaskConstants.IMPORT_STRATEGY_ON_ERROR_FAIL,
-					"CREATE", parameters, delegateName);
-
-			_batchEngineImportTaskExecutor.execute(
-				batchEngineImportTask, batchEngineTaskItemDelegate, true);
-
-			boolean succeeded = _awaitTerminal(
-				batchEngineImportTask.getBatchEngineImportTaskId());
-
-			_finalizeRun(
-				userId, runId, !succeeded,
-				succeeded ? null :
-					"Batch import failed; see batch engine task errors");
+			_finalizeRun(userId, runId, false, null);
 		}
 		catch (Exception exception) {
 			_log.error("Commit failed for run " + runId, exception);
@@ -337,6 +304,114 @@ public class CommitContentSiteGeneratorRunObjectActionExecutor
 					"Unable to mark run failed: " + runId, finalizeException);
 			}
 		}
+	}
+
+	private BatchEngineImportTask _submitEnvelope(
+			long companyId, long userId, String fileName, String envelopeJSON)
+		throws Exception {
+
+		JSONObject envelope = JSONFactoryUtil.createJSONObject(envelopeJSON);
+
+		JSONObject configuration = envelope.getJSONObject("configuration");
+
+		if (configuration == null) {
+			_log.warn(
+				"Skipping artifact " + fileName +
+					" because envelope has no configuration");
+
+			return null;
+		}
+
+		String className = configuration.getString("className");
+
+		if (Validator.isNull(className)) {
+			_log.warn(
+				"Skipping artifact " + fileName +
+					" because configuration has no className");
+
+			return null;
+		}
+
+		String taskItemDelegateName = GetterUtil.getString(
+			configuration.getString("taskItemDelegateName"), "DEFAULT");
+
+		Map<String, Serializable> parameters = _toSerializableMap(
+			configuration.getJSONObject("parameters"));
+
+		Map<String, String> fieldNameMappingMap = _toStringMap(
+			configuration.getJSONObject("fieldNameMappingMap"));
+
+		JSONArray items = envelope.getJSONArray("items");
+
+		if ((items == null) || (items.length() == 0)) {
+			_log.warn(
+				"Skipping artifact " + fileName + " because items is empty");
+
+			return null;
+		}
+
+		BatchEngineTaskItemDelegate<?> batchEngineTaskItemDelegate =
+			_batchEngineTaskItemDelegateRegistry.getBatchEngineTaskItemDelegate(
+				companyId, className, taskItemDelegateName);
+
+		if (batchEngineTaskItemDelegate == null) {
+			_log.warn(
+				StringBundler.concat(
+					"Skipping artifact ", fileName, " because no delegate ",
+					"registered for ", className, " / ", taskItemDelegateName));
+
+			return null;
+		}
+
+		BatchEngineImportTask batchEngineImportTask =
+			_batchEngineImportTaskLocalService.addBatchEngineImportTask(
+				null, companyId, userId, 100, null, className,
+				_zipJSON(fileName, items.toString()), "JSON",
+				BatchEngineTaskExecuteStatus.INITIAL.name(), fieldNameMappingMap,
+				BatchEngineImportTaskConstants.IMPORT_STRATEGY_ON_ERROR_FAIL,
+				"CREATE", parameters, taskItemDelegateName);
+
+		_batchEngineImportTaskExecutor.execute(
+			batchEngineImportTask, batchEngineTaskItemDelegate, true);
+
+		return batchEngineImportTask;
+	}
+
+	private Map<String, Serializable> _toSerializableMap(
+		JSONObject jsonObject) {
+
+		if (jsonObject == null) {
+			return null;
+		}
+
+		Map<String, Serializable> map = new HashMap<>();
+
+		for (String key : jsonObject.keySet()) {
+			Object value = jsonObject.get(key);
+
+			if (value instanceof Serializable) {
+				map.put(key, (Serializable)value);
+			}
+			else if (value != null) {
+				map.put(key, value.toString());
+			}
+		}
+
+		return map;
+	}
+
+	private Map<String, String> _toStringMap(JSONObject jsonObject) {
+		if (jsonObject == null) {
+			return null;
+		}
+
+		Map<String, String> map = new HashMap<>();
+
+		for (String key : jsonObject.keySet()) {
+			map.put(key, jsonObject.getString(key));
+		}
+
+		return map;
 	}
 
 	private byte[] _zipJSON(String fileName, String json) throws Exception {
@@ -372,6 +447,9 @@ public class CommitContentSiteGeneratorRunObjectActionExecutor
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		CommitContentSiteGeneratorRunObjectActionExecutor.class);
+
+	private static final List<String> _committableStates = List.of(
+		"ready", "failed");
 
 	@Reference
 	private BatchEngineImportTaskExecutor _batchEngineImportTaskExecutor;
