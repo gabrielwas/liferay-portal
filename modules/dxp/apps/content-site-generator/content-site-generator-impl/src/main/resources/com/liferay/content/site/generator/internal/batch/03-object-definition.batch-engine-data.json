@@ -72,13 +72,14 @@
 				},
 				{
 					"DBType": "Clob",
-					"businessType": "LongText",
+					"businessType": "RichText",
 					"externalReferenceCode": "L_CSG_ARTIFACT_JSON",
 					"indexed": false,
 					"indexedAsKeyword": false,
 					"label": {
 						"en_US": "JSON"
 					},
+					"localized": false,
 					"name": "json",
 					"required": true,
 					"state": false,
