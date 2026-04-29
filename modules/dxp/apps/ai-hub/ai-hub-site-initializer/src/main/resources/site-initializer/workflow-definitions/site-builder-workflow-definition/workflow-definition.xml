@@ -533,9 +533,11 @@ Output:
 			</transition>
 		</transitions>
 		<user-message>
-			Generate at least 8 blog posts for the following site:
+			Decide whether the request below asks for blog posts (or articles, news, posts) for this site.
+			- If the request explicitly asks for blogs/articles/news/posts, emit the JSON array following the schema and escaping rules defined in the system prompt. If a count is given, emit exactly that many; otherwise emit between 2 and 6, sized to the request.
+			- If the request does NOT ask for blogs (for example, it only asks for a site, pages, or fragments), emit an empty JSON array `[]` and nothing else.
+			Request:
 			{{request}}
-			Return the result as a JSON array following the schema and escaping rules defined in the system prompt.
 		</user-message>
 	</llm>
 	<tool>
@@ -558,6 +560,39 @@ Output:
 		<tool-name>createPages</tool-name>
 		<input-variables><![CDATA[[{"name":"blogEntries","type":"string"}]]]></input-variables>
 		<output-variables><![CDATA[[{"name":"pagesResult","type":"string"}]]]></output-variables>
+		<transitions>
+			<transition>
+				<labels>
+					<label language-id="en_US">
+						Mark Run Ready
+					</label>
+				</labels>
+				<name>markRunReady</name>
+				<target>markRunReady</target>
+				<default>true</default>
+			</transition>
+		</transitions>
+	</tool>
+	<tool>
+		<name>markRunReady</name>
+		<metadata>
+			<![CDATA[
+				{
+					"xy": [
+						300,
+						1450
+					]
+				}
+			]]>
+		</metadata>
+		<labels>
+			<label language-id="en_US">
+				Mark Run Ready
+			</label>
+		</labels>
+		<tool-name>markRunReady</tool-name>
+		<input-variables><![CDATA[[]]]></input-variables>
+		<output-variables><![CDATA[[{"name":"markRunReadyResult","type":"string"}]]]></output-variables>
 		<transitions>
 			<transition>
 				<labels>

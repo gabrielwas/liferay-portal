@@ -6,6 +6,7 @@
 package com.liferay.ai.hub.internal.tools;
 
 import com.liferay.ai.hub.internal.memory.SessionVariablesUtil;
+import com.liferay.ai.hub.rest.resource.v1_0.util.SseUtil;
 import com.liferay.oauth2.provider.model.OAuth2Application;
 import com.liferay.oauth2.provider.model.OAuth2Authorization;
 import com.liferay.oauth2.provider.service.OAuth2ApplicationLocalServiceUtil;
@@ -23,16 +24,16 @@ import com.liferay.portal.kernel.servlet.HttpHeaders;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.Http;
 import com.liferay.portal.kernel.util.HttpUtil;
+import com.liferay.portal.kernel.util.URLCodec;
 import com.liferay.portal.kernel.util.Validator;
 
 import dev.langchain4j.agent.tool.P;
 import dev.langchain4j.agent.tool.Tool;
 
-import java.io.File;
-import java.io.FileWriter;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -91,6 +92,13 @@ public class SiteBuilderTools {
 			_log.error("Failed to fix duplicate editable IDs", exception);
 		}
 
+		try {
+			enrichedSitePlan = _fixEditableTypes(enrichedSitePlan);
+		}
+		catch (Exception exception) {
+			_log.error("Failed to fix editable types", exception);
+		}
+
 		SessionVariablesUtil.putVariable(
 			_sseEventSinkKey, "enrichedSitePlan", enrichedSitePlan);
 
@@ -123,12 +131,14 @@ public class SiteBuilderTools {
 		}
 	}
 
-	@Tool("Write batch engine JSON files for site, fragment-set, fragments, and pages to bundles/data/")
-	public String writeBatchFiles() {
+	@Tool(
+		"Mark the Content Generator Run linked to this chat as 'ready' so the user can click Generate to commit the artifacts. Call this after createPages has finished posting all artifacts."
+	)
+	public String markRunReady() {
 		try (SafeCloseable safeCloseable =
 				CompanyThreadLocal.setCompanyIdWithSafeCloseable(_companyId)) {
 
-			return _writeBatchFiles(null);
+			return _patchRunStatus("ready");
 		}
 		catch (Exception exception) {
 			return ReflectionUtil.throwException(exception);
@@ -341,6 +351,82 @@ public class SiteBuilderTools {
 		return fixedPlan;
 	}
 
+	private String _fixEditableTypes(String enrichedSitePlan)
+		throws Exception {
+
+		JSONObject planJSON = JSONFactoryUtil.createJSONObject(enrichedSitePlan);
+
+		JSONArray customFragments = planJSON.getJSONArray("customFragments");
+
+		if ((customFragments == null) || (customFragments.length() == 0)) {
+			return enrichedSitePlan;
+		}
+
+		boolean modified = false;
+
+		for (int i = 0; i < customFragments.length(); i++) {
+			JSONObject fragment = customFragments.getJSONObject(i);
+
+			String html = fragment.getString("html");
+
+			if (Validator.isNull(html)) {
+				continue;
+			}
+
+			String fixed = _fixEditableTypesInHtml(html);
+
+			if (!Objects.equals(fixed, html)) {
+				fragment.put("html", fixed);
+
+				modified = true;
+			}
+		}
+
+		if (!modified) {
+			return enrichedSitePlan;
+		}
+
+		return planJSON.toString();
+	}
+
+	private String _fixEditableTypesInHtml(String html) {
+		String result = _rewriteEditableType(
+			html, _anchorEditableTypePattern, "link");
+
+		result = _rewriteEditableType(
+			result, _imageEditableTypePattern, "image");
+
+		return result;
+	}
+
+	private String _rewriteEditableType(
+		String html, Pattern pattern, String allowedType) {
+
+		Matcher matcher = pattern.matcher(html);
+
+		StringBuffer sb = new StringBuffer();
+
+		while (matcher.find()) {
+			String currentType = matcher.group(2);
+
+			if (Objects.equals(currentType, allowedType)) {
+				matcher.appendReplacement(
+					sb, Matcher.quoteReplacement(matcher.group(0)));
+
+				continue;
+			}
+
+			matcher.appendReplacement(
+				sb,
+				Matcher.quoteReplacement(
+					matcher.group(1) + "\"" + allowedType + "\""));
+		}
+
+		matcher.appendTail(sb);
+
+		return sb.toString();
+	}
+
 	private void _fixContentReferences(
 		JSONArray elements, String fragmentKey,
 		Map<String, Integer> totalOccurrences) {
@@ -435,12 +521,6 @@ public class SiteBuilderTools {
 		String siteERC = siteJSON.getString("externalReferenceCode");
 		String siteTitle = siteJSON.getString("name");
 
-		String dataDir = System.getProperty("liferay.home", ".") + "/data";
-
-		File dataDirFile = new File(dataDir);
-
-		dataDirFile.mkdirs();
-
 		StringBuilder results = new StringBuilder();
 
 		// 01-site
@@ -460,9 +540,12 @@ public class SiteBuilderTools {
 		siteBatch.put(
 			"items", JSONFactoryUtil.createJSONArray().put(siteItem));
 
-		_writeFile(dataDir + "/01-site.batch-engine-data.json", siteBatch);
+		_postArtifact(
+			"01-site.batch-engine-data.json",
+			"com.liferay.headless.admin.site.dto.v1_0.Site", "DEFAULT", 0,
+			siteBatch);
 
-		results.append("Wrote 01-site.batch-engine-data.json\n");
+		results.append("Posted 01-site.batch-engine-data.json\n");
 
 		// 02-asset-library
 
@@ -485,11 +568,12 @@ public class SiteBuilderTools {
 			"items",
 			JSONFactoryUtil.createJSONArray().put(assetLibraryItem));
 
-		_writeFile(
-			dataDir + "/02-asset-library.batch-engine-data.json",
-			assetLibraryBatch);
+		_postArtifact(
+			"02-asset-library.batch-engine-data.json",
+			"com.liferay.headless.asset.library.dto.v1_0.AssetLibrary",
+			"DEFAULT", 1, assetLibraryBatch);
 
-		results.append("Wrote 02-asset-library.batch-engine-data.json\n");
+		results.append("Posted 02-asset-library.batch-engine-data.json\n");
 
 		// 03-connected-site
 
@@ -529,12 +613,13 @@ public class SiteBuilderTools {
 			"items",
 			JSONFactoryUtil.createJSONArray().put(connectedSiteItem));
 
-		_writeFile(
-			dataDir + "/03-connected-site.batch-engine-data.json",
-			connectedSiteBatch);
+		_postArtifact(
+			"03-connected-site.batch-engine-data.json",
+			"com.liferay.headless.asset.library.dto.v1_0.ConnectedSite",
+			"DEFAULT", 2, connectedSiteBatch);
 
 		results.append(
-			"Wrote 03-connected-site.batch-engine-data.json\n");
+			"Posted 03-connected-site.batch-engine-data.json\n");
 
 		// 04-fragment-set
 
@@ -553,11 +638,12 @@ public class SiteBuilderTools {
 		fragmentSetBatch.put(
 			"items", JSONFactoryUtil.createJSONArray().put(fragmentSetItem));
 
-		_writeFile(
-			dataDir + "/04-fragment-set.batch-engine-data.json",
-			fragmentSetBatch);
+		_postArtifact(
+			"04-fragment-set.batch-engine-data.json",
+			"com.liferay.headless.admin.fragment.dto.v1_0.FragmentSet",
+			"DEFAULT", 3, fragmentSetBatch);
 
-		results.append("Wrote 04-fragment-set.batch-engine-data.json\n");
+		results.append("Posted 04-fragment-set.batch-engine-data.json\n");
 
 		// 05-fragments
 
@@ -612,10 +698,12 @@ public class SiteBuilderTools {
 
 		fragmentsBatch.put("items", fragmentItems);
 
-		_writeFile(
-			dataDir + "/05-fragments.batch-engine-data.json", fragmentsBatch);
+		_postArtifact(
+			"05-fragments.batch-engine-data.json",
+			"com.liferay.headless.admin.fragment.dto.v1_0.Fragment", "DEFAULT",
+			4, fragmentsBatch);
 
-		results.append("Wrote 05-fragments.batch-engine-data.json\n");
+		results.append("Posted 05-fragments.batch-engine-data.json\n");
 
 		// 06-pages
 
@@ -784,10 +872,12 @@ public class SiteBuilderTools {
 
 		pagesBatch.put("items", pageItems);
 
-		_writeFile(
-			dataDir + "/06-pages.batch-engine-data.json", pagesBatch);
+		_postArtifact(
+			"06-pages.batch-engine-data.json",
+			"com.liferay.headless.admin.site.dto.v1_0.SitePage", "DEFAULT", 5,
+			pagesBatch);
 
-		results.append("Wrote 06-pages.batch-engine-data.json\n");
+		results.append("Posted 06-pages.batch-engine-data.json\n");
 
 		// 07-blogs
 
@@ -816,7 +906,17 @@ public class SiteBuilderTools {
 				}
 			}
 
-			if (blogArray != null) {
+			if (blogArray == null) {
+				_log.error(
+					"Failed to parse blogEntries as JSON array. Raw:\n" +
+						blogEntries);
+			}
+			else if (blogArray.length() == 0) {
+				results.append(
+					"Skipped 07-blogs.batch-engine-data.json (no blogs " +
+						"requested)\n");
+			}
+			else {
 				JSONObject blogsBatch = JSONFactoryUtil.createJSONObject();
 
 				JSONObject blogsConfig = JSONFactoryUtil.createJSONObject();
@@ -841,15 +941,12 @@ public class SiteBuilderTools {
 				blogsBatch.put("configuration", blogsConfig);
 				blogsBatch.put("items", blogArray);
 
-				_writeFile(
-					dataDir + "/07-blogs.batch-engine-data.json", blogsBatch);
+				_postArtifact(
+					"07-blogs.batch-engine-data.json",
+					"com.liferay.object.rest.dto.v1_0.ObjectEntry", "CMSBlog",
+					6, blogsBatch);
 
-				results.append("Wrote 07-blogs.batch-engine-data.json\n");
-			}
-			else {
-				_log.error(
-					"Failed to parse blogEntries as JSON array. Raw:\n" +
-						blogEntries);
+				results.append("Posted 07-blogs.batch-engine-data.json\n");
 			}
 		}
 
@@ -891,12 +988,103 @@ public class SiteBuilderTools {
 		return wrapper;
 	}
 
-	private void _writeFile(String path, JSONObject jsonObject)
+	private void _postArtifact(
+			String fileName, String className, String delegateName,
+			int loadOrder, JSONObject envelope)
 		throws Exception {
 
-		try (FileWriter writer = new FileWriter(path)) {
-			writer.write(jsonObject.toString());
+		String location =
+			_getBaseURL() + "/o/content-site-generator/artifacts/";
+
+		JSONObject body = JSONFactoryUtil.createJSONObject();
+
+		body.put("className", className);
+		body.put("delegateName", delegateName);
+		body.put("fileName", fileName);
+		body.put("json", envelope.toString());
+		body.put("loadOrder", loadOrder);
+		body.put("r_artifacts_l_contentGeneratorRunERC", _sseEventSinkKey);
+
+		// Authenticate via the AI Hub Cell on-behalf-of JWT only. Adding an
+		// Authorization Bearer header would route the request through the
+		// OAuth2 verifier instead of AIHubCellRequestAuthVerifier, skipping
+		// the AI_HUB_CELL_TOKEN SAP attachment and producing a 403.
+
+		Http.Options options = new Http.Options();
+
+		options.addHeader(
+			HttpHeaders.CONTENT_TYPE, ContentTypes.APPLICATION_JSON);
+		options.addHeader("Liferay-AI-Hub-Cell-On-Behalf-Of", _userToken);
+		options.setBody(
+			body.toString(), ContentTypes.APPLICATION_JSON, "UTF-8");
+		options.setLocation(location);
+		options.setMethod(Http.Method.POST);
+
+		String responseBody = HttpUtil.URLtoString(options);
+
+		int responseCode = options.getResponse(
+		).getResponseCode();
+
+		if ((responseCode < 200) || (responseCode >= 300)) {
+			_log.error(
+				StringBundler.concat(
+					"POST ", location, " failed with HTTP ", responseCode,
+					". Response: ", responseBody));
+
+			return;
 		}
+
+		// Notify the chat eventSource that a new artifact landed so the
+		// Refine step's preview refetches in real time. Refine subscribes to
+		// "Artifacts Updated" via REGENERATION_EVENT_TYPES.
+
+		SseUtil.send(fileName, "Artifacts Updated", null, _sseEventSinkKey);
+	}
+
+	private String _patchRunStatus(String runStatus) throws Exception {
+		String location = StringBundler.concat(
+			_getBaseURL(),
+			"/o/content-site-generator/runs/by-external-reference-code/",
+			URLCodec.encodeURL(_sseEventSinkKey));
+
+		JSONObject body = JSONFactoryUtil.createJSONObject();
+
+		body.put("runStatus", runStatus);
+
+		// Authenticate via the AI Hub Cell on-behalf-of JWT only. Same reason
+		// as _postArtifact.
+
+		Http.Options options = new Http.Options();
+
+		options.addHeader(
+			HttpHeaders.CONTENT_TYPE, ContentTypes.APPLICATION_JSON);
+		options.addHeader("Liferay-AI-Hub-Cell-On-Behalf-Of", _userToken);
+		options.setBody(
+			body.toString(), ContentTypes.APPLICATION_JSON, "UTF-8");
+		options.setLocation(location);
+		options.setMethod(Http.Method.PATCH);
+
+		String responseBody = HttpUtil.URLtoString(options);
+
+		int responseCode = options.getResponse(
+		).getResponseCode();
+
+		if ((responseCode < 200) || (responseCode >= 300)) {
+			_log.error(
+				StringBundler.concat(
+					"PATCH ", location, " failed with HTTP ", responseCode,
+					". Response: ", responseBody));
+
+			return StringBundler.concat(
+				"Error: HTTP ", responseCode, ". ", responseBody);
+		}
+
+		// Notify the chat eventSource that the run state changed so Refine
+		// re-fetches the run and unblocks the Generate button.
+
+		SseUtil.send(runStatus, "Run Updated", null, _sseEventSinkKey);
+
+		return "Run marked as " + runStatus;
 	}
 
 	private void _appendDraftSuffix(JSONArray elements) {
@@ -1302,8 +1490,14 @@ public class SiteBuilderTools {
 		"{\"fieldSets\":[{\"fields\":[{\"name\":\"source\"," +
 			"\"label\":\"source\",\"type\":\"navigationMenuSelector\"}]}]}";
 
+	private static final Pattern _anchorEditableTypePattern = Pattern.compile(
+		"(<a\\b[^>]*?\\bdata-lfr-editable-type=)\"([^\"]*)\"");
+
 	private static final Pattern _editableIdPattern = Pattern.compile(
 		"data-lfr-editable-id=\"([^\"]+)\"");
+
+	private static final Pattern _imageEditableTypePattern = Pattern.compile(
+		"(<img\\b[^>]*?\\bdata-lfr-editable-type=)\"([^\"]*)\"");
 
 	private static final Pattern _missingCommaPattern = Pattern.compile(
 		"(\"\\s*(?:\"[^\"]*\"|\\d+(?:\\.\\d+)?|true|false|null|\\}|\\]))\\s*(\"[^\"]*\"\\s*:)");
