@@ -15,7 +15,6 @@ import StepActions from './components/StepActions';
 import SummaryCard from './components/SummaryCard';
 import {getArtifacts} from './services/artifacts';
 import {getRun} from './services/runs';
-import {getSiteByExternalReferenceCode} from './services/sites';
 import {Artifact} from './types/Artifact';
 import {Run as RunType} from './types/Run';
 
@@ -307,31 +306,6 @@ export default function ReviewAndPublishStep({
 			return;
 		}
 
-		const externalReferenceCode = run?.resultingSiteERC;
-
-		if (!externalReferenceCode) {
-			if (cancelURL) {
-				Liferay.Util.navigate(cancelURL);
-			}
-
-			return;
-		}
-
-		try {
-			const site = await getSiteByExternalReferenceCode(
-				externalReferenceCode
-			);
-
-			if (site?.friendlyUrlPath) {
-				Liferay.Util.navigate(`/web${site.friendlyUrlPath}`);
-
-				return;
-			}
-		}
-		catch (exception) {
-			// Fall through to cancelURL.
-		}
-
 		if (cancelURL) {
 			Liferay.Util.navigate(cancelURL);
 		}
@@ -510,12 +484,6 @@ export default function ReviewAndPublishStep({
 						);
 					})}
 				</ul>
-			)}
-
-			{mode === 'review' && !run?.resultingSiteERC && (
-				<ClayAlert className="mb-3" displayType="warning">
-					{Liferay.Language.get('no-resulting-site-was-recorded')}
-				</ClayAlert>
 			)}
 
 			<StepActions
