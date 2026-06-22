@@ -23,6 +23,7 @@ import java.net.http.HttpResponse;
 
 import java.time.Duration;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -88,7 +89,11 @@ public class SseEventSourceTestUtil {
 					String line = "";
 
 					while ((line = bufferedReader.readLine()) != null) {
-						if (line.isEmpty()) {
+
+						// Ignore empty lines and SSE comment lines (such as
+						// the reaper heartbeat), as a real SSE client does.
+
+						if (line.isEmpty() || line.startsWith(":")) {
 							continue;
 						}
 
@@ -126,6 +131,62 @@ public class SseEventSourceTestUtil {
 		Assert.assertEquals("data: " + sseEventSinkKey, lines.get(1));
 
 		return sseEventSinkKey;
+	}
+
+	public static void openExpectingRejection(String uri) throws Exception {
+		String credentials =
+			"test@liferay.com:" + PropsValues.DEFAULT_ADMIN_PASSWORD;
+
+		HttpClient httpClient = HttpClient.newBuilder(
+		).connectTimeout(
+			Duration.ofSeconds(5)
+		).build();
+
+		List<String> lines = new ArrayList<>();
+
+		CompletableFuture<HttpResponse<InputStream>> completableFuture =
+			httpClient.sendAsync(
+				HttpRequest.newBuilder(
+				).header(
+					"Accept", "text/event-stream"
+				).header(
+					"Authorization",
+					"Basic " + Base64.encode(credentials.getBytes())
+				).uri(
+					URI.create(
+						"http://localhost:" +
+							PortalUtil.getPortalServerPort(false) +
+								"/o/ai-hub/v1.0/" + uri)
+				).GET(
+				).build(),
+				HttpResponse.BodyHandlers.ofInputStream());
+
+		CompletableFuture<Void> drainCompletableFuture =
+			completableFuture.thenAccept(
+				response -> {
+					try (InputStream inputStream = response.body();
+
+						BufferedReader bufferedReader = new BufferedReader(
+							new InputStreamReader(inputStream))) {
+
+						String line = "";
+
+						while ((line = bufferedReader.readLine()) != null) {
+							if (!line.isEmpty() && !line.startsWith(":")) {
+								lines.add(line);
+							}
+						}
+					}
+					catch (Exception exception) {
+						_log.error(exception);
+					}
+				});
+
+		drainCompletableFuture.get(10, TimeUnit.SECONDS);
+
+		Assert.assertTrue(
+			"Expected a rejected subscription but received " + lines,
+			lines.isEmpty());
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
