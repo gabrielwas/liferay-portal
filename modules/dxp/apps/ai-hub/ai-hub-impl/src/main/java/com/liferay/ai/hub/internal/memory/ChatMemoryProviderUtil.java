@@ -14,6 +14,10 @@ import dev.langchain4j.store.memory.chat.InMemoryChatMemoryStore;
  */
 public class ChatMemoryProviderUtil {
 
+	public static void delete(Object memoryId) {
+		_inMemoryChatMemoryStore.deleteMessages(memoryId);
+	}
+
 	public static MessageWindowChatMemory provide(Object memoryId) {
 		return MessageWindowChatMemory.builder(
 		).chatMemoryStore(
